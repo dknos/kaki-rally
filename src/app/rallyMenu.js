@@ -514,7 +514,7 @@ export class RallyMenu {
   }
 
   async handleClick(event) {
-    const modeButton = event.target.closest('[data-mode]');
+    const modeButton = event.target.closest('button[data-mode]');
     if (modeButton) {
       this.selectMode(modeButton.dataset.mode);
       return;

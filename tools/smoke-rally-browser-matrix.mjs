@@ -210,6 +210,23 @@ async function startMode(page, mode, courseId, options = {}) {
   return page.evaluate(() => window.__kakiRally.getDiagnostics());
 }
 
+async function startModeFromMenu(page, spec) {
+  await page.click(`.rally-mode-rail button[data-mode="${spec.mode}"]`);
+  await page.waitForFunction((mode) => (
+    document.querySelector('.rally-setup')?.dataset.mode === mode
+  ), spec.mode);
+  if (spec.options.carCount != null) {
+    await page.selectOption('.rally-setup select[name="carCount"]', String(spec.options.carCount));
+  }
+  await page.click('.rally-setup [data-action="launch"]');
+  await page.waitForFunction((expected) => (
+    window.__kakiRally?.getDiagnostics?.().activeMode === expected
+    && window.__kakiRally?.getDiagnostics?.().hudRoots === 1
+  ), spec.mode, { timeout: 120_000 });
+  await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
+  return page.evaluate(() => window.__kakiRally.getDiagnostics());
+}
+
 async function skipCountdown(page) {
   const skipped = await page.evaluate(() => window.__kkRacing?.skipCountdown?.() !== false);
   assert(skipped, 'QA countdown hook was unavailable');
@@ -342,7 +359,9 @@ async function assertPauseRestartExitReentry(page, spec, evidence) {
 }
 
 async function runRoadMode(page, spec, backend, evidence) {
-  const opening = await startMode(page, spec.mode, spec.courseId, spec.options);
+  const opening = spec.fromMenu
+    ? await startModeFromMenu(page, spec)
+    : await startMode(page, spec.mode, spec.courseId, spec.options);
   await skipCountdown(page);
   const keyboard = await exerciseKeyboard(page);
   await exerciseTouch(page, spec.mode);
@@ -723,6 +742,7 @@ async function runWebGl(browser, origin, report) {
       courseId: 'forest',
       options: { carCount: 6 },
       mechanic: 'jump',
+      fromMenu: true,
     }, 'webgl', report.webgl.modes.circuit);
     if (requestedScope === 'all' || requestedScope === 'drift') await runRoadMode(page, {
       mode: 'drift',
