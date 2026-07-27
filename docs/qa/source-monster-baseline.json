@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-27",
+  "sourceRepository": "https://github.com/dknos/Kaki-Survivors-2",
+  "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
+  "cleanDetachedSnapshot": true,
+  "command": "FRAMES=24 WIDTH=1280 HEIGHT=720 MODES=chase BACKEND=webgl node tools/benchmark-racing-cameras-browser.mjs",
+  "environment": {
+    "viewport": [1280, 720],
+    "dpr": 1,
+    "renderer": "webgl",
+    "gpuProfile": "SwiftShader software WebGL",
+    "scene": "monster-smash",
+    "arena": "pileup-pyramid-yard",
+    "vehicle": "cyber-kaki",
+    "camera": "chase"
+  },
+  "result": {
+    "frameSamples": 24,
+    "averageFrameMs": 305.7542,
+    "p95FrameMs": 333.3,
+    "maxFrameMs": 400,
+    "cameraAverageMs": 0.0583,
+    "drawCalls": 256,
+    "triangles": 212917,
+    "estimatedGpuBytes": 173173475,
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "warnings": 40
+  },
+  "note": "Comparative CI evidence only. Warnings were repeated unused preload notices for Survivors combat and ambient assets plus software WebGL driver notices."
+}

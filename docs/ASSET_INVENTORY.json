@@ -1,0 +1,1151 @@
+{
+  "schema": 1,
+  "product": "Kaki Rally",
+  "source": {
+    "repository": "https://github.com/dknos/Kaki-Survivors-2",
+    "commit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa"
+  },
+  "importMap": [
+    {
+      "specifier": "three",
+      "target": "./vendor/three/build/three.webgpu.js"
+    },
+    {
+      "specifier": "three/addons/",
+      "target": "./vendor/three/examples/jsm/"
+    },
+    {
+      "specifier": "three/tsl",
+      "target": "./vendor/three/build/three.tsl.js"
+    },
+    {
+      "specifier": "three/webgpu",
+      "target": "./vendor/three/build/three.webgpu.js"
+    }
+  ],
+  "summary": {
+    "files": 117,
+    "bytes": 62633563,
+    "referencedFiles": 92,
+    "byKind": {
+      "support": 4,
+      "model": 24,
+      "image": 74,
+      "audio": 1,
+      "source-artifact": 1,
+      "runtime": 13
+    }
+  },
+  "files": [
+    {
+      "path": "assets/breakroom/runtime-avatars/AVATAR_OPTIMIZATION.json",
+      "bytes": 6779,
+      "sha256": "f0e3e23cb0aba8b3b39f177049782274ed918f31bab5520fdaeb465a387d717c",
+      "kind": "support",
+      "references": []
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/bezelbug.glb",
+      "bytes": 632436,
+      "sha256": "5973bdc22d7ea41f51f1e8c20bd1dcccb702133711e7bfd5af54943e05107bdc",
+      "kind": "model",
+      "references": [
+        "avatar:bezelbug"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/bomdia.glb",
+      "bytes": 458108,
+      "sha256": "dbcdc0143dcacf6e5cf0a7dd0e67ce7fa7e56a73fa4d805e4db2a2fd2a7b71df",
+      "kind": "model",
+      "references": [
+        "avatar:bomdia"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/borgirboss.glb",
+      "bytes": 701384,
+      "sha256": "56e562d07c5a2fb1fe8e50e82892f141e1f3e6395036b123386e6c0d91584555",
+      "kind": "model",
+      "references": [
+        "avatar:borgirboss"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/camper.glb",
+      "bytes": 462704,
+      "sha256": "a3ce0bcfcba0f58e0c0d9595caa4fed3b075805f80ecb2fa9d7b15525a53c52b",
+      "kind": "model",
+      "references": [
+        "avatar:camper"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/cowboykaki.glb",
+      "bytes": 483220,
+      "sha256": "1b5536b02b89a6a95fc7021c46918f834c89494fb20b3223ad71567635bbe678",
+      "kind": "model",
+      "references": [
+        "avatar:cowboy"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/mona.glb",
+      "bytes": 544612,
+      "sha256": "d7b44a723ece0a76618e84a2561b202d43e4216aa4e597567d9a6e95fe2b4689",
+      "kind": "model",
+      "references": [
+        "avatar:mona"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/mothman.glb",
+      "bytes": 514476,
+      "sha256": "14e09946ed70cd9d835f8cdfff8dcc10b6922d9f991e4539a2fd91215f9378de",
+      "kind": "model",
+      "references": [
+        "avatar:mothman"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/pipes.glb",
+      "bytes": 365800,
+      "sha256": "e31f6035b612aaf3a2dda17dcd68fc10b4be9c1b10881283f9230c3d83566b51",
+      "kind": "model",
+      "references": [
+        "avatar:pipes"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/radcat.glb",
+      "bytes": 478672,
+      "sha256": "50b741d735eff2363b5a6c6f6c1d36e3ae7b041b6f4a88c213639f1f8e538cf5",
+      "kind": "model",
+      "references": [
+        "avatar:radcat"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/rockerkaki.glb",
+      "bytes": 512464,
+      "sha256": "9fbf425a3d7afd2fb910acdc9faa25e7dc95cbc5b09b7288e7922073533948fe",
+      "kind": "model",
+      "references": [
+        "avatar:rocker"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/sote.glb",
+      "bytes": 402788,
+      "sha256": "164e7b72537dffd3a519cf97d885a2f708ea58472619b90849e18dc7a583dd2f",
+      "kind": "model",
+      "references": [
+        "avatar:sote"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/spacekitty.glb",
+      "bytes": 435600,
+      "sha256": "013ccf923e08a58cc2a0acd04978c33aa25e02ab95c3f330b8ac56322dc546c7",
+      "kind": "model",
+      "references": [
+        "avatar:space"
+      ]
+    },
+    {
+      "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
+      "bytes": 909768,
+      "sha256": "778017e0bd0c2b2dfef220a68ff27ac378f6c9bec7372106f4ececac78b8eb7e",
+      "kind": "model",
+      "references": [
+        "avatar:hero"
+      ]
+    },
+    {
+      "path": "assets/kakiland/kaki-land-key-art-gpt-v2.png",
+      "bytes": 2822370,
+      "sha256": "f74564e530c3b26c85c5bdfef374c861de82d1e72c288951c626a5a398689039",
+      "kind": "image",
+      "references": [
+        "manifest:chapterKakiLand",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/kakiland/kaki-land-sky-gpt-v2.png",
+      "bytes": 1672910,
+      "sha256": "020e272179767f865b7ac3f6601082fa0d45e10263ebe5d8c7570dadb30a8c41",
+      "kind": "image",
+      "references": [
+        "manifest:skyKakiLand",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/kakiland/kaki-land-turf-grok-v1.webp",
+      "bytes": 132150,
+      "sha256": "c5e62debfd10195f8954f794ed8976fa71db01805a2325f3da7445f9d344e329",
+      "kind": "image",
+      "references": [
+        "manifest:groundKakiLand",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/kakiland/kaki-land-turf-vertex-v1-normal.png",
+      "bytes": 589885,
+      "sha256": "58d9fd2b03c8bdfb0e74f72de3f9ce886bfd0150477412a6537c6fa3a721a2e5",
+      "kind": "image",
+      "references": [
+        "manifest:kakiTurfNormal",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/kakiland/kaki-land-turf-vertex-v1-roughness.png",
+      "bytes": 312425,
+      "sha256": "2fe876b8a698598aca2c4516e9c2e44202ef1780c016879cea97b55a62aaba73",
+      "kind": "image",
+      "references": [
+        "manifest:kakiTurfRoughness",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/kakiland/kaki-land-turf-vertex-v1.png",
+      "bytes": 2169283,
+      "sha256": "b0faab0bf90e29fc4bf8813c4aa2a20f83c1abd3c1d23b5be93959c46854c4eb",
+      "kind": "image",
+      "references": [
+        "manifest:groundKakiLandBase",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/music/menu_glitch.mp3",
+      "bytes": 5753774,
+      "sha256": "4d26005c40fc12bb84e440621cf0b747128d89eeded7684d9024a4a4f58972a5",
+      "kind": "audio",
+      "references": [
+        "source:src/core/audio.js"
+      ]
+    },
+    {
+      "path": "assets/racing/backdrops-v2/trials-crown-backdrop-v2.webp",
+      "bytes": 144792,
+      "sha256": "4cff4130e61e99a48e945a674b8a46bfe37e250b48c584ec4c46f5117d3d5444",
+      "kind": "image",
+      "references": [
+        "manifest:trialsCrownBackdropV2",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/backdrops-v2/trials-meadow-backdrop.webp",
+      "bytes": 95770,
+      "sha256": "dac0dd4ca8dbcba432265940cfb77caf80498919bf47f6430d09167f21faf6a1",
+      "kind": "image",
+      "references": [
+        "manifest:trialsMeadowBackdropV2",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/backdrops-v2/trials-quarry-backdrop.webp",
+      "bytes": 105732,
+      "sha256": "b8f6d0c2f12fdf7e55ad9c6b44b9c5955299dcef183e53db37161c59b4f8fc7d",
+      "kind": "image",
+      "references": [
+        "manifest:trialsQuarryBackdropV2",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/crash/kaki-catastrophe-vehicles-v2.glb",
+      "bytes": 1883320,
+      "sha256": "4a63431c39d1ca4272961cec854d7df893ac36361e39cb6a8d8880e2935cd317",
+      "kind": "model",
+      "references": [
+        "manifest:crashVehicleKitV2",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/crash/kaki-crash-kit-v1.glb",
+      "bytes": 1065392,
+      "sha256": "baf976d8b754629024c9eb6469dc23649cd6bf90f8dea5a0506a28d192cfff9a",
+      "kind": "model",
+      "references": [
+        "manifest:crashVehicleKit",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/crash/pawprint-moonpaw-environment-v2.glb",
+      "bytes": 1245576,
+      "sha256": "0ee552728b76b6d6dc3288d91845e94a953f93accb66235ddf0d05c13c431f97",
+      "kind": "model",
+      "references": [
+        "manifest:crashEnvironmentV2",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/crown-chaos-exterior-grok-v1.webp",
+      "bytes": 59548,
+      "sha256": "4618db9f49aa16f483cc4082d9827149e4878aa23c1855bd3b361e2eb225a357",
+      "kind": "image",
+      "references": []
+    },
+    {
+      "path": "assets/racing/domino-grand-yard-exterior-grok-v2.webp",
+      "bytes": 123090,
+      "sha256": "ebe5c3ceca3bb021f4e7e5a2affaa3aeda981a92bc8bf26db37a9ea8e49734c0",
+      "kind": "image",
+      "references": [
+        "manifest:monsterArenaBackdrop",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp",
+      "bytes": 276748,
+      "sha256": "ecbae731778c45bd9ca0cf78c428351b5c3e65ea448ba6b02612a00a6aed8801",
+      "kind": "image",
+      "references": [
+        "manifest:decalAtlas",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/kitty-monster-truck-decal-oekaki-v1.webp",
+      "bytes": 176118,
+      "sha256": "9fe704e49fa6ba3f7078606f51a063cf3d75878ec0273106a6081036fb44bbd5",
+      "kind": "image",
+      "references": []
+    },
+    {
+      "path": "assets/racing/kitty-monster-truck-decal-oekaki-v2.webp",
+      "bytes": 340798,
+      "sha256": "b5360b9cd0ed00b32c954bff2988e8e619de03303d68d80e1657c4753cb9ce34",
+      "kind": "image",
+      "references": [
+        "manifest:monsterDecal",
+        "source:index.html",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/racing/models/arena-traffic-kit-runtime-v2.glb",
+      "bytes": 1045476,
+      "sha256": "baf679ef139995a938601ce259133ef3df224766b28d000546dadf94d98c0f2d",
+      "kind": "model",
+      "references": [
+        "manifest:arenaTrafficKit",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/models/arena-traffic-kit-v1.glb",
+      "bytes": 2401940,
+      "sha256": "d15e8eedf6447463676c9be359d837507ff05e8a855637d4d5f3547ff115802c",
+      "kind": "model",
+      "references": []
+    },
+    {
+      "path": "assets/racing/models/cyber-kaki-body-v1.glb",
+      "bytes": 283044,
+      "sha256": "aa5621e29b01e9ced99d7b9e47dfe90f153d68c49158253dd7a8713d5f5f1734",
+      "kind": "model",
+      "references": [
+        "manifest:cyberKakiBody",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/models/kaki-rally-environment-kit-v2.glb",
+      "bytes": 860292,
+      "sha256": "259a60a24c0cb6e82015a59e85ebe2d648951df431231382c61926767eb9b527",
+      "kind": "model",
+      "references": [
+        "manifest:environmentKitV2",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/models/mighty-meowster-body-v1.glb",
+      "bytes": 222616,
+      "sha256": "c2518ce40d156abe3a923741bc9b62e6f4abffc004a1cc885f272cf2d0fe49f2",
+      "kind": "model",
+      "references": [
+        "manifest:mightyMeowsterBody",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/decals/arena-ground-decals.webp",
+      "bytes": 24402,
+      "sha256": "f3cc68a562fbfd5caba16f1a2cc57599cc6559f32d5ccee740ab6047d0cd1e22",
+      "kind": "image",
+      "references": [
+        "manifest:monsterArenaGroundDecals",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/materials/arena-crowd-cats.webp",
+      "bytes": 83326,
+      "sha256": "1e13a04f2ccbe52e9af0fadbf4b6124b2ec20f5adb0386144afe82fff52b6926",
+      "kind": "image",
+      "references": [
+        "manifest:monsterArenaCrowd",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/materials/arena-dirt-color.webp",
+      "bytes": 133914,
+      "sha256": "680880d20d2bf3242d7b632c2fd7ae1798ebd4fd7e575b7b70bbed37343d0d6a",
+      "kind": "image",
+      "references": [
+        "manifest:monsterArenaDirtColor",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/materials/arena-dirt-macro.webp",
+      "bytes": 4348,
+      "sha256": "16d759d79ae990b3980a934c6488405913aef032c1d9fe1d7bae0a7680379d08",
+      "kind": "image",
+      "references": [
+        "manifest:monsterArenaDirtMacro",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/materials/arena-dirt-normal.webp",
+      "bytes": 49176,
+      "sha256": "b05c0ece79564b6623d5ad072395c752cb4282b15c160ff220283b413ecf0f9e",
+      "kind": "image",
+      "references": [
+        "manifest:monsterArenaDirtNormal",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/materials/arena-dirt-roughness.webp",
+      "bytes": 7678,
+      "sha256": "330b280cf4017d458f6699bac11902a530c1a5306d5259c9ca051c4893fedd5a",
+      "kind": "image",
+      "references": [
+        "manifest:monsterArenaDirtRoughness",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/models/arena-audience-bank-v1.glb",
+      "bytes": 2280028,
+      "sha256": "9ced0667871d20078173c7cbd54c59e4d8cc369d6b5155109e188423b9069ca1",
+      "kind": "model",
+      "references": [
+        "manifest:monsterAudienceBank",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/models/monster-arena-environment-kit-v1.glb",
+      "bytes": 799588,
+      "sha256": "97c20b9eafc181fab598fd9c00510b9eebb0651944bf5641ebbaf6c2b69cb7ec",
+      "kind": "model",
+      "references": [
+        "manifest:monsterEnvironmentKit",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/models/tipsy-tumbler-monster-truck-v2.glb",
+      "bytes": 3223220,
+      "sha256": "ecca04b8ecfc1c0703ea49acf6a4e1129dc9df4a39bee9499d778133cf78b94a",
+      "kind": "model",
+      "references": [
+        "manifest:tipsyTumblerBody",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-arena/vfx/arena-vfx-atlas.webp",
+      "bytes": 117120,
+      "sha256": "6508be213f4c037fbb8d76922b8345f8e61baa0154ebf0ec78ba91b8d89d6844",
+      "kind": "image",
+      "references": [
+        "manifest:monsterArenaVfx",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/monster-smash-key-art-oekaki-v1.webp",
+      "bytes": 506158,
+      "sha256": "0729b8e69b6a37510a5d8cd53e47a346f531ef58af75ccfa35ee0231d6583a85",
+      "kind": "image",
+      "references": []
+    },
+    {
+      "path": "assets/racing/monster-smash-key-art-oekaki-v2.webp",
+      "bytes": 474930,
+      "sha256": "d58eb630e92cd98de858d8c99ef5bfca345d3dc1bf319a4793edaead58a51d86",
+      "kind": "image",
+      "references": [
+        "manifest:monsterKeyArt",
+        "source:src/app/rallyMenu.js",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/cave-ground-color.webp",
+      "bytes": 289474,
+      "sha256": "2ffb31113951af453f0f8591e67526b44e049f7c730556f5441e1e94742b8832",
+      "kind": "image",
+      "references": [
+        "manifest:groundCaveV2Color",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/cave-ground-normal.webp",
+      "bytes": 339646,
+      "sha256": "ef34f0add52f851a145c8902eecdd934997941afd74baa3cb591719959b9073e",
+      "kind": "image",
+      "references": [
+        "manifest:groundCaveV2Normal",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/cave-ground-roughness.webp",
+      "bytes": 78630,
+      "sha256": "111d9167584b1e74a7479aa42530eab754ce453290844b45e6a8667883cfbdce",
+      "kind": "image",
+      "references": [
+        "manifest:groundCaveV2Roughness",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/cinder-ground-color.webp",
+      "bytes": 301750,
+      "sha256": "0de9f9fd21b67dfb8d7d7239e54e5cd939f5ee34c8859a929a285977a4a934f2",
+      "kind": "image",
+      "references": [
+        "manifest:groundCinderV2Color",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/cinder-ground-normal.webp",
+      "bytes": 350350,
+      "sha256": "832440cd9d809fe89603a31b328e59693b8746b58fcfe5d4842d48526dda4bef",
+      "kind": "image",
+      "references": [
+        "manifest:groundCinderV2Normal",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/cinder-ground-roughness.webp",
+      "bytes": 85148,
+      "sha256": "8264b3aef6189519801ccbcdada6ed93b8e61be3dd9081f262e736a4b5d55951",
+      "kind": "image",
+      "references": [
+        "manifest:groundCinderV2Roughness",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/forest-ground-color.webp",
+      "bytes": 375740,
+      "sha256": "e144b3f8487fda179c06fbd256e7aed409f77a57caa25762e5b57d5dc1265946",
+      "kind": "image",
+      "references": [
+        "manifest:groundForestV2Color",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/forest-ground-normal.webp",
+      "bytes": 333100,
+      "sha256": "b53d07d0277cbf0ecd9f025ebef2089d407f94694162faca0f02a99497c54ab9",
+      "kind": "image",
+      "references": [
+        "manifest:groundForestV2Normal",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/forest-ground-roughness.webp",
+      "bytes": 88312,
+      "sha256": "afe4f522514dfb31a6390bbe5c2b039a04f55b1187c5134fbb1cce0771883cef",
+      "kind": "image",
+      "references": [
+        "manifest:groundForestV2Roughness",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/kakiland-ground-color.webp",
+      "bytes": 205424,
+      "sha256": "de5d6253076a78e744c421a9337d7f4630bc700f9c6479e43358c5266f9f39d0",
+      "kind": "image",
+      "references": [
+        "manifest:groundKakiLandV2Color",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/kakiland-ground-normal.webp",
+      "bytes": 260496,
+      "sha256": "a78e789e5d1409144381e9b802665ea7294307435a0df8416d0a460f2e8027ee",
+      "kind": "image",
+      "references": [
+        "manifest:groundKakiLandV2Normal",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/kakiland-ground-roughness.webp",
+      "bytes": 66098,
+      "sha256": "c06894d16d1acd95c2f1aa9a2ccc3688db0a6dddd70d0793b696fa6178714874",
+      "kind": "image",
+      "references": [
+        "manifest:groundKakiLandV2Roughness",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/twilight-ground-color.webp",
+      "bytes": 191116,
+      "sha256": "fb131a0c9fb0ad420a00c97edca7625a7981b4473b185a036a6c6af09ea6d337",
+      "kind": "image",
+      "references": [
+        "manifest:groundTwilightV2Color",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/twilight-ground-normal.webp",
+      "bytes": 287942,
+      "sha256": "790c546889225a171d34075fd138813b593954dba0f10a3e3bd7946dff84e0f5",
+      "kind": "image",
+      "references": [
+        "manifest:groundTwilightV2Normal",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/twilight-ground-roughness.webp",
+      "bytes": 90174,
+      "sha256": "7a4eaaae28177b9d2505d19d97a0422a69a0a43ade04ccba99af0e15a2883141",
+      "kind": "image",
+      "references": [
+        "manifest:groundTwilightV2Roughness",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/void-ground-color.webp",
+      "bytes": 243066,
+      "sha256": "b2f857373338992697bd56962076779f208604dbaa52803d09823820ee1c519a",
+      "kind": "image",
+      "references": [
+        "manifest:groundVoidV2Color",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/void-ground-normal.webp",
+      "bytes": 319608,
+      "sha256": "330165c9b366d42039961b268f89d92e0298866b4d37063fa1e329c6aa4f77e3",
+      "kind": "image",
+      "references": [
+        "manifest:groundVoidV2Normal",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/terrain-v2/void-ground-roughness.webp",
+      "bytes": 78174,
+      "sha256": "1b439aa1bb9e5c67b7f7c53c214d54cbf8ecfe825c1231fb20f8833ad59fbabe",
+      "kind": "image",
+      "references": [
+        "manifest:groundVoidV2Roughness",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/screenshots/draw-your-track-workshop.png",
+      "bytes": 436302,
+      "sha256": "279b17f88e19ad7a083ed73969fd90e4cb8a4c9928f3aa3d89b46b74b14bc157",
+      "kind": "image",
+      "references": [
+        "source:src/app/rallyMenu.js"
+      ]
+    },
+    {
+      "path": "assets/screenshots/kaki-rally-forest-chase.png",
+      "bytes": 896566,
+      "sha256": "1dce40d5eab7840aeaf68baed81c75afa542659e24a23047371b4a09cf53dd3e",
+      "kind": "image",
+      "references": [
+        "source:index.html",
+        "source:src/app/rallyMenu.js"
+      ]
+    },
+    {
+      "path": "assets/screenshots/kaki-rally-forest.png",
+      "bytes": 977245,
+      "sha256": "eb00cc5f9750adac6c3e605b802edb2af99fa5efed01f169bce44b84c01f5793",
+      "kind": "image",
+      "references": []
+    },
+    {
+      "path": "assets/screenshots/kaki-trials-side-scroll.png",
+      "bytes": 896341,
+      "sha256": "4583db6d99e891a39e5f6bbf852aa9210979cd2ee04beb390e2119ce1c608fa4",
+      "kind": "image",
+      "references": [
+        "source:src/app/rallyMenu.js"
+      ]
+    },
+    {
+      "path": "assets/screenshots/monster-smash-arena-chase.png",
+      "bytes": 813350,
+      "sha256": "96c0108a34258e40ade11ecfca5944ba18bac3a9f2c7c4de6e93d50469b43fca",
+      "kind": "image",
+      "references": [
+        "source:src/app/rallyMenu.js"
+      ]
+    },
+    {
+      "path": "assets/source/imagegen/kaki-rally-decal-atlas-imagegen-v1.png",
+      "bytes": 3010504,
+      "sha256": "f70f2be223caa843ced5aecd2e1770f1544fbb0c42b75d1a50ab3ba5be41c4a5",
+      "kind": "source-artifact",
+      "references": []
+    },
+    {
+      "path": "assets/sprites/brown_mud/diff.jpg",
+      "bytes": 501955,
+      "sha256": "df3f135c899f10a3b018738343b222cbc67d13e7c76c5d8da834a3d34c984417",
+      "kind": "image",
+      "references": [
+        "manifest:mudColor",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/sprites/brown_mud/nor_gl.jpg",
+      "bytes": 1011780,
+      "sha256": "ac517ca39eb507ae0f27e2b3db431c60888f9b5c3c52bec49d2c0775da0920cb",
+      "kind": "image",
+      "references": [
+        "manifest:mudNormal",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/sprites/brown_mud/rough.jpg",
+      "bytes": 340815,
+      "sha256": "ae9fb57c1173ccb4579f40edf8321a30bdca815042ffd72015a2a707c7e2e7ba",
+      "kind": "image",
+      "references": [
+        "manifest:mudRoughness",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/sprites/chapters/chapter_cave.webp",
+      "bytes": 60688,
+      "sha256": "008dda7348c76d87bc9a2def24224d6222387b521a568cf95656d73d25d9b26e",
+      "kind": "image",
+      "references": [
+        "manifest:chapterCave",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/sprites/chapters/chapter_cinder.webp",
+      "bytes": 71264,
+      "sha256": "377d2b675a984da42369e0792ba0307a377ff188dbe955517b38ea8d81de8ac7",
+      "kind": "image",
+      "references": [
+        "manifest:chapterCinder",
+        "source:src/app/rallyMenu.js",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/sprites/chapters/chapter_forest.webp",
+      "bytes": 69552,
+      "sha256": "4e148ef8c499446dfe7dfefdb34d14a2aaba7df6a7c45b37c0c30efc77bf2cd3",
+      "kind": "image",
+      "references": [
+        "manifest:chapterForest",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/sprites/chapters/chapter_forest_kaki-v1.webp",
+      "bytes": 53600,
+      "sha256": "aaffc8d55841d8f6b67e4830d6ca3a055ff5012656d1fb556b414e49ab4a157a",
+      "kind": "image",
+      "references": [
+        "source:src/app/rallyMenu.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/sprites/chapters/chapter_twilight.webp",
+      "bytes": 41864,
+      "sha256": "b6c810998f5054aebc5d8b1a9e29bea1cae47c97d014782f6a39b69219268fdf",
+      "kind": "image",
+      "references": [
+        "manifest:chapterTwilight",
+        "source:src/app/rallyMenu.js",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/sprites/chapters/chapter_void.webp",
+      "bytes": 55338,
+      "sha256": "e985bf9240eb1a2b5d19de8eeb841deb6991631fcde634f2cef7c48d7a9addf3",
+      "kind": "image",
+      "references": [
+        "manifest:chapterVoid",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/textures/biome_flagstone_512.webp",
+      "bytes": 26338,
+      "sha256": "e53a051c238b85310816b40d53da5e8be575dfdd2937a99ff05ce0b8c414aa7d",
+      "kind": "image",
+      "references": [
+        "manifest:flagstone",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/textures/cave_stone_diffuse.png",
+      "bytes": 56662,
+      "sha256": "f43791301624129a981a9bbf7e19161982dc4f6a0e75b8236f690f4302ababb1",
+      "kind": "image",
+      "references": [
+        "manifest:caveStoneColor",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/textures/cave_stone_normal.png",
+      "bytes": 53853,
+      "sha256": "a1523cd03f14adaf1868dc848e5de0a488c76651c90fe4d5cd4498e2306e3ed1",
+      "kind": "image",
+      "references": [
+        "manifest:caveStoneNormal",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/textures/cave_stone_rough.png",
+      "bytes": 8808,
+      "sha256": "363f2a8ab1501006901b3464d1924b483ec64c9d58d150958249c61c31289881",
+      "kind": "image",
+      "references": [
+        "manifest:caveStoneRoughness",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/textures/ground_detail_cave_512.webp",
+      "bytes": 33112,
+      "sha256": "0a437e2012d2c0543b608348cbedbdbb7553c1beec5d1ffd5ab4f66b68dc084e",
+      "kind": "image",
+      "references": [
+        "manifest:groundCave",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/textures/ground_detail_cinder_512.webp",
+      "bytes": 18024,
+      "sha256": "9f765c1cfe47e273cd14490e6044c0aaa88386db408c0af8d2cd187651ba8b9a",
+      "kind": "image",
+      "references": [
+        "manifest:groundCinder",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/textures/ground_detail_forest_512.webp",
+      "bytes": 88244,
+      "sha256": "279b663ec6fad7c13ac5d658d57cb7c1565de2b64f1ee60131776b334bdd35ee",
+      "kind": "image",
+      "references": [
+        "manifest:groundForest",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/textures/ground_detail_twilight_512.webp",
+      "bytes": 20288,
+      "sha256": "6ac1de280ff17ae1db227802619aeb0f6fd155fce8b8672a3a361ee02343145e",
+      "kind": "image",
+      "references": [
+        "manifest:groundTwilight",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/textures/ground_detail_void_512.webp",
+      "bytes": 27770,
+      "sha256": "0ee3bcfdcf67b95ac7857c85139066336bb0dd9611107b2579dcfb64320bae5f",
+      "kind": "image",
+      "references": [
+        "manifest:groundVoid",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/textures/landmark_slate_masonry_512.webp",
+      "bytes": 18698,
+      "sha256": "711ccee7c123b06c85baef93bcef3b3183596443d1d22a1aac6cfa6855be177a",
+      "kind": "image",
+      "references": [
+        "manifest:slateMasonry",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/textures/landmark_weathered_wood_512.webp",
+      "bytes": 27982,
+      "sha256": "753bd24b7dfb77277173786b421bfba1a020b3929cb074d5cc3b63ae4d19afe2",
+      "kind": "image",
+      "references": [
+        "manifest:weatheredWood",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/textures/sky_bloodmoon.webp",
+      "bytes": 47180,
+      "sha256": "61796c13e2e2b58e353e9c526e033f70713bf8f5eeaab57865f34d11f4e86d90",
+      "kind": "image",
+      "references": [
+        "manifest:skyBloodmoon",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/textures/sky_dusk.webp",
+      "bytes": 29360,
+      "sha256": "357ae0795a1dcccdfc93dbea755e0ccb7674c94872b166fe51c3e17328011f69",
+      "kind": "image",
+      "references": [
+        "manifest:skyDusk",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/textures/sky_golden.webp",
+      "bytes": 44676,
+      "sha256": "f45f060a138511a3c1fb84e98553e56ee051770fc2489cb7feb48513b4201662",
+      "kind": "image",
+      "references": [
+        "manifest:skyGolden",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/textures/sky_midday.webp",
+      "bytes": 34956,
+      "sha256": "7ba5e50a8a4598230eba8e2a5f3901ca09c9cc06bfadf011217adeb2b8abdf91",
+      "kind": "image",
+      "references": [
+        "manifest:skyMidday",
+        "source:src/racing/racingManifest.js",
+        "source:src/racing/trialsEnvironment.js"
+      ]
+    },
+    {
+      "path": "assets/textures/sky_twilight.webp",
+      "bytes": 41682,
+      "sha256": "7f222803612cedd011a803a06b50ba83ad7c7dfaf72a368b59264a5dccde5ad3",
+      "kind": "image",
+      "references": [
+        "manifest:skyTwilight",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "images/pawprint_interchange_01_chase.png",
+      "bytes": 912700,
+      "sha256": "7cc33a4bb134ee56ede64bda2efb6e7baad2878a8d25c4efaf3b6cbe44f1f688",
+      "kind": "image",
+      "references": []
+    },
+    {
+      "path": "images/pawprint_interchange_02_cockpit_fpv.png",
+      "bytes": 1099426,
+      "sha256": "5f6da15df12db2227b89bb71112fc05975dd3500492dd937f0134f0985d6d9d6",
+      "kind": "image",
+      "references": []
+    },
+    {
+      "path": "images/pawprint_interchange_03_chain_reaction.png",
+      "bytes": 1239097,
+      "sha256": "695216f0ed22e26d7c1b7a6329776bd50ef8d7ec4ff65d1b68156d47fa2ca141",
+      "kind": "image",
+      "references": [
+        "source:src/app/rallyMenu.js"
+      ]
+    },
+    {
+      "path": "src/racing/crash/vendor/rapier.mjs",
+      "bytes": 2238719,
+      "sha256": "bce2c762b440101ebf8cbff038a71fe1884488becd0a53b9a7c0a7e3daf13a2b",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/LICENSE",
+      "bytes": 1081,
+      "sha256": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc",
+      "kind": "support",
+      "references": []
+    },
+    {
+      "path": "vendor/three/build/three.core.js",
+      "bytes": 1443056,
+      "sha256": "3718df126d69c125362a03340913204470d8c50238605150e57f808840fb7759",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/build/three.tsl.js",
+      "bytes": 34213,
+      "sha256": "c3844718a7becd4d2d10fef29a503e6a8789bd1636e2e62767f2cf00fa56f8c1",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/build/three.webgpu.js",
+      "bytes": 2172442,
+      "sha256": "50e4013dd3903e8afb09a4829962dbf105488de7bd47f61308f44bd2e66b3340",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/libs/draco/README.md",
+      "bytes": 1395,
+      "sha256": "839850a67c93f6b26d3cc038a45bd8289e3cfdf15531e69339e8eb1282b4eb76",
+      "kind": "support",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/libs/draco/draco_decoder.js",
+      "bytes": 719410,
+      "sha256": "30e4d486fa020737af10e3c56197693e5b904bdc05b8bfa5d7b06751dec6da04",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/libs/draco/draco_decoder.wasm",
+      "bytes": 285747,
+      "sha256": "c55a594e8ffd18426d36b27fea9618af3df5e173640a3e56d46f09d76f0574f2",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js",
+      "bytes": 58763,
+      "sha256": "e8049906ef3f8f75d3456c22a3f31bfdfe5b5b5bd09ccdec613b9e9a49d554d8",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/libs/meshopt_decoder.module.js",
+      "bytes": 29256,
+      "sha256": "d428e73a000057c6c94bfcedc3412d0c2dc14ca8800e88553aab05113ad2bf19",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/loaders/DRACOLoader.js",
+      "bytes": 19030,
+      "sha256": "fdafdf4aa11bbc65d89adb338efd844bedf94073702f9049240ff1f1ea48ad5f",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/loaders/GLTFLoader.js",
+      "bytes": 114959,
+      "sha256": "97642d720f16cc9a0c9844934198e4d0c023bea8e89576d0f7545d03b2d103d2",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/tsl/display/BloomNode.js",
+      "bytes": 16494,
+      "sha256": "f80f40d013f4d94aa089c68c673cae6a8ab45fb290970a696bc1dded312e3fc8",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/utils/BufferGeometryUtils.js",
+      "bytes": 37621,
+      "sha256": "5c552223a9309883743b80538d6e9cdb45e3227f30d3ec56fb2c39b46e78d595",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/examples/jsm/utils/SkeletonUtils.js",
+      "bytes": 11535,
+      "sha256": "b1632a703206c3d830de9fcbe515696770d04b71a15ee6b50afa6d2c3298c86f",
+      "kind": "runtime",
+      "references": []
+    },
+    {
+      "path": "vendor/three/package.json",
+      "bytes": 3826,
+      "sha256": "1d5c438acdc1fe5a52fb8ede2e417afd91fec91d22275c40f7b739591b24e4df",
+      "kind": "support",
+      "references": []
+    }
+  ]
+}
