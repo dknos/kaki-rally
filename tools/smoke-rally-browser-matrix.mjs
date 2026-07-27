@@ -215,15 +215,35 @@ async function startModeFromMenu(page, spec) {
   await page.waitForFunction((mode) => (
     document.querySelector('.rally-setup')?.dataset.mode === mode
   ), spec.mode);
-  if (spec.options.carCount != null) {
-    await page.selectOption('.rally-setup select[name="carCount"]', String(spec.options.carCount));
+  const selections = {
+    course: spec.courseId,
+    carCount: spec.options.carCount,
+    monsterEvent: spec.options.monsterEvent,
+    monsterVehicle: spec.options.monsterVehicle,
+    monsterArena: spec.options.monsterArena,
+    trialsTrack: spec.options.trialsTrackId,
+    trialsVehicle: spec.options.trialsVehicle,
+    crashVehicle: spec.options.crashVehicle,
+    crashQuality: spec.options.crashQuality,
+  };
+  for (const [name, value] of Object.entries(selections)) {
+    if (value != null && await page.locator(`.rally-setup select[name="${name}"]`).count()) {
+      await page.selectOption(`.rally-setup select[name="${name}"]`, String(value));
+    }
   }
   await page.click('.rally-setup [data-action="launch"]');
   await page.waitForFunction((expected) => (
     window.__kakiRally?.getDiagnostics?.().activeMode === expected
     && window.__kakiRally?.getDiagnostics?.().hudRoots === 1
   ), spec.mode, { timeout: 120_000 });
-  await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
+  if (spec.mode === 'crash') {
+    await page.waitForFunction(() => {
+      const snapshot = window.__kkCrash?.snapshot?.();
+      return snapshot?.worldReady && snapshot?.assetsReady && !snapshot?.assetError;
+    }, null, { timeout: 120_000 });
+  } else {
+    await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
+  }
   return page.evaluate(() => window.__kakiRally.getDiagnostics());
 }
 
@@ -359,9 +379,7 @@ async function assertPauseRestartExitReentry(page, spec, evidence) {
 }
 
 async function runRoadMode(page, spec, backend, evidence) {
-  const opening = spec.fromMenu
-    ? await startModeFromMenu(page, spec)
-    : await startMode(page, spec.mode, spec.courseId, spec.options);
+  const opening = await startModeFromMenu(page, spec);
   await skipCountdown(page);
   const keyboard = await exerciseKeyboard(page);
   await exerciseTouch(page, spec.mode);
@@ -397,7 +415,7 @@ async function runMonster(page, backend, evidence) {
       monsterEvent: 'smashdown',
     },
   };
-  evidence.opening = await startMode(page, spec.mode, spec.courseId, spec.options);
+  evidence.opening = await startModeFromMenu(page, spec);
   await skipCountdown(page);
   await exerciseKeyboard(page);
   await exerciseTouch(page, 'monster');
@@ -479,7 +497,9 @@ async function drawCircle(page, pointerType = 'mouse') {
 }
 
 async function runDraw(page, backend, evidence) {
-  await page.evaluate(() => window.__kakiRally.openDraw());
+  await page.click('.rally-mode-rail button[data-mode="draw"]');
+  await page.waitForFunction(() => document.querySelector('.rally-setup')?.dataset.mode === 'draw');
+  await page.click('.rally-setup [data-action="draw"]');
   await page.waitForSelector('.kdt-editor');
   await drawCircle(page, 'mouse');
   await page.evaluate(() => {
@@ -591,11 +611,17 @@ async function runDraw(page, backend, evidence) {
   await page.evaluate(() => window.__kakiRally.menu());
 }
 
-async function finishTrialsCourse(page, trackId, evidence) {
-  await startMode(page, 'trials', 'forest', {
-    trialsTrackId: trackId,
-    trialsVehicle: trackId === 'quarry' ? 'buggy' : 'monster',
-  });
+async function finishTrialsCourse(page, trackId, evidence, { fromMenu = false } = {}) {
+  const spec = {
+    mode: 'trials',
+    courseId: 'forest',
+    options: {
+      trialsTrackId: trackId,
+      trialsVehicle: trackId === 'quarry' ? 'buggy' : 'monster',
+    },
+  };
+  if (fromMenu) await startModeFromMenu(page, spec);
+  else await startMode(page, spec.mode, spec.courseId, spec.options);
   await skipCountdown(page);
   if (trackId === 'meadow') {
     await exerciseKeyboard(page);
@@ -622,7 +648,7 @@ async function finishTrialsCourse(page, trackId, evidence) {
 }
 
 async function runTrials(page, backend, evidence) {
-  await finishTrialsCourse(page, 'meadow', evidence);
+  await finishTrialsCourse(page, 'meadow', evidence, { fromMenu: true });
   const progress = await page.evaluate(() => JSON.parse(localStorage.getItem('kks_rally_trials_v1') || '{}'));
   assert(progress.unlocked?.includes('quarry'), 'B-medal progression did not unlock Quarry');
   assert(progress.records?.meadow?.ghost?.length >= 2, 'PB ghost was not persisted');
@@ -646,7 +672,7 @@ async function runCrash(page, backend, evidence) {
     courseId: 'forest',
     options: { crashVehicle: 'iron', crashQuality: 'medium' },
   };
-  evidence.opening = await startMode(page, spec.mode, spec.courseId, spec.options);
+  evidence.opening = await startModeFromMenu(page, spec);
   assert.equal((await page.evaluate(() => window.__kkCrash.snapshot().quality)), 'medium');
   await page.evaluate(() => window.__kkCrash.skipIntro());
   await page.waitForFunction(() => ['APPROACH', 'LIVE_CRASH'].includes(window.__kkCrash.snapshot().phase), null, {
@@ -742,7 +768,6 @@ async function runWebGl(browser, origin, report) {
       courseId: 'forest',
       options: { carCount: 6 },
       mechanic: 'jump',
-      fromMenu: true,
     }, 'webgl', report.webgl.modes.circuit);
     if (requestedScope === 'all' || requestedScope === 'drift') await runRoadMode(page, {
       mode: 'drift',
@@ -857,7 +882,7 @@ async function runWebGpu(browser, origin, report) {
         availability,
         launched: !!launched,
         activeMode: window.__kakiRally.getDiagnostics().activeMode,
-        cardText: document.querySelector('[data-mode="crash"]')?.textContent || '',
+        cardText: document.querySelector('.rally-mode-rail button[data-mode="crash"]')?.textContent || '',
       };
     });
     assert(!crashAvailability.availability.canLaunch && crashAvailability.availability.action === 'restart-webgl');

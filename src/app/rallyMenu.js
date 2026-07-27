@@ -257,7 +257,7 @@ export class RallyMenu {
     this.host.hidden = false;
     this.screen = 'main';
     this.render();
-    requestAnimationFrame(() => this.host.querySelector(`[data-mode="${this.selectedMode}"]`)?.focus({ preventScroll: true }));
+    requestAnimationFrame(() => this.host.querySelector(`.rally-mode-rail button[data-mode="${this.selectedMode}"]`)?.focus({ preventScroll: true }));
   }
 
   hide() {
@@ -279,12 +279,12 @@ export class RallyMenu {
     const root = this.host.querySelector('.rally-menu');
     if (!root) return;
     root.dataset.screen = this.screen;
-    root.querySelectorAll('[data-mode]').forEach((button) => {
+    root.querySelectorAll('.rally-mode-rail button[data-mode]').forEach((button) => {
       const active = button.dataset.mode === this.selectedMode;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-current', active ? 'true' : 'false');
     });
-    const crashButton = root.querySelector('[data-mode="crash"]');
+    const crashButton = root.querySelector('.rally-mode-rail button[data-mode="crash"]');
     const availability = this.availability();
     crashButton.querySelector('em').textContent = availability.label;
     crashButton.classList.toggle('is-blocked', !availability.canLaunch);
@@ -594,7 +594,7 @@ export class RallyMenu {
       return;
     }
     if (!['ArrowUp', 'ArrowDown'].includes(event.key) || event.target.matches('select,input')) return;
-    const buttons = [...this.host.querySelectorAll('[data-mode]')];
+    const buttons = [...this.host.querySelectorAll('.rally-mode-rail button[data-mode]')];
     const index = buttons.indexOf(document.activeElement);
     if (index < 0) return;
     event.preventDefault();
