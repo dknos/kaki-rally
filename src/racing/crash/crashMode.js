@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { state } from '../../state.js';
+import { navigateToMenu } from '../../navigation.js';
 import { gamepadState } from '../../gamepad.js';
 import { attachRacingCameraManager } from '../cameras/cameraSessionBinding.js';
 import { mapRacingSteerInput } from '../racingSteering.js';
@@ -887,7 +888,7 @@ export async function enterCrashMode(scene, options = {}) {
     replaySpeed: (speed) => session.replayPlayer?.setSpeed(speed),
     replayAgain: () => replayAgain(session),
     retry: () => restartCrashMode(),
-    menu: () => window.kkReturnToMenu?.(),
+    menu: () => navigateToMenu('catastrophe-menu'),
   });
   installInput(session);
   try {

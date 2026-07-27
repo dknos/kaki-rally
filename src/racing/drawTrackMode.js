@@ -2,13 +2,13 @@
 import { DrawTrackUI } from './drawTrackUI.js';
 import { TRACK_WIDTH_PRESETS } from './drawTrackGeometry.js';
 import { getTrackGallerySummary } from './drawTrackStorage.js';
+import { startRallySession } from '../navigation.js';
 
 let activeEditor = null;
 
 function defaultBuild({ draft, course }) {
   const width = TRACK_WIDTH_PRESETS[draft.widthId] || TRACK_WIDTH_PRESETS.standard;
-  if (typeof window?.kkStartRacing !== 'function') throw new Error('Kaki Rally is not ready yet');
-  return window.kkStartRacing(course.id, {
+  return startRallySession(course.id, {
     mode: 'draw',
     customCourse: course,
     customTrack: draft,
@@ -45,8 +45,4 @@ export function getDrawTrackModeCardStats() {
 
 export function isDrawTrackModeOpen() {
   return !!activeEditor;
-}
-
-if (typeof window !== 'undefined') {
-  window.kkOpenDrawTrackEditor = (initialTrack = null) => openDrawTrackMode({ initialTrack });
 }

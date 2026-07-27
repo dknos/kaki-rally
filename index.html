@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, viewport-fit=cover">
+  <title>Kaki Rally</title>
+  <meta name="description" content="Race rough circuits, draw your own tracks, crush arenas, and master side-scrolling trials in Kaki Rally.">
+  <meta name="theme-color" content="#0b1012">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Kaki Rally">
+  <meta property="og:description" content="Seven substantial Kaki racing disciplines in one standalone rally game.">
+  <meta property="og:url" content="https://dknos.github.io/kaki-rally/">
+  <meta property="og:image" content="https://dknos.github.io/kaki-rally/assets/screenshots/kaki-rally-forest-chase.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Kaki Rally">
+  <meta name="twitter:description" content="Race, draw, drift, smash, and master Kaki Trials.">
+  <meta name="twitter:image" content="https://dknos.github.io/kaki-rally/assets/screenshots/kaki-rally-forest-chase.png">
+  <link rel="icon" type="image/webp" href="./assets/racing/kitty-monster-truck-decal-oekaki-v2.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/app/rallyShell.css">
+  <link rel="stylesheet" href="./src/racing/racing.css">
+  <link rel="stylesheet" href="./src/racing/crash/crash.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/build/three.webgpu.js",
+      "three/webgpu": "./vendor/three/build/three.webgpu.js",
+      "three/tsl": "./vendor/three/build/three.tsl.js",
+      "three/addons/": "./vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="kk-stage" aria-label="Kaki Rally game stage">
+    <canvas id="game-canvas" aria-label="Kaki Rally 3D game"></canvas>
+    <div id="ui-root"></div>
+    <div id="rally-touch-root" hidden></div>
+    <div id="rally-menu-root" hidden></div>
+    <div id="rally-pause-root" hidden></div>
+  </div>
+  <div id="rally-loader-root"></div>
+  <div id="rally-renderer-failure-root" hidden></div>
+  <div id="rally-orientation-gate" hidden>
+    <div>
+      <span class="rally-rotate-icon" aria-hidden="true">↻</span>
+      <strong>Rotate to landscape</strong>
+      <p>Kaki Rally keeps the road, touch controls, and timing board readable in landscape.</p>
+    </div>
+  </div>
+  <noscript>Kaki Rally requires JavaScript.</noscript>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

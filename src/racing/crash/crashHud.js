@@ -74,7 +74,11 @@ export function createCrashHud(session, actions = {}) {
   root.querySelectorAll('[data-touch]').forEach((element) => {
     const key = element.dataset.touch;
     const set = (value) => { touch[key] = value; element.classList.toggle('is-held', value); };
-    element.addEventListener('pointerdown', (event) => { event.preventDefault(); element.setPointerCapture?.(event.pointerId); set(true); });
+    element.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      try { element.setPointerCapture?.(event.pointerId); } catch (_) {}
+      set(true);
+    });
     element.addEventListener('pointerup', () => set(false));
     element.addEventListener('pointercancel', () => set(false));
     element.addEventListener('lostpointercapture', () => set(false));

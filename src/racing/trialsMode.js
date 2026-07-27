@@ -7,6 +7,7 @@
  */
 import * as THREE from 'three';
 import { state } from '../state.js';
+import { navigateToMenu } from '../navigation.js';
 import { getRendererDiagnostics } from '../rendering/rendererAccess.js';
 import { AVATARS } from '../config.js';
 import { isDashPressed, consumeJump } from '../input.js';
@@ -625,7 +626,7 @@ function _bindHeld(button, key) {
   };
   button.addEventListener('pointerdown', (event) => {
     event.preventDefault();
-    button.setPointerCapture?.(event.pointerId);
+    try { button.setPointerCapture?.(event.pointerId); } catch (_) {}
     _touch[key] = true;
     button.classList.add('is-held');
   });
@@ -687,7 +688,7 @@ function _mountHud(session) {
     event.preventDefault();
     _touch.restart = true;
   });
-  root.querySelectorAll('[data-action="menu"]').forEach((button) => button.addEventListener('click', () => window.kkReturnToMenu?.()));
+  root.querySelectorAll('[data-action="menu"]').forEach((button) => button.addEventListener('click', () => navigateToMenu('trials-menu')));
   root.querySelector('[data-action="retry"]')?.addEventListener('click', () => restartTrialsMode(session.scene, {
     trackId: session.track.id,
     vehicle: session.vehicle.id,
@@ -1002,7 +1003,7 @@ function _handleEvents(session, events) {
     _callout(session, events.flipCount > 1 ? `${events.flipCount}× FLIP CHAIN!` : 'FULL KITTY FLIP!', 1.2, 'style');
     _kickCamera(session, 0.24, 0.65, Math.sign(p.pitchVelocity || 1) * 0.025);
     session.hitStop = Math.max(session.hitStop, 0.035);
-    _safeSfx('weaponDash');
+    _safeSfx('racingBoost');
   }
   if (events.landed) {
     const impact = clamp((events.landingSpeed || 0) / 24, 0.18, 1.15);

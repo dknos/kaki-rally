@@ -153,11 +153,25 @@ export function createRallyAssetLease({
         entry.refs = Math.max(0, entry.refs - 1);
         if (entry.refs === 0) {
           if (entry.kind === 'texture') entry.texture.dispose();
-          else entry.gltf?.scene?.traverse?.((object) => {
-            object.geometry?.dispose?.();
-            const materials = Array.isArray(object.material) ? object.material : [object.material];
-            for (const material of materials) material?.dispose?.();
-          });
+          else {
+            const geometries = new Set();
+            const materials = new Set();
+            const textures = new Set();
+            entry.gltf?.scene?.traverse?.((object) => {
+              if (object.geometry) geometries.add(object.geometry);
+              const objectMaterials = Array.isArray(object.material) ? object.material : [object.material];
+              for (const material of objectMaterials) {
+                if (!material) continue;
+                materials.add(material);
+                for (const value of Object.values(material)) {
+                  if (value?.isTexture) textures.add(value);
+                }
+              }
+            });
+            for (const texture of textures) texture.dispose?.();
+            for (const material of materials) material.dispose?.();
+            for (const geometry of geometries) geometry.dispose?.();
+          }
           _cache.delete(entry.url);
         }
       }

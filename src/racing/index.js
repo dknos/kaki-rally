@@ -4,6 +4,7 @@
  */
 import * as THREE from 'three';
 import { state } from '../state.js';
+import { navigateToMenu, openRallyDrawEditor } from '../navigation.js';
 import {
   getActiveRendererCapabilities,
   getRendererDiagnostics,
@@ -1056,7 +1057,7 @@ function _syncKartVisual(session, car, dt, controls, events, contact) {
     _kickCamera(session, 0.18, 0.015, 0.2);
   }
   if (events.jumped && car.id === 'player') {
-    try { sfx.weaponDash(); } catch (_) {}
+    try { sfx.racingBoost(); } catch (_) {}
   }
   if (events.landed) {
     car.suspensionKick = 1;
@@ -1154,8 +1155,8 @@ function _drawRestartOptions(session, customCourse = session.course, customTrack
 
 function _openDrawEditorFromRace(session) {
   const draft = session.customTrack || session.course.drawDraft;
-  window.kkReturnToMenu?.();
-  setTimeout(() => window.kkOpenDrawTrackEditor?.(draft), 0);
+  navigateToMenu('draw-track-edit');
+  setTimeout(() => openRallyDrawEditor(draft), 0);
 }
 
 function _restartDrawVariation(session, { reverse = false, reseed = false } = {}) {
@@ -1319,7 +1320,7 @@ function _mountHud(session) {
   else if (monsterMode) root.querySelector('.kkr-best').textContent = '2 MIN SCORE';
   if (freeRide) root.querySelector('.kkr-best').textContent = 'F · REFILL';
   if (monsterMode && !timedSmashdown) root.querySelector('.kkr-position small').textContent = best ? `PB ${Math.round(best).toLocaleString()}` : 'PB —';
-  root.querySelector('.kkr-menu').addEventListener('click', () => window.kkReturnToMenu?.());
+  root.querySelector('.kkr-menu').addEventListener('click', () => navigateToMenu('hud-menu'));
   const driftButton = root.querySelector('.kkr-drift-btn');
   if (monsterMode) {
     driftButton.textContent = 'ZOOM';
@@ -1328,7 +1329,7 @@ function _mountHud(session) {
   const releaseDrift = () => { _touchDrift = false; driftButton.classList.remove('is-held'); };
   driftButton.addEventListener('pointerdown', (event) => {
     event.preventDefault();
-    driftButton.setPointerCapture?.(event.pointerId);
+    try { driftButton.setPointerCapture?.(event.pointerId); } catch (_) {}
     _touchDrift = true;
     driftButton.classList.add('is-held');
   });
@@ -1338,7 +1339,7 @@ function _mountHud(session) {
   const releaseHandbrake = () => { _touchHandbrake = false; handbrakeButton.classList.remove('is-held'); };
   handbrakeButton.addEventListener('pointerdown', (event) => {
     event.preventDefault();
-    handbrakeButton.setPointerCapture?.(event.pointerId);
+    try { handbrakeButton.setPointerCapture?.(event.pointerId); } catch (_) {}
     _touchHandbrake = true;
     handbrakeButton.classList.add('is-held');
   });
@@ -1354,7 +1355,7 @@ function _mountHud(session) {
   });
   root.querySelector('[data-action="retry"]').addEventListener('click', () => restartRacing(session.scene));
   root.querySelector('[data-action="next"]')?.addEventListener('click', () => {
-    if (monsterMode) window.kkReturnToMenu?.();
+    if (monsterMode) navigateToMenu('monster-garage');
     else restartRacing(session.scene, nextCourseId(session.course.id));
   });
   root.querySelector('[data-action="edit"]')?.addEventListener('click', () => _openDrawEditorFromRace(session));
@@ -1362,7 +1363,7 @@ function _mountHud(session) {
   root.querySelector('[data-action="variation"]')?.addEventListener('click', () => _restartDrawVariation(session, { reseed: true }));
   root.querySelector('[data-action="save-track"]')?.addEventListener('click', () => _saveDrawTrack(session));
   root.querySelector('[data-action="share-track"]')?.addEventListener('click', () => _shareDrawTrack(session));
-  root.querySelector('[data-action="menu"]').addEventListener('click', () => window.kkReturnToMenu?.());
+  root.querySelector('[data-action="menu"]').addEventListener('click', () => navigateToMenu('results-menu'));
   session.hud = {
     root,
     position: root.querySelector('.kkr-position strong'),
