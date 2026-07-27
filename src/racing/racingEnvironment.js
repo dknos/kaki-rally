@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { requestTextureUploadIfReady } from '../rendering/textureUpload.js';
+import { createRallyGrassLayer } from './rallyGrass.js';
 
 /**
  * Presentation-only environment kit for Kaki Rally.
@@ -466,6 +467,38 @@ function _terrainGeometry(size, course, profile, bounds, samples, rc) {
   return rc.geometry(geometry);
 }
 
+function _createTerrainHeightSampler(geometry, size, bounds, segments = 72) {
+  const positions = geometry.attributes.position;
+  const row = segments + 1;
+  const half = size * 0.5;
+  return (worldX, worldZ) => {
+    const gridX = THREE.MathUtils.clamp(
+      ((worldX - bounds.centerX + half) / size) * segments,
+      0,
+      segments,
+    );
+    const gridZ = THREE.MathUtils.clamp(
+      ((worldZ - bounds.centerZ + half) / size) * segments,
+      0,
+      segments,
+    );
+    const x0 = Math.min(segments - 1, Math.floor(gridX));
+    const z0 = Math.min(segments - 1, Math.floor(gridZ));
+    const tx = gridX - x0;
+    const tz = gridZ - z0;
+    const topLeft = z0 * row + x0;
+    const y00 = positions.getY(topLeft);
+    const y10 = positions.getY(topLeft + 1);
+    const y01 = positions.getY(topLeft + row);
+    const y11 = positions.getY(topLeft + row + 1);
+    return THREE.MathUtils.lerp(
+      THREE.MathUtils.lerp(y00, y10, tx),
+      THREE.MathUtils.lerp(y01, y11, tx),
+      tz,
+    );
+  };
+}
+
 function _buildGround(group, course, profile, bounds, samples, rc, anisotropy) {
   // The rally camera is high and oblique; a generous terrain apron prevents
   // the sky dome from reading as a streaky floor beyond the old small square.
@@ -518,6 +551,12 @@ function _buildGround(group, course, profile, bounds, samples, rc, anisotropy) {
   art.position.set(bounds.centerX, 0.028, bounds.centerZ);
   art.renderOrder = -4;
   group.add(art);
+  return {
+    ground,
+    art,
+    size,
+    heightAt: _createTerrainHeightSampler(terrainGeometry, size, bounds),
+  };
 }
 
 function _buildTrackLayers(group, course, profile, samples, rc, anisotropy) {
@@ -1074,6 +1113,8 @@ export function buildRallyEnvironment({
   assetLease = null,
   textureResolver = null,
   anisotropy = 4,
+  quality = 'high',
+  reduceMotion = false,
 } = {}) {
   if (!root?.add) throw new TypeError('buildRallyEnvironment requires a Three.js root group');
   if (!course?.id) throw new TypeError('buildRallyEnvironment requires a course definition');
@@ -1107,6 +1148,7 @@ export function buildRallyEnvironment({
     disposed: false,
     authoredReady: false,
     authoredScatter: null,
+    grass: null,
   };
 
   const decalAtlas = atlasTexture || _loadTexture('racing/kaki-rally-decal-atlas-imagegen-v1.webp', rc, { anisotropy });
@@ -1116,8 +1158,18 @@ export function buildRallyEnvironment({
   }
 
   _buildSky(group, course, profile, bounds, rc, env, anisotropy);
-  _buildGround(group, course, profile, bounds, samples, rc, anisotropy);
+  const terrain = _buildGround(group, course, profile, bounds, samples, rc, anisotropy);
   _buildTrackLayers(group, course, profile, samples, rc, anisotropy);
+  env.grass = createRallyGrassLayer({
+    course,
+    samples,
+    quality,
+    mode,
+    groundSize: terrain.size,
+    heightAt: terrain.heightAt,
+    reduceMotion,
+  });
+  group.add(env.grass.group);
   _buildCurbsAndRails(group, course, profile, samples, rc);
   const scenerySites = _makeScatterSites(course, samples);
   const dressingSites = _makeDressingSites(course, samples);
@@ -1160,6 +1212,7 @@ export function updateRallyEnvironment(env, time, dt = 0) {
   if (!env || env.disposed) return;
   env.elapsed = Number.isFinite(time) ? time : env.elapsed + Math.max(0, dt);
   const t = env.elapsed;
+  env.grass?.update(t);
   for (let i = 0; i < env.glowMaterials.length; i++) {
     const material = env.glowMaterials[i];
     const base = material.userData.rallyBaseEmissiveIntensity ?? 1;
@@ -1195,6 +1248,8 @@ export function syncRallySkyToCamera(env, camera) {
 export function disposeRallyEnvironment(env) {
   if (!env || env.disposed) return;
   env.disposed = true;
+  env.grass?.dispose?.();
+  env.grass = null;
   env.group?.removeFromParent();
   for (const type of ['geometries', 'materials', 'textures']) {
     const resources = env.resources[type];

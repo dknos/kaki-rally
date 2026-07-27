@@ -403,6 +403,8 @@ function _buildCourse(course, root, owned, assetLease = null, monsterDefinition 
     assetLease,
     textureResolver: assetLease?.getTextureByUrl?.bind(assetLease) || null,
     anisotropy: Math.min(8, getActiveRendererCapabilities(state).maxAnisotropy || 1),
+    quality: state.options.quality || 'high',
+    reduceMotion: !!state._optReduceMotion,
   });
   const overpassKit = TrackMeshBuilder.buildOverpasses({ root, course, samples, owned });
   const features = _buildFeaturePads(course, samples, root, owned);
@@ -1988,6 +1990,12 @@ function _snapshot(session) {
       drawCalls: getRendererDiagnostics(state).drawCalls ?? null,
       triangles: getRendererDiagnostics(state).triangles ?? null,
     },
+    environment: session.environment
+      ? {
+          authoredReady: !!session.environment.authoredReady,
+          grass: session.environment.grass?.getStats?.() || null,
+        }
+      : null,
     monster: session.raceMode === 'monster'
       ? {
           ...monsterSnapshot(
@@ -3125,6 +3133,7 @@ function _mountQaBridge(session, actions) {
       fallbackVisible: environment?.group?.getObjectByName?.(`${session.course.id}-procedural-scatter-fallback`)?.visible ?? null,
       groundMap: ground?.material?.map?.image?.currentSrc || ground?.material?.map?.image?.src || '',
       groundRepeat: ground?.material?.map?.repeat?.toArray?.() || [],
+      grass: environment?.grass?.getStats?.() || null,
     });
   };
   reportAssets();

@@ -41,14 +41,32 @@ times in one page:
 | Render targets | 12 | 12 |
 | Racing audio active | false | false |
 
-Across active scenes, the recorded peaks were 407 draw calls, 1,116,777
-triangles, 253 DOM nodes, and 714 scene objects. Each mode retained fixed-step
+Across active scenes, the recorded peaks were 413 draw calls, 1,528,821
+triangles, 253 DOM nodes, and 721 scene objects. The average SwiftShader frame
+interval across the ten configurations was 412.646 ms, with a worst per-mode
+p95 of 633.3 ms. Each mode retained fixed-step
 physics and capped frame-time input from the source implementation. Draw Track
 validation remains outside the racing hot path.
 
 The complete per-transition report, renderer diagnostics, and environment
 description are in `qa/performance-transitions.json`; the matching immutable
 source sample is in `qa/source-monster-baseline.json`.
+
+## Terra grass budget
+
+At high quality, the forest circuit builds 5,020 carpet/emergent clumps in six
+instanced draws. Its merged blade templates submit 412,044 triangles and use
+31,080 bytes of unique geometry data plus 381,520 bytes of instance matrix and
+color data. Twilight drift submits 336,336 grass triangles; the Stock Cup
+safeguard and sparse cinder biome submit 113,340. Low quality was browser
+validated at 1,420 clumps, two draws, and 134,280 triangles.
+
+The optimized final grass templates reduced the initial integration from
+612,472 to 412,044 forest triangles without reducing clump count. Compared
+with the immediately preceding checked SwiftShader run, the ten-mode average
+frame interval moved from 398.149 to 412.646 ms (+3.6%), while the worst p95
+moved from 650 to 633.3 ms. These software-rendered runs are noisy comparative
+evidence, not a physical-GPU FPS claim.
 
 ## Interpretation
 
