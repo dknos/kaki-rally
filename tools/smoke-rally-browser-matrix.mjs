@@ -202,7 +202,10 @@ async function startMode(page, mode, courseId, options = {}) {
   if (mode === 'crash') {
     await page.waitForFunction(() => {
       const snapshot = window.__kkCrash?.snapshot?.();
-      return snapshot?.worldReady && snapshot?.assetsReady && !snapshot?.assetError;
+      return snapshot?.worldReady
+        && snapshot?.assetsReady
+        && !snapshot?.assetError
+        && snapshot.phase !== 'LOADING';
     }, null, { timeout: 120_000 });
   } else {
     await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
@@ -239,7 +242,10 @@ async function startModeFromMenu(page, spec) {
   if (spec.mode === 'crash') {
     await page.waitForFunction(() => {
       const snapshot = window.__kkCrash?.snapshot?.();
-      return snapshot?.worldReady && snapshot?.assetsReady && !snapshot?.assetError;
+      return snapshot?.worldReady
+        && snapshot?.assetsReady
+        && !snapshot?.assetError
+        && snapshot.phase !== 'LOADING';
     }, null, { timeout: 120_000 });
   } else {
     await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
