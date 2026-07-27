@@ -35,7 +35,7 @@ The standalone application keeps the racing engine intact and replaces the sourc
 
 1. Resolve and record a new immutable upstream SHA; never diff against an unrecorded moving branch.
 2. Compare `src/racing/` and `assets/racing/` against this SHA with `git diff --name-status 3711e8fc0c2c86b27911171c5394723ceb9e45aa..<new-sha> -- src/racing assets/racing`.
-3. Re-run `npm run inventory:assets` and inspect added, removed, renamed, or case-changed runtime URLs.
+3. Re-run `npm run assets:inventory` and inspect added, removed, renamed, or case-changed runtime URLs.
 4. Audit imports leaving `src/racing/` and adapt only the focused standalone service contracts they actually require.
 5. Run `npm test` plus the browser matrix before accepting the sync.
 6. Record intentional behavioral or asset deviations here and in `CHANGELOG.md`.
