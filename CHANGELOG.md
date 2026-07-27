@@ -2,6 +2,17 @@
 
 All notable standalone Kaki Rally changes are recorded here.
 
+## Unreleased
+
+### Added
+
+- Terra-STL-derived AAA grass for rally, drift, stock, and generated Draw
+  Track courses: deterministic carpet/emergent clumps, biome palettes,
+  road-safe placement, distance bands, GPU wind, reduced-motion handling, and
+  quality-scaled instance budgets on both WebGL and WebGPU.
+- Grass layout, renderer-contract, lifecycle, browser-matrix, and
+  ten-transition leak/performance coverage.
+
 ## 1.0.0 — 2026-07-27
 
 ### Added

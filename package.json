@@ -8,7 +8,7 @@
     "serve": "node tools/serve.mjs",
     "test": "npm run test:renderer && npm run test:racing && npm run test:standalone && npm run test:assets",
     "test:renderer": "node --test src/rendering/__tests__/*.test.mjs",
-    "test:racing": "node tools/smoke-rally-availability.mjs && node tools/smoke-racing-cameras.mjs && node tools/smoke-racing-physics.mjs && node tools/smoke-racing-tracks.mjs && node tools/smoke-racing-draw-track.mjs && node tools/smoke-racing-monster.mjs && node tools/smoke-monster-arena.mjs && node tools/smoke-monster-vehicle-physics.mjs && node tools/smoke-monster-records.mjs && node tools/smoke-racing-trials.mjs && npm run test:racing:crash && node tools/smoke-racing-visuals.mjs && node tools/smoke-racing-lifecycle.mjs",
+    "test:racing": "node tools/smoke-rally-availability.mjs && node tools/smoke-racing-cameras.mjs && node tools/smoke-racing-physics.mjs && node tools/smoke-racing-tracks.mjs && node tools/smoke-racing-draw-track.mjs && node tools/smoke-rally-grass.mjs && node tools/smoke-racing-monster.mjs && node tools/smoke-monster-arena.mjs && node tools/smoke-monster-vehicle-physics.mjs && node tools/smoke-monster-records.mjs && node tools/smoke-racing-trials.mjs && npm run test:racing:crash && node tools/smoke-racing-visuals.mjs && node tools/smoke-racing-lifecycle.mjs",
     "test:racing:crash": "node tools/smoke-racing-crash.mjs && node tools/smoke-racing-crash-physics.mjs && node tools/validate-kaki-catastrophe-assets.mjs",
     "test:standalone": "node tools/smoke-rally-save.mjs && node tools/smoke-standalone-boundaries.mjs && node tools/smoke-standalone-lifecycle.mjs",
     "test:assets": "node tools/validate-rally-assets.mjs && node tools/generate-asset-inventory.mjs --check",

@@ -10,12 +10,18 @@ Validation date: 2026-07-27
 
 `npm test` covers renderer settings/backend selection, six-course definitions,
 racing physics/cameras/steering, Draw Track geometry/repair/storage/KDT
-compatibility, Monster systems/arena/vehicle physics/records, Trials
+compatibility, Terra-derived grass placement/render contracts, Monster
+systems/arena/vehicle physics/records, Trials
 physics/progression/ghosts, Catastrophe logic/Rapier/collision matrix/assets,
 racing visuals, save export/import/reset, mode lifecycle, production import
 boundaries, and the focused asset inventory.
 
-The standalone boundary walk contains 109 production runtime modules and 279
+The grass suite contributes 44 deterministic assertions for quality budgets,
+all six biome palettes, terrain following, three distance bands, complete road
+clearance, Draw Track self-near clearance, node-material wind, reduced-motion,
+and disposal wiring.
+
+The standalone boundary walk contains 112 production runtime modules and 286
 import edges. It has no path to Survivors combat systems. The runtime asset
 manifest contains 72 directly required files (27.95 MiB); the wider focused
 inventory contains 117 files (59.73 MiB), including retained license/runtime
@@ -54,6 +60,9 @@ Additional scenarios:
   replay camera, restart, exit, and re-entry.
 - 1280×720 desktop, ultrawide letterboxing, and landscape phone layout.
 - Renderer recovery/state-machine tests plus WebGPU initialization fallback.
+- Terra grass on circuit, drift, stock, and generated Draw Track sessions:
+  nonempty diagnostics, six-draw ceiling, submitted geometry, TSL wind, and
+  matching WebGL/WebGPU presentation.
 
 The final machine-readable run and screenshots are under `docs/qa/`. Expected
 request aborts are limited to in-flight assets canceled by deliberate mode

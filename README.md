@@ -30,6 +30,12 @@ The six rally venues are **Borrowed Post Switchback**, **Nobody’s Turn**,
 **Kiln-Shift Circuit**, **Quiet Toll Run**, **Glass Mile**, and
 **Chalkline Loop**.
 
+Rally, drift, stock, and generated Draw Track courses use the Terra-STL grass
+system: deterministic carpet and emergent clumps, venue-specific palettes,
+road-cleared placement, distance thinning, and tip-weighted wind. The same TSL
+material runs on WebGL and WebGPU; display quality scales the instance budget,
+and reduced-motion disables wind without removing the landscape layer.
+
 ## Controls
 
 Keyboard and gamepad controls are remappable through the browser/OS input

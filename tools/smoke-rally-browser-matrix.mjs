@@ -189,6 +189,18 @@ async function bootPage(browser, origin, backend, diagnostics, {
   return { context, page, boot };
 }
 
+async function assertRallyGrass(page, mode) {
+  if (!['circuit', 'drift', 'stock', 'draw'].includes(mode)) return null;
+  const grass = await page.evaluate(() => window.__kakiRally.getSnapshot()?.environment?.grass || null);
+  assert(grass, `${mode} did not create its Terra grass layer`);
+  assert.equal(grass.schema, 'kaki-rally-terra-grass@1', `${mode} grass schema changed`);
+  assert(grass.counts.total > 0, `${mode} grass layer is empty`);
+  assert(grass.drawCalls > 0 && grass.drawCalls <= 6, `${mode} grass draw budget escaped its six instanced draws`);
+  assert(grass.submittedTriangles > 0, `${mode} grass submitted no geometry`);
+  assert.equal(grass.wind, 'tsl-tip-weighted', `${mode} grass lost backend-neutral wind`);
+  return grass;
+}
+
 async function startMode(page, mode, courseId, options = {}) {
   const started = await page.evaluate(
     ({ mode, courseId, options }) => window.__kakiRally.start(mode, courseId, options).then(Boolean),
@@ -210,6 +222,7 @@ async function startMode(page, mode, courseId, options = {}) {
   } else {
     await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
   }
+  await assertRallyGrass(page, mode);
   return page.evaluate(() => window.__kakiRally.getDiagnostics());
 }
 
@@ -250,6 +263,7 @@ async function startModeFromMenu(page, spec) {
   } else {
     await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
   }
+  await assertRallyGrass(page, spec.mode);
   return page.evaluate(() => window.__kakiRally.getDiagnostics());
 }
 
@@ -583,6 +597,7 @@ async function runDraw(page, backend, evidence) {
     timeout: 120_000,
   });
   await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
+  await assertRallyGrass(page, 'draw');
   await skipCountdown(page);
   const raced = await exerciseKeyboard(page);
   await exerciseTouch(page, 'draw');
@@ -873,6 +888,7 @@ async function runWebGpu(browser, origin, report) {
       window.__kdtEditor.finishBuild();
     });
     await page.waitForFunction(() => window.__kakiRally.getDiagnostics().activeMode === 'draw', null, { timeout: 120_000 });
+    await assertRallyGrass(page, 'draw');
     await skipCountdown(page);
     const drawDiagnostics = await page.evaluate(() => window.__kakiRally.getDiagnostics());
     assert.equal(drawDiagnostics.backend, 'webgpu');

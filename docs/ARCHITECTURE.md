@@ -58,6 +58,22 @@ Compatibility re-exports at `src/assets.js`, `src/audio.js`, `src/config.js`,
 imports stable. They expose the focused implementations; they are not
 Survivors services.
 
+## Rally vegetation
+
+`rallyGrassLayout.js` is a pure deterministic placement layer derived from the
+Terra-STL grass research. It owns quality budgets, biome palette selection,
+low-frequency patchiness, distance bands, and full sampled-road clearance.
+It accepts a presentation-only terrain-height callback and never reaches
+physics, course progression, or Draw Track storage.
+
+`rallyGrass.js` builds merged curved multi-blade templates and distributes the
+layout through at most six `InstancedMesh` draws. Its
+`rallyGrassMaterial.js` uses a Three r185 `MeshStandardNodeMaterial` for
+base-to-tip color, instance tint, warm tips, and stiff-base/floppy-tip wind on
+both backends. `racingEnvironment.js` owns update and disposal. Reduced-motion
+sets wind strength to zero; low through ultra display quality changes instance
+budgets without changing track geometry or handling.
+
 ## Renderer policy
 
 The renderer layer remains backend-neutral Three.js r185. WebGL 2 is the
