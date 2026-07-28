@@ -34,6 +34,23 @@ and Blender workflows. The decal atlas’s reviewed source artifact is retained
 under `assets/source/imagegen/`; the focused runtime inventory records every
 shipped derivative’s path, size, and SHA-256 hash.
 
+### Kaki Course Workshop
+
+The Workshop bridge, ramp, utility, hazard, destructible, scenery, challenge,
+and editor-thumbnail kit is original project-bound artwork. The reproducible
+Blender source is `tools/blender/build-kaki-course-workshop-kit.py`; its runtime
+output is `assets/racing/workshop/kaki-course-workshop-kit-v1.glb`.
+
+The art-direction concept at
+`docs/concepts/kaki-course-workshop-kit.png` was generated with the built-in
+OpenAI image-generation workflow from an orthographic neo-chibi Kaki modular
+bridge/ramp-kit prompt specifying laminated wood, painted steel splice plates,
+warm guardrails, rubberized ramps, Standard/Tall/Huge bridge variants, and
+theme-reactive trims. It was used only as a concept reference. No generated
+raster is copied into the runtime GLB or thumbnail atlas; final geometry,
+materials, LOD-ready modules, origins, collisions, theme variants, and
+thumbnails were authored through the Blender pipeline and inspected in-engine.
+
 ## Audio
 
 - **Kenney** — CC0 menu/audio source material used by the original project.
@@ -49,6 +66,16 @@ shipped derivative’s path, size, and SHA-256 hash.
 - [Draco](https://github.com/google/draco) decoder — Apache License 2.0.
 - [meshoptimizer](https://github.com/zeux/meshoptimizer) / Meshopt decoder —
   MIT License.
+
+Workshop rendering and asset decisions were researched against official
+Three.js r185 documentation and examples, including
+[GLTFLoader](https://threejs.org/docs/pages/GLTFLoader.html),
+[compressed glTF on WebGPU](https://threejs.org/examples/webgpu_loader_gltf_compressed.html),
+[batched LOD/BVH](https://threejs.org/examples/webgl_batch_lod_bvh.html), and
+[BloomNode](https://threejs.org/docs/pages/BloomNode.html). These were used as
+implementation patterns only; no example code or assets were copied into the
+project. The existing renderer abstraction, asset leases, DRACO/Meshopt loader,
+instancing, and TSL post-processing remain the owners.
 
 Thanks to the authors and communities whose work makes an open browser game
 like this possible. No ownership of third-party work is claimed.

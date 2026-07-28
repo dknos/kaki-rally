@@ -18,6 +18,22 @@ import {
   stepTrials,
   stepTrialsScore,
 } from '../src/racing/trialsPhysics.js';
+import {
+  CUSTOM_TRIALS_STORAGE_KEY,
+  MAX_TRIALS_FEATURES,
+  TrialsCourseCodec,
+  TrialsCourseLibrary,
+  createEmptyTrialsCourse,
+  duplicateOfficialTrialsCourse,
+  sanitizeTrialsCourse,
+} from '../src/racing/trialsWorkshopStorage.js';
+import {
+  TRIALS_TERRAIN_TOOLS,
+  applyTrialsTerrainStamp,
+  predictTrialsJump,
+  validateTrialsCourse,
+} from '../src/racing/trialsWorkshopGeometry.js';
+import { createCourseFeaturePlacementId } from '../src/racing/courseFeaturePlacement.js';
 
 function placeOnGround(state, track, profile, x, speed = 0) {
   const ground = sampleTrialsGround(track, x);
@@ -287,4 +303,170 @@ assert.equal(result.rawTime, 60);
 assert.ok(result.effectiveTime < result.rawTime);
 assert.equal(result.medal, 'S');
 
-console.log('Kaki Rally Trials foundation smoke passed (3 tracks, 2 vehicles, deterministic 240 Hz substeps)');
+// KTR1 keeps custom courses isolated from official progression and round-trips
+// normalized terrain, mode-relative stamps, gaps, gates, and medal targets.
+const workshop = createEmptyTrialsCourse({
+  seed: 0x4b414b49,
+  rolling: false,
+  length: 520,
+  themeId: 'quarry',
+});
+workshop.name = 'Deterministic Workshop Fixture';
+workshop.featurePlacements.push(
+  {
+    id: createCourseFeaturePlacementId('large-launch-ramp', workshop.seed, 8),
+    featureId: 'large-launch-ramp',
+    anchor: {
+      mode: 'trials',
+      x: 92,
+      groundOffset: 0,
+      facing: 1,
+      rotationOffset: 0,
+      scaleX: 1,
+      scaleY: 1,
+    },
+  },
+  {
+    id: createCourseFeaturePlacementId('double-jump', workshop.seed, 9),
+    featureId: 'double-jump',
+    anchor: {
+      mode: 'trials',
+      x: 248,
+      groundOffset: 0,
+      facing: 1,
+      rotationOffset: 0,
+      scaleX: 1,
+      scaleY: 1,
+    },
+  },
+);
+const normalizedWorkshop = sanitizeTrialsCourse(workshop).course;
+const shareCode = TrialsCourseCodec.encode(normalizedWorkshop);
+assert.ok(shareCode.startsWith('KTR1-') && shareCode.length < 64 * 1024 * 2);
+const decodedWorkshop = TrialsCourseCodec.decode(shareCode);
+assert.equal(decodedWorkshop.course.name, workshop.name);
+assert.equal(decodedWorkshop.course.length, 520);
+assert.equal(decodedWorkshop.course.themeId, 'quarry');
+assert.deepEqual(
+  decodedWorkshop.course.featurePlacements.map((placement) => placement.featureId),
+  normalizedWorkshop.featurePlacements.map((placement) => placement.featureId),
+);
+assert.throws(
+  () => TrialsCourseCodec.decode(`${shareCode.slice(0, -1)}${shareCode.endsWith('a') ? 'b' : 'a'}`),
+  /checksum|bounded|incomplete/i,
+  'corrupt KTR1 payload should fail closed',
+);
+
+// Shared visible ramp profiles are the authoritative contact source. The
+// launch rises above base terrain, while the double's exact visible void has
+// no hidden ground.
+const launch = normalizedWorkshop.featurePlacements.find((placement) => placement.featureId === 'large-launch-ramp');
+const launchLength = 11.8;
+const launchStart = launch.anchor.x - launchLength * 0.5;
+const launchBase = sampleTrialsGround({ ...normalizedWorkshop, featurePlacements: [] }, launchStart);
+const launchMid = sampleTrialsGround(normalizedWorkshop, launch.anchor.x);
+assert.ok(launchBase && launchMid && launchMid.height > launchBase.height + 0.7, 'authored launch profile did not change physical terrain');
+assert.equal(launchMid.placementId, launch.id);
+const double = normalizedWorkshop.featurePlacements.find((placement) => placement.featureId === 'double-jump');
+assert.equal(sampleTrialsGround(normalizedWorkshop, double.anchor.x), null, 'double-jump visible void retained phantom ground');
+
+// The TERRAIN stage exposes every requested profile. Ramp stamps are adapters
+// over the shared catalog, so their visible mesh and contact profile remain
+// the same object used by PLACE rather than a second hidden terrain system.
+assert.equal(TRIALS_TERRAIN_TOOLS.length, 12);
+const kickerStampedResult = applyTrialsTerrainStamp(normalizedWorkshop, {
+  kind: 'kicker',
+  x: 120,
+});
+assert.equal(kickerStampedResult.changed, true, kickerStampedResult.message);
+const terrainKicker = kickerStampedResult.course.featurePlacements.find((placement) => (
+  placement.featureId === 'small-kicker' && Math.abs(placement.anchor.x - 120) < 0.01
+));
+assert.ok(terrainKicker, 'Trials terrain kicker did not enter the shared feature list');
+const kickerBase = sampleTrialsGround(normalizedWorkshop, 120);
+const kickerContact = sampleTrialsGround(kickerStampedResult.course, 120);
+assert.ok(
+  kickerBase && kickerContact && kickerContact.height > kickerBase.height + 0.35,
+  'Trials terrain kicker did not alter the authoritative sampler',
+);
+
+// A custom range gap is exact, vehicle-specific prediction reports required
+// speed, and validation refuses an impossible flat-ground chasm.
+const gapStamped = applyTrialsTerrainStamp(normalizedWorkshop, {
+  kind: 'gap',
+  x: 390,
+  width: 28,
+}).course;
+const stampedGap = gapStamped.gaps.find((gap) => gap.start < 390 && gap.end > 390);
+assert.ok(stampedGap);
+assert.equal(sampleTrialsGround(gapStamped, stampedGap.start - 0.01) !== null, true);
+assert.equal(sampleTrialsGround(gapStamped, (stampedGap.start + stampedGap.end) * 0.5), null);
+assert.equal(sampleTrialsGround(gapStamped, stampedGap.end + 0.01) !== null, true);
+for (const vehicle of ['monster', 'buggy']) {
+  const prediction = predictTrialsJump(gapStamped, {
+    startX: stampedGap.start,
+    endX: stampedGap.end,
+    vehicle,
+  });
+  assert.equal(prediction.vehicle, vehicle);
+  assert.ok('requiredSpeed' in prediction && 'landingSafety' in prediction);
+}
+assert.equal(validateTrialsCourse(gapStamped).valid, false, 'impossible flat chasm was accepted');
+
+// Official copies retain terrain/gaps but materialize custom obstacles,
+// checkpoints, and finish through the shared catalog.
+const copiedQuarry = duplicateOfficialTrialsCourse('quarry', { seed: 4545 });
+assert.equal(copiedQuarry.custom, true);
+assert.equal(copiedQuarry.sourceOfficialId, 'quarry');
+assert.deepEqual(copiedQuarry.heightPoints, TRIALS_TRACKS.quarry.heightPoints);
+assert.deepEqual(copiedQuarry.gaps, TRIALS_TRACKS.quarry.gaps);
+assert.equal(copiedQuarry.checkpoints.length, TRIALS_TRACKS.quarry.checkpoints.length);
+assert.equal(copiedQuarry.obstacles.length, TRIALS_TRACKS.quarry.obstacles.length);
+assert.equal(getTrialsTrack(copiedQuarry), copiedQuarry, 'runtime reduced a custom course back to an official string id');
+
+// Unknown IDs are ignored, transforms are clamped, feature count is bounded,
+// and a quota error never falls through into the official progression key.
+const tooMany = Array.from({ length: MAX_TRIALS_FEATURES + 17 }, (_, index) => ({
+  id: `fixture-${index}`,
+  featureId: 'hay-bales',
+  anchor: {
+    mode: 'trials',
+    x: index * 3,
+    groundOffset: Infinity,
+    facing: index % 2 ? -1 : 1,
+    rotationOffset: Infinity,
+    scaleX: 999,
+    scaleY: -999,
+  },
+}));
+tooMany.splice(4, 0, {
+  id: 'unknown-fixture',
+  featureId: 'not-a-real-kaki-stamp',
+  anchor: { mode: 'trials', x: 20 },
+});
+const bounded = sanitizeTrialsCourse({
+  ...workshop,
+  length: Infinity,
+  featurePlacements: tooMany,
+});
+assert.equal(bounded.course.length, 720);
+assert.equal(bounded.course.featurePlacements.length, MAX_TRIALS_FEATURES);
+assert.ok(bounded.warnings.some((warning) => /Unknown course feature/.test(warning)));
+assert.ok(bounded.warnings.some((warning) => /limited to 240/.test(warning)));
+assert.ok(bounded.course.featurePlacements.every((placement) => (
+  placement.anchor.scaleX >= 0.75 && placement.anchor.scaleX <= 1.35
+)));
+
+const quotaStorage = {
+  getItem() { return null; },
+  setItem(key) {
+    assert.equal(key, CUSTOM_TRIALS_STORAGE_KEY);
+    throw new DOMException('Quota exceeded', 'QuotaExceededError');
+  },
+};
+assert.throws(
+  () => new TrialsCourseLibrary(quotaStorage).save(workshop),
+  /storage may be full/i,
+);
+
+console.log('Kaki Rally Trials + Workshop smoke passed (3 official tracks, KTR1, shared ramps/gaps, 2 vehicles)');

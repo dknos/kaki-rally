@@ -12,7 +12,11 @@ import { ChaseCameraCollision } from './chaseCameraCollision.js';
 import { IsometricCameraRig } from './isometricCameraRig.js';
 import { ChaseCameraRig } from './chaseCameraRig.js';
 import { DriverFpvCameraRig } from './driverFpvCameraRig.js';
-import { setOrthographicFrame, setPerspectiveFrame } from './cameraRigMath.js';
+import {
+  lookQuaternion,
+  setOrthographicFrame,
+  setPerspectiveFrame,
+} from './cameraRigMath.js';
 
 const PREFERENCE_KEY = 'kks_racing_camera_mode_v1';
 const MIN_ZOOM = 0.72;
@@ -50,6 +54,7 @@ export class RacingCameraManager {
     this.mode = RacingCameraMode.ISOMETRIC;
     this.modes = [RacingCameraMode.ISOMETRIC];
     this.transition = null;
+    this.cinematic = null;
     this.forceSnap = true;
     this.disposed = false;
     this.paused = false;
@@ -72,6 +77,9 @@ export class RacingCameraManager {
     this.hiddenInterior = new Map();
     this._transitionPosition = new THREE.Vector3();
     this._transitionQuaternion = new THREE.Quaternion();
+    this._cinematicPosition = new THREE.Vector3();
+    this._cinematicFocus = new THREE.Vector3();
+    this._cinematicQuaternion = new THREE.Quaternion();
   }
 
   bindVehicle(vehicle) {
@@ -167,6 +175,86 @@ export class RacingCameraManager {
     this.hasVehiclePosition = false;
   }
 
+  startCinematic({
+    keyframes = [],
+    duration = 5,
+    onComplete = null,
+  } = {}) {
+    const frames = keyframes
+      .filter((frame) => frame?.position && frame?.focus)
+      .map((frame) => ({
+        position: frame.position.clone
+          ? frame.position.clone()
+          : new THREE.Vector3(frame.position.x, frame.position.y, frame.position.z),
+        focus: frame.focus.clone
+          ? frame.focus.clone()
+          : new THREE.Vector3(frame.focus.x, frame.focus.y, frame.focus.z),
+        fov: THREE.MathUtils.clamp(Number(frame.fov) || 52, 32, 86),
+        label: String(frame.label || ''),
+      }));
+    if (frames.length < 2) return false;
+    this._restoreInteriorVisibility();
+    this.transition = null;
+    this.cinematic = {
+      keyframes: frames,
+      duration: Math.max(0.4, Number(duration) || 5),
+      elapsed: 0,
+      onComplete: typeof onComplete === 'function' ? onComplete : null,
+    };
+    return true;
+  }
+
+  skipCinematic({ complete = true } = {}) {
+    const cinematic = this.cinematic;
+    if (!cinematic) return false;
+    this.cinematic = null;
+    this.resetCamera({ instant: true });
+    if (complete) {
+      try { cinematic.onComplete?.(); } catch (_) {}
+    }
+    return true;
+  }
+
+  _updateCinematic(dt, aspect) {
+    const cinematic = this.cinematic;
+    cinematic.elapsed = Math.min(cinematic.duration, cinematic.elapsed + Math.max(0, dt));
+    const normalized = cinematic.elapsed / cinematic.duration;
+    const scaled = normalized * (cinematic.keyframes.length - 1);
+    const index = Math.min(cinematic.keyframes.length - 2, Math.floor(scaled));
+    const amount = smoothstep(scaled - index);
+    const a = cinematic.keyframes[index];
+    const b = cinematic.keyframes[index + 1];
+    this._cinematicPosition.lerpVectors(a.position, b.position, amount);
+    this._cinematicFocus.lerpVectors(a.focus, b.focus, amount);
+    lookQuaternion(this._cinematicPosition, this._cinematicFocus, 0, this._cinematicQuaternion);
+    const frame = {
+      projection: 'perspective',
+      position: this._cinematicPosition,
+      quaternion: this._cinematicQuaternion,
+      focus: this._cinematicFocus,
+      fov: THREE.MathUtils.lerp(a.fov, b.fov, amount),
+      equivalentFov: THREE.MathUtils.lerp(a.fov, b.fov, amount),
+      near: 0.1,
+      far: 1000,
+      label: amount < 0.5 ? a.label : b.label,
+      effects: {
+        chromatic: 0,
+        bloom: 0.36,
+        cinematic: true,
+      },
+    };
+    this._applyFrame(frame, aspect);
+    this.lastFrame = frame;
+    this.lastEffects = frame.effects;
+    if (normalized >= 1) this.skipCinematic();
+    return {
+      camera: this.activeCamera,
+      effects: this.lastEffects,
+      frame,
+      mode: 'flyover',
+    };
+  }
+
   onVehicleRespawned() {
     this.resetCamera({ instant: true });
   }
@@ -247,6 +335,10 @@ export class RacingCameraManager {
     this.lastReducedMotion = !!reducedMotion;
     const vehicle = this._vehicleState();
     if (!vehicle || !this.profile) return null;
+    if (this.cinematic) {
+      if (this.lastReducedMotion) this.skipCinematic();
+      else return this._updateCinematic(dt, aspect);
+    }
     const input = this.paused ? {
       cycle: 0, mode: null, recenter: false, lookBack: false,
       lookDelta: { x: 0, y: 0 }, lookStick: { x: 0, y: 0 }, zoomSteps: 0,
@@ -353,6 +445,11 @@ export class RacingCameraManager {
       mode: this.mode,
       available: [...this.modes],
       transitioning: !!this.transition,
+      cinematic: !!this.cinematic,
+      cinematicProgress: this.cinematic
+        ? Math.min(1, this.cinematic.elapsed / this.cinematic.duration)
+        : 1,
+      cinematicLabel: this.lastFrame?.label || '',
       transitionProgress: this.transition
         ? Math.min(1, this.transition.elapsed / Math.max(0.001, this.transition.duration))
         : 1,
@@ -371,6 +468,7 @@ export class RacingCameraManager {
     this._restoreInteriorVisibility();
     this.input.dispose();
     this.transition = null;
+    this.cinematic = null;
     this._activate(this.orthographicCamera);
   }
 }

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-07-27T18:22:44.724Z",
+  "generatedAt": "2026-07-28T02:05:51.819Z",
   "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
   "environment": {
     "browser": "/home/nemoclaw/bin/chromium",
@@ -22,27 +22,27 @@
       "index": 1,
       "mode": "circuit",
       "courseId": "forest",
-      "enterDurationMs": 19534,
+      "enterDurationMs": 22362,
       "frames": {
         "samples": 24,
-        "averageMs": 536.8,
-        "p95Ms": 583.3,
-        "maxMs": 599.9,
-        "averageFps": 1.86
+        "averageMs": 541.129,
+        "p95Ms": 600,
+        "maxMs": 616.7,
+        "averageFps": 1.85
       },
       "active": {
         "domNodes": 248,
         "sceneObjects": 415,
         "sessionRoots": 1,
         "drawCalls": 385,
-        "triangles": 1528821,
+        "triangles": 1528665,
         "textures": 33,
         "geometries": 177,
         "renderTargets": 13,
-        "gpuMemoryBytes": 152493557,
-        "cpuFrameTimeMs": 37.63913043815157,
-        "cpuFrameTimeP99Ms": 552.2999999523163,
-        "renderSubmissionTimeMs": 36.25869565424712
+        "gpuMemoryBytes": 152504213,
+        "cpuFrameTimeMs": 31.31724137787161,
+        "cpuFrameTimeP99Ms": 537.8000000119209,
+        "renderSubmissionTimeMs": 29.493103451769926
       },
       "afterExit": {
         "domNodes": 153,
@@ -60,27 +60,27 @@
       "index": 2,
       "mode": "drift",
       "courseId": "twilight",
-      "enterDurationMs": 18330,
+      "enterDurationMs": 19792,
       "frames": {
         "samples": 24,
-        "averageMs": 514.504,
-        "p95Ms": 566.6,
-        "maxMs": 683.4,
-        "averageFps": 1.94
+        "averageMs": 495.242,
+        "p95Ms": 599.9,
+        "maxMs": 616.7,
+        "averageFps": 2.02
       },
       "active": {
         "domNodes": 248,
         "sceneObjects": 424,
         "sessionRoots": 1,
-        "drawCalls": 306,
-        "triangles": 1397223,
+        "drawCalls": 316,
+        "triangles": 1361897,
         "textures": 31,
-        "geometries": 152,
+        "geometries": 157,
         "renderTargets": 13,
-        "gpuMemoryBytes": 151517126,
-        "cpuFrameTimeMs": 31.020481929003473,
-        "cpuFrameTimeP99Ms": 552.2999999523163,
-        "renderSubmissionTimeMs": 29.30481927366142
+        "gpuMemoryBytes": 151552758,
+        "cpuFrameTimeMs": 26.55445544495441,
+        "cpuFrameTimeP99Ms": 480.10000002384186,
+        "renderSubmissionTimeMs": 24.628712873057562
       },
       "afterExit": {
         "domNodes": 153,
@@ -90,7 +90,7 @@
         "textures": 19,
         "geometries": 2,
         "renderTargets": 12,
-        "gpuMemoryBytes": 113005559,
+        "gpuMemoryBytes": 113018387,
         "racingAudio": false
       }
     },
@@ -98,27 +98,27 @@
       "index": 3,
       "mode": "stock",
       "courseId": "cinder",
-      "enterDurationMs": 17046,
+      "enterDurationMs": 20637,
       "frames": {
         "samples": 24,
-        "averageMs": 459.813,
-        "p95Ms": 533.3,
-        "maxMs": 550,
-        "averageFps": 2.17
+        "averageMs": 465.808,
+        "p95Ms": 533.4,
+        "maxMs": 616.7,
+        "averageFps": 2.15
       },
       "active": {
         "domNodes": 248,
         "sceneObjects": 721,
         "sessionRoots": 1,
-        "drawCalls": 264,
-        "triangles": 820733,
+        "drawCalls": 221,
+        "triangles": 814899,
         "textures": 32,
         "geometries": 182,
         "renderTargets": 13,
-        "gpuMemoryBytes": 151303626,
-        "cpuFrameTimeMs": 28.547499999403954,
-        "cpuFrameTimeP99Ms": 502.39999997615814,
-        "renderSubmissionTimeMs": 26.644999998311203
+        "gpuMemoryBytes": 151317318,
+        "cpuFrameTimeMs": 18.141666666666666,
+        "cpuFrameTimeP99Ms": 444,
+        "renderSubmissionTimeMs": 15.747500001887481
       },
       "afterExit": {
         "domNodes": 153,
@@ -128,7 +128,7 @@
         "textures": 19,
         "geometries": 2,
         "renderTargets": 12,
-        "gpuMemoryBytes": 113008491,
+        "gpuMemoryBytes": 113021319,
         "racingAudio": false
       }
     },
@@ -136,13 +136,13 @@
       "index": 4,
       "mode": "monster",
       "courseId": "forest",
-      "enterDurationMs": 16981,
+      "enterDurationMs": 15708,
       "frames": {
         "samples": 24,
-        "averageMs": 298.425,
-        "p95Ms": 333.3,
-        "maxMs": 350,
-        "averageFps": 3.35
+        "averageMs": 287.533,
+        "p95Ms": 316.7,
+        "maxMs": 349.9,
+        "averageFps": 3.48
       },
       "active": {
         "domNodes": 253,
@@ -153,10 +153,10 @@
         "textures": 51,
         "geometries": 150,
         "renderTargets": 13,
-        "gpuMemoryBytes": 133936016,
-        "cpuFrameTimeMs": 29.70166666607062,
-        "cpuFrameTimeP99Ms": 590.7000000476837,
-        "renderSubmissionTimeMs": 27.30833333134651
+        "gpuMemoryBytes": 133948844,
+        "cpuFrameTimeMs": 25.479166666169963,
+        "cpuFrameTimeP99Ms": 514.5,
+        "renderSubmissionTimeMs": 22.83000000268221
       },
       "afterExit": {
         "domNodes": 153,
@@ -166,7 +166,7 @@
         "textures": 19,
         "geometries": 2,
         "renderTargets": 12,
-        "gpuMemoryBytes": 113083611,
+        "gpuMemoryBytes": 113096439,
         "racingAudio": false
       }
     },
@@ -174,13 +174,13 @@
       "index": 5,
       "mode": "trials",
       "courseId": "forest",
-      "enterDurationMs": 9148,
+      "enterDurationMs": 10296,
       "frames": {
         "samples": 24,
-        "averageMs": 215.521,
-        "p95Ms": 233.4,
-        "maxMs": 249.9,
-        "averageFps": 4.64
+        "averageMs": 206.254,
+        "p95Ms": 233.3,
+        "maxMs": 233.3,
+        "averageFps": 4.85
       },
       "active": {
         "domNodes": 217,
@@ -191,10 +191,10 @@
         "textures": 27,
         "geometries": 165,
         "renderTargets": 12,
-        "gpuMemoryBytes": 117552073,
-        "cpuFrameTimeMs": 29.326666665573914,
-        "cpuFrameTimeP99Ms": 590.7000000476837,
-        "renderSubmissionTimeMs": 25.069166667262714
+        "gpuMemoryBytes": 117564901,
+        "cpuFrameTimeMs": 25.919166665275892,
+        "cpuFrameTimeP99Ms": 514.5,
+        "renderSubmissionTimeMs": 21.01333333700895
       },
       "afterExit": {
         "domNodes": 153,
@@ -204,7 +204,7 @@
         "textures": 19,
         "geometries": 2,
         "renderTargets": 12,
-        "gpuMemoryBytes": 113106948,
+        "gpuMemoryBytes": 113119776,
         "racingAudio": false
       }
     },
@@ -212,27 +212,27 @@
       "index": 6,
       "mode": "circuit",
       "courseId": "kakiland",
-      "enterDurationMs": 17428,
+      "enterDurationMs": 18856,
       "frames": {
         "samples": 24,
-        "averageMs": 479.233,
-        "p95Ms": 550,
-        "maxMs": 766.6,
-        "averageFps": 2.09
+        "averageMs": 465.754,
+        "p95Ms": 533.3,
+        "maxMs": 733.2,
+        "averageFps": 2.15
       },
       "active": {
         "domNodes": 248,
         "sceneObjects": 539,
         "sessionRoots": 1,
-        "drawCalls": 356,
-        "triangles": 1409939,
+        "drawCalls": 363,
+        "triangles": 1410835,
         "textures": 29,
-        "geometries": 174,
+        "geometries": 177,
         "renderTargets": 13,
-        "gpuMemoryBytes": 152396077,
-        "cpuFrameTimeMs": 29.192500000695386,
-        "cpuFrameTimeP99Ms": 590.7000000476837,
-        "renderSubmissionTimeMs": 24.943333335220814
+        "gpuMemoryBytes": 152430717,
+        "cpuFrameTimeMs": 25.49416666676601,
+        "cpuFrameTimeP99Ms": 433,
+        "renderSubmissionTimeMs": 20.565000002582867
       },
       "afterExit": {
         "domNodes": 153,
@@ -242,7 +242,7 @@
         "textures": 19,
         "geometries": 2,
         "renderTargets": 12,
-        "gpuMemoryBytes": 113303004,
+        "gpuMemoryBytes": 113315832,
         "racingAudio": false
       }
     },
@@ -250,27 +250,27 @@
       "index": 7,
       "mode": "drift",
       "courseId": "void",
-      "enterDurationMs": 19624,
+      "enterDurationMs": 19052,
       "frames": {
         "samples": 24,
-        "averageMs": 530.029,
-        "p95Ms": 616.7,
-        "maxMs": 633.3,
-        "averageFps": 1.89
+        "averageMs": 438.762,
+        "p95Ms": 500,
+        "maxMs": 516.7,
+        "averageFps": 2.28
       },
       "active": {
         "domNodes": 248,
         "sceneObjects": 423,
         "sessionRoots": 1,
-        "drawCalls": 324,
-        "triangles": 883759,
+        "drawCalls": 330,
+        "triangles": 884371,
         "textures": 29,
-        "geometries": 154,
+        "geometries": 157,
         "renderTargets": 13,
-        "gpuMemoryBytes": 151288845,
-        "cpuFrameTimeMs": 21.440000000099342,
-        "cpuFrameTimeP99Ms": 448.10000002384186,
-        "renderSubmissionTimeMs": 17.396666667362055
+        "gpuMemoryBytes": 151313021,
+        "cpuFrameTimeMs": 18.96416666805744,
+        "cpuFrameTimeP99Ms": 433,
+        "renderSubmissionTimeMs": 14.311666669448217
       },
       "afterExit": {
         "domNodes": 153,
@@ -280,7 +280,7 @@
         "textures": 19,
         "geometries": 2,
         "renderTargets": 12,
-        "gpuMemoryBytes": 113486280,
+        "gpuMemoryBytes": 113523504,
         "racingAudio": false
       }
     },
@@ -288,27 +288,27 @@
       "index": 8,
       "mode": "stock",
       "courseId": "cave",
-      "enterDurationMs": 19796,
+      "enterDurationMs": 18644,
       "frames": {
         "samples": 24,
-        "averageMs": 560.946,
-        "p95Ms": 633.3,
-        "maxMs": 683.3,
-        "averageFps": 1.78
+        "averageMs": 460.3,
+        "p95Ms": 533.4,
+        "maxMs": 616.7,
+        "averageFps": 2.17
       },
       "active": {
         "domNodes": 248,
         "sceneObjects": 721,
         "sessionRoots": 1,
-        "drawCalls": 413,
-        "triangles": 900065,
+        "drawCalls": 373,
+        "triangles": 895051,
         "textures": 32,
         "geometries": 260,
         "renderTargets": 13,
-        "gpuMemoryBytes": 152132674,
-        "cpuFrameTimeMs": 23.203333331147828,
-        "cpuFrameTimeP99Ms": 494.89999997615814,
-        "renderSubmissionTimeMs": 20.50416666865349
+        "gpuMemoryBytes": 152170762,
+        "cpuFrameTimeMs": 17.91250000298023,
+        "cpuFrameTimeP99Ms": 437.9000000357628,
+        "renderSubmissionTimeMs": 15.329166667660077
       },
       "afterExit": {
         "domNodes": 153,
@@ -318,7 +318,7 @@
         "textures": 19,
         "geometries": 2,
         "renderTargets": 12,
-        "gpuMemoryBytes": 113579400,
+        "gpuMemoryBytes": 113616624,
         "racingAudio": false
       }
     },
@@ -326,13 +326,13 @@
       "index": 9,
       "mode": "monster",
       "courseId": "forest",
-      "enterDurationMs": 17745,
+      "enterDurationMs": 16867,
       "frames": {
         "samples": 24,
-        "averageMs": 320.067,
+        "averageMs": 317.579,
         "p95Ms": 350,
-        "maxMs": 350,
-        "averageFps": 3.12
+        "maxMs": 366.7,
+        "averageFps": 3.15
       },
       "active": {
         "domNodes": 251,
@@ -343,10 +343,10 @@
         "textures": 55,
         "geometries": 169,
         "renderTargets": 13,
-        "gpuMemoryBytes": 134601855,
-        "cpuFrameTimeMs": 29.559999998907248,
-        "cpuFrameTimeP99Ms": 541.2000000476837,
-        "renderSubmissionTimeMs": 27.172499998410544
+        "gpuMemoryBytes": 134639079,
+        "cpuFrameTimeMs": 24.366666667163372,
+        "cpuFrameTimeP99Ms": 556.1999999880791,
+        "renderSubmissionTimeMs": 21.680833333730696
       },
       "afterExit": {
         "domNodes": 153,
@@ -356,7 +356,7 @@
         "textures": 19,
         "geometries": 2,
         "renderTargets": 12,
-        "gpuMemoryBytes": 113661972,
+        "gpuMemoryBytes": 113699196,
         "racingAudio": false
       }
     },
@@ -364,13 +364,13 @@
       "index": 10,
       "mode": "trials",
       "courseId": "forest",
-      "enterDurationMs": 8940,
+      "enterDurationMs": 11708,
       "frames": {
         "samples": 24,
-        "averageMs": 211.125,
-        "p95Ms": 233.3,
-        "maxMs": 233.4,
-        "averageFps": 4.74
+        "averageMs": 251.471,
+        "p95Ms": 316.7,
+        "maxMs": 350,
+        "averageFps": 3.98
       },
       "active": {
         "domNodes": 217,
@@ -381,10 +381,10 @@
         "textures": 27,
         "geometries": 100,
         "renderTargets": 12,
-        "gpuMemoryBytes": 117766412,
-        "cpuFrameTimeMs": 29.127499999602637,
-        "cpuFrameTimeP99Ms": 541.2000000476837,
-        "renderSubmissionTimeMs": 23.75416666517655
+        "gpuMemoryBytes": 117803636,
+        "cpuFrameTimeMs": 25.91416666805744,
+        "cpuFrameTimeP99Ms": 556.1999999880791,
+        "renderSubmissionTimeMs": 19.029166665673255
       },
       "afterExit": {
         "domNodes": 153,
@@ -394,7 +394,7 @@
         "textures": 19,
         "geometries": 2,
         "renderTargets": 12,
-        "gpuMemoryBytes": 113685309,
+        "gpuMemoryBytes": 113722533,
         "racingAudio": false
       }
     }
@@ -419,10 +419,10 @@
       },
       "dpr": 1,
       "fps": 0,
-      "cpuFrameTimeMs": 61.10000002384186,
-      "cpuFrameTimeP99Ms": 61.10000002384186,
-      "renderSubmissionTimeMs": 60.69999998807907,
-      "renderSubmissionTimeP99Ms": 60.69999998807907,
+      "cpuFrameTimeMs": 57.69999998807907,
+      "cpuFrameTimeP99Ms": 57.69999998807907,
+      "renderSubmissionTimeMs": 57.30000001192093,
+      "renderSubmissionTimeP99Ms": 57.30000001192093,
       "drawCalls": 13,
       "renderCalls": 14,
       "frameRenderCalls": 14,
@@ -509,7 +509,7 @@
     "transitions": [
       {
         "label": "boot-menu",
-        "at": 288.5,
+        "at": 486.5,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -577,7 +577,7 @@
     ],
     "frameCount": 1,
     "stateDiagnostics": {
-      "bootedAt": 1785176564868,
+      "bootedAt": 1785204352108,
       "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
       "rendererFallback": null,
       "modeTransitions": 0,
@@ -603,13 +603,13 @@
         "cssHeight": 720
       },
       "dpr": 1,
-      "fps": 1.9742297213765738,
-      "cpuFrameTimeMs": 56.056250005960464,
-      "cpuFrameTimeP99Ms": 552.2999999523163,
-      "renderSubmissionTimeMs": 54.75000000745058,
-      "renderSubmissionTimeP99Ms": 550.8999999761581,
+      "fps": 2.1469319320395024,
+      "cpuFrameTimeMs": 41.36818181384694,
+      "cpuFrameTimeP99Ms": 537.8000000119209,
+      "renderSubmissionTimeMs": 39.8045454594222,
+      "renderSubmissionTimeP99Ms": 536.8000000119209,
       "drawCalls": 13,
-      "renderCalls": 233,
+      "renderCalls": 323,
       "frameRenderCalls": 14,
       "triangles": 13,
       "points": 0,
@@ -682,7 +682,7 @@
         "menu": 2,
         "racing": 1,
         "impact": 0,
-        "sfx": 0
+        "sfx": 1
       }
     },
     "touch": {
@@ -694,7 +694,7 @@
     "transitions": [
       {
         "label": "boot-menu",
-        "at": 288.5,
+        "at": 486.5,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -761,7 +761,7 @@
       },
       {
         "label": "enter:circuit",
-        "at": 927.5999999642372,
+        "at": 1081.5,
         "mode": "circuit",
         "domNodes": 255,
         "hudRoots": 1,
@@ -779,11 +779,11 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.8760425655285737,
-          "cpuFrameTimeMs": 31.55000001192093,
-          "cpuFrameTimeP99Ms": 61.10000002384186,
-          "renderSubmissionTimeMs": 31.349999994039536,
-          "renderSubmissionTimeP99Ms": 60.69999998807907,
+          "fps": 3.1367628606104354,
+          "cpuFrameTimeMs": 29.849999994039536,
+          "cpuFrameTimeP99Ms": 57.69999998807907,
+          "renderSubmissionTimeMs": 29.650000005960464,
+          "renderSubmissionTimeP99Ms": 57.30000001192093,
           "drawCalls": 13,
           "renderCalls": 28,
           "frameRenderCalls": 14,
@@ -828,7 +828,7 @@
       },
       {
         "label": "exit:circuit",
-        "at": 7255.5,
+        "at": 9669.599999964237,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -846,13 +846,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.544568524779758,
-          "cpuFrameTimeMs": 81.04545454545455,
-          "cpuFrameTimeP99Ms": 552.2999999523163,
-          "renderSubmissionTimeMs": 79.18181817639957,
-          "renderSubmissionTimeP99Ms": 550.8999999761581,
+          "fps": 1.8324457424268454,
+          "cpuFrameTimeMs": 53.25294117366566,
+          "cpuFrameTimeP99Ms": 537.8000000119209,
+          "renderSubmissionTimeMs": 51.24117647900301,
+          "renderSubmissionTimeP99Ms": 536.8000000119209,
           "drawCalls": 227,
-          "renderCalls": 163,
+          "renderCalls": 253,
           "frameRenderCalls": 15,
           "triangles": 1505881,
           "points": 0,
@@ -889,14 +889,14 @@
             "menu": 2,
             "racing": 1,
             "impact": 0,
-            "sfx": 0
+            "sfx": 1
           }
         }
       }
     ],
-    "frameCount": 16,
+    "frameCount": 22,
     "stateDiagnostics": {
-      "bootedAt": 1785176564868,
+      "bootedAt": 1785204352108,
       "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
       "rendererFallback": null,
       "modeTransitions": 2,
@@ -923,13 +923,13 @@
         "cssHeight": 720
       },
       "dpr": 1,
-      "fps": 2.4681861094605453,
-      "cpuFrameTimeMs": 29.197500000397365,
-      "cpuFrameTimeP99Ms": 541.2000000476837,
-      "renderSubmissionTimeMs": 23.632499999304613,
-      "renderSubmissionTimeP99Ms": 539.8000000119209,
+      "fps": 2.7170713593515345,
+      "cpuFrameTimeMs": 24.65166666706403,
+      "cpuFrameTimeP99Ms": 556.1999999880791,
+      "renderSubmissionTimeMs": 17.624999998013177,
+      "renderSubmissionTimeP99Ms": 556.1999999880791,
       "drawCalls": 13,
-      "renderCalls": 5885,
+      "renderCalls": 6683,
       "frameRenderCalls": 14,
       "triangles": 13,
       "points": 0,
@@ -938,7 +938,7 @@
       "textures": 19,
       "renderTargets": 12,
       "geometries": 2,
-      "gpuMemoryBytes": 113685309,
+      "gpuMemoryBytes": 113722533,
       "programs": 22,
       "compilationEventCount": 0,
       "recentCompilationEvents": [],
@@ -1002,7 +1002,7 @@
         "menu": 12,
         "racing": 11,
         "impact": 6,
-        "sfx": 14
+        "sfx": 21
       }
     },
     "touch": {
@@ -1014,7 +1014,7 @@
     "transitions": [
       {
         "label": "boot-menu",
-        "at": 288.5,
+        "at": 486.5,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -1081,7 +1081,7 @@
       },
       {
         "label": "enter:circuit",
-        "at": 927.5999999642372,
+        "at": 1081.5,
         "mode": "circuit",
         "domNodes": 255,
         "hudRoots": 1,
@@ -1099,11 +1099,11 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.8760425655285737,
-          "cpuFrameTimeMs": 31.55000001192093,
-          "cpuFrameTimeP99Ms": 61.10000002384186,
-          "renderSubmissionTimeMs": 31.349999994039536,
-          "renderSubmissionTimeP99Ms": 60.69999998807907,
+          "fps": 3.1367628606104354,
+          "cpuFrameTimeMs": 29.849999994039536,
+          "cpuFrameTimeP99Ms": 57.69999998807907,
+          "renderSubmissionTimeMs": 29.650000005960464,
+          "renderSubmissionTimeP99Ms": 57.30000001192093,
           "drawCalls": 13,
           "renderCalls": 28,
           "frameRenderCalls": 14,
@@ -1148,7 +1148,7 @@
       },
       {
         "label": "exit:circuit",
-        "at": 7255.5,
+        "at": 9669.599999964237,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -1166,13 +1166,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.544568524779758,
-          "cpuFrameTimeMs": 81.04545454545455,
-          "cpuFrameTimeP99Ms": 552.2999999523163,
-          "renderSubmissionTimeMs": 79.18181817639957,
-          "renderSubmissionTimeP99Ms": 550.8999999761581,
+          "fps": 1.8324457424268454,
+          "cpuFrameTimeMs": 53.25294117366566,
+          "cpuFrameTimeP99Ms": 537.8000000119209,
+          "renderSubmissionTimeMs": 51.24117647900301,
+          "renderSubmissionTimeP99Ms": 536.8000000119209,
           "drawCalls": 227,
-          "renderCalls": 163,
+          "renderCalls": 253,
           "frameRenderCalls": 15,
           "triangles": 1505881,
           "points": 0,
@@ -1209,13 +1209,13 @@
             "menu": 2,
             "racing": 1,
             "impact": 0,
-            "sfx": 0
+            "sfx": 1
           }
         }
       },
       {
         "label": "enter:circuit",
-        "at": 8295.799999952316,
+        "at": 10655.399999976158,
         "mode": "circuit",
         "domNodes": 255,
         "hudRoots": 1,
@@ -1233,13 +1233,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.064036739850795,
-          "cpuFrameTimeMs": 52.81176471008974,
-          "cpuFrameTimeP99Ms": 552.2999999523163,
-          "renderSubmissionTimeMs": 51.58235294678632,
-          "renderSubmissionTimeP99Ms": 550.8999999761581,
+          "fps": 2.216758695745118,
+          "cpuFrameTimeMs": 39.599999997926794,
+          "cpuFrameTimeP99Ms": 537.8000000119209,
+          "renderSubmissionTimeMs": 38.10434783282487,
+          "renderSubmissionTimeP99Ms": 536.8000000119209,
           "drawCalls": 13,
-          "renderCalls": 247,
+          "renderCalls": 337,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -1276,13 +1276,13 @@
             "menu": 2,
             "racing": 1,
             "impact": 0,
-            "sfx": 0
+            "sfx": 1
           }
         }
       },
       {
         "label": "benchmark:1",
-        "at": 26648.19999998808,
+        "at": 32461,
         "mode": "circuit",
         "domNodes": 248,
         "hudRoots": 1,
@@ -1300,22 +1300,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.7882063901150038,
-          "cpuFrameTimeMs": 36.95319149215171,
-          "cpuFrameTimeP99Ms": 552.2999999523163,
-          "renderSubmissionTimeMs": 35.58085106535161,
-          "renderSubmissionTimeP99Ms": 550.8999999761581,
-          "drawCalls": 385,
-          "renderCalls": 697,
+          "fps": 1.8498083215845806,
+          "cpuFrameTimeMs": 30.899999998383603,
+          "cpuFrameTimeP99Ms": 537.8000000119209,
+          "renderSubmissionTimeMs": 29.07118644350666,
+          "renderSubmissionTimeP99Ms": 536.8000000119209,
+          "drawCalls": 386,
+          "renderCalls": 877,
           "frameRenderCalls": 15,
-          "triangles": 1528885,
+          "triangles": 1528713,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 33,
           "renderTargets": 13,
           "geometries": 177,
-          "gpuMemoryBytes": 152504021,
+          "gpuMemoryBytes": 152504453,
           "programs": 93,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -1343,13 +1343,13 @@
             "menu": 2,
             "racing": 2,
             "impact": 2,
-            "sfx": 4
+            "sfx": 6
           }
         }
       },
       {
         "label": "exit:circuit",
-        "at": 27658.799999952316,
+        "at": 33062.89999997616,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -1367,15 +1367,15 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.7851445587290744,
-          "cpuFrameTimeMs": 36.3041666696469,
-          "cpuFrameTimeP99Ms": 552.2999999523163,
-          "renderSubmissionTimeMs": 34.92916666840514,
-          "renderSubmissionTimeP99Ms": 550.8999999761581,
-          "drawCalls": 385,
-          "renderCalls": 712,
+          "fps": 1.8469995648601139,
+          "cpuFrameTimeMs": 30.508333332339923,
+          "cpuFrameTimeP99Ms": 537.8000000119209,
+          "renderSubmissionTimeMs": 28.665000003576278,
+          "renderSubmissionTimeP99Ms": 536.8000000119209,
+          "drawCalls": 383,
+          "renderCalls": 892,
           "frameRenderCalls": 15,
-          "triangles": 1528885,
+          "triangles": 1528679,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
@@ -1410,13 +1410,13 @@
             "menu": 3,
             "racing": 2,
             "impact": 2,
-            "sfx": 4
+            "sfx": 6
           }
         }
       },
       {
         "label": "enter:drift",
-        "at": 28655.19999998808,
+        "at": 34025.89999997616,
         "mode": "drift",
         "domNodes": 255,
         "hudRoots": 1,
@@ -1434,13 +1434,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.884732599118175,
-          "cpuFrameTimeMs": 32.37037037257795,
-          "cpuFrameTimeP99Ms": 552.2999999523163,
-          "renderSubmissionTimeMs": 31.13888888888889,
-          "renderSubmissionTimeP99Ms": 550.8999999761581,
+          "fps": 1.9515534365347835,
+          "cpuFrameTimeMs": 27.793939392675053,
+          "cpuFrameTimeP99Ms": 537.8000000119209,
+          "renderSubmissionTimeMs": 26.113636367248766,
+          "renderSubmissionTimeP99Ms": 536.8000000119209,
           "drawCalls": 13,
-          "renderCalls": 796,
+          "renderCalls": 976,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -1477,13 +1477,13 @@
             "menu": 3,
             "racing": 2,
             "impact": 2,
-            "sfx": 4
+            "sfx": 6
           }
         }
       },
       {
         "label": "benchmark:2",
-        "at": 46142.89999997616,
+        "at": 53353.299999952316,
         "mode": "drift",
         "domNodes": 248,
         "hudRoots": 1,
@@ -1501,22 +1501,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.8358161087333975,
-          "cpuFrameTimeMs": 30.71785714441822,
-          "cpuFrameTimeP99Ms": 552.2999999523163,
-          "renderSubmissionTimeMs": 28.999999997161684,
-          "renderSubmissionTimeP99Ms": 550.8999999761581,
-          "drawCalls": 307,
-          "renderCalls": 1246,
+          "fps": 1.9305535910199436,
+          "cpuFrameTimeMs": 26.348039215101917,
+          "cpuFrameTimeP99Ms": 480.10000002384186,
+          "renderSubmissionTimeMs": 24.422549021594666,
+          "renderSubmissionTimeP99Ms": 479.89999997615814,
+          "drawCalls": 315,
+          "renderCalls": 1516,
           "frameRenderCalls": 15,
-          "triangles": 1397429,
+          "triangles": 1361585,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 31,
           "renderTargets": 13,
-          "geometries": 153,
-          "gpuMemoryBytes": 151531750,
+          "geometries": 157,
+          "gpuMemoryBytes": 151563222,
           "programs": 89,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -1544,13 +1544,13 @@
             "menu": 3,
             "racing": 3,
             "impact": 2,
-            "sfx": 4
+            "sfx": 7
           }
         }
       },
       {
         "label": "exit:drift",
-        "at": 46775.799999952316,
+        "at": 53885.89999997616,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -1568,22 +1568,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.8331365621260085,
-          "cpuFrameTimeMs": 30.42705882507212,
-          "cpuFrameTimeP99Ms": 552.2999999523163,
-          "renderSubmissionTimeMs": 28.714117644814884,
-          "renderSubmissionTimeP99Ms": 550.8999999761581,
-          "drawCalls": 312,
-          "renderCalls": 1261,
+          "fps": 1.9305019305019304,
+          "cpuFrameTimeMs": 26.1436893199254,
+          "cpuFrameTimeP99Ms": 480.10000002384186,
+          "renderSubmissionTimeMs": 24.218446604256492,
+          "renderSubmissionTimeP99Ms": 479.89999997615814,
+          "drawCalls": 319,
+          "renderCalls": 1531,
           "frameRenderCalls": 15,
-          "triangles": 1397601,
+          "triangles": 1361901,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113005559,
+          "gpuMemoryBytes": 113018387,
           "programs": 18,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -1611,13 +1611,13 @@
             "menu": 4,
             "racing": 3,
             "impact": 2,
-            "sfx": 4
+            "sfx": 7
           }
         }
       },
       {
         "label": "enter:stock",
-        "at": 47828,
+        "at": 54829,
         "mode": "stock",
         "domNodes": 255,
         "hudRoots": 1,
@@ -1635,13 +1635,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.9029133603556623,
-          "cpuFrameTimeMs": 28.470329671115664,
-          "cpuFrameTimeP99Ms": 552.2999999523163,
-          "renderSubmissionTimeMs": 26.869230766872782,
-          "renderSubmissionTimeP99Ms": 550.8999999761581,
+          "fps": 1.9958493725082136,
+          "cpuFrameTimeMs": 24.73944953986264,
+          "cpuFrameTimeP99Ms": 480.10000002384186,
+          "renderSubmissionTimeMs": 22.91834862571244,
+          "renderSubmissionTimeP99Ms": 479.89999997615814,
           "drawCalls": 13,
-          "renderCalls": 1345,
+          "renderCalls": 1615,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -1650,7 +1650,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113005559,
+          "gpuMemoryBytes": 113018387,
           "programs": 18,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -1678,13 +1678,13 @@
             "menu": 4,
             "racing": 3,
             "impact": 2,
-            "sfx": 4
+            "sfx": 7
           }
         }
       },
       {
         "label": "benchmark:3",
-        "at": 63370.19999998808,
+        "at": 74001.59999996424,
         "mode": "stock",
         "domNodes": 248,
         "hudRoots": 1,
@@ -1702,22 +1702,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.9173586467275365,
-          "cpuFrameTimeMs": 28.083333332339922,
-          "cpuFrameTimeP99Ms": 502.39999997615814,
-          "renderSubmissionTimeMs": 26.174166664977868,
-          "renderSubmissionTimeP99Ms": 501.30000001192093,
-          "drawCalls": 264,
-          "renderCalls": 1795,
+          "fps": 1.9555662749554976,
+          "cpuFrameTimeMs": 18.10916666686535,
+          "cpuFrameTimeP99Ms": 444,
+          "renderSubmissionTimeMs": 15.737500001986822,
+          "renderSubmissionTimeP99Ms": 442.69999998807907,
+          "drawCalls": 218,
+          "renderCalls": 2155,
           "frameRenderCalls": 15,
-          "triangles": 820623,
+          "triangles": 814039,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 32,
           "renderTargets": 13,
           "geometries": 182,
-          "gpuMemoryBytes": 151304490,
+          "gpuMemoryBytes": 151317318,
           "programs": 93,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -1744,14 +1744,14 @@
           "counters": {
             "menu": 4,
             "racing": 4,
-            "impact": 2,
-            "sfx": 4
+            "impact": 4,
+            "sfx": 12
           }
         }
       },
       {
         "label": "exit:stock",
-        "at": 63879.5,
+        "at": 74522.19999998808,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -1769,22 +1769,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.9137962381138,
-          "cpuFrameTimeMs": 28.129999998708566,
-          "cpuFrameTimeP99Ms": 502.39999997615814,
-          "renderSubmissionTimeMs": 26.190833331644534,
-          "renderSubmissionTimeP99Ms": 501.30000001192093,
-          "drawCalls": 241,
-          "renderCalls": 1810,
+          "fps": 1.9560348565403833,
+          "cpuFrameTimeMs": 17.53499999990066,
+          "cpuFrameTimeP99Ms": 444,
+          "renderSubmissionTimeMs": 15.162500001490116,
+          "renderSubmissionTimeP99Ms": 442.69999998807907,
+          "drawCalls": 216,
+          "renderCalls": 2170,
           "frameRenderCalls": 15,
-          "triangles": 817421,
+          "triangles": 813663,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113008491,
+          "gpuMemoryBytes": 113021319,
           "programs": 18,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -1801,7 +1801,7 @@
           "contextState": "running",
           "menuPlaying": true,
           "racingActive": false,
-          "cleanupTimers": 5,
+          "cleanupTimers": 1,
           "volumes": {
             "master": 1,
             "music": 0.55,
@@ -1812,13 +1812,13 @@
             "menu": 5,
             "racing": 4,
             "impact": 4,
-            "sfx": 8
+            "sfx": 12
           }
         }
       },
       {
         "label": "enter:monster",
-        "at": 64851.799999952316,
+        "at": 75433.5,
         "mode": "monster",
         "domNodes": 260,
         "hudRoots": 1,
@@ -1836,13 +1836,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.021454369037116,
-          "cpuFrameTimeMs": 21.398333332439265,
-          "cpuFrameTimeP99Ms": 469.80000001192093,
-          "renderSubmissionTimeMs": 19.589999998609226,
-          "renderSubmissionTimeP99Ms": 469.5,
+          "fps": 2.0182211734942967,
+          "cpuFrameTimeMs": 17.270833333333332,
+          "cpuFrameTimeP99Ms": 444,
+          "renderSubmissionTimeMs": 15.000000001986821,
+          "renderSubmissionTimeP99Ms": 442.69999998807907,
           "drawCalls": 13,
-          "renderCalls": 1894,
+          "renderCalls": 2254,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -1851,7 +1851,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113008491,
+          "gpuMemoryBytes": 113021319,
           "programs": 18,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -1879,13 +1879,13 @@
             "menu": 5,
             "racing": 4,
             "impact": 4,
-            "sfx": 8
+            "sfx": 12
           }
         }
       },
       {
         "label": "benchmark:4",
-        "at": 81440.59999996424,
+        "at": 90930.79999995232,
         "mode": "monster",
         "domNodes": 253,
         "hudRoots": 1,
@@ -1903,13 +1903,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.135885003950934,
-          "cpuFrameTimeMs": 29.678333332637944,
-          "cpuFrameTimeP99Ms": 590.7000000476837,
-          "renderSubmissionTimeMs": 27.291666664679845,
-          "renderSubmissionTimeP99Ms": 590.6000000238419,
+          "fps": 2.1918969223931084,
+          "cpuFrameTimeMs": 24.956666665772598,
+          "cpuFrameTimeP99Ms": 514.5,
+          "renderSubmissionTimeMs": 22.303333335618177,
+          "renderSubmissionTimeP99Ms": 514.4000000357628,
           "drawCalls": 225,
-          "renderCalls": 2449,
+          "renderCalls": 2809,
           "frameRenderCalls": 15,
           "triangles": 136799,
           "points": 0,
@@ -1918,7 +1918,7 @@
           "textures": 51,
           "renderTargets": 13,
           "geometries": 150,
-          "gpuMemoryBytes": 133936016,
+          "gpuMemoryBytes": 133948844,
           "programs": 188,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -1946,13 +1946,13 @@
             "menu": 5,
             "racing": 5,
             "impact": 4,
-            "sfx": 9
+            "sfx": 13
           }
         }
       },
       {
         "label": "exit:monster",
-        "at": 81746.39999997616,
+        "at": 91235.39999997616,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -1970,13 +1970,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.1459112343813325,
-          "cpuFrameTimeMs": 29.676666665573915,
-          "cpuFrameTimeP99Ms": 590.7000000476837,
-          "renderSubmissionTimeMs": 27.283333331346512,
-          "renderSubmissionTimeP99Ms": 590.6000000238419,
+          "fps": 2.2040105645577888,
+          "cpuFrameTimeMs": 24.969999999304612,
+          "cpuFrameTimeP99Ms": 514.5,
+          "renderSubmissionTimeMs": 22.307500002284844,
+          "renderSubmissionTimeP99Ms": 514.4000000357628,
           "drawCalls": 225,
-          "renderCalls": 2464,
+          "renderCalls": 2824,
           "frameRenderCalls": 15,
           "triangles": 136799,
           "points": 0,
@@ -1985,7 +1985,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113083611,
+          "gpuMemoryBytes": 113096439,
           "programs": 18,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2013,13 +2013,13 @@
             "menu": 6,
             "racing": 5,
             "impact": 4,
-            "sfx": 9
+            "sfx": 13
           }
         }
       },
       {
         "label": "enter:trials",
-        "at": 82676.09999996424,
+        "at": 92165.59999996424,
         "mode": "trials",
         "domNodes": 224,
         "hudRoots": 1,
@@ -2037,13 +2037,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.2075095796727484,
-          "cpuFrameTimeMs": 29.583333332339922,
-          "cpuFrameTimeP99Ms": 590.7000000476837,
-          "renderSubmissionTimeMs": 27.21083333194256,
-          "renderSubmissionTimeP99Ms": 590.6000000238419,
+          "fps": 2.272834888015531,
+          "cpuFrameTimeMs": 23.9883333320419,
+          "cpuFrameTimeP99Ms": 514.5,
+          "renderSubmissionTimeMs": 21.399166668454807,
+          "renderSubmissionTimeP99Ms": 514.4000000357628,
           "drawCalls": 13,
-          "renderCalls": 2548,
+          "renderCalls": 2908,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -2052,7 +2052,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113083611,
+          "gpuMemoryBytes": 113096439,
           "programs": 18,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2080,13 +2080,13 @@
             "menu": 6,
             "racing": 5,
             "impact": 4,
-            "sfx": 9
+            "sfx": 13
           }
         }
       },
       {
         "label": "benchmark:5",
-        "at": 90663.59999996424,
+        "at": 101314.89999997616,
         "mode": "trials",
         "domNodes": 217,
         "hudRoots": 1,
@@ -2104,13 +2104,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.6052465323062908,
-          "cpuFrameTimeMs": 29.384999998410542,
-          "cpuFrameTimeP99Ms": 590.7000000476837,
-          "renderSubmissionTimeMs": 25.057500000298024,
-          "renderSubmissionTimeP99Ms": 590.6000000238419,
+          "fps": 2.7083878772587764,
+          "cpuFrameTimeMs": 25.574166665474575,
+          "cpuFrameTimeP99Ms": 514.5,
+          "renderSubmissionTimeMs": 20.616666670143605,
+          "renderSubmissionTimeP99Ms": 514.4000000357628,
           "drawCalls": 196,
-          "renderCalls": 2968,
+          "renderCalls": 3412,
           "frameRenderCalls": 14,
           "triangles": 174360,
           "points": 0,
@@ -2119,7 +2119,7 @@
           "textures": 27,
           "renderTargets": 12,
           "geometries": 165,
-          "gpuMemoryBytes": 117552073,
+          "gpuMemoryBytes": 117564901,
           "programs": 59,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2147,13 +2147,13 @@
             "menu": 6,
             "racing": 6,
             "impact": 4,
-            "sfx": 9
+            "sfx": 13
           }
         }
       },
       {
         "label": "exit:trials",
-        "at": 90889.69999998808,
+        "at": 101539.59999996424,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -2171,13 +2171,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.6223260469104086,
-          "cpuFrameTimeMs": 29.445833332339923,
-          "cpuFrameTimeP99Ms": 590.7000000476837,
-          "renderSubmissionTimeMs": 25.05166666706403,
-          "renderSubmissionTimeP99Ms": 590.6000000238419,
+          "fps": 2.728413700276879,
+          "cpuFrameTimeMs": 25.62749999910593,
+          "cpuFrameTimeP99Ms": 514.5,
+          "renderSubmissionTimeMs": 20.61250000347694,
+          "renderSubmissionTimeP99Ms": 514.4000000357628,
           "drawCalls": 196,
-          "renderCalls": 2982,
+          "renderCalls": 3426,
           "frameRenderCalls": 14,
           "triangles": 174360,
           "points": 0,
@@ -2186,7 +2186,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113106948,
+          "gpuMemoryBytes": 113119776,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2214,13 +2214,13 @@
             "menu": 7,
             "racing": 6,
             "impact": 4,
-            "sfx": 9
+            "sfx": 13
           }
         }
       },
       {
         "label": "enter:circuit",
-        "at": 91855.79999995232,
+        "at": 102499.89999997616,
         "mode": "circuit",
         "domNodes": 255,
         "hudRoots": 1,
@@ -2238,13 +2238,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.7054935045617383,
-          "cpuFrameTimeMs": 29.359166665375234,
-          "cpuFrameTimeP99Ms": 590.7000000476837,
-          "renderSubmissionTimeMs": 24.991666665673257,
-          "renderSubmissionTimeP99Ms": 590.6000000238419,
+          "fps": 2.8734944086587966,
+          "cpuFrameTimeMs": 24.414166665573916,
+          "cpuFrameTimeP99Ms": 514.5,
+          "renderSubmissionTimeMs": 19.536666669448216,
+          "renderSubmissionTimeP99Ms": 514.4000000357628,
           "drawCalls": 13,
-          "renderCalls": 3066,
+          "renderCalls": 3510,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -2253,7 +2253,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113106948,
+          "gpuMemoryBytes": 113119776,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2281,13 +2281,13 @@
             "menu": 7,
             "racing": 6,
             "impact": 4,
-            "sfx": 9
+            "sfx": 13
           }
         }
       },
       {
         "label": "benchmark:6",
-        "at": 108445.5,
+        "at": 120864.69999998808,
         "mode": "circuit",
         "domNodes": 248,
         "hudRoots": 1,
@@ -2305,22 +2305,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.616357028082772,
-          "cpuFrameTimeMs": 29.217500001192093,
-          "cpuFrameTimeP99Ms": 590.7000000476837,
-          "renderSubmissionTimeMs": 24.97250000188748,
-          "renderSubmissionTimeP99Ms": 590.6000000238419,
-          "drawCalls": 358,
-          "renderCalls": 3516,
+          "fps": 2.808265661931619,
+          "cpuFrameTimeMs": 25.099166666467983,
+          "cpuFrameTimeP99Ms": 433,
+          "renderSubmissionTimeMs": 20.15666666875283,
+          "renderSubmissionTimeP99Ms": 432.80000001192093,
+          "drawCalls": 365,
+          "renderCalls": 4050,
           "frameRenderCalls": 15,
-          "triangles": 1410343,
+          "triangles": 1410839,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 29,
           "renderTargets": 13,
-          "geometries": 174,
-          "gpuMemoryBytes": 152407717,
+          "geometries": 178,
+          "gpuMemoryBytes": 152431273,
           "programs": 91,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2348,13 +2348,13 @@
             "menu": 7,
             "racing": 7,
             "impact": 4,
-            "sfx": 9
+            "sfx": 14
           }
         }
       },
       {
         "label": "exit:circuit",
-        "at": 109079.89999997616,
+        "at": 121403.69999998808,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -2372,22 +2372,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.6081796861945414,
-          "cpuFrameTimeMs": 29.21416666805744,
-          "cpuFrameTimeP99Ms": 590.7000000476837,
-          "renderSubmissionTimeMs": 24.975000001490116,
-          "renderSubmissionTimeP99Ms": 590.6000000238419,
-          "drawCalls": 361,
-          "renderCalls": 3531,
+          "fps": 2.8045574057844,
+          "cpuFrameTimeMs": 24.879999999701976,
+          "cpuFrameTimeP99Ms": 433,
+          "renderSubmissionTimeMs": 19.935833335419495,
+          "renderSubmissionTimeP99Ms": 432.80000001192093,
+          "drawCalls": 365,
+          "renderCalls": 4065,
           "frameRenderCalls": 15,
-          "triangles": 1410647,
+          "triangles": 1410839,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113303004,
+          "gpuMemoryBytes": 113315832,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2415,13 +2415,13 @@
             "menu": 8,
             "racing": 7,
             "impact": 4,
-            "sfx": 9
+            "sfx": 14
           }
         }
       },
       {
         "label": "enter:drift",
-        "at": 110118.19999998808,
+        "at": 122338.19999998808,
         "mode": "drift",
         "domNodes": 255,
         "hudRoots": 1,
@@ -2439,13 +2439,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.634380865613646,
-          "cpuFrameTimeMs": 29.123333335419495,
-          "cpuFrameTimeP99Ms": 590.7000000476837,
-          "renderSubmissionTimeMs": 24.92083333581686,
-          "renderSubmissionTimeP99Ms": 590.6000000238419,
+          "fps": 2.8395780387026477,
+          "cpuFrameTimeMs": 24.614999999602635,
+          "cpuFrameTimeP99Ms": 433,
+          "renderSubmissionTimeMs": 19.851666669050854,
+          "renderSubmissionTimeP99Ms": 432.80000001192093,
           "drawCalls": 13,
-          "renderCalls": 3615,
+          "renderCalls": 4149,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -2454,7 +2454,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113303004,
+          "gpuMemoryBytes": 113315832,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2482,13 +2482,13 @@
             "menu": 8,
             "racing": 7,
             "impact": 4,
-            "sfx": 9
+            "sfx": 14
           }
         }
       },
       {
         "label": "benchmark:7",
-        "at": 128005.89999997616,
+        "at": 139962,
         "mode": "drift",
         "domNodes": 248,
         "hudRoots": 1,
@@ -2506,22 +2506,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.446208885853778,
-          "cpuFrameTimeMs": 21.43000000019868,
-          "cpuFrameTimeP99Ms": 448.10000002384186,
-          "renderSubmissionTimeMs": 17.400000000993412,
-          "renderSubmissionTimeP99Ms": 448,
-          "drawCalls": 326,
-          "renderCalls": 4065,
+          "fps": 2.584424534803584,
+          "cpuFrameTimeMs": 18.89833333492279,
+          "cpuFrameTimeP99Ms": 433,
+          "renderSubmissionTimeMs": 14.320833336313566,
+          "renderSubmissionTimeP99Ms": 432.80000001192093,
+          "drawCalls": 333,
+          "renderCalls": 4689,
           "frameRenderCalls": 15,
-          "triangles": 884035,
+          "triangles": 884659,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 29,
           "renderTargets": 13,
-          "geometries": 155,
-          "gpuMemoryBytes": 151293677,
+          "geometries": 158,
+          "gpuMemoryBytes": 151324073,
           "programs": 91,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2549,13 +2549,13 @@
             "menu": 8,
             "racing": 8,
             "impact": 4,
-            "sfx": 9
+            "sfx": 15
           }
         }
       },
       {
         "label": "exit:drift",
-        "at": 128581.19999998808,
+        "at": 140456.69999998808,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -2573,22 +2573,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.432113628348129,
-          "cpuFrameTimeMs": 21.423333333432673,
-          "cpuFrameTimeP99Ms": 448.10000002384186,
-          "renderSubmissionTimeMs": 17.40250000109275,
-          "renderSubmissionTimeP99Ms": 448,
-          "drawCalls": 329,
-          "renderCalls": 4080,
+          "fps": 2.5698077569634026,
+          "cpuFrameTimeMs": 18.309166667858758,
+          "cpuFrameTimeP99Ms": 433,
+          "renderSubmissionTimeMs": 13.809166669845581,
+          "renderSubmissionTimeP99Ms": 432.80000001192093,
+          "drawCalls": 338,
+          "renderCalls": 4704,
           "frameRenderCalls": 15,
-          "triangles": 884323,
+          "triangles": 885507,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113486280,
+          "gpuMemoryBytes": 113523504,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2616,13 +2616,13 @@
             "menu": 9,
             "racing": 8,
             "impact": 4,
-            "sfx": 9
+            "sfx": 15
           }
         }
       },
       {
         "label": "enter:stock",
-        "at": 129786.19999998808,
+        "at": 141398.29999995232,
         "mode": "stock",
         "domNodes": 255,
         "hudRoots": 1,
@@ -2640,13 +2640,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.4484299442982187,
-          "cpuFrameTimeMs": 21.17083333233992,
-          "cpuFrameTimeP99Ms": 448.10000002384186,
-          "renderSubmissionTimeMs": 17.343333334227403,
-          "renderSubmissionTimeP99Ms": 448,
+          "fps": 2.5805508185728856,
+          "cpuFrameTimeMs": 17.708333334326746,
+          "cpuFrameTimeP99Ms": 433,
+          "renderSubmissionTimeMs": 13.725000002980233,
+          "renderSubmissionTimeP99Ms": 432.80000001192093,
           "drawCalls": 13,
-          "renderCalls": 4164,
+          "renderCalls": 4788,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -2655,7 +2655,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113486280,
+          "gpuMemoryBytes": 113523504,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2683,13 +2683,13 @@
             "menu": 9,
             "racing": 8,
             "impact": 4,
-            "sfx": 9
+            "sfx": 15
           }
         }
       },
       {
         "label": "benchmark:8",
-        "at": 148753.09999996424,
+        "at": 159594.39999997616,
         "mode": "stock",
         "domNodes": 248,
         "hudRoots": 1,
@@ -2707,22 +2707,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.0061119544215362,
-          "cpuFrameTimeMs": 23.169999997814497,
-          "cpuFrameTimeP99Ms": 494.89999997615814,
-          "renderSubmissionTimeMs": 20.53916666855415,
-          "renderSubmissionTimeP99Ms": 494.5999999642372,
-          "drawCalls": 414,
-          "renderCalls": 4614,
+          "fps": 2.1784396200070444,
+          "cpuFrameTimeMs": 17.88500000288089,
+          "cpuFrameTimeP99Ms": 437.9000000357628,
+          "renderSubmissionTimeMs": 15.329166667660077,
+          "renderSubmissionTimeP99Ms": 437.60000002384186,
+          "drawCalls": 366,
+          "renderCalls": 5328,
           "frameRenderCalls": 15,
-          "triangles": 900179,
+          "triangles": 857975,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 32,
           "renderTargets": 13,
           "geometries": 260,
-          "gpuMemoryBytes": 152133538,
+          "gpuMemoryBytes": 152170762,
           "programs": 95,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2749,14 +2749,14 @@
           "counters": {
             "menu": 9,
             "racing": 9,
-            "impact": 4,
-            "sfx": 9
+            "impact": 6,
+            "sfx": 20
           }
         }
       },
       {
         "label": "exit:stock",
-        "at": 149335.69999998808,
+        "at": 160140.79999995232,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -2774,22 +2774,22 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.99560302134337,
-          "cpuFrameTimeMs": 23.131666664779186,
-          "cpuFrameTimeP99Ms": 494.89999997615814,
-          "renderSubmissionTimeMs": 20.56000000188748,
-          "renderSubmissionTimeP99Ms": 494.5999999642372,
-          "drawCalls": 391,
-          "renderCalls": 4629,
+          "fps": 2.172547329846933,
+          "cpuFrameTimeMs": 17.440833335618176,
+          "cpuFrameTimeP99Ms": 437.9000000357628,
+          "renderSubmissionTimeMs": 14.879166667660078,
+          "renderSubmissionTimeP99Ms": 437.60000002384186,
+          "drawCalls": 367,
+          "renderCalls": 5343,
           "frameRenderCalls": 15,
-          "triangles": 896933,
+          "triangles": 857611,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113579400,
+          "gpuMemoryBytes": 113616624,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2806,7 +2806,7 @@
           "contextState": "running",
           "menuPlaying": true,
           "racingActive": false,
-          "cleanupTimers": 5,
+          "cleanupTimers": 1,
           "volumes": {
             "master": 1,
             "music": 0.55,
@@ -2817,13 +2817,13 @@
             "menu": 10,
             "racing": 9,
             "impact": 6,
-            "sfx": 13
+            "sfx": 20
           }
         }
       },
       {
         "label": "enter:monster",
-        "at": 150401.79999995232,
+        "at": 161064.19999998808,
         "mode": "monster",
         "domNodes": 258,
         "hudRoots": 1,
@@ -2841,13 +2841,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.9923229156985707,
-          "cpuFrameTimeMs": 22.544166665772597,
-          "cpuFrameTimeP99Ms": 494.89999997615814,
-          "renderSubmissionTimeMs": 20.459166668355465,
-          "renderSubmissionTimeP99Ms": 494.5999999642372,
+          "fps": 2.219033389054749,
+          "cpuFrameTimeMs": 17.223333334922792,
+          "cpuFrameTimeP99Ms": 437.9000000357628,
+          "renderSubmissionTimeMs": 14.73666666696469,
+          "renderSubmissionTimeP99Ms": 437.60000002384186,
           "drawCalls": 13,
-          "renderCalls": 4713,
+          "renderCalls": 5427,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -2856,7 +2856,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113579400,
+          "gpuMemoryBytes": 113616624,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2884,13 +2884,13 @@
             "menu": 10,
             "racing": 9,
             "impact": 6,
-            "sfx": 13
+            "sfx": 20
           }
         }
       },
       {
         "label": "benchmark:9",
-        "at": 167689.69999998808,
+        "at": 177579,
         "mode": "monster",
         "domNodes": 251,
         "hudRoots": 1,
@@ -2908,13 +2908,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.9790125716769726,
-          "cpuFrameTimeMs": 29.561666665474572,
-          "cpuFrameTimeP99Ms": 541.2000000476837,
-          "renderSubmissionTimeMs": 27.168333331743877,
-          "renderSubmissionTimeP99Ms": 539.8000000119209,
+          "fps": 2.2625756784437616,
+          "cpuFrameTimeMs": 24.011666667461395,
+          "cpuFrameTimeP99Ms": 556.1999999880791,
+          "renderSubmissionTimeMs": 21.309166666865348,
+          "renderSubmissionTimeP99Ms": 556.1999999880791,
           "drawCalls": 256,
-          "renderCalls": 5268,
+          "renderCalls": 5982,
           "frameRenderCalls": 15,
           "triangles": 212793,
           "points": 0,
@@ -2923,7 +2923,7 @@
           "textures": 55,
           "renderTargets": 13,
           "geometries": 169,
-          "gpuMemoryBytes": 134601855,
+          "gpuMemoryBytes": 134639079,
           "programs": 167,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -2951,13 +2951,13 @@
             "menu": 10,
             "racing": 10,
             "impact": 6,
-            "sfx": 14
+            "sfx": 21
           }
         }
       },
       {
         "label": "exit:monster",
-        "at": 168029.09999996424,
+        "at": 177951.5,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -2975,13 +2975,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 1.9848654013149734,
-          "cpuFrameTimeMs": 29.53416666537523,
-          "cpuFrameTimeP99Ms": 541.2000000476837,
-          "renderSubmissionTimeMs": 27.145833331843217,
-          "renderSubmissionTimeP99Ms": 539.8000000119209,
+          "fps": 2.27076615650274,
+          "cpuFrameTimeMs": 24.041666667660078,
+          "cpuFrameTimeP99Ms": 556.1999999880791,
+          "renderSubmissionTimeMs": 21.32249999990066,
+          "renderSubmissionTimeP99Ms": 556.1999999880791,
           "drawCalls": 256,
-          "renderCalls": 5283,
+          "renderCalls": 5997,
           "frameRenderCalls": 15,
           "triangles": 212793,
           "points": 0,
@@ -2990,7 +2990,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113661972,
+          "gpuMemoryBytes": 113699196,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -3018,13 +3018,13 @@
             "menu": 11,
             "racing": 10,
             "impact": 6,
-            "sfx": 14
+            "sfx": 21
           }
         }
       },
       {
         "label": "enter:trials",
-        "at": 168967.39999997616,
+        "at": 178961.5,
         "mode": "trials",
         "domNodes": 224,
         "hudRoots": 1,
@@ -3042,13 +3042,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.026759987703915,
-          "cpuFrameTimeMs": 29.39833333144585,
-          "cpuFrameTimeP99Ms": 541.2000000476837,
-          "renderSubmissionTimeMs": 27.03916666507721,
-          "renderSubmissionTimeP99Ms": 539.8000000119209,
+          "fps": 2.331754217561521,
+          "cpuFrameTimeMs": 22.950833335022132,
+          "cpuFrameTimeP99Ms": 556.1999999880791,
+          "renderSubmissionTimeMs": 20.30833333383004,
+          "renderSubmissionTimeP99Ms": 556.1999999880791,
           "drawCalls": 13,
-          "renderCalls": 5367,
+          "renderCalls": 6081,
           "frameRenderCalls": 14,
           "triangles": 13,
           "points": 0,
@@ -3057,7 +3057,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113661972,
+          "gpuMemoryBytes": 113699196,
           "programs": 20,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -3085,13 +3085,13 @@
             "menu": 11,
             "racing": 10,
             "impact": 6,
-            "sfx": 14
+            "sfx": 21
           }
         }
       },
       {
         "label": "benchmark:10",
-        "at": 176737,
+        "at": 189380.5,
         "mode": "trials",
         "domNodes": 217,
         "hudRoots": 1,
@@ -3109,13 +3109,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.386421263013453,
-          "cpuFrameTimeMs": 29.218333333233993,
-          "cpuFrameTimeP99Ms": 541.2000000476837,
-          "renderSubmissionTimeMs": 23.74083333214124,
-          "renderSubmissionTimeP99Ms": 539.8000000119209,
+          "fps": 2.6148918088514086,
+          "cpuFrameTimeMs": 25.690000001092752,
+          "cpuFrameTimeP99Ms": 556.1999999880791,
+          "renderSubmissionTimeMs": 18.667499999205273,
+          "renderSubmissionTimeP99Ms": 556.1999999880791,
           "drawCalls": 132,
-          "renderCalls": 5787,
+          "renderCalls": 6585,
           "frameRenderCalls": 14,
           "triangles": 126384,
           "points": 0,
@@ -3124,7 +3124,7 @@
           "textures": 27,
           "renderTargets": 12,
           "geometries": 100,
-          "gpuMemoryBytes": 117766412,
+          "gpuMemoryBytes": 117803636,
           "programs": 57,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -3152,13 +3152,13 @@
             "menu": 11,
             "racing": 11,
             "impact": 6,
-            "sfx": 14
+            "sfx": 21
           }
         }
       },
       {
         "label": "exit:trials",
-        "at": 176960.09999996424,
+        "at": 189641.69999998808,
         "mode": "menu",
         "domNodes": 153,
         "hudRoots": 0,
@@ -3176,13 +3176,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.403547636311769,
-          "cpuFrameTimeMs": 29.3125,
-          "cpuFrameTimeP99Ms": 541.2000000476837,
-          "renderSubmissionTimeMs": 23.72666666507721,
-          "renderSubmissionTimeP99Ms": 539.8000000119209,
+          "fps": 2.6300908696388587,
+          "cpuFrameTimeMs": 25.827500000596046,
+          "cpuFrameTimeP99Ms": 556.1999999880791,
+          "renderSubmissionTimeMs": 18.65416666517655,
+          "renderSubmissionTimeP99Ms": 556.1999999880791,
           "drawCalls": 132,
-          "renderCalls": 5801,
+          "renderCalls": 6599,
           "frameRenderCalls": 14,
           "triangles": 126384,
           "points": 0,
@@ -3191,7 +3191,7 @@
           "textures": 19,
           "renderTargets": 12,
           "geometries": 2,
-          "gpuMemoryBytes": 113685309,
+          "gpuMemoryBytes": 113722533,
           "programs": 22,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
@@ -3219,14 +3219,14 @@
             "menu": 12,
             "racing": 11,
             "impact": 6,
-            "sfx": 14
+            "sfx": 21
           }
         }
       }
     ],
-    "frameCount": 401,
+    "frameCount": 455,
     "stateDiagnostics": {
-      "bootedAt": 1785176564868,
+      "bootedAt": 1785204352108,
       "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
       "rendererFallback": null,
       "modeTransitions": 22,
@@ -3237,10 +3237,10 @@
   "summary": {
     "entries": 10,
     "lifecycleTransitions": 20,
-    "frameAverageMs": 412.646,
-    "frameP95WorstMs": 633.3,
-    "peakDrawCalls": 413,
-    "peakTriangles": 1528821,
+    "frameAverageMs": 392.983,
+    "frameP95WorstMs": 600,
+    "peakDrawCalls": 385,
+    "peakTriangles": 1528665,
     "peakDomNodes": 253,
     "peakSceneObjects": 721,
     "baselineDomNodes": 153,

@@ -129,6 +129,7 @@ export function createTrialsState(track = 'meadow', profile = 'monster', overrid
     checkpointId: spawn.checkpoint.id,
     checkpointX: spawn.checkpoint.x,
     cleanSections: 0,
+    timeCredits: 0,
     sectionFaults: 0,
     destroyedCount: 0,
     styleCounter: 0,
@@ -592,13 +593,18 @@ export function createTrialsResult(track, scoreOrRawTime, styleScore = 0) {
     ? Number(scoreOrRawTime.styleScore) || 0
     : Number(styleScore) || 0);
   const styleTimeBonus = Math.min(rawTime * 0.28, style / 900);
-  const effectiveTime = Math.max(0, rawTime - styleTimeBonus);
+  const courseTimeCredits = Math.min(
+    rawTime * 0.2,
+    Math.max(0, typeof scoreOrRawTime === 'object' ? Number(scoreOrRawTime.timeCredits) || 0 : 0),
+  );
+  const effectiveTime = Math.max(0, rawTime - styleTimeBonus - courseTimeCredits);
   const medal = rankTrialsMedal(course, effectiveTime);
   return {
     trackId: course.id,
     rawTime,
     styleScore: Math.round(style),
     styleTimeBonus,
+    courseTimeCredits,
     effectiveTime,
     medal,
     rank: medal || 'C',

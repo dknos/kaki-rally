@@ -189,6 +189,344 @@ async function bootPage(browser, origin, backend, diagnostics, {
   return { context, page, boot };
 }
 
+async function runWorkshopResponsive(browser, origin, report) {
+  const desktopDiagnostics = emptyDiagnostics();
+  const desktop = await bootPage(browser, origin, 'webgl', desktopDiagnostics, {
+    viewport: { width: 2560, height: 720 },
+  });
+  try {
+    await desktop.page.evaluate(() => window.__kakiRally.openDraw());
+    await desktop.page.waitForSelector('.kdt-editor');
+    await drawCircle(desktop.page, 'mouse');
+    await desktop.page.evaluate(() => {
+      window.__kdtEditor.setSize('colossal');
+      window.__kdtEditor.setEditorStage('place');
+    });
+    await desktop.page.waitForTimeout(180);
+    const ultrawide = await desktop.page.evaluate(() => {
+      const stage = document.querySelector('#kk-stage').getBoundingClientRect();
+      const editor = document.querySelector('.kdt-editor').getBoundingClientRect();
+      const canvas = document.querySelector('.kdt-canvas-wrap').getBoundingClientRect();
+      return {
+        viewport: [innerWidth, innerHeight],
+        stage: [stage.width, stage.height],
+        left: stage.left,
+        right: innerWidth - stage.right,
+        editor: editor.toJSON(),
+        canvas: canvas.toJSON(),
+      };
+    });
+    assert(Math.abs(ultrawide.left - ultrawide.right) < 2, 'ultrawide letterboxing is not centered');
+    assert(Math.abs(ultrawide.stage[0] / ultrawide.stage[1] - 16 / 9) < 0.02, 'desktop stage lost 16:9');
+    assert(
+      Math.abs(ultrawide.editor.x - ultrawide.left) < 2
+        && Math.abs(ultrawide.editor.width - ultrawide.stage[0]) < 2,
+      '32:9 Workshop tools escaped the centered work area',
+    );
+    await desktop.page.screenshot({ path: path.join(QA_DIR, 'webgl-draw-editor-32x9.png') });
+    report.webgl.ultrawide = { ...ultrawide, diagnostics: desktopDiagnostics };
+  } finally {
+    await desktop.context.close();
+  }
+
+  const diagnostics = emptyDiagnostics();
+  const { context, page } = await bootPage(browser, origin, 'webgl', diagnostics, {
+    viewport: { width: 844, height: 390 },
+    touch: true,
+  });
+  try {
+    await page.evaluate(() => window.__kakiRally.openDraw());
+    await page.waitForSelector('.kdt-editor');
+    await drawCircle(page, 'touch');
+    await page.evaluate(() => {
+      window.__kdtEditor.setSize('mega');
+      window.__kdtEditor.setEditorStage('place');
+    });
+    assert(await addWorkshopCircuitStamp(page), 'responsive Workshop could not preserve a manual stamp');
+    const autoDress = await page.evaluate(() => {
+      const editor = window.__kdtEditor;
+      const manualId = editor.draft.featurePlacements.find((placement) => placement.source === 'manual')?.id;
+      editor.autoDress();
+      const first = editor.draft.featurePlacements
+        .filter((placement) => placement.source === 'auto-dress')
+        .map((placement) => JSON.stringify(placement));
+      editor.autoDress();
+      const second = editor.draft.featurePlacements
+        .filter((placement) => placement.source === 'auto-dress')
+        .map((placement) => JSON.stringify(placement));
+      const manualAfterRegenerate = editor.draft.featurePlacements.some((placement) => placement.id === manualId);
+      editor.clearAutoDress();
+      const cleared = editor.draft.featurePlacements.every((placement) => placement.source !== 'auto-dress')
+        && editor.draft.featurePlacements.some((placement) => placement.id === manualId);
+      editor.undo();
+      const restored = editor.draft.featurePlacements.filter((placement) => placement.source === 'auto-dress').length;
+      return {
+        first,
+        second,
+        manualAfterRegenerate,
+        cleared,
+        restored,
+      };
+    });
+    assert(
+      autoDress.first.length > 0
+        && autoDress.manualAfterRegenerate
+        && autoDress.cleared
+        && autoDress.restored === autoDress.first.length
+        && JSON.stringify(autoDress.first) === JSON.stringify(autoDress.second),
+      `Auto Dress was not deterministic/history-safe: ${JSON.stringify(autoDress)}`,
+    );
+    await page.waitForTimeout(180);
+    const landscape = await page.evaluate(() => {
+      const editor = document.querySelector('.kdt-editor').getBoundingClientRect();
+      const canvas = document.querySelector('.kdt-canvas-wrap').getBoundingClientRect();
+      const targets = [...document.querySelectorAll(
+        '.kdt-feature-categories button:not([hidden]), .kdt-feature-card:not([hidden]), .kdt-feature-transform button:not([hidden]), .kdt-auto-dress-actions button:not([hidden])',
+      )].map((node) => node.getBoundingClientRect()).filter((rect) => rect.width && rect.height);
+      return {
+        orientationGate: !document.querySelector('#rally-orientation-gate').hidden,
+        overflowX: document.documentElement.scrollWidth - innerWidth,
+        editor: editor.toJSON(),
+        canvas: canvas.toJSON(),
+        minTouchTarget: Math.min(...targets.map((rect) => Math.min(rect.width, rect.height))),
+        coarse: matchMedia('(pointer: coarse)').matches,
+      };
+    });
+    assert(!landscape.orientationGate, 'landscape coarse-pointer Workshop shows the rotate prompt');
+    assert(landscape.coarse, 'mobile Workshop did not receive coarse-pointer media rules');
+    assert(landscape.overflowX <= 2, 'mobile Workshop has horizontal overflow');
+    assert(landscape.canvas.width >= 300 && landscape.canvas.height >= 170, 'mobile Workshop hid too much of the course');
+    assert(landscape.minTouchTarget >= 43.5, `mobile Workshop target fell below 44 CSS px: ${landscape.minTouchTarget}`);
+    await page.screenshot({ path: path.join(QA_DIR, 'webgl-draw-editor-mobile-landscape.png') });
+    await page.click('.kdt-feature-collapse');
+    const collapsedHeight = await page.locator('.kdt-feature-workbench').evaluate((node) => (
+      node.getBoundingClientRect().height
+    ));
+    assert(collapsedHeight <= 60, `mobile Workshop palette did not collapse: ${collapsedHeight}px`);
+    await page.click('.kdt-feature-collapse');
+
+    await page.emulateMedia({ reducedMotion: 'reduce', contrast: 'more' });
+    await page.waitForTimeout(80);
+    const accessibility = await page.evaluate(() => {
+      const target = document.querySelector('.kdt-feature-card');
+      const style = getComputedStyle(target);
+      return {
+        reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+        highContrast: matchMedia('(prefers-contrast: more)').matches,
+        borderWidth: parseFloat(style.borderTopWidth),
+        transitionSeconds: style.transitionDuration.split(',').map(parseFloat),
+      };
+    });
+    assert(accessibility.reducedMotion && accessibility.highContrast, 'Workshop accessibility media state was not applied');
+    assert(accessibility.borderWidth >= 2, 'high-contrast Workshop controls lost their stronger boundary');
+    assert(
+      accessibility.transitionSeconds.every((value) => value <= 0.001),
+      `reduced-motion Workshop retained a long transition: ${JSON.stringify(accessibility)}`,
+    );
+
+    await page.evaluate(async () => {
+      await window.__kakiRally.menu();
+      window.__kakiRally.openTrialsWorkshop();
+    });
+    await page.waitForSelector('.ktr-editor');
+    await page.waitForTimeout(160);
+    const trialsLandscape = await page.evaluate(() => {
+      const canvas = document.querySelector('.ktr-canvas').getBoundingClientRect();
+      const targets = [...document.querySelectorAll(
+        '.ktr-stages button, .ktr-terrain-tools button, .ktr-header-actions button',
+      )].map((node) => node.getBoundingClientRect()).filter((rect) => rect.width && rect.height);
+      const terrainTools = [...document.querySelectorAll('.ktr-terrain-tools button')]
+        .map((node) => node.getBoundingClientRect());
+      return {
+        overflowX: document.documentElement.scrollWidth - innerWidth,
+        canvas: canvas.toJSON(),
+        minTouchTarget: Math.min(...targets.map((rect) => Math.min(rect.width, rect.height))),
+        terrainTools: terrainTools.length,
+        visibleTerrainTools: terrainTools.filter((rect) => rect.top >= 0 && rect.bottom <= innerHeight).length,
+      };
+    });
+    assert(trialsLandscape.overflowX <= 2, 'mobile Trials Workshop has horizontal overflow');
+    assert(
+      trialsLandscape.canvas.width >= 500 && trialsLandscape.canvas.height >= 140,
+      `mobile Trials Workshop hid too much terrain: ${JSON.stringify(trialsLandscape.canvas)}`,
+    );
+    assert(trialsLandscape.minTouchTarget >= 43.5, `mobile Trials target fell below 44 CSS px: ${trialsLandscape.minTouchTarget}`);
+    assert.equal(trialsLandscape.terrainTools, 12, 'mobile Trials Workshop lost required terrain stamps');
+    assert.equal(trialsLandscape.visibleTerrainTools, 12, 'mobile Trials Workshop clipped terrain stamps below the viewport');
+    await page.screenshot({ path: path.join(QA_DIR, 'webgl-trials-workshop-mobile-landscape.png') });
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(180);
+    const portrait = await page.evaluate(() => ({
+      orientationGate: !document.querySelector('#rally-orientation-gate').hidden,
+      overflowX: document.documentElement.scrollWidth - innerWidth,
+    }));
+    assert(portrait.orientationGate, 'portrait coarse-pointer Workshop did not show its orientation guidance');
+    assert(portrait.overflowX <= 2, 'portrait orientation guidance has horizontal overflow');
+    await page.screenshot({ path: path.join(QA_DIR, 'webgl-draw-editor-mobile-portrait.png') });
+    report.webgl.responsiveWorkshop = {
+      landscape,
+      autoDressCount: autoDress.first.length,
+      collapsedHeight,
+      portrait,
+      accessibility,
+      trialsLandscape,
+      diagnostics,
+    };
+  } finally {
+    await context.close();
+  }
+}
+
+async function runWebGpuFallback(browser, origin, report) {
+  const diagnostics = emptyDiagnostics();
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 720 },
+    deviceScaleFactor: 1,
+  });
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, 'gpu', {
+      configurable: true,
+      value: undefined,
+    });
+  });
+  const page = await context.newPage();
+  watchPage(page, origin, diagnostics);
+  await installQaState(page);
+  try {
+    await page.goto(`${origin}/index.html?qa=1&renderer=webgpu`, {
+      waitUntil: 'load',
+      timeout: 120_000,
+    });
+    await page.waitForFunction(
+      () => document.body.dataset.kakiRallyReady === 'true' && !!window.__kakiRally,
+      null,
+      { timeout: 120_000 },
+    );
+    const fallback = await page.evaluate(() => window.__kakiRally.getDiagnostics());
+    assert.equal(fallback.backend, 'webgl', 'forced WebGPU initialization failure did not recover through WebGL 2');
+    assert.equal(fallback.stateDiagnostics.lastError || '', '', `WebGPU fallback boot error: ${fallback.stateDiagnostics.lastError}`);
+    assert.equal(fallback.stateDiagnostics.rendererFallback?.to, 'webgl', 'WebGPU fallback diagnostics were not recorded');
+    report.webgl.webgpuFailureFallback = { ...fallback, diagnostics };
+  } finally {
+    await context.close();
+  }
+}
+
+async function runDrawThemeVariants(browser, origin, report) {
+  const diagnostics = emptyDiagnostics();
+  const { context, page } = await bootPage(browser, origin, 'webgl', diagnostics);
+  const colors = {};
+  try {
+    for (const themeId of ['snow', 'neon']) {
+      const started = await page.evaluate(async (theme) => {
+        const [
+          { TrackValidator, DEFAULT_LAYOUT_TRANSFORM },
+          { compileDrawTrackCourse },
+        ] = await Promise.all([
+          import('./src/racing/drawTrackGeometry.js'),
+          import('./src/racing/drawTrackThemes.js'),
+        ]);
+        const points = Array.from({ length: 40 }, (_, index) => {
+          const angle = index / 40 * Math.PI * 2;
+          return {
+            x: 0.5 + Math.cos(angle) * 0.43,
+            y: 0.5 + Math.sin(angle) * 0.38,
+          };
+        });
+        const base = {
+          rawPoints: points,
+          controlPoints: points,
+          closed: true,
+          sizeId: 'grand',
+          widthId: 'standard',
+          layoutTransform: DEFAULT_LAYOUT_TRANSFORM,
+          allowOverpasses: true,
+        };
+        let validation = TrackValidator.validate(base);
+        validation = TrackValidator.validate({
+          ...base,
+          startFraction: validation.suggestedStartFraction,
+        });
+        const draft = {
+          id: `browser-theme-${theme}`,
+          name: `${theme.toUpperCase()} Kaki Craft`,
+          themeId: theme,
+          sizeId: 'grand',
+          widthId: 'standard',
+          seed: theme === 'snow' ? 77123 : 77129,
+          smoothing: 0.55,
+          layoutTransform: { ...DEFAULT_LAYOUT_TRANSFORM },
+          startFraction: validation.suggestedStartFraction,
+          reverse: false,
+          modifiers: { boostPads: false, randomJumps: false },
+          crossingOverrides: [],
+          featurePlacements: [{
+            id: `browser-${theme}-kicker`,
+            featureId: 'small-kicker',
+            source: 'manual',
+            anchor: {
+              mode: 'spline',
+              fraction: 0.34,
+              lateralOffset: 0,
+              facing: 'forward',
+              rotationOffset: 0,
+              scaleX: 1,
+              scaleY: 1,
+              scaleZ: 1,
+            },
+          }],
+          rawStroke: points,
+          controlPoints: points,
+        };
+        const course = compileDrawTrackCourse(draft, validation);
+        const launched = await window.__kakiRally.start('draw', course.id, {
+          customCourse: course,
+          customTrack: draft,
+          carCount: 2,
+          cameraMode: 'chase',
+          practiceRun: true,
+        });
+        return { launched: !!launched, valid: validation.valid };
+      }, themeId);
+      assert(started.launched && started.valid, `${themeId} theme Workshop fixture did not start`);
+      await page.waitForFunction(() => (
+        window.__kkRacing?.snapshot?.()?.workshop?.features?.built >= 1
+      ), null, { timeout: 120_000 });
+      await skipCountdown(page);
+      await page.evaluate(() => {
+        window.__kkRacing.setCameraMode('chase');
+        const runtime = window.__kakiRally.state.racing.courseFeatureRuntimes[0];
+        window.__kkRacing.warpShowcase((runtime.fraction - 0.028 + 1) % 1);
+      });
+      await page.waitForTimeout(320);
+      colors[themeId] = await page.evaluate(() => {
+        const result = {};
+        window.__kakiRally.state.racing.courseFeatureVisuals.group.traverse((object) => {
+          const materials = Array.isArray(object.material) ? object.material : [object.material];
+          for (const material of materials) {
+            const name = String(material?.name || '');
+            if (name.startsWith('variant_') && material.color && result[name] == null) {
+              result[name] = material.color.getHex();
+            }
+          }
+        });
+        return result;
+      });
+      await page.screenshot({ path: path.join(QA_DIR, `webgl-draw-theme-${themeId}.png`) });
+      await page.evaluate(() => window.__kakiRally.menu());
+    }
+    assert(
+      colors.snow.variant_structure !== colors.neon.variant_structure
+        && colors.snow.variant_trim !== colors.neon.variant_trim,
+      `theme-reactive construction did not change authored materials: ${JSON.stringify(colors)}`,
+    );
+    report.webgl.themeVariants = { colors, diagnostics };
+  } finally {
+    await context.close();
+  }
+}
+
 async function assertRallyGrass(page, mode) {
   if (!['circuit', 'drift', 'stock', 'draw'].includes(mode)) return null;
   const grass = await page.evaluate(() => window.__kakiRally.getSnapshot()?.environment?.grass || null);
@@ -516,6 +854,142 @@ async function drawCircle(page, pointerType = 'mouse') {
   });
 }
 
+async function addWorkshopCircuitStamp(page) {
+  return page.evaluate(() => {
+    const editor = window.__kdtEditor;
+    const fractions = [0.22, 0.36, 0.48, 0.62, 0.76];
+    for (const fraction of fractions) {
+      const placement = {
+        id: `browser-kicker-${Math.round(fraction * 100)}`,
+        featureId: 'small-kicker',
+        source: 'manual',
+        anchor: {
+          mode: 'spline',
+          fraction,
+          lateralOffset: 0,
+          facing: 'forward',
+          rotationOffset: 0,
+          scaleX: 1,
+          scaleY: 1,
+          scaleZ: 1,
+        },
+      };
+      const validation = editor._validateFeature(placement);
+      if (!validation.valid) continue;
+      editor.draft.featurePlacements.push(validation.placement);
+      editor.selectedPlacementId = validation.placement.id;
+      editor.recalculate();
+      return {
+        id: validation.placement.id,
+        featureId: validation.placement.featureId,
+        fraction: validation.placement.anchor.fraction,
+      };
+    }
+    return null;
+  });
+}
+
+async function startFiveOverpassFixture(page) {
+  return page.evaluate(async () => {
+    const [
+      { TrackSpline, TrackValidator, createCanonicalTrackLayout },
+      { compileDrawTrackCourse },
+    ] = await Promise.all([
+      import('./src/racing/drawTrackGeometry.js'),
+      import('./src/racing/drawTrackThemes.js'),
+    ]);
+    const controls = [
+      { x: 0.05, y: 0.5 },
+      { x: 0.95, y: 0.5 },
+      { x: 0.95, y: 0.12 },
+      { x: 0.88, y: 0.18 },
+    ];
+    for (let index = 1; index <= 5; index++) {
+      controls.push({
+        x: 0.88 - index * ((0.88 - 0.12) / 5),
+        y: index % 2 ? 0.82 : 0.18,
+      });
+    }
+    controls.push({ x: 0.05, y: 0.88 });
+    const rawStroke = [];
+    for (let index = 0; index < controls.length; index++) {
+      const start = controls[index];
+      const end = controls[(index + 1) % controls.length];
+      for (let step = 0; step < 18; step++) {
+        const t = step / 18;
+        rawStroke.push({
+          x: start.x + (end.x - start.x) * t,
+          y: start.y + (end.y - start.y) * t,
+        });
+      }
+    }
+    const controlsClean = TrackSpline.clean(rawStroke, 0.18);
+    const layout = createCanonicalTrackLayout(rawStroke, controlsClean, 'colossal');
+    const options = {
+      rawPoints: layout.rawPoints,
+      controlPoints: layout.controlPoints,
+      closed: true,
+      sizeId: 'colossal',
+      widthId: 'narrow',
+      layoutTransform: layout.layoutTransform,
+      allowOverpasses: true,
+    };
+    let validation = TrackValidator.validate(options);
+    validation = TrackValidator.validate({
+      ...options,
+      startFraction: validation.suggestedStartFraction,
+    });
+    const draft = {
+      id: 'browser-colossal-five',
+      name: 'Five Skyway Scramble',
+      themeId: 'coastal',
+      sizeId: 'colossal',
+      widthId: 'narrow',
+      seed: 91573,
+      smoothing: 0.18,
+      layoutTransform: layout.layoutTransform,
+      startFraction: validation.suggestedStartFraction,
+      reverse: false,
+      modifiers: { boostPads: false, randomJumps: false },
+      crossingOverrides: [],
+      featurePlacements: [{
+        id: 'browser-speed-trap',
+        featureId: 'speed-trap',
+        source: 'manual',
+        anchor: {
+          mode: 'spline',
+          fraction: 0.82,
+          lateralOffset: 0,
+          facing: 'forward',
+          rotationOffset: 0,
+          scaleX: 1,
+          scaleY: 1,
+          scaleZ: 1,
+        },
+      }],
+      rawStroke: layout.rawPoints,
+      controlPoints: layout.controlPoints,
+    };
+    const course = compileDrawTrackCourse(draft, validation);
+    const started = await window.__kakiRally.start('draw', course.id, {
+      customCourse: course,
+      customTrack: draft,
+      carCount: 2,
+      cameraMode: 'chase',
+      practiceRun: true,
+    });
+    return {
+      started: !!started,
+      valid: validation.valid,
+      length: validation.stats.length,
+      crossings: validation.crossings.length,
+      overpasses: validation.overpasses.length,
+      solver: validation.crossingDiagnostics.solver,
+      fractions: course.overpasses.map((bridge) => bridge.fraction),
+    };
+  });
+}
+
 async function runDraw(page, backend, evidence) {
   await page.click('.rally-mode-rail button[data-mode="draw"]');
   await page.waitForFunction(() => document.querySelector('.rally-setup')?.dataset.mode === 'draw');
@@ -524,34 +998,65 @@ async function runDraw(page, backend, evidence) {
   await drawCircle(page, 'mouse');
   await page.evaluate(() => {
     const editor = window.__kdtEditor;
-    editor.setSize('epic');
+    editor.setSize('mega');
     editor.setWidth('extra-wide');
     editor.draft.modifiers.randomJumps = true;
     editor.draft.modifiers.nightRace = true;
     editor.recalculate();
-    editor.save();
   });
+  const placedStamp = await addWorkshopCircuitStamp(page);
+  assert(placedStamp, 'Draw Workshop could not place a validated circuit ramp');
+  await page.evaluate(() => window.__kdtEditor.save());
   const compatibility = await page.evaluate(async () => {
     const { TrackCodeCodec } = await import('./src/racing/drawTrackStorage.js');
     const editor = window.__kdtEditor;
     const draft = editor.currentDraft();
-    const kdt1 = TrackCodeCodec.encodeLegacy({
+    const oldSchemaDraft = {
       ...draft,
-      sizeId: 'club',
+      featurePlacements: [],
+      crossingOverrides: [],
+    };
+    const legacyPoints = Array.from({ length: 40 }, (_, index) => {
+      const angle = index / 40 * Math.PI * 2;
+      return {
+        x: 0.5 + Math.cos(angle) * 0.43,
+        y: 0.5 + Math.sin(angle) * 0.38,
+      };
+    });
+    const kdt1 = TrackCodeCodec.encodeLegacy({
+      // KDT1 predates layout transforms. Use an original-schema Grand preset
+      // so its canonical migration has enough physical lap length to remain
+      // raceable after the legacy decoder refits the stroke.
+      name: 'Legacy QA Circuit',
+      sizeId: 'grand',
       widthId: 'standard',
+      themeId: 'countryside',
+      seed: 1987,
+      startFraction: 0.9513888888888888,
+      smoothing: 0.55,
+      rawStroke: legacyPoints,
+      controlPoints: legacyPoints,
       layoutTransform: undefined,
     });
-    const kdt2 = TrackCodeCodec.encode(draft);
+    const kdt2 = TrackCodeCodec.encode(oldSchemaDraft);
+    const kdt3 = TrackCodeCodec.encode(draft);
     const legacy = TrackCodeCodec.decode(kdt1);
     const current = TrackCodeCodec.decode(kdt2);
+    const workshop = TrackCodeCodec.decode(kdt3);
     editor.openCode(false);
     const dialog = document.querySelector('.kdt-code-dialog');
     dialog.querySelector('textarea').value = kdt1;
     await editor.codeAction('load');
     const legacyValid = editor.validation.valid;
     const legacyLoaded = editor.closed && editor.draft.rawStroke.length >= 6;
+    const legacyErrors = editor.validation.errors.map((issue) => issue.id);
+    const legacyLength = editor.validation.stats?.length;
     editor.openCode(false);
     dialog.querySelector('textarea').value = kdt2;
+    await editor.codeAction('load');
+    const currentValid = editor.validation.valid;
+    editor.openCode(false);
+    dialog.querySelector('textarea').value = kdt3;
     await editor.codeAction('load');
     editor.draft.reverse = !editor.draft.reverse;
     editor.recalculate();
@@ -559,22 +1064,34 @@ async function runDraw(page, backend, evidence) {
     return {
       kdt1Prefix: kdt1.slice(0, 5),
       kdt2Prefix: kdt2.slice(0, 5),
+      kdt3Prefix: kdt3.slice(0, 5),
       legacyValid,
       legacyLoaded,
-      currentValid: editor.validation.valid,
+      legacyErrors,
+      importedLegacySize: legacy.sizeId,
+      legacyLength,
+      currentValid,
+      workshopValid: editor.validation.valid,
       legacyPoints: legacy.controlPoints.length,
       currentPoints: current.controlPoints.length,
+      workshopFeatures: workshop.featurePlacements.length,
+      editorFeatures: editor.draft.featurePlacements.length,
       reverse: editor.draft.reverse,
     };
   });
   assert.deepEqual(
-    [compatibility.kdt1Prefix, compatibility.kdt2Prefix],
-    ['KDT1-', 'KDT2-'],
+    [compatibility.kdt1Prefix, compatibility.kdt2Prefix, compatibility.kdt3Prefix],
+    ['KDT1-', 'KDT2-', 'KDT3-'],
     'Draw Track codes lost compatibility prefixes',
   );
   evidence.compatibility = compatibility;
   assert(
-    compatibility.legacyLoaded && compatibility.currentValid,
+    compatibility.legacyValid
+      && compatibility.legacyLoaded
+      && compatibility.currentValid
+      && compatibility.workshopValid
+      && compatibility.workshopFeatures === 1
+      && compatibility.editorFeatures === 1,
     `KDT code import failed browser validation: ${JSON.stringify(compatibility)}`,
   );
 
@@ -588,6 +1105,47 @@ async function runDraw(page, backend, evidence) {
   assert(controllerAfter.visible && controllerAfter.x > controllerBefore.x, 'Draw Track controller cursor did not move');
 
   await page.screenshot({ path: path.join(QA_DIR, `${backend}-draw-editor.png`) });
+  const placementPreview = await page.evaluate(() => {
+    const editor = window.__kdtEditor;
+    editor.selectFeature('large-launch-ramp');
+    editor.setEditorStage('place');
+    let valid = null;
+    for (let index = 0; index < editor.validation.normalizedSamples.length; index += 12) {
+      const candidate = editor._featureCandidate(editor.validation.normalizedSamples[index]);
+      if (candidate?.valid) {
+        valid = candidate;
+        break;
+      }
+    }
+    editor.placementGhost = valid;
+    editor._syncFeatureWorkbench();
+    editor.requestDraw();
+    return {
+      valid: !!valid?.valid,
+      message: valid?.message,
+      trajectoryPoints: valid?.trajectory?.points?.length || 0,
+    };
+  });
+  assert(
+    placementPreview.valid && placementPreview.trajectoryPoints > 2,
+    `Draw Workshop ramp ghost lost physical trajectory feedback: ${JSON.stringify(placementPreview)}`,
+  );
+  await page.waitForTimeout(120);
+  await page.screenshot({ path: path.join(QA_DIR, `${backend}-draw-place-ramp.png`) });
+  const invalidPreview = await page.evaluate(() => {
+    const editor = window.__kdtEditor;
+    editor.placementGhost = editor._featureCandidate({ x: 0.5, y: 0.5 });
+    editor._syncFeatureWorkbench();
+    editor.requestDraw();
+    return {
+      valid: !!editor.placementGhost?.valid,
+      message: editor.placementGhost?.message || '',
+    };
+  });
+  assert(!invalidPreview.valid && invalidPreview.message, 'Draw Workshop did not explain an invalid placement');
+  await page.waitForTimeout(120);
+  await page.screenshot({ path: path.join(QA_DIR, `${backend}-draw-invalid-placement.png`) });
+  evidence.placementPreview = { valid: placementPreview, invalid: invalidPreview };
   await page.evaluate(() => {
     const editor = window.__kdtEditor;
     editor.build();
@@ -597,6 +1155,12 @@ async function runDraw(page, backend, evidence) {
     timeout: 120_000,
   });
   await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
+  evidence.flyover = await page.evaluate(() => window.__kakiRally.getSnapshot());
+  assert(
+    evidence.flyover.phase === 'flyover' && evidence.flyover.camera?.cinematic,
+    'Draw Workshop did not enter its build flyover',
+  );
+  await page.screenshot({ path: path.join(QA_DIR, `${backend}-draw-build-flyover.png`) });
   await assertRallyGrass(page, 'draw');
   await skipCountdown(page);
   const raced = await exerciseKeyboard(page);
@@ -605,6 +1169,10 @@ async function runDraw(page, backend, evidence) {
   const race = await page.evaluate(() => window.__kakiRally.getSnapshot());
   assert.equal(race.raceMode, 'draw');
   assert(race.customTrackId && race.overpasses >= 0 && race.checkpoints > 0, 'Generated Draw Track race is incomplete');
+  assert(
+    race.workshop.features?.built >= 1 && race.workshop.features?.missing?.length === 0,
+    `Draw Workshop authored stamp failed to load: ${JSON.stringify(race.workshop.features)}`,
+  );
   evidence.raced = raced;
   evidence.gamepad = gamepad;
   evidence.race = race;
@@ -619,6 +1187,73 @@ async function runDraw(page, backend, evidence) {
     },
   };
   await assertPauseRestartExitReentry(page, spec, evidence);
+
+  const multi = await startFiveOverpassFixture(page);
+  assert(
+    multi.started
+      && multi.valid
+      && multi.crossings === 5
+      && multi.overpasses === 5
+      && multi.solver === 'exact-global',
+    `Colossal five-overpass fixture failed: ${JSON.stringify(multi)}`,
+  );
+  await page.waitForFunction(() => (
+    window.__kkRacing?.snapshot?.()?.workshop?.bridges?.bridgeCount === 5
+  ), null, { timeout: 120_000 });
+  await skipCountdown(page);
+  await page.evaluate((fraction) => {
+    window.__kkRacing.setCameraMode('chase');
+    window.__kkRacing.warpShowcase(fraction);
+  }, multi.fractions[2]);
+  await page.keyboard.down('w');
+  await page.waitForTimeout(280);
+  await page.keyboard.up('w');
+  await page.waitForTimeout(400);
+  const withBridges = await page.evaluate(() => ({
+    snapshot: window.__kkRacing.snapshot(),
+    renderer: window.__kakiRally.getDiagnostics().renderer,
+  }));
+  await page.evaluate(() => {
+    window.__kakiRally.state.racing.overpassKit.group.visible = false;
+  });
+  await page.waitForTimeout(180);
+  const withoutBridges = await page.evaluate(() => window.__kakiRally.getDiagnostics().renderer);
+  await page.evaluate(() => {
+    window.__kakiRally.state.racing.overpassKit.group.visible = true;
+  });
+  await page.waitForTimeout(180);
+  const bridgeDiagnostics = withBridges.snapshot.workshop.bridges;
+  const templateBounds = bridgeDiagnostics.templateBounds;
+  assert(
+    bridgeDiagnostics.drawGroups <= 32
+      && bridgeDiagnostics.moduleInstances >= 200
+      && bridgeDiagnostics.missing.length === 0
+      && templateBounds.bridge_deck_module.width > 10
+      && templateBounds.bridge_guardrail_module.height > 1
+      && templateBounds.bridge_support_standard.height > 5,
+    `Colossal authored bridge batching escaped its budget: ${JSON.stringify(bridgeDiagnostics)}`,
+  );
+  assert(
+    !withBridges.snapshot.camera.collision.blocked,
+    `Chase camera was trapped by the authored skyway: ${JSON.stringify(withBridges.snapshot.camera.collision)}`,
+  );
+  evidence.multiOverpass = {
+    ...multi,
+    bridgeDiagnostics,
+    drawCallsWithBridges: withBridges.renderer.drawCalls,
+    drawCallsWithoutBridges: withoutBridges.drawCalls,
+    bridgeDrawCallCost: withBridges.renderer.drawCalls - withoutBridges.drawCalls,
+    trianglesWithBridges: withBridges.renderer.triangles,
+    trianglesWithoutBridges: withoutBridges.triangles,
+  };
+  assert(
+    evidence.multiOverpass.bridgeDrawCallCost <= 80,
+    `Five skyways cost too many draw calls: ${JSON.stringify(evidence.multiOverpass)}`,
+  );
+  await page.screenshot({
+    path: path.join(QA_DIR, `${backend}-draw-colossal-five-overpasses.png`),
+  });
+  await page.evaluate(() => window.__kakiRally.menu());
 
   await page.evaluate(() => window.__kakiRally.openDraw());
   await page.waitForSelector('.kdt-editor');
@@ -668,6 +1303,162 @@ async function finishTrialsCourse(page, trackId, evidence, { fromMenu = false } 
   await page.evaluate(() => window.__kakiRally.menu());
 }
 
+async function runTrialsWorkshop(page, backend, evidence, {
+  verifyRestart = true,
+} = {}) {
+  const officialProgressBefore = await page.evaluate(() => (
+    localStorage.getItem('kks_rally_trials_v1')
+  ));
+  await page.evaluate(() => window.__kakiRally.openTrialsWorkshop());
+  await page.waitForSelector('.ktr-editor');
+  const authored = await page.evaluate(async () => {
+    const { getCourseFeature } = await import('./src/racing/courseFeatureCatalog.js');
+    const { TrialsCourseCodec } = await import('./src/racing/trialsWorkshopStorage.js');
+    const editor = window.__ktrEditor;
+    editor.applyTerrain('gap', 160);
+    const gap = editor.course.gaps[0];
+    const kicker = getCourseFeature('small-kicker');
+    const kickerX = gap.start - kicker.footprint.length * 0.5 - 0.02;
+    editor.setStage('place');
+    const placed = editor.placeFeature('small-kicker', kickerX);
+    editor.setStage('test');
+    editor.testFromX = 128;
+    editor.selectedPlacementId = null;
+    editor.focusTestView();
+    editor.render();
+    const saved = editor.save();
+    const code = TrialsCourseCodec.encode(saved);
+    const decoded = TrialsCourseCodec.decode(code);
+    return {
+      placed,
+      valid: editor.validation.valid,
+      errors: editor.validation.errors.map((issue) => issue.message),
+      jumps: editor.validation.jumps.map((jump) => ({
+        label: jump.label,
+        monster: jump.monster.message,
+        buggy: jump.buggy.message,
+      })),
+      courseId: saved.id,
+      featureCount: saved.featurePlacements.length,
+      gap: { ...gap },
+      kickerX,
+      codePrefix: code.slice(0, 5),
+      codeBytes: code.length,
+      decodedFeatures: decoded.course.featurePlacements.length,
+      decodedGaps: decoded.course.gaps.length,
+    };
+  });
+  assert(
+    authored.placed
+      && authored.valid
+      && authored.codePrefix === 'KTR1-'
+      && authored.decodedFeatures === authored.featureCount
+      && authored.decodedGaps === 1,
+    `Trials Workshop authoring/codec failed: ${JSON.stringify(authored)}`,
+  );
+  await page.screenshot({
+    path: path.join(QA_DIR, `${backend}-trials-workshop-gap.png`),
+  });
+  assert(await page.evaluate(() => window.__ktrEditor.build({ testFromHere: true })), 'Trials Workshop test build failed');
+  await page.waitForFunction(() => (
+    window.__kakiRally.getDiagnostics().activeMode === 'trials'
+      && window.__kkRacing?.snapshot?.()?.customCourse
+  ), null, { timeout: 120_000 });
+  await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
+  await page.waitForFunction(() => (
+    window.__kkRacing?.snapshot?.()?.assets?.workshop?.built >= 4
+  ), null, { timeout: 120_000 });
+  await skipCountdown(page);
+  assert(
+    await page.evaluate(() => window.__kkRacing.setCameraMode('isometric')),
+    'Custom Trials rejected its side/ISO camera',
+  );
+  await page.waitForTimeout(420);
+  const opening = await page.evaluate(() => window.__kkRacing.snapshot());
+  assert(
+    opening.customCourse
+      && opening.practiceRun
+      && Math.abs(opening.practiceStartX - 128) < 0.6
+      && opening.assets.workshop.missing.length === 0,
+    `Custom Trials runtime did not preserve its authored test start/assets: ${JSON.stringify(opening)}`,
+  );
+  assert(
+    await page.evaluate(() => window.__kkRacing.restartCheckpoint()),
+    'Custom Trials checkpoint restart failed',
+  );
+  const afterCheckpointRestart = await page.evaluate(() => window.__kkRacing.snapshot());
+  assert(
+    Math.abs(afterCheckpointRestart.x - 128) < 0.8,
+    `Custom Trials restart lost the selected test location: ${afterCheckpointRestart.x}`,
+  );
+  // Capture the steady-state course rather than a valid but intentionally
+  // oversized restart callout that would hide the authored ramp and terrain.
+  await page.evaluate(() => {
+    const session = window.__kakiRally.state.racing;
+    session.calloutTime = 0;
+    session.callout = '';
+    session.goTime = 0;
+  });
+  await page.waitForTimeout(260);
+  await page.screenshot({
+    path: path.join(QA_DIR, `${backend}-trials-workshop-custom-run.png`),
+  });
+
+  let restart = null;
+  if (verifyRestart) {
+    assert(
+      await page.evaluate(() => window.__kakiRally.restart().then(Boolean)),
+      'Custom Trials full restart failed',
+    );
+    await page.waitForFunction((courseId) => {
+      const snapshot = window.__kkRacing?.snapshot?.();
+      return snapshot?.customCourse
+        && snapshot.trackId === courseId
+        && snapshot.practiceRun
+        && Math.abs(snapshot.practiceStartX - 128) < 0.8;
+    }, authored.courseId, { timeout: 120_000 });
+    restart = await page.evaluate(() => window.__kkRacing.snapshot());
+  }
+  await page.evaluate(() => window.__kakiRally.menu());
+  const customCourse = await page.evaluate(async (courseId) => {
+    const { TrialsCourseLibrary } = await import('./src/racing/trialsWorkshopStorage.js');
+    return new TrialsCourseLibrary().get(courseId);
+  }, authored.courseId);
+  assert(customCourse?.custom, 'Saved custom Trials course was not available after menu return');
+  await startMode(page, 'trials', 'forest', {
+    customCourse,
+    trialsVehicle: 'buggy',
+  });
+  await skipCountdown(page);
+  const buggy = await page.evaluate(() => window.__kkRacing.snapshot());
+  assert(
+    buggy.customCourse
+      && buggy.trackId === authored.courseId
+      && buggy.vehicleId === 'buggy'
+      && !buggy.practiceRun,
+    `Custom Trials vehicle change lost the authored course: ${JSON.stringify(buggy)}`,
+  );
+  await page.evaluate(() => window.__kakiRally.menu());
+  const officialProgressAfter = await page.evaluate(() => (
+    localStorage.getItem('kks_rally_trials_v1')
+  ));
+  assert.equal(
+    officialProgressAfter,
+    officialProgressBefore,
+    'Custom Trials testing changed official progression records',
+  );
+  evidence.workshop = {
+    authored,
+    opening,
+    afterCheckpointRestart,
+    restart,
+    buggy,
+    storageBytes: await page.evaluate(() => (
+      localStorage.getItem('kks_rally_trials_courses_v1')?.length || 0
+    )),
+  };
+}
+
 async function runTrials(page, backend, evidence) {
   await finishTrialsCourse(page, 'meadow', evidence, { fromMenu: true });
   const progress = await page.evaluate(() => JSON.parse(localStorage.getItem('kks_rally_trials_v1') || '{}'));
@@ -685,6 +1476,7 @@ async function runTrials(page, backend, evidence) {
   evidence.ghostReplay = ghost;
   const spec = { mode: 'trials', courseId: 'forest', options: { trialsTrackId: 'meadow', trialsVehicle: 'monster' } };
   await assertPauseRestartExitReentry(page, spec, evidence);
+  await runTrialsWorkshop(page, backend, evidence);
 }
 
 async function runCrash(page, backend, evidence) {
@@ -809,47 +1601,45 @@ async function runWebGl(browser, origin, report) {
 
     if (requestedScope === 'all') {
       const persistenceBefore = await page.evaluate(() => ({
-      draw: localStorage.getItem('kks_draw_tracks_v1'),
-      trials: localStorage.getItem('kks_rally_trials_v1'),
-      crash: localStorage.getItem('kks_kaki_catastrophe_records_v1'),
+        draw: localStorage.getItem('kks_draw_tracks_v1'),
+        trials: localStorage.getItem('kks_rally_trials_v1'),
+        trialsCourses: localStorage.getItem('kks_rally_trials_courses_v1'),
+        crash: localStorage.getItem('kks_kaki_catastrophe_records_v1'),
       }));
-      assert(persistenceBefore.draw && persistenceBefore.trials && persistenceBefore.crash, 'legacy save keys were not populated');
+      assert(
+        persistenceBefore.draw
+          && persistenceBefore.trials
+          && persistenceBefore.trialsCourses
+          && persistenceBefore.crash,
+        'legacy or Workshop save keys were not populated',
+      );
       await page.reload({ waitUntil: 'load', timeout: 120_000 });
       await page.waitForFunction(() => !!window.__kakiRally);
       const persistenceAfter = await page.evaluate(() => ({
         draw: localStorage.getItem('kks_draw_tracks_v1'),
         trials: localStorage.getItem('kks_rally_trials_v1'),
+        trialsCourses: localStorage.getItem('kks_rally_trials_courses_v1'),
         crash: localStorage.getItem('kks_kaki_catastrophe_records_v1'),
       }));
       assert.deepEqual(persistenceAfter, persistenceBefore, 'records changed across reload');
       report.webgl.persistence = {
         drawBytes: persistenceAfter.draw.length,
         trialsBytes: persistenceAfter.trials.length,
+        trialsCourseBytes: persistenceAfter.trialsCourses.length,
         crashBytes: persistenceAfter.crash.length,
       };
     }
 
-    await page.setViewportSize({ width: 1720, height: 720 });
-    await page.waitForTimeout(160);
-    report.webgl.ultrawide = await page.evaluate(() => {
-      const stage = document.querySelector('#kk-stage').getBoundingClientRect();
-      return { viewport: [innerWidth, innerHeight], stage: [stage.width, stage.height], left: stage.left, right: innerWidth - stage.right };
-    });
-    assert(Math.abs(report.webgl.ultrawide.left - report.webgl.ultrawide.right) < 2, 'ultrawide letterboxing is not centered');
-    assert(Math.abs(report.webgl.ultrawide.stage[0] / report.webgl.ultrawide.stage[1] - 16 / 9) < 0.02, 'desktop stage lost 16:9');
-
-    await page.setViewportSize({ width: 844, height: 390 });
-    await page.waitForTimeout(160);
-    report.webgl.landscapePhone = await page.evaluate(() => ({
-      orientationGate: !document.querySelector('#rally-orientation-gate').hidden,
-      overflowX: document.documentElement.scrollWidth - innerWidth,
-      stage: document.querySelector('#kk-stage').getBoundingClientRect().toJSON(),
-    }));
-    assert(!report.webgl.landscapePhone.orientationGate, 'landscape phone incorrectly shows the rotate prompt');
-    assert(report.webgl.landscapePhone.overflowX <= 2, 'landscape phone has horizontal overflow');
   } finally {
     await context.close();
   }
+  if (['all', 'draw', 'responsive'].includes(requestedScope)) {
+    await runWorkshopResponsive(browser, origin, report);
+  }
+  if (['all', 'draw', 'visual'].includes(requestedScope)) {
+    await runDrawThemeVariants(browser, origin, report);
+  }
+  if (requestedScope === 'all') await runWebGpuFallback(browser, origin, report);
 }
 
 async function runWebGpu(browser, origin, report) {
@@ -884,17 +1674,33 @@ async function runWebGpu(browser, origin, report) {
     await page.waitForSelector('.kdt-editor');
     await drawCircle(page, 'mouse');
     await page.evaluate(() => {
+      window.__kdtEditor.setSize('mega');
+      window.__kdtEditor.recalculate();
+    });
+    assert(await addWorkshopCircuitStamp(page), 'WebGPU Draw Workshop could not place a ramp');
+    await page.evaluate(() => {
       window.__kdtEditor.build();
       window.__kdtEditor.finishBuild();
     });
     await page.waitForFunction(() => window.__kakiRally.getDiagnostics().activeMode === 'draw', null, { timeout: 120_000 });
     await assertRallyGrass(page, 'draw');
+    await page.waitForFunction(() => (
+      window.__kkRacing?.snapshot?.()?.workshop?.features?.built >= 1
+    ), null, { timeout: 120_000 });
     await skipCountdown(page);
     const drawDiagnostics = await page.evaluate(() => window.__kakiRally.getDiagnostics());
     assert.equal(drawDiagnostics.backend, 'webgpu');
     assert(drawDiagnostics.renderer.drawCalls > 0, 'Draw Track WebGPU made no submissions');
     report.webgpu.modes.draw = drawDiagnostics;
     await page.evaluate(() => window.__kakiRally.menu());
+
+    report.webgpu.modes.trialsWorkshop = {};
+    await runTrialsWorkshop(
+      page,
+      'webgpu',
+      report.webgpu.modes.trialsWorkshop,
+      { verifyRestart: false },
+    );
 
     const crashAvailability = await page.evaluate(async () => {
       const api = await import('./src/racing/racingModeAvailability.js');

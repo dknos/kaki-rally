@@ -1,6 +1,8 @@
 /** Theme presets and runtime-course compilation for Draw Your Track. */
 import { RACE_COURSES } from './tracks.js';
 import { TRACK_SIZE_PRESETS, TRACK_WIDTH_PRESETS } from './drawTrackGeometry.js';
+import { sanitizeCourseFeaturePlacements } from './courseFeaturePlacement.js';
+import { validateCircuitFeaturePlacement } from './courseFeatureValidation.js';
 
 export const DRAW_TRACK_THEMES = Object.freeze({
   countryside: Object.freeze({
@@ -110,20 +112,99 @@ export function compileDrawTrackCourse(draft, validation) {
   const seed = (Number(draft.seed) || Date.now()) >>> 0;
   const id = draft.id || createDrawTrackId(seed);
   const modifiers = { ...(draft.modifiers || {}) };
-  const overpasses = validation.overpasses.map((bridge, index) => ({
-    id: `overpass-${index + 1}`,
+  const overpasses = validation.overpasses.map((bridge) => ({
+    id: bridge.id,
     fraction: bridge.fraction,
     height: bridge.height,
     approachLength: bridge.approachLength,
     underFraction: bridge.underFraction,
+    canonicalFraction: bridge.canonicalFraction,
+    canonicalUnderFraction: bridge.canonicalUnderFraction,
+    overBranch: bridge.selectedOrientation?.overBranch || null,
+    underBranch: bridge.selectedOrientation?.underBranch || null,
+    preset: bridge.preset || 'standard',
+    clearance: bridge.clearance,
+    grade: bridge.grade,
+    score: bridge.score,
     angle: bridge.angle,
     point: { x: bridge.point.x, z: bridge.point.y },
   }));
-  const jumpCount = modifiers.randomJumps ? (size.id === 'epic' ? 4 : size.id === 'grand' ? 3 : 2) : 0;
+  const jumpCount = modifiers.randomJumps
+    ? ({ pocket: 2, club: 2, grand: 3, epic: 4, mega: 6, colossal: 8 }[size.id] || 2)
+    : 0;
   const rampFractions = safeFeatureFractions(overpasses, jumpCount, seed, 0.18);
   const boostFractions = modifiers.boostPads === false
     ? []
     : safeFeatureFractions(overpasses, size.id === 'pocket' ? 2 : 3, seed ^ 0x9e3779b9, 0.08);
+  const repairFractions = safeFeatureFractions(overpasses, 1, seed ^ 0x51ed270b, 0.83);
+  const sanitizedFeatures = sanitizeCourseFeaturePlacements(
+    draft.featurePlacements || [],
+    { mode: 'spline' },
+  );
+  const autoPlacements = [
+    ...rampFractions.map((fraction, index) => ({
+      id: `auto-fill-kicker-${index.toString(36)}`,
+      featureId: index % 3 === 2 ? 'tabletop' : index % 2 ? 'large-launch-ramp' : 'small-kicker',
+      source: 'auto-fill',
+      anchor: {
+        mode: 'spline',
+        fraction,
+        lateralOffset: 0,
+        facing: 'forward',
+        rotationOffset: 0,
+        scaleX: 1,
+        scaleY: 1,
+        scaleZ: 1,
+      },
+    })),
+    ...boostFractions.map((fraction, index) => ({
+      id: `auto-boost-${index.toString(36)}`,
+      featureId: 'boost-pad',
+      source: 'auto-fill',
+      anchor: {
+        mode: 'spline',
+        fraction,
+        lateralOffset: 0,
+        facing: 'forward',
+        rotationOffset: 0,
+        scaleX: 1,
+        scaleY: 1,
+        scaleZ: 1,
+      },
+    })),
+    ...repairFractions.map((fraction) => ({
+      id: 'auto-repair-bay',
+      featureId: 'repair-bay',
+      source: 'auto-fill',
+      anchor: {
+        mode: 'spline',
+        fraction,
+        lateralOffset: -(roadWidth.width * 0.34),
+        facing: 'forward',
+        rotationOffset: 0,
+        scaleX: 1,
+        scaleY: 1,
+        scaleZ: 1,
+      },
+    })),
+  ];
+  // Auto-fill uses the same validator as a manually stamped object. Manual
+  // work always wins; generated features are considered deterministically in
+  // order and omitted when they would occupy a grid, bridge approach, or an
+  // existing authored footprint.
+  const featurePlacements = [...sanitizedFeatures.placements];
+  for (const autoPlacement of autoPlacements) {
+    const placementValidation = validateCircuitFeaturePlacement(autoPlacement, {
+      samples: validation.samples,
+      routeLength: validation.stats.length,
+      trackWidth: roadWidth.width,
+      startFraction: draft.startFraction || 0,
+      reverse: !!draft.reverse,
+      overpasses,
+      placements: featurePlacements,
+    });
+    if (placementValidation.valid) featurePlacements.push(placementValidation.placement);
+  }
   const name = String(draft.name || '').trim().slice(0, 42) || proceduralTrackName(seed, validation.stats);
 
   return {
@@ -148,9 +229,14 @@ export function compileDrawTrackCourse(draft, validation) {
     laps: Number.isFinite(draft.laps) ? Math.max(1, Math.min(9, Math.round(draft.laps))) : size.laps,
     points: (validation.racingControlPoints || validation.controlPoints).map((point) => [point.x, point.y]),
     overpasses,
-    rampFractions,
-    boostFractions,
-    repairFractions: safeFeatureFractions(overpasses, 1, seed ^ 0x51ed270b, 0.83),
+    // Draw courses use authored Workshop meshes and their matching analytical
+    // surfaces. The legacy fraction pads remain available to official modes
+    // and old runtime course objects, but are deliberately empty here.
+    rampFractions: [],
+    boostFractions: [],
+    repairFractions: [],
+    featurePlacements,
+    featureWarnings: sanitizedFeatures.warnings,
     shortcutFractions: [],
     seed,
     drawThemeId: theme.id,
@@ -158,6 +244,16 @@ export function compileDrawTrackCourse(draft, validation) {
     drawWidthId: roadWidth.id,
     drawDirection: draft.reverse ? 'reverse' : 'forward',
     drawModifiers: modifiers,
+    crossingOverrides: (validation.crossingOverrides || draft.crossingOverrides || []).map((override) => ({
+      ...override,
+      point: override.point ? { ...override.point } : undefined,
+      branchFractions: override.branchFractions ? [...override.branchFractions] : undefined,
+    })),
+    orphanedCrossingOverrides: (validation.orphanedCrossingOverrides || []).map((override) => ({
+      ...override,
+      point: override.point ? { ...override.point } : undefined,
+      branchFractions: override.branchFractions ? [...override.branchFractions] : undefined,
+    })),
     drawStats: {
       length: validation.stats.length,
       estimatedLapTime: validation.stats.estimatedLapTime,
@@ -175,6 +271,11 @@ export function compileDrawTrackCourse(draft, validation) {
       seed,
       rawStroke: (draft.rawStroke || []).map((point) => ({ x: point.x, y: point.y })),
       controlPoints: (draft.controlPoints || []).map((point) => ({ x: point.x, y: point.y })),
+      featurePlacements: sanitizedFeatures.placements.map((placement) => ({
+        ...placement,
+        anchor: { ...placement.anchor },
+        properties: { ...placement.properties },
+      })),
     },
   };
 }

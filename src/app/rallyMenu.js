@@ -57,12 +57,12 @@ const MODE_DATA = Object.freeze({
     mechanic: 'Eight laps · drafting · up to 16 cars',
   }),
   draw: Object.freeze({
-    eyebrow: 'WORKSHOP · KDT1 / KDT2',
-    title: 'Draw Your Track',
-    short: 'Draw Your Track',
+    eyebrow: 'COURSE WORKSHOP · KDT1 / KDT2 / KDT3',
+    title: 'Circuit Workshop',
+    short: 'Course Workshop',
     art: 'assets/screenshots/draw-your-track-workshop.png',
-    description: 'Sketch a loop, repair it, place the line, generate safe overpasses, then race your own circuit.',
-    mechanic: 'Mouse · touch · controller · import / export',
+    description: 'Draw huge loops, author safe multi-level crossings, stamp production features, test, save, and race.',
+    mechanic: 'Mouse · touch · controller · KDT share codes',
   }),
   monster: Object.freeze({
     eyebrow: 'MONSTER ARENA · THREE FORMATS',
@@ -73,12 +73,12 @@ const MODE_DATA = Object.freeze({
     mechanic: 'Smashdown · Freestyle · Free Ride',
   }),
   trials: Object.freeze({
-    eyebrow: 'SIDE TRIAL · MEDAL ROAD',
+    eyebrow: 'SIDE TRIAL · KTR1 COURSE WORKSHOP',
     title: 'Kaki Trials',
     short: 'Kaki Trials',
     art: 'assets/screenshots/kaki-trials-side-scroll.png',
-    description: 'Balance throttle and pitch across rolling terrain, real gaps, turbo heat, and destructible obstacles.',
-    mechanic: 'Three courses · checkpoints · PB ghosts',
+    description: 'Race the official medal road or sculpt, stamp, validate, share, and run your own side-view course.',
+    mechanic: 'Three official courses · custom KTR1 library · PB ghosts',
   }),
   crash: Object.freeze({
     eyebrow: 'PAWPRINT INTERCHANGE · WEBGL BETA',
@@ -164,6 +164,7 @@ export class RallyMenu {
     onSelectMode = null,
     onLaunch = null,
     onOpenDraw = null,
+    onOpenTrialsWorkshop = null,
     onRestartWebGL = null,
     onExperimentalCrash = null,
   } = {}) {
@@ -174,6 +175,7 @@ export class RallyMenu {
     this.onSelectMode = onSelectMode;
     this.onLaunch = onLaunch;
     this.onOpenDraw = onOpenDraw;
+    this.onOpenTrialsWorkshop = onOpenTrialsWorkshop;
     this.onRestartWebGL = onRestartWebGL;
     this.onExperimentalCrash = onExperimentalCrash;
     this.settings = readRallySettings();
@@ -353,6 +355,8 @@ export class RallyMenu {
     }
     const action = this.selectedMode === 'draw'
       ? '<button class="rally-launch" type="button" data-action="draw">OPEN WORKSHOP <span>→</span></button>'
+      : this.selectedMode === 'trials'
+        ? '<button class="rally-launch is-secondary" type="button" data-action="trials-workshop">COURSE WORKSHOP <span>✎</span></button><button class="rally-launch" type="button" data-action="launch">START KAKI TRIALS <span>→</span></button>'
       : this.selectedMode === 'crash' && availability.action === 'restart-webgl'
         ? '<button class="rally-launch" type="button" data-action="restart-webgl">RESTART IN WEBGL <span>↻</span></button>'
         : this.selectedMode === 'crash' && availability.action === 'experimental-query'
@@ -525,6 +529,8 @@ export class RallyMenu {
       this.onLaunch?.(this.launchRequest());
     } else if (action === 'draw') {
       this.onOpenDraw?.();
+    } else if (action === 'trials-workshop') {
+      this.onOpenTrialsWorkshop?.();
     } else if (action === 'options') {
       this.optionsBaseline = { ...readRallySettings() };
       this.screen = 'options';

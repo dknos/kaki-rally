@@ -7,25 +7,40 @@
  * safe overpasses.
  * Keeping it DOM/Three-free makes the hard generation rules cheap to test.
  */
+import { solveDrawTrackCrossings } from './drawTrackCrossings.js';
 
 const EPSILON = 1e-7;
 
 export const TRACK_SIZE_PRESETS = Object.freeze({
   pocket: Object.freeze({
     id: 'pocket', label: 'Pocket', detail: 'Fast laps · tiny chaos',
-    width: 88, depth: 62, minLength: 145, maxLength: 285, samples: 160, laps: 4,
+    width: 88, depth: 62, minLength: 145, maxLength: 285, samples: 160, maxSamples: 320, laps: 4,
+    editorMinZoom: 0.8, editorMaxZoom: 3.2, propBudget: 180, aiCars: 5,
   }),
   club: Object.freeze({
     id: 'club', label: 'Club', detail: 'Recommended all-rounder',
-    width: 124, depth: 86, minLength: 190, maxLength: 410, samples: 224, laps: 3,
+    width: 124, depth: 86, minLength: 190, maxLength: 410, samples: 224, maxSamples: 448, laps: 3,
+    editorMinZoom: 0.72, editorMaxZoom: 3.6, propBudget: 260, aiCars: 7,
   }),
   grand: Object.freeze({
     id: 'grand', label: 'Grand', detail: 'Long straights · big fields',
-    width: 170, depth: 116, minLength: 260, maxLength: 590, samples: 288, laps: 3,
+    width: 170, depth: 116, minLength: 260, maxLength: 590, samples: 288, maxSamples: 576, laps: 3,
+    editorMinZoom: 0.64, editorMaxZoom: 4, propBudget: 360, aiCars: 8,
   }),
   epic: Object.freeze({
     id: 'epic', label: 'Epic', detail: 'Endurance-scale spectacle',
-    width: 224, depth: 150, minLength: 340, maxLength: 790, samples: 352, laps: 2,
+    width: 224, depth: 150, minLength: 340, maxLength: 790, samples: 352, maxSamples: 704, laps: 2,
+    editorMinZoom: 0.58, editorMaxZoom: 4.4, propBudget: 460, aiCars: 8,
+  }),
+  mega: Object.freeze({
+    id: 'mega', label: 'Mega', detail: 'Multi-level endurance workshop',
+    width: 320, depth: 220, minLength: 500, maxLength: 1250, samples: 512, maxSamples: 960, laps: 2,
+    editorMinZoom: 0.48, editorMaxZoom: 5.2, propBudget: 620, aiCars: 8,
+  }),
+  colossal: Object.freeze({
+    id: 'colossal', label: 'Colossal', detail: 'Long stages · wild skyways',
+    width: 440, depth: 300, minLength: 650, maxLength: 1900, samples: 640, maxSamples: 1280, laps: 1,
+    editorMinZoom: 0.4, editorMaxZoom: 6, propBudget: 820, aiCars: 7,
   }),
 });
 
@@ -414,62 +429,6 @@ function localTurn(samples, index, radius = 5) {
   return sum;
 }
 
-function detectCrossings(samples, trackWidth, length, allowOverpasses) {
-  const intersections = [];
-  const count = samples.length;
-  const meanStep = length / Math.max(1, count);
-  const bridgeHeight = 4.7 + trackWidth * 0.12;
-  // Cosine ramps peak at height*pi/(2*approach). Size the approach for a
-  // browser-physics-safe ~19% maximum grade, including extra-wide roads.
-  const approachLength = Math.max(32, bridgeHeight * Math.PI / (2 * 0.19), trackWidth * 2.8);
-  const approachSamples = Math.ceil(approachLength / Math.max(0.1, meanStep));
-  for (let i = 0; i < count; i++) {
-    const a = samples[i];
-    const b = samples[(i + 1) % count];
-    for (let j = i + 4; j < count; j++) {
-      if (circularDelta(i, j, count) <= 3) continue;
-      const c = samples[j];
-      const d = samples[(j + 1) % count];
-      const hit = segmentIntersection(a, b, c, d);
-      if (!hit) continue;
-      const angle = crossingAngle(a, b, c, d);
-      const separation = circularDelta(i, j, count);
-      const enoughApproach = separation > approachSamples * 2.25
-        && (count - separation) > approachSamples * 2.25;
-      const farFromGridI = circularDelta(i, 0, count) > approachSamples * 1.15;
-      const farFromGridJ = circularDelta(j, 0, count) > approachSamples * 1.15;
-      const bridgeable = !!allowOverpasses && angle >= 0.52 && enoughApproach
-        && (farFromGridI || farFromGridJ) && intersections.length < 3;
-      let overIndex = null;
-      if (bridgeable) {
-        const iTurn = localTurn(samples, i);
-        const jTurn = localTurn(samples, j);
-        if (!farFromGridI) overIndex = j;
-        else if (!farFromGridJ) overIndex = i;
-        else overIndex = iTurn <= jTurn ? i : j;
-      }
-      const underIndex = overIndex == null ? null : (overIndex === i ? j : i);
-      const overHit = overIndex === i ? hit.t : hit.u;
-      const underHit = underIndex === i ? hit.t : hit.u;
-      intersections.push({
-        id: `crossing-${i}-${j}`,
-        segmentA: i,
-        segmentB: j,
-        overIndex,
-        underIndex,
-        point: { x: hit.x, y: hit.y },
-        angle,
-        bridgeable,
-        height: bridgeHeight,
-        approachLength,
-        fraction: overIndex == null ? null : ((overIndex + overHit) / count) % 1,
-        underFraction: underIndex == null ? null : ((underIndex + underHit) / count) % 1,
-      });
-    }
-  }
-  return intersections;
-}
-
 function trackMetrics(samples, trackWidth) {
   const count = samples.length;
   let length = 0;
@@ -726,6 +685,8 @@ export class TrackValidator {
     mirror = false,
     allowOverpasses = true,
     layoutTransform = null,
+    crossingOverrides = [],
+    featurePlacements = [],
   } = {}) {
     const size = TRACK_SIZE_PRESETS[sizeId] || TRACK_SIZE_PRESETS.club;
     const width = TRACK_WIDTH_PRESETS[widthId] || TRACK_WIDTH_PRESETS.standard;
@@ -736,7 +697,7 @@ export class TrackValidator {
     const initialSamples = resampleClosedSpline(fitted.points, size.samples);
     const initialStats = initialSamples.length >= 4 ? trackMetrics(initialSamples, width.width) : null;
     const dynamicCount = initialStats
-      ? clamp(Math.ceil(initialStats.length / 1.28), size.samples, 512)
+      ? clamp(Math.ceil(initialStats.length / 1.18), size.samples, size.maxSamples || 512)
       : size.samples;
     const authoredSamples = dynamicCount === initialSamples.length
       ? initialSamples
@@ -752,7 +713,29 @@ export class TrackValidator {
       ? worldSamplesToNormalized(samples, size)
       : resampleClosedSpline(fitted.normalized, samples.length);
     const stats = samples.length >= 4 ? trackMetrics(samples, width.width) : null;
-    const crossings = stats ? detectCrossings(samples, width.width, stats.length, allowOverpasses) : [];
+    const crossingPlan = stats ? solveDrawTrackCrossings({
+      samples,
+      trackWidth: width.width,
+      length: stats.length,
+      allowOverpasses,
+      startFraction,
+      reverse,
+      mirror,
+      size,
+      layoutTransform,
+      crossingOverrides,
+      featurePlacements,
+      canonicalReferenceSamples: layoutTransform
+        ? resampleClosedSpline(source, Math.max(size.samples, samples.length))
+        : null,
+    }) : {
+      crossings: [],
+      overpasses: [],
+      overrides: [],
+      orphanedOverrides: [],
+      diagnostics: null,
+    };
+    const crossings = crossingPlan.crossings;
     const issues = [];
     const rawBounds = rawPoints.filter(finitePoint).length ? boundsOf(rawPoints.filter(finitePoint)) : null;
 
@@ -863,9 +846,9 @@ export class TrackValidator {
     for (const crossing of crossings) {
       if (crossing.bridgeable) {
         issues.push(issueAt(
-          `overpass-${crossing.segmentA}-${crossing.segmentB}`,
+          `overpass-${crossing.id}`,
           'info',
-          'Crossing will become a guarded overpass',
+          `${crossing.selectedOrientation.presetLabel} · ${crossing.selectedOrientation.overBranch} OVER ${crossing.selectedOrientation.underBranch} · ${(crossing.grade * 100).toFixed(1)}% grade`,
           crossing.overIndex,
           samples,
           normalizedSamples,
@@ -873,9 +856,12 @@ export class TrackValidator {
         ));
       } else {
         issues.push(issueAt(
-          `intersection-${crossing.segmentA}-${crossing.segmentB}`,
+          `intersection-${crossing.id}`,
           'error',
-          crossing.angle < 0.52 ? 'Track overlaps here at an unsafe angle' : 'Crossing needs longer, gentler bridge approaches',
+          crossing.conflictExplanation
+            || (crossing.angle < 0.52
+              ? 'Track overlaps here at an unsafe angle'
+              : 'Crossing needs longer, gentler bridge approaches'),
           crossing.segmentA,
           samples,
           normalizedSamples,
@@ -888,7 +874,7 @@ export class TrackValidator {
     }
 
     const errors = issues.filter((issue) => issue.severity === 'error');
-    const overpasses = crossings.filter((crossing) => crossing.bridgeable);
+    const overpasses = crossingPlan.overpasses;
     const safeStartSample = stats ? chooseSafeStartSample(stats, crossings) : 0;
     if (stats) stats.startSample = safeStartSample;
     const suggestedStartFraction = stats
@@ -899,6 +885,10 @@ export class TrackValidator {
       errors,
       issues,
       overpasses,
+      crossings,
+      crossingOverrides: crossingPlan.overrides,
+      orphanedCrossingOverrides: crossingPlan.orphanedOverrides,
+      crossingDiagnostics: crossingPlan.diagnostics,
       samples,
       normalizedSamples,
       // The generated, curvature-limited racing line is the runtime source.

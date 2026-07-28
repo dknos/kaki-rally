@@ -30,6 +30,23 @@ The standalone application keeps the racing engine intact and replaces the sourc
 - Kaki Rally owns navigation through a standalone router instead of relying on a Survivors-provided `window.kkReturnToMenu`.
 - Kaki Catastrophe availability is selected by renderer capability and browser validation rather than the source build's global renderer-migration deferral.
 - Save export/import, focused reset controls, rally preferences, deep links, and standalone records/options screens are destination-only shell features.
+- Kaki Course Workshop is destination-owned work layered onto the preserved
+  Draw Track and Trials systems. Its implementation started from destination
+  commit `6443e1a5663a2ce55efaba4b9a9aa478aeeba5f0`; it does not alter the
+  immutable upstream extraction SHA above.
+
+## Kaki Course Workshop destination additions
+
+- Mega and Colossal Draw Track profiles, adaptive sampling, and spatially
+  accelerated crossing detection.
+- A deterministic conflict-graph solver for multiple overpasses, stable
+  crossing overrides, and shared height-aware road queries.
+- A renderer-free feature catalog with circuit and Trials placement adapters,
+  KDT3 feature/crossing extensions, and KTR1 custom Trials courses.
+- One project-authored, compressed Workshop GLB and one WebP thumbnail atlas,
+  loaded through the existing asset manifest/cache/lease path.
+- A custom Trials editor whose renderer and authoritative ground sampler consume
+  the same sanitized course representation.
 
 ## Auditing future upstream racing changes
 

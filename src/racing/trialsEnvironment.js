@@ -90,7 +90,12 @@ export const TRIALS_WORLD_PROFILES = Object.freeze({
 });
 
 function _profile(track) {
-  return TRIALS_WORLD_PROFILES[track?.id] || TRIALS_WORLD_PROFILES.meadow;
+  return TRIALS_WORLD_PROFILES[track?.themeId || track?.sourceOfficialId || track?.id]
+    || TRIALS_WORLD_PROFILES.meadow;
+}
+
+function _themeId(track) {
+  return track?.themeId || track?.sourceOfficialId || track?.id || 'meadow';
 }
 
 function _hash(seed) {
@@ -216,7 +221,8 @@ function _cutawayTexture(session, track, profile) {
     quarry: ['#252b36', '#424b58', '#596b72', '#887970'],
     crown: ['#3d345d', '#655080', '#8d668f', '#b6769b'],
   };
-  const colors = palettes[track.id];
+  const themeId = _themeId(track);
+  const colors = palettes[themeId] || palettes.meadow;
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
   canvas.height = 512;
@@ -226,7 +232,7 @@ function _cutawayTexture(session, track, profile) {
   context.fillStyle = gradient;
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  let seed = track.id === 'meadow' ? 771 : track.id === 'quarry' ? 1193 : 1877;
+  let seed = themeId === 'meadow' ? 771 : themeId === 'quarry' ? 1193 : 1877;
   const random = () => {
     seed = (seed * 1664525 + 1013904223) >>> 0;
     return seed / 4294967296;
@@ -252,11 +258,11 @@ function _cutawayTexture(session, track, profile) {
   for (let index = 0; index < 340; index++) {
     const x = random() * canvas.width;
     const y = 18 + random() * (canvas.height - 26);
-    const size = 0.8 + random() * (track.id === 'quarry' ? 7.4 : 4.8);
+    const size = 0.8 + random() * (themeId === 'quarry' ? 7.4 : 4.8);
     context.save();
     context.translate(x, y);
     context.rotate(random() * TAU);
-    context.fillStyle = `${colors[Math.floor(random() * colors.length)]}${track.id === 'crown' ? 'b8' : '92'}`;
+    context.fillStyle = `${colors[Math.floor(random() * colors.length)]}${themeId === 'crown' ? 'b8' : '92'}`;
     context.beginPath();
     context.ellipse(0, 0, size * (1.2 + random()), size * (0.45 + random() * 0.45), 0, 0, TAU);
     context.fill();
@@ -264,7 +270,7 @@ function _cutawayTexture(session, track, profile) {
   }
 
   context.strokeStyle = `#${new THREE.Color(profile.shoulder).getHexString()}6b`;
-  context.lineWidth = track.id === 'quarry' ? 2.2 : 1.4;
+  context.lineWidth = themeId === 'quarry' ? 2.2 : 1.4;
   for (let vein = 0; vein < 18; vein++) {
     let x = random() * canvas.width;
     let y = 60 + random() * 390;
@@ -363,6 +369,7 @@ function _strataRibbonGeometry(points, drop, thickness, band) {
 }
 
 function _makeTerrainMaterials(session, profile, track) {
+  const themeId = _themeId(track);
   const detail = _texture(session, profile.detailTexture, { repeat: [3.8, 2.4] });
   const normal = _texture(session, profile.normalTexture, { repeat: [3.8, 2.4], srgb: false });
   const roughness = _texture(session, profile.roughnessTexture, { repeat: [3.8, 2.4], srgb: false });
@@ -403,7 +410,7 @@ function _makeTerrainMaterials(session, profile, track) {
   const shoulder = _standard(session, {
     color: profile.shoulder,
     emissive: profile.shoulder,
-    emissiveIntensity: track.id === 'quarry' ? 0.16 : 0.055,
+    emissiveIntensity: themeId === 'quarry' ? 0.16 : 0.055,
     roughness: 0.78,
     polygonOffset: true,
     polygonOffsetFactor: -3,
@@ -415,7 +422,7 @@ function _makeTerrainMaterials(session, profile, track) {
     quarry: [0x9cb4ba, 0x547c7c, 0xb19982],
     crown: [0xe494bd, 0x76609a, 0x70a080],
   };
-  const strataBands = bandPalettes[track.id].map((color, index) => _standard(session, {
+  const strataBands = (bandPalettes[themeId] || bandPalettes.meadow).map((color, index) => _standard(session, {
     color,
     emissive: new THREE.Color(color).multiplyScalar(0.14),
     emissiveIntensity: index === 0 ? 0.1 : 0.04,
@@ -423,9 +430,9 @@ function _makeTerrainMaterials(session, profile, track) {
     side: THREE.DoubleSide,
   }));
   const inclusion = _standard(session, {
-    color: track.id === 'quarry' ? 0x27333d : track.id === 'crown' ? 0xf0acd2 : 0x49342f,
-    emissive: track.id === 'crown' ? 0x7d335d : 0x000000,
-    emissiveIntensity: track.id === 'crown' ? 0.16 : 0,
+    color: themeId === 'quarry' ? 0x27333d : themeId === 'crown' ? 0xf0acd2 : 0x49342f,
+    emissive: themeId === 'crown' ? 0x7d335d : 0x000000,
+    emissiveIntensity: themeId === 'crown' ? 0.16 : 0,
     roughness: 0.88,
     side: THREE.DoubleSide,
   });
@@ -471,8 +478,9 @@ function _addCutawayInclusions(session, points, rangeIndex, materials) {
 
 function _buildTerrain(session, world, profile) {
   const { track, root } = session;
+  const themeId = _themeId(track);
   const minimum = Math.min(...track.heightPoints.map((point) => point.y));
-  const baseline = minimum - (track.id === 'crown' ? 28 : 23);
+  const baseline = minimum - (themeId === 'crown' ? 28 : 23);
   const materials = _makeTerrainMaterials(session, profile, track);
 
   for (const [rangeIndex, [start, end]] of _terrainRanges(track).entries()) {
@@ -531,7 +539,7 @@ function _buildTerrain(session, world, profile) {
       root.add(shoulder);
     }
 
-    const bandCount = track.id === 'crown' ? 9 : 8;
+    const bandCount = themeId === 'crown' ? 9 : 8;
     for (let band = 0; band < bandCount; band++) {
       const drop = 1.25 + band * 2.8;
       const thickness = 0.12 + (band % 3) * 0.055;
@@ -565,11 +573,12 @@ function _waveRibbonGeometry(start, end, y, width = 0.16, phase = 0) {
 
 function _buildGapAtmosphere(session, world, profile) {
   const { track, root } = session;
-  const color = track.id === 'meadow' ? 0x6fe4f0 : track.id === 'crown' ? 0xffd9f6 : 0x4de0bd;
+  const themeId = _themeId(track);
+  const color = themeId === 'meadow' ? 0x6fe4f0 : themeId === 'crown' ? 0xffd9f6 : 0x4de0bd;
   const ribbonMaterial = _basic(session, {
     color,
     transparent: true,
-    opacity: track.id === 'quarry' ? 0.42 : 0.68,
+    opacity: themeId === 'quarry' ? 0.42 : 0.68,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     side: THREE.DoubleSide,
@@ -610,6 +619,7 @@ function _addLighting(session, world, profile) {
 
 function _addSky(session, world, profile) {
   const { track, root } = session;
+  const themeId = _themeId(track);
   if (session.scene) {
     session.scene.background = new THREE.Color(profile.skyTop);
     session.scene.fog = new THREE.Fog(profile.fog, profile.fogNear, profile.fogFar);
@@ -686,10 +696,10 @@ function _addSky(session, world, profile) {
     fog: false,
     depthWrite: false,
   });
-  const sun = _mesh(session, new THREE.CircleGeometry(track.id === 'crown' ? 10 : 8, 32), sunMaterial, 'trials-sun-disc');
+  const sun = _mesh(session, new THREE.CircleGeometry(themeId === 'crown' ? 10 : 8, 32), sunMaterial, 'trials-sun-disc');
   sun.position.set(track.length * 0.72, world.baseline + 67, -53.5);
   sun.renderOrder = -80;
-  const halo = _mesh(session, new THREE.CircleGeometry(track.id === 'crown' ? 17 : 14, 32), haloMaterial, 'trials-sun-halo');
+  const halo = _mesh(session, new THREE.CircleGeometry(themeId === 'crown' ? 17 : 14, 32), haloMaterial, 'trials-sun-halo');
   halo.position.copy(sun.position);
   halo.position.z -= 0.1;
   halo.renderOrder = -81;
@@ -738,12 +748,13 @@ function _setInstance(mesh, index, x, y, z, sx, sy, sz, rotationZ = 0, rotationY
 
 function _addClouds(session, world) {
   const { track, root } = session;
+  const themeId = _themeId(track);
   const cloudCount = Math.ceil((track.length + 150) / 92);
   const puffCount = cloudCount * 4;
   const material = _basic(session, {
-    color: track.id === 'quarry' ? 0xe9eef0 : 0xfffbff,
+    color: themeId === 'quarry' ? 0xe9eef0 : 0xfffbff,
     transparent: true,
-    opacity: track.id === 'quarry' ? 0.48 : 0.76,
+    opacity: themeId === 'quarry' ? 0.48 : 0.76,
     fog: false,
     depthWrite: false,
   });
@@ -752,7 +763,7 @@ function _addClouds(session, world) {
   puffs.frustumCulled = false;
   for (let cloud = 0; cloud < cloudCount; cloud++) {
     const centerX = -24 + cloud * 92 + _hash(cloud + 3) * 26;
-    const centerY = world.baseline + (track.id === 'crown' ? 42 : 34) + _hash(cloud + 24) * 12;
+    const centerY = world.baseline + (themeId === 'crown' ? 42 : 34) + _hash(cloud + 24) * 12;
     const speed = 0.32 + _hash(cloud + 8) * 0.48;
     const z = -45 + (cloud % 3) * 3.5;
     const pattern = [
@@ -1090,14 +1101,15 @@ function _addCrownStory(session, world, profile) {
 
 function _addAuthoredTrialsStory(session, world) {
   const { track, root, assetLease } = session;
+  const storyId = track.themeId || track.sourceOfficialId || track.id;
   const kit = {
     meadow: { primary: ['forest_tree_gnarled_a', 'forest_tree_gnarled_b'], accent: 'forest_fern_cluster' },
     quarry: { primary: ['cave_stalagmite_cluster', 'cave_timber_brace'], accent: 'cave_rubble_cluster' },
     crown: { primary: ['kakiland_blossom_tree'], accent: 'kakiland_flower_cluster' },
-  }[track.id];
+  }[storyId];
   if (!kit) return 0;
   const group = new THREE.Group();
-  group.name = `trials-${track.id}-authored-environment-kit-v2`;
+  group.name = `trials-${storyId}-authored-environment-kit-v2`;
   const placements = [];
   for (let x = 18, index = 0; x < track.length - 10; x += 27 + (index % 3) * 4, index++) {
     const ground = sampleTrialsGround(track, x);
@@ -1111,10 +1123,10 @@ function _addAuthoredTrialsStory(session, world) {
     const selected = placements.filter((item) => item.index % kit.primary.length === propIndex);
     let builtParts = 0;
     sources.forEach((source, partIndex) => {
-      const mesh = _instancedFromModel(source, selected.length, `trials-${track.id}-authored-${name}-part-${partIndex}`);
+      const mesh = _instancedFromModel(source, selected.length, `trials-${storyId}-authored-${name}-part-${partIndex}`);
       if (!mesh) return;
       selected.forEach((item, index) => {
-        const scale = (track.id === 'quarry' ? 1.22 : 1.05) * (0.82 + _hash(item.index + 21) * 0.38);
+        const scale = (storyId === 'quarry' ? 1.22 : 1.05) * (0.82 + _hash(item.index + 21) * 0.38);
         _setInstance(mesh, index, item.x, item.y - 0.05, -6.6 - (item.index % 2) * 0.75, scale, scale, scale, 0, (_hash(item.index + 8) - 0.5) * 0.55);
       });
       mesh.instanceMatrix.needsUpdate = true;
@@ -1129,7 +1141,7 @@ function _addAuthoredTrialsStory(session, world) {
   const accentPlacements = placements.filter((item) => item.index % 2 === 0);
   let builtAccentParts = 0;
   accentSources.forEach((accentSource, partIndex) => {
-    const accents = _instancedFromModel(accentSource, accentPlacements.length, `trials-${track.id}-authored-${kit.accent}-part-${partIndex}`);
+    const accents = _instancedFromModel(accentSource, accentPlacements.length, `trials-${storyId}-authored-${kit.accent}-part-${partIndex}`);
     if (!accents) return;
     accentPlacements.forEach((item, index) => {
       const scale = 0.58 + _hash(item.index + 41) * 0.28;
@@ -1188,8 +1200,8 @@ export function buildTrialsEnvironment(session) {
     session.assetLease.ready.then(() => {
       if (session.trialsEnvironment === world) _addAuthoredTrialsStory(session, world);
     }).catch(() => {});
-  } else if (session.track.id === 'quarry') _addQuarryStory(session, world, profile);
-  else if (session.track.id === 'crown') _addCrownStory(session, world, profile);
+  } else if (_themeId(session.track) === 'quarry') _addQuarryStory(session, world, profile);
+  else if (_themeId(session.track) === 'crown') _addCrownStory(session, world, profile);
   else _addMeadowStory(session, world, profile);
   _addLighting(session, world, profile);
   return world;

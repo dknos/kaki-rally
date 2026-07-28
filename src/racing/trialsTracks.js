@@ -5,6 +5,8 @@
  * cubic Hermite curves between ordered control points; gaps always sample as
  * `null`, giving the physics a real edge to launch from.
  */
+import { getCourseFeature } from './courseFeatureCatalog.js';
+import { sampleCourseFeatureSurface } from './courseFeatureSurfaces.js';
 
 function deepFreeze(value) {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
@@ -153,7 +155,7 @@ export function getTrialsTrack(track = 'meadow') {
 
 export function isTrialsGap(track, x) {
   const course = getTrialsTrack(track);
-  return course.gaps.some((gap) => x >= gap.start && x <= gap.end);
+  return (course.gaps || []).some((gap) => x >= gap.start && x <= gap.end);
 }
 
 function pointSlope(points, index) {
@@ -168,10 +170,9 @@ function pointSlope(points, index) {
  * Sample the authored height field. Returns `{ height, slope, angle,
  * segmentIndex }`, or `null` outside the course and inside a real gap.
  */
-export function sampleTrialsGround(track, x) {
-  const course = getTrialsTrack(track);
+function sampleBaseTrialsGround(course, x) {
   x = Number(x);
-  if (!Number.isFinite(x) || x < 0 || x > course.length || isTrialsGap(course, x)) return null;
+  if (!Number.isFinite(x) || x < 0 || x > course.length) return null;
   const points = course.heightPoints;
   let lo = 0;
   let hi = points.length - 1;
@@ -197,6 +198,78 @@ export function sampleTrialsGround(track, x) {
     + (-6 * t2 + 6 * t) * b.y
     + (3 * t2 - 2 * t) * width * m1) / width;
   return { height, slope, angle: Math.atan(slope), segmentIndex: lo };
+}
+
+function trialsTerrainFeatureAt(course, x) {
+  for (const placement of course.featurePlacements || []) {
+    if (placement?.anchor?.mode !== 'trials') continue;
+    const feature = getCourseFeature(placement.featureId);
+    const profile = feature?.surfaceProfile;
+    if (!profile || ![
+      'kicker',
+      'launch',
+      'tabletop',
+      'double',
+      'rollers',
+      'step-up',
+      'step-down',
+    ].includes(profile.kind)) continue;
+    const length = Math.max(1, feature.footprint.length * (placement.anchor.scaleX || 1));
+    const start = placement.anchor.x - length * 0.5;
+    const t = (x - start) / length;
+    if (t < 0 || t > 1) continue;
+    const sampled = sampleCourseFeatureSurface(profile, t);
+    if (!sampled.hasSurface) {
+      return {
+        gap: true,
+        placement,
+        feature,
+        t,
+      };
+    }
+    const base = sampleBaseTrialsGround(course, clampX(start, course.length))
+      || sampleBaseTrialsGround(course, clampX(placement.anchor.x, course.length));
+    if (!base) continue;
+    const scaleY = placement.anchor.scaleY || 1;
+    return {
+      gap: false,
+      placement,
+      feature,
+      t,
+      height: base.height + (placement.anchor.groundOffset || 0) + sampled.height * scaleY,
+      slope: sampled.normalizedSlope * scaleY / length,
+    };
+  }
+  return null;
+}
+
+function clampX(x, length) {
+  return Math.max(0, Math.min(length, Number(x) || 0));
+}
+
+/**
+ * Authoritative custom and official terrain sampler. Custom authored ramp
+ * meshes consume the same catalog profile sampled here, and double-jump voids
+ * return no ground over the exact visible interval.
+ */
+export function sampleTrialsGround(track, x) {
+  const course = getTrialsTrack(track);
+  x = Number(x);
+  if (!Number.isFinite(x) || x < 0 || x > course.length || isTrialsGap(course, x)) return null;
+  const feature = trialsTerrainFeatureAt(course, x);
+  if (feature?.gap) return null;
+  if (feature) {
+    return {
+      height: feature.height,
+      slope: feature.slope,
+      angle: Math.atan(feature.slope),
+      segmentIndex: -1,
+      featureId: feature.feature.id,
+      placementId: feature.placement.id,
+      featureT: feature.t,
+    };
+  }
+  return sampleBaseTrialsGround(course, x);
 }
 
 export function getTrialsCheckpoint(track, checkpointIndex = -1) {

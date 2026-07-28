@@ -24,13 +24,13 @@
     }
   ],
   "summary": {
-    "files": 117,
-    "bytes": 62633563,
-    "referencedFiles": 92,
+    "files": 119,
+    "bytes": 63917381,
+    "referencedFiles": 94,
     "byKind": {
       "support": 4,
-      "model": 24,
-      "image": 74,
+      "model": 25,
+      "image": 75,
       "audio": 1,
       "source-artifact": 1,
       "runtime": 13
@@ -695,6 +695,25 @@
       "kind": "image",
       "references": [
         "manifest:groundVoidV2Roughness",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/workshop/kaki-course-feature-thumbnails-v1.webp",
+      "bytes": 239322,
+      "sha256": "4e817e64f2e87238bdda12c855fcdd604796195a4b9a77616b0f3f0c21c135ac",
+      "kind": "image",
+      "references": [
+        "source:src/racing/courseFeatureCatalog.js"
+      ]
+    },
+    {
+      "path": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
+      "bytes": 1044496,
+      "sha256": "6e6514a46ace8854c008e498dbaadf2b5908f165c697eb734a97e169d248306d",
+      "kind": "model",
+      "references": [
+        "manifest:courseWorkshopKit",
         "source:src/racing/racingManifest.js"
       ]
     },

@@ -19,6 +19,16 @@ import {
   TrackGallery,
   TrackSerializer,
 } from '../src/racing/drawTrackStorage.js';
+import {
+  BRIDGE_PRESETS,
+  createCrossingOverride,
+} from '../src/racing/drawTrackCrossings.js';
+import { CourseSurfaceIndex } from '../src/racing/courseSurfaceQuery.js';
+import {
+  buildCircuitFeatureRuntime,
+  queryCircuitFeatureContact,
+  sampleCourseFeatureSurface,
+} from '../src/racing/courseFeatureSurfaces.js';
 
 function closedStroke(controls, steps = 10) {
   const points = [];
@@ -44,6 +54,30 @@ function validateWithGrid(rawPoints, controlPoints, options = {}) {
   });
 }
 
+function workshopCrossingFixture(count, {
+  left = 0.12,
+  right = 0.88,
+  sizeId = 'colossal',
+} = {}) {
+  const controls = [
+    { x: 0.05, y: 0.5 },
+    { x: 0.95, y: 0.5 },
+    { x: 0.95, y: 0.12 },
+    { x: right, y: 0.18 },
+  ];
+  for (let index = 1; index <= count; index++) {
+    controls.push({
+      x: right - index * ((right - left) / count),
+      y: index % 2 ? 0.82 : 0.18,
+    });
+  }
+  controls.push({ x: 0.05, y: count % 2 ? 0.88 : 0.12 });
+  const raw = closedStroke(controls, 18);
+  const clean = TrackSpline.clean(raw, 0.18);
+  const layout = createCanonicalTrackLayout(raw, clean, sizeId);
+  return { ...layout, sizeId };
+}
+
 class FakeStorage {
   constructor() { this.values = new Map(); }
   getItem(key) { return this.values.get(key) ?? null; }
@@ -53,7 +87,15 @@ class FakeStorage {
 
 console.log('Kaki Rally Draw Your Track smoke');
 
-assert.deepEqual(Object.keys(TRACK_SIZE_PRESETS), ['pocket', 'club', 'grand', 'epic']);
+assert.deepEqual(Object.keys(TRACK_SIZE_PRESETS), ['pocket', 'club', 'grand', 'epic', 'mega', 'colossal']);
+assert.deepEqual(
+  [TRACK_SIZE_PRESETS.mega.width, TRACK_SIZE_PRESETS.mega.depth, TRACK_SIZE_PRESETS.mega.minLength, TRACK_SIZE_PRESETS.mega.maxLength],
+  [320, 220, 500, 1250],
+);
+assert.deepEqual(
+  [TRACK_SIZE_PRESETS.colossal.width, TRACK_SIZE_PRESETS.colossal.depth, TRACK_SIZE_PRESETS.colossal.minLength, TRACK_SIZE_PRESETS.colossal.maxLength],
+  [440, 300, 650, 1900],
+);
 assert.deepEqual(Object.keys(TRACK_WIDTH_PRESETS), ['narrow', 'standard', 'wide', 'extra']);
 assert.equal(DRAW_TRACK_THEME_ORDER.length, 8, 'initial theme set changed');
 
@@ -150,6 +192,144 @@ assert.ok(figureEightResult.overpasses[0].approachLength > 40, 'overpass ramps a
 assert.ok(Number.isFinite(figureEightResult.overpasses[0].underFraction), 'overpass did not retain the lower crossing branch');
 assert.ok(Math.abs(figureEightResult.overpasses[0].fraction - figureEightResult.overpasses[0].underFraction) > 0.2, 'upper and lower crossing branches collapsed onto the same route progress');
 assert.ok(!figureEightResult.errors.some((issue) => issue.id === 'grid-crossing'), 'automatic grid placement stayed inside the bridge approach');
+assert.equal(figureEightResult.crossingDiagnostics.solver, 'exact-global');
+
+for (const count of [3, 5]) {
+  const fixture = workshopCrossingFixture(count);
+  const result = validateWithGrid(fixture.rawPoints, fixture.controlPoints, {
+    sizeId: fixture.sizeId,
+    widthId: 'narrow',
+    layoutTransform: fixture.layoutTransform,
+    allowOverpasses: true,
+  });
+  assert.equal(result.valid, true, `${count}-crossing workshop fixture should be raceable: ${result.errors.map((issue) => issue.message).join(' | ')}`);
+  assert.equal(result.crossings.length, count, `${count}-crossing fixture detection changed`);
+  assert.equal(result.overpasses.length, count, `${count}-crossing fixture lost a simultaneous bridge`);
+  assert.equal(result.crossingDiagnostics.solver, 'exact-global');
+  assert(result.crossingDiagnostics.segmentPairs < result.sampleCount * 0.2, 'crossing detection regressed toward an all-pairs scan');
+  const repeated = validateWithGrid(fixture.rawPoints, fixture.controlPoints, {
+    sizeId: fixture.sizeId,
+    widthId: 'narrow',
+    layoutTransform: fixture.layoutTransform,
+    allowOverpasses: true,
+  });
+  assert.deepEqual(
+    repeated.overpasses.map((crossing) => [crossing.id, crossing.selectedOrientation.mode]),
+    result.overpasses.map((crossing) => [crossing.id, crossing.selectedOrientation.mode]),
+    `${count}-crossing global selection is not deterministic`,
+  );
+}
+
+const overlapFixture = workshopCrossingFixture(2, { left: 0.44, right: 0.56, sizeId: 'mega' });
+const overlapResult = validateWithGrid(overlapFixture.rawPoints, overlapFixture.controlPoints, {
+  sizeId: 'mega',
+  widthId: 'standard',
+  layoutTransform: overlapFixture.layoutTransform,
+});
+assert.equal(overlapResult.crossings.length, 2, 'overlap fixture lost a crossing candidate');
+assert.equal(overlapResult.overpasses.length, 1, 'overlapping bridge approaches were both accepted');
+assert.equal(overlapResult.valid, false, 'an unresolved flat crossing must remain invalid');
+assert.match(
+  overlapResult.crossings.find((crossing) => !crossing.bridgeable)?.conflictExplanation || '',
+  /overlap/i,
+  'overlapping approach rejection is not explained',
+);
+
+const canonicalFigureEight = createCanonicalTrackLayout(
+  figureEight,
+  TrackSpline.clean(figureEight, 0.55),
+  'grand',
+);
+let overrideBase = validateWithGrid(canonicalFigureEight.rawPoints, canonicalFigureEight.controlPoints, {
+  sizeId: 'grand',
+  widthId: 'standard',
+  layoutTransform: canonicalFigureEight.layoutTransform,
+});
+const originalCrossing = overrideBase.crossings[0];
+const manualMode = originalCrossing.selectedOrientation.overBranch === 'A' ? 'b-over-a' : 'a-over-b';
+const crossingOverride = createCrossingOverride(originalCrossing, {
+  mode: manualMode,
+  preset: 'tall',
+});
+overrideBase = TrackValidator.validate({
+  rawPoints: canonicalFigureEight.rawPoints,
+  controlPoints: canonicalFigureEight.controlPoints,
+  closed: true,
+  sizeId: 'grand',
+  widthId: 'standard',
+  startFraction: overrideBase.suggestedStartFraction,
+  layoutTransform: canonicalFigureEight.layoutTransform,
+  crossingOverrides: [crossingOverride],
+});
+assert.equal(overrideBase.crossings[0].selectedOrientation.mode, manualMode, 'manual upper branch was ignored');
+assert.equal(overrideBase.crossings[0].preset, 'tall', 'manual bridge preset was ignored');
+assert(overrideBase.crossings[0].clearance > BRIDGE_PRESETS.standard.baseHeight, 'Tall bridge did not increase clearance');
+
+for (const variant of [
+  { reverse: true },
+  { mirror: true },
+  { reverse: true, mirror: true },
+  { reverse: true, mirror: true, sizeId: 'colossal' },
+  { startFraction: 0.31 },
+]) {
+  const result = TrackValidator.validate({
+    rawPoints: canonicalFigureEight.rawPoints,
+    controlPoints: canonicalFigureEight.controlPoints,
+    closed: true,
+    sizeId: 'grand',
+    widthId: 'standard',
+    startFraction: overrideBase.suggestedStartFraction,
+    layoutTransform: canonicalFigureEight.layoutTransform,
+    crossingOverrides: [crossingOverride],
+    ...variant,
+  });
+  assert.equal(result.orphanedCrossingOverrides.length, 0, `override was orphaned by ${JSON.stringify(variant)}`);
+  assert.equal(result.crossings[0].id, originalCrossing.id, `stable crossing id changed for ${JSON.stringify(variant)}`);
+  assert.equal(result.crossings[0].override.mode, manualMode, `upper-branch intent changed for ${JSON.stringify(variant)}`);
+  if (result.crossings[0].selectedOrientation) {
+    assert.equal(result.crossings[0].selectedOrientation.mode, manualMode, `upper branch changed for ${JSON.stringify(variant)}`);
+  } else {
+    assert.match(
+      result.crossings[0].conflictExplanation,
+      /start-grid reservation/i,
+      'temporarily invalid start relocation did not explain why the preserved override cannot build',
+    );
+  }
+}
+
+const removedCrossing = TrackValidator.validate({
+  rawPoints: ellipse,
+  controlPoints: smoothEllipse,
+  closed: true,
+  sizeId: 'grand',
+  widthId: 'standard',
+  crossingOverrides: [crossingOverride],
+});
+assert.equal(removedCrossing.crossings.length, 0);
+assert.equal(removedCrossing.orphanedCrossingOverrides.length, 1, 'removed crossing override disappeared without warning');
+const corruptOverride = TrackValidator.validate({
+  rawPoints: canonicalFigureEight.rawPoints,
+  controlPoints: canonicalFigureEight.controlPoints,
+  closed: true,
+  sizeId: 'grand',
+  widthId: 'standard',
+  layoutTransform: canonicalFigureEight.layoutTransform,
+  crossingOverrides: [{ id: { nope: true }, mode: 'teleport', preset: 'infinite', point: { x: NaN, y: Infinity } }],
+});
+assert.equal(corruptOverride.crossings.length, 1, 'corrupt override damaged crossing detection');
+assert.equal(corruptOverride.crossings[0].override, null, 'corrupt override was assigned to a crossing');
+
+const stackedSamples = [
+  { x: -10, y: 0, z: 0 },
+  { x: 0, y: 0, z: 0 },
+  { x: 10, y: 0, z: 0 },
+  { x: 10, y: 6, z: 10 },
+  { x: 0, y: 6, z: 0 },
+  { x: -10, y: 6, z: 10 },
+];
+const surfaceIndex = new CourseSurfaceIndex(stackedSamples, 9.2);
+assert.equal(surfaceIndex.nearest(0, 0, 0.3, 1).index, 1, 'lower-road surface query selected the bridge deck');
+assert.equal(surfaceIndex.nearest(0, 0, 5.8, 4).index, 4, 'upper-road surface query selected the underpass');
 
 const figureEightCourse = compileDrawTrackCourse({
   id: 'kdt-overpass-smoke',
@@ -211,6 +391,107 @@ assert.ok(Math.abs(decoded.layoutTransform.scaleY - draft.layoutTransform.scaleY
 assert.ok(Math.abs(decoded.layoutTransform.offsetX - draft.layoutTransform.offsetX) < 0.001);
 assert.ok(Math.abs(decoded.layoutTransform.offsetY - draft.layoutTransform.offsetY) < 0.001);
 assert.throws(() => TrackCodeCodec.decode(`${code.slice(0, -2)}aa`), /corrupt|invalid|incomplete/i);
+
+const kdt3Draft = {
+  ...draft,
+  crossingOverrides: [crossingOverride],
+  featurePlacements: [{
+    id: 'placed-launch',
+    featureId: 'large-launch-ramp',
+    source: 'manual',
+    anchor: {
+      mode: 'spline',
+      fraction: 0.42,
+      lateralOffset: -0.75,
+      facing: 'backward',
+      rotationOffset: Math.PI / 12,
+      scaleX: 1.1,
+      scaleY: 1,
+      scaleZ: 1.2,
+    },
+  }],
+};
+const kdt3Code = TrackCodeCodec.encode(kdt3Draft);
+const kdt3Decoded = TrackCodeCodec.decode(kdt3Code);
+assert.match(kdt3Code, /^KDT3-/);
+assert.ok(kdt3Code.length < 2000, `compact KDT3 code is unexpectedly long: ${kdt3Code.length}`);
+assert.equal(kdt3Decoded.crossingOverrides[0].mode, crossingOverride.mode);
+assert.equal(kdt3Decoded.crossingOverrides[0].preset, 'tall');
+assert.equal(kdt3Decoded.featurePlacements[0].featureId, 'large-launch-ramp');
+assert.equal(kdt3Decoded.featurePlacements[0].anchor.facing, 'backward');
+assert.ok(Math.abs(kdt3Decoded.featurePlacements[0].anchor.fraction - 0.42) < 0.00002);
+assert.throws(() => TrackCodeCodec.decode(`${kdt3Code.slice(0, -2)}aa`), /corrupt|invalid|incomplete/i);
+assert.throws(
+  () => TrackCodeCodec.encode({
+    ...draft,
+    featurePlacements: Array.from({ length: 97 }, (_, index) => ({
+      id: `too-many-${index}`,
+      featureId: 'small-kicker',
+      anchor: { mode: 'spline', fraction: index / 97 },
+    })),
+  }),
+  /up to 96/i,
+);
+const unknownFeatureSave = TrackSerializer.deserialize({
+  ...kdt3Draft,
+  version: 3,
+  featurePlacements: [
+    ...kdt3Draft.featurePlacements,
+    { id: 'future-part', featureId: 'unknown-future-feature', anchor: { mode: 'spline', fraction: 0.6 } },
+  ],
+});
+assert.equal(unknownFeatureSave.featurePlacements.length, 1, 'unknown feature id was not ignored safely');
+assert.match(unknownFeatureSave.dataWarnings.join(' '), /unknown course feature/i);
+
+const rampSamples = Array.from({ length: 100 }, (_, index) => ({
+  x: 0,
+  y: 0,
+  z: index,
+  tangent: { x: 0, y: 0, z: 1 },
+  normal: { x: -1, y: 0, z: 0 },
+}));
+const [rampRuntime] = buildCircuitFeatureRuntime([{
+  ...kdt3Decoded.featurePlacements[0],
+  anchor: {
+    ...kdt3Decoded.featurePlacements[0].anchor,
+    lateralOffset: 0,
+    facing: 'forward',
+    rotationOffset: 0,
+  },
+}], rampSamples, {
+  startFraction: 0,
+  drawDirection: 'forward',
+});
+const rampEntrance = queryCircuitFeatureContact([rampRuntime], {
+  x: rampRuntime.x,
+  y: 0,
+  z: rampRuntime.z - rampRuntime.length * 0.43,
+  vx: 0,
+  vz: 18,
+  previousX: rampRuntime.x,
+  previousZ: rampRuntime.z - rampRuntime.length * 0.45,
+});
+assert.equal(rampEntrance.ramp.takeoff, false, 'ramp launched before the visible lip');
+assert.ok(rampEntrance.ramp.groundHeight > 0, 'visible ramp profile did not raise contact height');
+const lip = queryCircuitFeatureContact([rampRuntime], {
+  x: rampRuntime.x,
+  y: rampRuntime.surfaceProfile.height,
+  z: rampRuntime.z + rampRuntime.length * 0.44,
+  vx: 0,
+  vz: 28,
+  previousX: rampRuntime.x,
+  previousZ: rampRuntime.z + rampRuntime.length * 0.37,
+});
+assert.equal(lip.ramp.takeoff, true, 'high-speed swept contact missed the visible ramp lip');
+const sideMiss = queryCircuitFeatureContact([rampRuntime], {
+  x: rampRuntime.x + rampRuntime.width,
+  y: 0,
+  z: rampRuntime.z + rampRuntime.length * 0.44,
+  vx: 0,
+  vz: 18,
+});
+assert.equal(sideMiss.ramp, null, 'ramp launched a vehicle that passed beside it');
+assert.equal(sampleCourseFeatureSurface({ kind: 'double', height: 2 }, 0.5).hasSurface, false);
 const normalizedDraft = TrackSerializer.deserialize(TrackSerializer.serialize(draft));
 assert.equal(normalizedDraft.controlPoints.length, smoothEllipse.length);
 const legacyCode = TrackCodeCodec.encodeLegacy({ ...draft, layoutTransform: undefined });
@@ -228,7 +509,12 @@ assert.equal(course.customTrackId, draft.id);
 assert.equal(course.trackWidth, TRACK_WIDTH_PRESETS.wide.width);
 assert.ok(course.points.length >= 8);
 assert.equal(course.samples, courseValidation.sampleCount, 'dynamic validation sample density did not reach the runtime course');
-assert.ok(course.rampFractions.length >= 2);
+assert.equal(course.rampFractions.length, 0, 'Draw courses must not render legacy tilted-pad ramps');
+assert.ok(
+  course.featurePlacements.filter((placement) => placement.source === 'auto-fill'
+    && ['small-kicker', 'large-launch-ramp', 'tabletop'].includes(placement.featureId)).length >= 2,
+  'Auto-fill jumps did not compile through the shared Workshop catalog',
+);
 assert.equal(course.shortcutFractions.length, 0, 'arbitrary geometry must not inherit chapter shortcuts');
 
 const storage = new FakeStorage();
@@ -251,7 +537,8 @@ for (const contract of ['TrackMeshBuilder', 'CheckpointGenerator', 'RespawnGener
   assert.match(runtimeSource, new RegExp(contract), `${contract} is not integrated into Kaki Rally`);
 }
 assert.match(runtimeSource, /customCourse:\s*options\.customCourse/, 'runtime does not accept the compiled player course');
-assert.match(runtimeSource, /groundHeight:\s*onRoad[\s\S]*roadSample\.y/, 'road collision does not follow overpass elevation');
+assert.match(runtimeSource, /queryCircuitFeatureContact/, 'runtime does not use the shared visible/contact feature profiles');
+assert.match(runtimeSource, /rampDirection:\s*ramp\?\.runtime\?\.forward/, 'authored ramp contact does not preserve the visible takeoff direction');
 for (const bridgePart of ['bridge-decks', 'bridge-fascias', 'bridge-portal-posts', 'bridge-portal-beams', 'bridge-marker-lights']) {
   assert.match(generationSource, new RegExp(`draw-track-${bridgePart}`), `procedural ${bridgePart} kit is missing`);
 }

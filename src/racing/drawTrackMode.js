@@ -6,13 +6,14 @@ import { startRallySession } from '../navigation.js';
 
 let activeEditor = null;
 
-function defaultBuild({ draft, course }) {
+function defaultBuild({ draft, course, testFromFraction = null }) {
   const width = TRACK_WIDTH_PRESETS[draft.widthId] || TRACK_WIDTH_PRESETS.standard;
   return startRallySession(course.id, {
     mode: 'draw',
     customCourse: course,
     customTrack: draft,
     carCount: width.cars,
+    testFromFraction,
   });
 }
 

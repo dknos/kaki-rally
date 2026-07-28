@@ -7,6 +7,7 @@
 
 export const RALLY_ASSET_MANIFEST = Object.freeze({
   environmentKitV2: Object.freeze({ url: 'assets/racing/models/kaki-rally-environment-kit-v2.glb', kind: 'model' }),
+  courseWorkshopKit: Object.freeze({ url: 'assets/racing/workshop/kaki-course-workshop-kit-v1.glb', kind: 'model' }),
   decalAtlas: Object.freeze({ url: 'assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp', kind: 'color' }),
   monsterDecal: Object.freeze({ url: 'assets/racing/kitty-monster-truck-decal-oekaki-v2.webp', kind: 'color' }),
   monsterKeyArt: Object.freeze({ url: 'assets/racing/monster-smash-key-art-oekaki-v2.webp', kind: 'color' }),
@@ -84,18 +85,18 @@ export const RALLY_ASSET_MANIFEST = Object.freeze({
 });
 
 export const RALLY_COURSE_ASSETS = Object.freeze({
-  forest: Object.freeze(['environmentKitV2', 'skyGolden', 'groundForest', 'groundForestV2Color', 'groundForestV2Normal', 'groundForestV2Roughness', 'mudColor', 'mudNormal', 'mudRoughness']),
-  twilight: Object.freeze(['environmentKitV2', 'skyTwilight', 'groundTwilight', 'groundTwilightV2Color', 'groundTwilightV2Normal', 'groundTwilightV2Roughness', 'mudColor', 'mudNormal', 'mudRoughness']),
-  cinder: Object.freeze(['environmentKitV2', 'skyBloodmoon', 'groundCinder', 'groundCinderV2Color', 'groundCinderV2Normal', 'groundCinderV2Roughness', 'caveStoneColor', 'caveStoneNormal', 'caveStoneRoughness']),
-  void: Object.freeze(['environmentKitV2', 'skyBloodmoon', 'groundVoid', 'groundVoidV2Color', 'groundVoidV2Normal', 'groundVoidV2Roughness', 'flagstone']),
-  cave: Object.freeze(['environmentKitV2', 'skyDusk', 'groundCave', 'groundCaveV2Color', 'groundCaveV2Normal', 'groundCaveV2Roughness', 'caveStoneColor', 'caveStoneNormal', 'caveStoneRoughness']),
-  kakiland: Object.freeze(['environmentKitV2', 'skyKakiLand', 'groundKakiLandBase', 'groundKakiLand', 'groundKakiLandV2Color', 'groundKakiLandV2Normal', 'groundKakiLandV2Roughness', 'flagstone']),
+  forest: Object.freeze(['environmentKitV2', 'courseWorkshopKit', 'skyGolden', 'groundForest', 'groundForestV2Color', 'groundForestV2Normal', 'groundForestV2Roughness', 'mudColor', 'mudNormal', 'mudRoughness']),
+  twilight: Object.freeze(['environmentKitV2', 'courseWorkshopKit', 'skyTwilight', 'groundTwilight', 'groundTwilightV2Color', 'groundTwilightV2Normal', 'groundTwilightV2Roughness', 'mudColor', 'mudNormal', 'mudRoughness']),
+  cinder: Object.freeze(['environmentKitV2', 'courseWorkshopKit', 'skyBloodmoon', 'groundCinder', 'groundCinderV2Color', 'groundCinderV2Normal', 'groundCinderV2Roughness', 'caveStoneColor', 'caveStoneNormal', 'caveStoneRoughness']),
+  void: Object.freeze(['environmentKitV2', 'courseWorkshopKit', 'skyBloodmoon', 'groundVoid', 'groundVoidV2Color', 'groundVoidV2Normal', 'groundVoidV2Roughness', 'flagstone']),
+  cave: Object.freeze(['environmentKitV2', 'courseWorkshopKit', 'skyDusk', 'groundCave', 'groundCaveV2Color', 'groundCaveV2Normal', 'groundCaveV2Roughness', 'caveStoneColor', 'caveStoneNormal', 'caveStoneRoughness']),
+  kakiland: Object.freeze(['environmentKitV2', 'courseWorkshopKit', 'skyKakiLand', 'groundKakiLandBase', 'groundKakiLand', 'groundKakiLandV2Color', 'groundKakiLandV2Normal', 'groundKakiLandV2Roughness', 'flagstone']),
 });
 
 export const TRIALS_COURSE_ASSETS = Object.freeze({
-  meadow: Object.freeze(['environmentKitV2', 'trialsMeadowBackdropV2', 'skyMidday', 'groundForestV2Color', 'groundForestV2Normal', 'groundForestV2Roughness', 'mudColor', 'mudNormal', 'mudRoughness', 'weatheredWood']),
-  quarry: Object.freeze(['environmentKitV2', 'trialsQuarryBackdropV2', 'skyGolden', 'groundCaveV2Color', 'groundCaveV2Normal', 'groundCaveV2Roughness', 'caveStoneColor', 'caveStoneNormal', 'caveStoneRoughness', 'slateMasonry']),
-  crown: Object.freeze(['environmentKitV2', 'trialsCrownBackdropV2', 'skyKakiLand', 'groundKakiLandV2Color', 'groundKakiLandV2Normal', 'groundKakiLandV2Roughness', 'kakiTurfNormal', 'kakiTurfRoughness', 'flagstone']),
+  meadow: Object.freeze(['environmentKitV2', 'courseWorkshopKit', 'trialsMeadowBackdropV2', 'skyMidday', 'groundForestV2Color', 'groundForestV2Normal', 'groundForestV2Roughness', 'mudColor', 'mudNormal', 'mudRoughness', 'weatheredWood']),
+  quarry: Object.freeze(['environmentKitV2', 'courseWorkshopKit', 'trialsQuarryBackdropV2', 'skyGolden', 'groundCaveV2Color', 'groundCaveV2Normal', 'groundCaveV2Roughness', 'caveStoneColor', 'caveStoneNormal', 'caveStoneRoughness', 'slateMasonry']),
+  crown: Object.freeze(['environmentKitV2', 'courseWorkshopKit', 'trialsCrownBackdropV2', 'skyKakiLand', 'groundKakiLandV2Color', 'groundKakiLandV2Normal', 'groundKakiLandV2Roughness', 'kakiTurfNormal', 'kakiTurfRoughness', 'flagstone']),
 });
 
 export function rallyAssetIds(

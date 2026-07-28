@@ -1422,6 +1422,97 @@
   .kkt-touch { display: none; }
 }
 
+.kkr-flyover {
+  position: absolute;
+  z-index: 36;
+  left: max(24px, var(--race-safe-left));
+  bottom: max(28px, calc(var(--race-safe-bottom) + 12px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  width: min(520px, calc(100vw - 48px));
+  padding: 15px 16px;
+  border: 1px solid rgba(255, 227, 137, .44);
+  border-left: 4px solid var(--race-accent);
+  border-radius: 7px 18px 7px 18px;
+  color: #fff4d6;
+  background:
+    linear-gradient(100deg, rgba(255, 211, 102, .08), transparent 55%),
+    rgba(10, 20, 22, .9);
+  box-shadow: 0 18px 55px rgba(0,0,0,.38);
+  backdrop-filter: blur(9px);
+  animation: kkr-flyover-in .45s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.kkr-flyover > span {
+  grid-column: 1 / -1;
+  color: #ffd166;
+  font: 800 7px/1 "Geist Mono", monospace;
+  letter-spacing: .17em;
+}
+
+.kkr-flyover h2 {
+  overflow: hidden;
+  margin: 5px 12px 3px 0;
+  color: #fff8df;
+  font: 900 clamp(18px, 2.2vw, 29px)/1 "Cinzel", serif;
+  letter-spacing: .035em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kkr-flyover > strong {
+  grid-column: 1;
+  color: #87f1c3;
+  font: 800 9px/1.2 "Geist Mono", monospace;
+  letter-spacing: .08em;
+}
+
+.kkr-flyover p {
+  grid-column: 1;
+  margin: 7px 0 0;
+  color: rgba(255,244,214,.58);
+  font: 700 7px/1.3 "Geist Mono", monospace;
+  letter-spacing: .07em;
+}
+
+.kkr-flyover button {
+  grid-row: 2 / 5;
+  grid-column: 2;
+  align-self: center;
+  min-width: 116px;
+  min-height: 44px;
+  border: 1px solid rgba(255,209,102,.5);
+  border-radius: 4px;
+  color: #ffd166;
+  background: rgba(255,209,102,.07);
+  font: 900 8px/1 "Geist Mono", monospace;
+  letter-spacing: .09em;
+  cursor: pointer;
+}
+
+.kkr-flyover button:hover,
+.kkr-flyover button:focus-visible {
+  color: #132426;
+  background: #ffd166;
+}
+
+@keyframes kkr-flyover-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 620px) {
+  .kkr-flyover {
+    right: max(12px, var(--race-safe-right));
+    bottom: max(16px, var(--race-safe-bottom));
+    left: max(12px, var(--race-safe-left));
+    width: auto;
+    padding: 12px;
+  }
+  .kkr-flyover h2 { font-size: 17px; }
+  .kkr-flyover button { min-width: 92px; }
+}
+
 @media (prefers-contrast: more) {
   .kkr-hud { --race-panel: rgba(20, 12, 18, .98); --race-panel-soft: rgba(25, 15, 22, .98); --race-edge: rgba(255, 244, 220, .72); }
   .kkr-stat,

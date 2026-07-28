@@ -123,6 +123,17 @@ import {
   RespawnGenerator,
   TrackMeshBuilder,
 } from './drawTrackGeneration.js';
+import {
+  buildCircuitFeatureVisuals,
+  buildCourseBridgeVisuals,
+} from './courseFeatureRuntime.js';
+import {
+  applyCircuitFeatureAwareness,
+  buildCircuitFeatureRuntime,
+  queryCircuitFeatureContact,
+  resolveCircuitFeatureInteractions,
+} from './courseFeatureSurfaces.js';
+import { createCourseSurfaceIndex, nearestCourseSample } from './courseSurfaceQuery.js';
 import { TrackCodeCodec, TrackGallery } from './drawTrackStorage.js';
 import { attachRacingCameraManager } from './cameras/cameraSessionBinding.js';
 import { mapRacingSteerInput } from './racingSteering.js';
@@ -406,8 +417,32 @@ function _buildCourse(course, root, owned, assetLease = null, monsterDefinition 
     quality: state.options.quality || 'high',
     reduceMotion: !!state._optReduceMotion,
   });
-  const overpassKit = TrackMeshBuilder.buildOverpasses({ root, course, samples, owned });
-  const features = _buildFeaturePads(course, samples, root, owned);
+  const overpassKit = course.mode === 'draw'
+    ? buildCourseBridgeVisuals({
+      root,
+      course,
+      samples,
+      assetLease,
+      owned,
+      quality: state.options.quality || 'high',
+    })
+    : TrackMeshBuilder.buildOverpasses({ root, course, samples, owned });
+  const features = course.mode === 'draw'
+    ? { rampIndices: [], boostIndices: [], repairIndices: [] }
+    : _buildFeaturePads(course, samples, root, owned);
+  const courseFeatureRuntimes = course.mode === 'draw'
+    ? buildCircuitFeatureRuntime(course.featurePlacements || [], samples, course)
+    : [];
+  const courseFeatureVisuals = course.mode === 'draw'
+    ? buildCircuitFeatureVisuals({
+      root,
+      runtimes: courseFeatureRuntimes,
+      assetLease,
+      owned,
+      course,
+      quality: state.options.quality || 'high',
+    })
+    : null;
   const shortcuts = _buildShortcuts(course, samples, root, owned);
   const checkpoints = course.mode === 'draw'
     ? CheckpointGenerator.generate(samples, course.trackWidth)
@@ -416,10 +451,27 @@ function _buildCourse(course, root, owned, assetLease = null, monsterDefinition 
     ? AIPathGenerator.generate(samples, course.trackWidth)
     : null;
   if (aiPath) {
+    const routeLength = samples.reduce((total, sample, index) => {
+      const next = samples[(index + 1) % samples.length];
+      return total + Math.hypot(next.x - sample.x, next.z - sample.z);
+    }, 0);
+    applyCircuitFeatureAwareness(aiPath, courseFeatureRuntimes, routeLength);
     const aiValidation = AIPathGenerator.validate(aiPath);
     if (!aiValidation.valid) throw new Error(`Draw Your Track AI validation failed: ${aiValidation.reason}`);
   }
-  return { samples, shortcuts, environment, overpassKit, checkpoints, aiPath, ...features };
+  const surfaceIndex = createCourseSurfaceIndex(samples, course.trackWidth);
+  return {
+    samples,
+    shortcuts,
+    environment,
+    overpassKit,
+    checkpoints,
+    aiPath,
+    surfaceIndex,
+    courseFeatureRuntimes,
+    courseFeatureVisuals,
+    ...features,
+  };
 }
 
 function _tintDriver(driver, color, owned) {
@@ -553,6 +605,9 @@ function _createRacers(session, hero) {
   if (cameraProxyGeometry) owned.geometries.add(cameraProxyGeometry);
   if (cameraProxyMaterial) owned.materials.add(cameraProxyMaterial);
   const cars = [];
+  const testStartIndex = session.raceMode === 'draw' && Number.isFinite(session.testFromFraction)
+    ? _indexForFraction(session.testFromFraction, samples.length)
+    : 0;
   for (let i = 0; i < session.carCount; i++) {
     const avatar = i === 0 ? AVATARS.find((entry) => entry.id === session.playerAvatarId) : rivals[(i - 1) % rivals.length];
     const color = course.kartColors[i % course.kartColors.length];
@@ -571,8 +626,10 @@ function _createRacers(session, hero) {
           detailTier: renderTier,
         });
     const row = Math.floor(i / 2);
-    const back = 5 + row * 4;
-    const index = monsterMode ? 0 : (samples.length - back) % samples.length;
+    const back = Number.isFinite(session.testFromFraction)
+      ? (i === 0 ? 0 : 5 + row * 4)
+      : 5 + row * 4;
+    const index = monsterMode ? 0 : (testStartIndex - back + samples.length) % samples.length;
     const sample = monsterMode ? session.monsterArenaDefinition.spawnPoints[0] : samples[index];
     const gridLane = course.mode === 'stock'
       ? 2.25
@@ -588,7 +645,7 @@ function _createRacers(session, hero) {
       y: monsterMode ? (ground?.height || 0) : (sample.y || 0),
       yaw: monsterMode ? sample.yaw : Math.atan2(sample.tangent.x, sample.tangent.z),
       nearestIndex: index,
-      unwrappedIndex: monsterMode ? 0 : -back,
+      unwrappedIndex: monsterMode ? 0 : testStartIndex - back,
       previousX: x,
       previousZ: z,
       previousY: monsterMode ? (ground?.height || 0) : (sample.y || 0),
@@ -673,24 +730,7 @@ function _tickParticles(session, dt) {
 }
 
 function _nearestSample(samples, x, z, y = 0, preferredIndex = null) {
-  let best = 0;
-  let bestScore = Infinity;
-  let bestDistSq = Infinity;
-  for (let i = 0; i < samples.length; i++) {
-    const dx = x - samples[i].x;
-    const dz = z - samples[i].z;
-    const d2 = dx * dx + dz * dz;
-    const dy = y - (samples[i].y || 0);
-    let progressPenalty = 0;
-    if (Number.isFinite(preferredIndex)) {
-      let delta = Math.abs(i - preferredIndex);
-      delta = Math.min(delta, samples.length - delta);
-      progressPenalty = Math.min(18, delta * delta * 0.002);
-    }
-    const score = d2 + dy * dy * 1.8 + progressPenalty;
-    if (score < bestScore) { bestScore = score; bestDistSq = d2; best = i; }
-  }
-  return { index: best, distance: Math.sqrt(bestDistSq), sample: samples[best] };
+  return nearestCourseSample(samples, x, z, y, preferredIndex);
 }
 
 function _nearIndex(index, targets, count, radius = 3) {
@@ -713,6 +753,38 @@ function _activeShortcut(shortcuts, x, z) {
   return null;
 }
 
+function _featureGroundAt(session, carPhysics, x, z, y, preferredIndex) {
+  const nearest = session.surfaceIndex?.nearest?.(
+    x,
+    z,
+    y,
+    preferredIndex,
+  ) || _nearestSample(session.samples, x, z, y, preferredIndex);
+  const roadSample = session.samples[nearest.index];
+  const shortcut = _activeShortcut(session.shortcuts, x, z);
+  const onRoad = nearest.distance <= session.course.trackWidth * 0.66 || !!shortcut;
+  const probe = {
+    ...carPhysics,
+    x,
+    z,
+    y,
+  };
+  const featureContact = queryCircuitFeatureContact(session.courseFeatureRuntimes, probe);
+  const ramp = featureContact.ramp;
+  return {
+    nearest,
+    shortcut,
+    onRoad,
+    featureContact,
+    height: ramp?.hasSurface
+      ? ramp.groundHeight
+      : onRoad && !shortcut ? (roadSample?.y || 0) : 0,
+    pitch: ramp?.hasSurface
+      ? ramp.groundPitch
+      : onRoad && !shortcut ? (roadSample?.groundPitch || 0) : 0,
+  };
+}
+
 function _contactFor(session, car) {
   if (session.raceMode === 'monster') {
     const baseContact = monsterArenaContact(session.monsterArenaView, car.physics);
@@ -723,30 +795,79 @@ function _contactFor(session, car) {
       session.monsterVehicleProfile,
     );
   }
-  const nearest = _nearestSample(
-    session.samples,
+  const ground = _featureGroundAt(
+    session,
+    car.physics,
     car.physics.x,
     car.physics.z,
     car.physics.y,
     car.physics.nearestIndex,
   );
-  const shortcut = _activeShortcut(session.shortcuts, car.physics.x, car.physics.z);
-  const onRoad = nearest.distance <= session.course.trackWidth * 0.66 || !!shortcut;
+  const {
+    nearest,
+    shortcut,
+    onRoad,
+    featureContact,
+  } = ground;
   const surface = SURFACE_FEEL[session.course.id] || SURFACE_FEEL.forest;
-  const roadSample = session.samples[nearest.index];
+  const materialContact = featureContact.triggers.find((trigger) => trigger.kind === 'material');
+  const effects = featureContact.triggers
+    .map((trigger) => trigger.gameplayEffect)
+    .filter(Boolean);
+  const ramp = featureContact.ramp;
+  const boostPad = effects.some((effect) => effect.kind === 'boost' || effect.kind === 'turbo-refill');
+  const repairBay = effects.some((effect) => effect.kind === 'repair');
   return {
     nearest,
     onRoad,
     shortcut,
-    groundHeight: onRoad && !shortcut ? (roadSample.y || 0) : 0,
-    groundPitch: onRoad && !shortcut ? (roadSample.groundPitch || 0) : 0,
-    surface: shortcut ? 'shortcut-dirt' : onRoad ? surface.id : 'loose-dirt',
-    surfaceGrip: shortcut ? 0.68 : onRoad ? surface.grip : 0.62,
-    surfaceDrag: shortcut ? 0.36 : onRoad ? surface.drag : 0.72,
-    ramp: !shortcut && onRoad && _nearIndex(nearest.index, session.rampIndices, session.samples.length, 2),
-    boostPad: !shortcut && onRoad && _nearIndex(nearest.index, session.boostIndices, session.samples.length, 2),
-    repairBay: onRoad && _nearIndex(nearest.index, session.repairIndices, session.samples.length, 5)
-      && nearest.distance > session.course.trackWidth * 0.15,
+    groundHeight: ground.height,
+    groundPitch: ground.pitch,
+    surface: materialContact?.surface
+      || (shortcut ? 'shortcut-dirt' : onRoad ? surface.id : 'loose-dirt'),
+    surfaceGrip: Number.isFinite(materialContact?.grip)
+      ? materialContact.grip
+      : shortcut ? 0.68 : onRoad ? surface.grip : 0.62,
+    surfaceDrag: Number.isFinite(materialContact?.drag)
+      ? materialContact.drag
+      : shortcut ? 0.36 : onRoad ? surface.drag : 0.72,
+    ramp: !!ramp?.takeoff || (
+      !session.courseFeatureRuntimes.length
+      && !shortcut
+      && onRoad
+      && _nearIndex(nearest.index, session.rampIndices, session.samples.length, 2)
+    ),
+    preserveRampSpeed: !!ramp?.takeoff,
+    rampDirection: ramp?.runtime?.forward || null,
+    takeoffSlope: ramp?.takeoffSlope || 0,
+    rampVelocity: 0,
+    boostPad: boostPad || (
+      !session.courseFeatureRuntimes.length
+      && !shortcut
+      && onRoad
+      && _nearIndex(nearest.index, session.boostIndices, session.samples.length, 2)
+    ),
+    repairBay: repairBay || (
+      !session.courseFeatureRuntimes.length
+      && onRoad
+      && _nearIndex(nearest.index, session.repairIndices, session.samples.length, 5)
+      && nearest.distance > session.course.trackWidth * 0.15
+    ),
+    courseFeatureTriggers: featureContact.triggers,
+    sampleGround: (x, z) => {
+      const sampled = _featureGroundAt(
+        session,
+        car.physics,
+        x,
+        z,
+        car.physics.y,
+        nearest.index,
+      );
+      return {
+        height: sampled.height,
+        pitch: sampled.pitch,
+      };
+    },
   };
 }
 
@@ -791,7 +912,9 @@ function _aiControls(session, car) {
   const laneScale = session.raceMode === 'stock'
     ? 1.9
     : session.raceMode === 'draw' ? clamp(session.course.trackWidth * 0.095, 0.55, 1.35) : 0.8;
-  const lane = car.aiLane + clamp(avoidance, -1, 1) * laneScale;
+  const lane = car.aiLane
+    + (Number(target.featureLaneOffset) || 0)
+    + clamp(avoidance, -1, 1) * laneScale;
   const targetX = target.x + target.normal.x * lane;
   const targetZ = target.z + target.normal.z * lane;
   const desiredYaw = Math.atan2(targetX - p.x, targetZ - p.z);
@@ -814,6 +937,100 @@ function _impactZone(kart, nx, nz) {
   const right = nx * Math.cos(kart.yaw) - nz * Math.sin(kart.yaw);
   if (Math.abs(forward) >= Math.abs(right)) return forward > 0 ? 'front' : 'rear';
   return right > 0 ? 'right' : 'left';
+}
+
+function _resolveCourseFeatureInteractions(session, car, events) {
+  if (session.raceMode !== 'draw' || !session.courseFeatureRuntimes.length) return;
+  const p = car.physics;
+  const interaction = resolveCircuitFeatureInteractions(
+    session.courseFeatureRuntimes,
+    p,
+    {
+      carId: car.id,
+      now: session.raceTime,
+      carRadius: 1.02,
+      landed: !!events?.landed,
+    },
+  );
+  for (const collision of interaction.collisions) {
+    const { normal, penetration, impactSpeed, collisionKind, destroyed } = collision;
+    const soft = collisionKind === 'soft-obstacles';
+    const brokenThrough = destroyed && collision.destructible;
+    const correction = penetration * (brokenThrough ? 0.08 : soft ? 0.28 : 0.82);
+    p.x += normal.x * correction;
+    p.z += normal.z * correction;
+    const inwardSpeed = Math.min(0, p.vx * normal.x + p.vz * normal.z);
+    if (inwardSpeed < 0) {
+      const response = brokenThrough ? 0.08 : soft ? 0.32 : 1.18;
+      p.vx -= normal.x * inwardSpeed * response;
+      p.vz -= normal.z * inwardSpeed * response;
+      const retention = brokenThrough ? 0.9 : soft ? 0.76 : 0.68;
+      p.vx *= retention;
+      p.vz *= retention;
+    }
+    if (!soft && !brokenThrough && impactSpeed > 5.4 && p.collisionCooldown <= 0) {
+      const damage = impactDamage(impactSpeed * (collision.destructible ? 0.68 : 0.96));
+      applyKartDamage(p, damage, _impactZone(p, normal.x, normal.z));
+      p.collisionCooldown = 0.3;
+      if (car.id === 'player') {
+        session.crashFlash = Math.max(session.crashFlash, damage / 22);
+        session.driftChain = 0;
+        session.driftCombo = 1;
+        _kickCamera(session, damage / 20, normal.x * 0.02, damage / 30);
+        playRacingImpact({ strength: damage / 26, kind: collision.destructible ? 'smash' : 'crash' });
+        _spawnImpactBurst(session, car, damage / 23, collision.destructible ? 'debris' : 'spark');
+        try { collision.destructible ? sfx.explosion() : sfx.hit(); } catch (_) {}
+      }
+    }
+  }
+  for (const smash of interaction.destroyed) {
+    if (smash.complete && smash.runtime.visual) {
+      smash.runtime.visual.visible = false;
+      smash.runtime.visual.userData.destroyed = true;
+    }
+    if (car.id !== 'player') continue;
+    const score = smash.runtime.feature.scoreEffect;
+    const points = Number(score?.points) || Math.round(60 + smash.impactSpeed * 8);
+    _awardRallyStyle(
+      session,
+      points,
+      score?.kind === 'smash-chain' ? 'SMASH CHAIN' : `SMASHED ${smash.runtime.feature.label.toUpperCase()}`,
+      score?.kind === 'smash-chain' ? 0.7 : 0.38,
+    );
+    session.smashFlash = Math.max(session.smashFlash, 0.75);
+    for (let burst = 0; burst < 7; burst++) _spawnDust(session, car, 0.62 + burst * 0.055, burst > 3);
+    _spawnImpactBurst(session, car, Math.min(1.2, smash.impactSpeed / 13), 'debris');
+  }
+  if (car.id !== 'player') return;
+  for (const trigger of interaction.triggered) {
+    const effectKind = trigger.effect?.kind || '';
+    const score = trigger.score;
+    if (effectKind === 'jump-ring' && (p.grounded || p.y < trigger.runtime.y + 1.1)) continue;
+    if (effectKind === 'landing-zone' && !events?.landed) continue;
+    if (effectKind === 'splash-vfx') {
+      for (let splash = 0; splash < 7; splash++) _spawnDust(session, car, 0.5 + splash * 0.05, true);
+      continue;
+    }
+    if (effectKind === 'turbo-refill') {
+      p.boostHeat = 0;
+      p.overheated = false;
+      p.boostTime = Math.max(p.boostTime || 0, 0.55);
+    }
+    let points = Number(score?.points) || 0;
+    if (score?.kind === 'speed') points += p.speed * (Number(score.multiplier) || 16);
+    if (score?.kind === 'air-distance') points += (Number(p.airTime) || 0) * (Number(score.multiplier) || 24) * p.speed;
+    if (score?.kind === 'drift') points += Math.abs(Number(p.lateralSpeed) || 0) * 42;
+    if (score?.kind === 'landing') points += events?.perfectLanding ? 420 : events?.cleanLanding ? 180 : 40;
+    if (points > 0) {
+      _awardRallyStyle(
+        session,
+        points,
+        trigger.runtime.feature.label.toUpperCase(),
+        effectKind === 'jump-ring' ? 0.7 : 0.4,
+      );
+      try { sfx.speedBoostActivate(); } catch (_) {}
+    }
+  }
 }
 
 function _resolveKartCollisions(session) {
@@ -1152,6 +1369,7 @@ function _drawRestartOptions(session, customCourse = session.course, customTrack
     playerAvatarId: session.playerAvatarId,
     rosterIds: session.roster.map((avatar) => avatar.id),
     cameraHost: session.cameraHost,
+    skipFlyover: true,
   };
 }
 
@@ -1389,6 +1607,166 @@ function _mountHud(session) {
   };
   root.classList.toggle('is-free-ride', freeRide);
   root.classList.toggle('is-timed-smashdown', timedSmashdown);
+}
+
+function _drawFlyoverHighlight(session, index, label, side = 1, fov = 48) {
+  const samples = session.samples;
+  const count = samples.length;
+  const at = ((Math.round(index) % count) + count) % count;
+  const sample = samples[at];
+  const previous = samples[(at - 2 + count) % count];
+  const next = samples[(at + 2) % count];
+  const tangentX = Number(sample.tangent?.x) || next.x - previous.x;
+  const tangentZ = Number(sample.tangent?.z) || next.z - previous.z;
+  const tangentLength = Math.hypot(tangentX, tangentZ) || 1;
+  const tx = tangentX / tangentLength;
+  const tz = tangentZ / tangentLength;
+  const rightX = -tz * side;
+  const rightZ = tx * side;
+  const focus = new THREE.Vector3(
+    RACE_CX + sample.x,
+    2.1 + (Number(sample.y) || 0),
+    RACE_CZ + sample.z,
+  );
+  return {
+    label,
+    focus,
+    position: new THREE.Vector3(
+      focus.x + rightX * 19 - tx * 7,
+      focus.y + 13.5,
+      focus.z + rightZ * 19 - tz * 7,
+    ),
+    fov,
+    index: at,
+  };
+}
+
+function _buildDrawFlyoverKeyframes(session) {
+  const samples = session.samples;
+  if (!samples?.length) return [];
+  const bounds = session.mapBounds;
+  const spanX = Math.max(20, bounds.maxX - bounds.minX);
+  const spanZ = Math.max(20, bounds.maxZ - bounds.minZ);
+  const span = Math.max(spanX, spanZ);
+  const highest = Math.max(0, ...samples.map((sample) => Number(sample.y) || 0));
+  const center = new THREE.Vector3(
+    RACE_CX + (bounds.minX + bounds.maxX) * 0.5,
+    highest * 0.25,
+    RACE_CZ + (bounds.minZ + bounds.maxZ) * 0.5,
+  );
+  const overview = {
+    label: `${session.course.drawSizeId.toUpperCase()} COURSE OVERVIEW`,
+    focus: center,
+    position: new THREE.Vector3(
+      center.x + span * 0.42,
+      Math.min(150, Math.max(55, span * 0.46)),
+      center.z + span * 0.42,
+    ),
+    fov: span > 260 ? 63 : 56,
+    index: -1,
+  };
+  const candidates = [];
+  for (const bridge of session.course.overpasses || []) {
+    if (!Number.isFinite(bridge.fraction)) continue;
+    candidates.push({
+      index: bridge.fraction * samples.length,
+      label: `${String(bridge.preset || 'standard').toUpperCase()} KAKI SKYWAY`,
+      priority: 100 + (Number(bridge.height) || 0),
+    });
+  }
+  for (const runtime of session.courseFeatureRuntimes || []) {
+    if (!['jumps', 'challenges', 'utilities'].includes(runtime.feature?.category)) continue;
+    candidates.push({
+      index: runtime.index,
+      label: runtime.feature?.label?.toUpperCase() || 'COURSE STAMP',
+      priority: runtime.feature?.category === 'jumps' ? 88 : 76,
+    });
+  }
+  for (let index = 4; index < samples.length; index += Math.max(4, Math.floor(samples.length / 80))) {
+    const previous = samples[(index - 4 + samples.length) % samples.length];
+    const point = samples[index];
+    const next = samples[(index + 4) % samples.length];
+    const ax = point.x - previous.x;
+    const az = point.z - previous.z;
+    const bx = next.x - point.x;
+    const bz = next.z - point.z;
+    const al = Math.hypot(ax, az) || 1;
+    const bl = Math.hypot(bx, bz) || 1;
+    const turn = Math.acos(clamp((ax * bx + az * bz) / (al * bl), -1, 1));
+    candidates.push({ index, label: 'SIGNATURE CORNER', priority: turn * 34 });
+  }
+  candidates.sort((a, b) => b.priority - a.priority || a.index - b.index);
+  const selected = [];
+  const circularDistance = (a, b) => {
+    const direct = Math.abs(a - b);
+    return Math.min(direct, samples.length - direct);
+  };
+  for (const candidate of candidates) {
+    if (selected.length >= 5) break;
+    if (selected.some((value) => circularDistance(value.index, candidate.index) < samples.length * 0.075)) continue;
+    selected.push(candidate);
+  }
+  selected.sort((a, b) => a.index - b.index);
+  const highlights = selected.map((candidate, index) => (
+    _drawFlyoverHighlight(session, candidate.index, candidate.label, index % 2 ? -1 : 1, 47)
+  ));
+  const start = _drawFlyoverHighlight(session, 0, 'START / FINISH · READY TO RACE', -1, 44);
+  return [overview, ...highlights, start];
+}
+
+function _finishDrawFlyover(session) {
+  if (!session || session.disposed || session.phase !== 'flyover') return;
+  session.phase = 'countdown';
+  session.countdown = COUNTDOWN_SECONDS;
+  if (session.flyover?.keyHandler) window.removeEventListener('keydown', session.flyover.keyHandler);
+  session.flyover?.root?.remove();
+  session.flyover = null;
+}
+
+function _skipDrawFlyover(session) {
+  if (!session || session.phase !== 'flyover') return false;
+  if (!session.cameraManager?.skipCinematic()) _finishDrawFlyover(session);
+  return true;
+}
+
+function _startDrawFlyover(session) {
+  if (
+    session?.raceMode !== 'draw'
+    || session.skipFlyover
+    || Number.isFinite(session.testFromFraction)
+    || state._optReduceMotion
+  ) return false;
+  const keyframes = _buildDrawFlyoverKeyframes(session);
+  if (keyframes.length < 2) return false;
+  const root = document.createElement('section');
+  root.className = 'kkr-flyover';
+  root.setAttribute('aria-label', `Build flyover for ${session.course.name}`);
+  root.innerHTML = `
+    <span>COURSE COMPLETE · CINEMATIC BUILD CHECK</span>
+    <h2></h2>
+    <strong></strong>
+    <p>${session.course.overpasses?.length || 0} SKYWAYS · ${session.courseFeatureRuntimes.length} AUTHORED STAMPS · ${Math.round(session.course.drawStats?.length || 0)} M</p>
+    <button type="button">SKIP FLYOVER</button>`;
+  root.querySelector('h2').textContent = session.course.name;
+  const label = root.querySelector('strong');
+  label.textContent = keyframes[0].label;
+  session.hud.root.appendChild(root);
+  const keyHandler = (event) => {
+    if (!['Escape', 'Enter', ' '].includes(event.key)) return;
+    event.preventDefault();
+    _skipDrawFlyover(session);
+  };
+  window.addEventListener('keydown', keyHandler);
+  root.querySelector('button').addEventListener('click', () => _skipDrawFlyover(session));
+  session.phase = 'flyover';
+  session.flyover = { root, label, keyHandler };
+  const started = session.cameraManager.startCinematic({
+    keyframes,
+    duration: clamp(4.8 + keyframes.length * 0.36, 5.2, 7.4),
+    onComplete: () => _finishDrawFlyover(session),
+  });
+  if (!started) _finishDrawFlyover(session);
+  return started;
 }
 
 function _buildMonsterReplayPresentation(session, root, owned) {
@@ -1736,6 +2114,9 @@ function _updateHud(session) {
       && session.monsterRounds.timeRemaining <= 10,
   );
   if (session.raceMode === 'draw' && session.wrongWay) hud.modeStatus.textContent = 'WRONG WAY · TURN AROUND';
+  else if (session.raceMode === 'draw' && Number.isFinite(session.testFromFraction) && session.raceTime < 4) {
+    hud.modeStatus.textContent = 'TEST FROM HERE · RECORDS OFF';
+  }
   else if (player.wrecked) hud.modeStatus.textContent = session.raceMode === 'monster' ? 'WRECKED · SAFE RESET INCOMING' : 'WRECKED · REPAIR REQUIRED';
   else if (player.repairTime > 0) hud.modeStatus.textContent = 'PIT CREW · REPAIRING';
   else if (player.overheated) hud.modeStatus.textContent = 'TURBO HOT · RELEASE SHIFT TO COOL';
@@ -1861,12 +2242,15 @@ function _finishPlayer(session) {
   const monsterFreestyle = monsterMode && session.monsterEvent === 'freestyle';
   const score = monsterMode ? (monsterFreestyle ? session.monsterScore.score : monsterTime) : session.driftScore;
   const bestKey = _bestKey(session);
-  const newBest = monsterMode && !monsterFreestyle
-    ? (session.monsterRounds.won ? _writeBest(bestKey, monsterTime) : false)
-    : scoreMode
-      ? _writeHighScore(bestKey, score)
-      : _writeBest(bestKey, session.raceTime);
-  if (session.raceMode === 'draw' && session.course.customTrackId) {
+  const practiceRun = session.raceMode === 'draw' && Number.isFinite(session.testFromFraction);
+  const newBest = practiceRun
+    ? false
+    : monsterMode && !monsterFreestyle
+      ? (session.monsterRounds.won ? _writeBest(bestKey, monsterTime) : false)
+      : scoreMode
+        ? _writeHighScore(bestKey, score)
+        : _writeBest(bestKey, session.raceTime);
+  if (!practiceRun && session.raceMode === 'draw' && session.course.customTrackId) {
     try {
       const gallery = new TrackGallery();
       if (gallery.get(session.course.customTrackId)) {
@@ -1930,8 +2314,10 @@ function _finishPlayer(session) {
         : `${session.monsterRounds.won ? 'ALL FIVE LEVELS CLEARED' : 'LEVEL TIMER EXPIRED'} · SPLITS ${session.monsterRounds.roundTimes.map((time, index) => `L${index + 1} ${time.toFixed(1)}S`).join(' · ') || '—'}`)
     : '';
   const stored = _readBest(bestKey) || (scoreMode ? score : session.raceTime);
-  finish.querySelector('.kkr-finish-best').textContent = newBest
-    ? (monsterMode ? 'NEW FIVE-LEVEL SPEEDRUN RECORD!' : driftMode ? 'NEW DRIFT RECORD!' : 'NEW COURSE RECORD!')
+  finish.querySelector('.kkr-finish-best').textContent = practiceRun
+    ? 'TEST DRIVE · RECORDS WERE NOT SAVED'
+    : newBest
+      ? (monsterMode ? 'NEW FIVE-LEVEL SPEEDRUN RECORD!' : driftMode ? 'NEW DRIFT RECORD!' : 'NEW COURSE RECORD!')
     : monsterMode && !monsterFreestyle
       ? (session.monsterRounds.won || _readBest(bestKey) ? `BEST ${formatRaceTime(stored)}` : 'CLEAR ALL FIVE LEVELS TO SET A TIME')
       : (scoreMode ? `BEST ${Math.round(stored).toLocaleString()}` : `BEST ${formatRaceTime(stored)}`);
@@ -1979,6 +2365,10 @@ function _snapshot(session) {
     boostPads: session.boostIndices?.length || 0,
     checkpoints: session.checkpoints?.length || 0,
     overpasses: session.course.overpasses?.length || 0,
+    workshop: {
+      bridges: session.overpassKit?.diagnostics || null,
+      features: session.courseFeatureVisuals?.diagnostics || null,
+    },
     camera: session.cameraManager?.getSnapshot() || null,
     assets: {
       ids: session.assetLease?.ids || [],
@@ -2088,6 +2478,10 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
     raceMode,
     modeDef,
     carCount,
+    testFromFraction: Number.isFinite(options.testFromFraction)
+      ? ((Number(options.testFromFraction) % 1) + 1) % 1
+      : null,
+    skipFlyover: !!options.skipFlyover,
     playerAvatarId: options.playerAvatarId || 'kitty',
     roster: (options.rosterIds?.length
       ? options.rosterIds.map((id) => AVATARS.find((avatar) => avatar.id === id)).filter(Boolean)
@@ -2121,6 +2515,9 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
     checkpoints: [],
     aiPath: null,
     overpassKit: null,
+    surfaceIndex: null,
+    courseFeatureRuntimes: [],
+    courseFeatureVisuals: null,
     customTrack: options.customTrack || course.drawDraft || null,
     cars: [],
     particles: [],
@@ -2260,6 +2657,9 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
     session.checkpoints = built.checkpoints || [];
     session.aiPath = built.aiPath || null;
     session.overpassKit = built.overpassKit || null;
+    session.surfaceIndex = built.surfaceIndex || null;
+    session.courseFeatureRuntimes = built.courseFeatureRuntimes || [];
+    session.courseFeatureVisuals = built.courseFeatureVisuals || null;
     if (raceMode === 'monster') {
       session.monsterArena = buildMonsterTargets(monsterArenaDefinition, root, owned, session.assetLease);
       _buildMonsterReplayPresentation(session, root, owned);
@@ -2285,6 +2685,7 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
     state.gameOver = false;
     state.victory = false;
     attachRacingCameraManager(session, options.cameraHost || {});
+    _startDrawFlyover(session);
     state.hero.pos.set(
       RACE_CX + session.cars[0].physics.x,
       session.cars[0].physics.y,
@@ -2343,6 +2744,7 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
       cycleCamera: (direction = 1) => state.racing?.cameraManager?.cycleCamera(direction) || false,
       skipCountdown: () => {
         if (!state.racing) return;
+        _skipDrawFlyover(state.racing);
         state.racing.countdown = 0;
         state.racing.phase = 'racing';
       },
@@ -2408,6 +2810,15 @@ export function tickRacing(dt, elapsedDt = dt) {
   _tickCameraFx(session, dt);
   updateRallyEnvironment(session.environment, session.raceTime + session.countdown, dt);
   updateMonsterArena(session.monsterArenaView, session.raceTime + session.countdown, dt, session.smashFlash || 0);
+  if (session.phase === 'flyover') {
+    const label = session.cameraManager?.lastFrame?.label;
+    if (label && session.flyover?.label) session.flyover.label.textContent = label;
+    if (
+      gamepadState.justPressed?.a
+      || gamepadState.justPressed?.b
+      || consumeJump()
+    ) _skipDrawFlyover(session);
+  }
   if (session.hitStop > 0) {
     session.hitStop = Math.max(0, session.hitStop - dt);
     _tickParticles(session, dt * 0.22);
@@ -2603,6 +3014,7 @@ export function tickRacing(dt, elapsedDt = dt) {
       accumulated.impactStrength = Math.max(accumulated.impactStrength, events.impactStrength || 0);
       car.frameControls = controls;
       car.frameContact = resolvedContact;
+      if (!monsterMode) _resolveCourseFeatureInteractions(session, car, events);
       if (monsterMode && car.id === 'player' && session.phase === 'racing') {
         const stunt = stepMonsterStunts(session.monsterScore, p, controls, events, stepDt, session.monsterVehicleProfile);
         const signaturePoints = stepMonsterSignatureStunts(
@@ -3018,7 +3430,9 @@ function _warpRallyShowcase(session, fraction = 0.18) {
   kart.vz = 0;
   kart.vy = 0;
   kart.speed = 0;
-  kart.y = 0;
+  kart.y = sample.y || 0;
+  kart.previousY = kart.y;
+  kart.groundHeight = kart.y;
   kart.grounded = true;
   kart.wasGrounded = true;
   kart.airTime = 0;
@@ -3162,6 +3576,7 @@ export function restartRacing(scene, courseId = null) {
     playerAvatarId: current.playerAvatarId,
     rosterIds: current.roster.map((avatar) => avatar.id),
     cameraHost: current.cameraHost,
+    skipFlyover: true,
   } : {};
   exitRacing(scene);
   return enterRacing(scene, id, options);
@@ -3174,6 +3589,9 @@ export function exitRacing(scene, explicitSession = null) {
   if (session.raceMode === 'trials') return exitTrialsMode(scene, session);
   _finishMonsterRecords(session);
   session.disposed = true;
+  if (session.flyover?.keyHandler) window.removeEventListener('keydown', session.flyover.keyHandler);
+  session.flyover?.root?.remove();
+  session.flyover = null;
   try { session.cameraManager?.dispose(); } catch (_) {}
   if (session.monsterKeyHandler && typeof window !== 'undefined') {
     window.removeEventListener('keydown', session.monsterKeyHandler);
@@ -3196,6 +3614,8 @@ export function exitRacing(scene, explicitSession = null) {
   }
   try { disposeRallyEnvironment(session.environment); } catch (_) {}
   try { disposeMonsterArena(session.monsterArenaView); } catch (_) {}
+  try { session.courseFeatureVisuals?.dispose?.(); } catch (_) {}
+  try { session.overpassKit?.dispose?.(); } catch (_) {}
   try {
     session.root?.traverse?.((object) => {
       if (object.isLight && object.shadow?.map) object.shadow.map.dispose();

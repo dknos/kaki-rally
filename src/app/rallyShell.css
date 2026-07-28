@@ -524,6 +524,19 @@ button {
   opacity: 0.45;
 }
 
+.rally-launch.is-secondary {
+  border: 1px solid rgba(167, 255, 93, .46);
+  background: rgba(167, 255, 93, .08);
+  color: var(--rally-lime);
+}
+
+.rally-launch.is-secondary:hover,
+.rally-launch.is-secondary:focus-visible {
+  border-color: var(--rally-paper);
+  background: rgba(247, 240, 220, .08);
+  color: var(--rally-paper);
+}
+
 .rally-utilities {
   z-index: 4;
   grid-column: 1 / -1;

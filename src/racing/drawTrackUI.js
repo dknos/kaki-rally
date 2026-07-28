@@ -25,13 +25,44 @@ import {
   TrackCodeCodec,
   TrackGallery,
 } from './drawTrackStorage.js';
+import {
+  BRIDGE_PRESETS,
+  CROSSING_OVERRIDE_MODES,
+  createCrossingOverride,
+  crossingAngleDegrees,
+  crossingGradePercent,
+  sanitizeCrossingOverrides,
+} from './drawTrackCrossings.js';
+import {
+  COURSE_FEATURE_CATEGORIES,
+  COURSE_FEATURE_THUMBNAIL_ATLAS,
+  getCourseFeature,
+  listCourseFeatures,
+} from './courseFeatureCatalog.js';
+import {
+  circuitRuntimeFraction,
+  createCourseFeaturePlacementId,
+  sanitizeCourseFeaturePlacements,
+} from './courseFeaturePlacement.js';
+import { validateCircuitFeaturePlacement } from './courseFeatureValidation.js';
 
 const STYLE_ID = 'kdt-editor-style';
-const STYLE_URL = new URL('./drawTrack.css?v=20260722worldmap1', import.meta.url).href;
+const STYLE_URL = new URL('./drawTrack.css?v=20260727workshop1', import.meta.url).href;
+const FEATURE_ATLAS_URL = new URL(`../../${COURSE_FEATURE_THUMBNAIL_ATLAS}`, import.meta.url).href;
 const WIDTH_ORDER = Object.keys(TRACK_WIDTH_PRESETS);
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function seededUnit(seed, ordinal) {
+  let value = ((Number(seed) >>> 0) ^ Math.imul((ordinal + 1) >>> 0, 0x9e3779b1)) >>> 0;
+  value ^= value >>> 16;
+  value = Math.imul(value, 0x7feb352d) >>> 0;
+  value ^= value >>> 15;
+  value = Math.imul(value, 0x846ca68b) >>> 0;
+  value ^= value >>> 16;
+  return (value >>> 0) / 0x100000000;
 }
 
 function escapeHtml(value) {
@@ -71,6 +102,7 @@ function defaultDraft(initial = {}) {
     controls = migrated.controlPoints;
     layoutTransform = migrated.layoutTransform;
   }
+  const features = sanitizeCourseFeaturePlacements(initial.featurePlacements, { mode: 'spline' });
   return {
     id: initial.id || createDrawTrackId(seed),
     name: initial.name || '',
@@ -83,6 +115,9 @@ function defaultDraft(initial = {}) {
     startFraction: clamp(Number(initial.startFraction) || 0, 0, 0.999999),
     reverse: !!initial.reverse,
     modifiers: { boostPads: true, ...(initial.modifiers || {}) },
+    crossingOverrides: sanitizeCrossingOverrides(initial.crossingOverrides),
+    featurePlacements: features.placements,
+    dataWarnings: features.warnings,
     laps: Number(initial.laps) || null,
     rawStroke: raw,
     controlPoints: controls,
@@ -131,6 +166,24 @@ function pointsBounds(points) {
 function circularIndexDistance(a, b, count) {
   const direct = Math.abs(a - b);
   return Math.min(direct, count - direct);
+}
+
+function circularFractionDistance(a, b) {
+  const direct = Math.abs(Number(a) - Number(b));
+  return Math.min(direct, 1 - direct);
+}
+
+function featureThumbnailStyle(feature) {
+  const column = feature.previewFrame % 7;
+  const row = Math.floor(feature.previewFrame / 7);
+  return `--feature-atlas:url('${FEATURE_ATLAS_URL}');--feature-col:${column};--feature-row:${row}`;
+}
+
+function featureCardHtml(feature) {
+  return `<button type="button" class="kdt-feature-card" data-feature-id="${escapeHtml(feature.id)}" title="${escapeHtml(feature.label)}">
+    <i style="${featureThumbnailStyle(feature)}" aria-hidden="true"></i>
+    <span>${escapeHtml(feature.label)}</span>
+  </button>`;
 }
 
 export class TrackDrawingInput {
@@ -192,6 +245,19 @@ export class TrackDrawingInput {
       return;
     }
     const local = this.ui.eventPoint(event);
+    if (this.ui.editorStage === 'place' && this.ui.closed) {
+      if (event.button === 2) {
+        this.mode = '';
+        this.ui.cancelFeatureTool();
+        return;
+      }
+      this.mode = 'feature';
+      this.ui.beginFeaturePointer(local, {
+        repeat: event.shiftKey,
+        pointerType: event.pointerType,
+      });
+      return;
+    }
     if (this.ui.startMoveArmed || this.ui.hitStartMarker(local)) {
       this.mode = 'start';
       this.ui.beginMoveStart(local);
@@ -208,6 +274,12 @@ export class TrackDrawingInput {
       return;
     }
     if (this.ui.closed) {
+      const crossing = this.ui.hitCrossing(local);
+      if (crossing) {
+        this.mode = 'crossing';
+        this.ui.selectCrossing(crossing);
+        return;
+      }
       const handle = this.ui.hitLayoutHandle(local);
       if (handle) {
         this.mode = 'transform';
@@ -233,7 +305,12 @@ export class TrackDrawingInput {
       const distance = Math.hypot(values[1].x - values[0].x, values[1].y - values[0].y);
       const centerX = (values[0].x + values[1].x) * 0.5;
       const centerY = (values[0].y + values[1].y) * 0.5;
-      this.ui.view.zoom = clamp(this.pinch.zoom * distance / Math.max(10, this.pinch.distance), 0.8, 2.5);
+      const limits = this.ui.zoomLimits();
+      this.ui.view.zoom = clamp(
+        this.pinch.zoom * distance / Math.max(10, this.pinch.distance),
+        limits.min,
+        limits.max,
+      );
       this.ui.view.panX = this.pinch.panX + centerX - this.pinch.centerX;
       this.ui.view.panY = this.pinch.panY + centerY - this.pinch.centerY;
       this.ui.requestDraw();
@@ -252,7 +329,11 @@ export class TrackDrawingInput {
     else if (this.mode === 'start') this.ui.moveStart(local);
     else if (this.mode === 'deform') this.ui.updateDeform(local);
     else if (this.mode === 'transform') this.ui.updateLayoutTransform(local);
-    else this.ui.setHover(local);
+    else if (this.mode === 'feature') this.ui.updateFeaturePointer(local);
+    else {
+      if (this.ui.editorStage === 'place') this.ui.updatePlacementGhost(local);
+      this.ui.setHover(local);
+    }
   }
 
   pointerUp(event) {
@@ -263,6 +344,7 @@ export class TrackDrawingInput {
     if (this.mode === 'start') this.ui.endMoveStart();
     if (this.mode === 'deform') this.ui.endDeform();
     if (this.mode === 'transform') this.ui.endLayoutTransform();
+    if (this.mode === 'feature') this.ui.endFeaturePointer();
     this.mode = '';
     this.pinch = null;
     this.lastPan = null;
@@ -271,8 +353,17 @@ export class TrackDrawingInput {
   wheel(event) {
     event.preventDefault();
     if (event.ctrlKey || event.metaKey) {
-      this.ui.view.zoom = clamp(this.ui.view.zoom * (event.deltaY > 0 ? 0.9 : 1.1), 0.8, 2.5);
+      const limits = this.ui.zoomLimits();
+      this.ui.view.zoom = clamp(
+        this.ui.view.zoom * (event.deltaY > 0 ? 0.9 : 1.1),
+        limits.min,
+        limits.max,
+      );
       this.ui.requestDraw();
+      return;
+    }
+    if (this.ui.editorStage === 'place') {
+      this.ui.scaleSelectedFeature(event.deltaY > 0 ? -1 : 1);
       return;
     }
     this.ui.stepWidth(event.deltaY > 0 ? -1 : 1);
@@ -301,6 +392,22 @@ export class DrawTrackUI {
     this.erasing = false;
     this.startMoveArmed = false;
     this.startTouched = !!initialTrack;
+    this.selectedCrossingId = null;
+    this.selectedCrossingReference = null;
+    this.editorStage = this.closed ? 'adjust' : 'draw';
+    this.featureCategoryId = 'jumps';
+    this.selectedFeatureId = 'small-kicker';
+    this.selectedPlacementId = null;
+    this.featureStampArmed = false;
+    this.placementGhost = null;
+    this.placementGesture = null;
+    this._placementOrdinal = this.draft.featurePlacements.length;
+    this.featureThumbnail = typeof Image === 'function' ? new Image() : null;
+    if (this.featureThumbnail) {
+      this.featureThumbnail.decoding = 'async';
+      this.featureThumbnail.src = FEATURE_ATLAS_URL;
+      this.featureThumbnail.addEventListener('load', () => this.requestDraw(), { once: true });
+    }
     this.hover = null;
     this.controllerCursor = { x: 0.5, y: 0.5, visible: false, drawing: false };
     this.view = { zoom: 1, panX: 0, panY: 0 };
@@ -318,7 +425,7 @@ export class DrawTrackUI {
     const host = document.getElementById('kk-stage') || document.body;
     this.root = document.createElement('section');
     this.root.className = 'kdt-editor';
-    this.root.setAttribute('aria-label', 'Draw Your Track editor');
+    this.root.setAttribute('aria-label', 'Kaki Course Workshop circuit editor');
     const themeOptions = DRAW_TRACK_THEME_ORDER.map((id) => {
       const theme = DRAW_TRACK_THEMES[id];
       return `<button type="button" data-theme="${id}" title="${escapeHtml(theme.detail)}"><span>${theme.icon}</span><b>${escapeHtml(theme.short)}</b></button>`;
@@ -329,15 +436,22 @@ export class DrawTrackUI {
     const widthOptions = Object.values(TRACK_WIDTH_PRESETS).map((preset) => (
       `<button type="button" data-width="${preset.id}"><b>${preset.label}</b><span>${preset.detail}</span></button>`
     )).join('');
+    const featureCategories = COURSE_FEATURE_CATEGORIES.map((category) => (
+      `<button type="button" data-feature-category="${category.id}">${escapeHtml(category.shortLabel)}</button>`
+    )).join('');
+    const featureCards = listCourseFeatures({ mode: 'circuit', category: this.featureCategoryId })
+      .map(featureCardHtml)
+      .join('');
     this.root.innerHTML = `
       <header class="kdt-head">
         <button class="kdt-back" type="button" data-action="exit">← RALLY MODES</button>
-        <div class="kdt-title"><span>NEW MODE · KAKI RALLY WORKSHOP</span><h1>DRAW YOUR TRACK</h1><em>Draw it. Build it. Race it.</em></div>
+        <div class="kdt-title"><span>DRAW TRACK + TRIALS CREATOR</span><h1>KAKI COURSE WORKSHOP</h1><em>Draw it. Place it. Race it.</em></div>
         <nav class="kdt-stage-flow" aria-label="Track creation progress">
-          <span data-stage="draw"><i>1</i>DRAW</span><b>›</b>
-          <span data-stage="adjust"><i>2</i>ADJUST</span><b>›</b>
-          <span data-stage="start"><i>3</i>START / FINISH</span><b>›</b>
-          <span data-stage="race"><i>4</i>RACE</span>
+          <button type="button" data-stage="draw"><i>1</i>DRAW</button><b>›</b>
+          <button type="button" data-stage="adjust"><i>2</i>ADJUST</button><b>›</b>
+          <button type="button" data-stage="place"><i>3</i>PLACE</button><b>›</b>
+          <button type="button" data-stage="start"><i>4</i>START / FINISH</button><b>›</b>
+          <button type="button" data-stage="race"><i>5</i>TEST / RACE</button>
         </nav>
         <div class="kdt-head-status" data-status-kind="empty"><i></i><span data-role="status">Draw one closed loop</span></div>
       </header>
@@ -361,6 +475,62 @@ export class DrawTrackUI {
           <div class="kdt-canvas-corner kdt-canvas-help"><b>DRAW</b><span>Hold and drag · release at the start</span></div>
           <div class="kdt-canvas-corner kdt-canvas-scale"><b data-role="scale-name">CLUB</b><span data-role="scale-size">124 × 86 m</span></div>
           <div class="kdt-controller-hint">LEFT STICK · CURSOR&nbsp;&nbsp; A · DRAW&nbsp;&nbsp; X · UNDO&nbsp;&nbsp; Y · CLEAR</div>
+          <aside class="kdt-crossing-panel" aria-label="Selected crossing" hidden>
+            <header>
+              <div><span>OVERPASS WORKBENCH</span><b data-role="crossing-title">CROSSING</b></div>
+              <button type="button" data-action="close-crossing" aria-label="Close crossing inspector">×</button>
+            </header>
+            <div class="kdt-crossing-modes" role="group" aria-label="Upper branch">
+              <button type="button" data-crossing-mode="auto">AUTO</button>
+              <button type="button" data-crossing-mode="a-over-b">A OVER B</button>
+              <button type="button" data-crossing-mode="b-over-a">B OVER A</button>
+              <button type="button" data-crossing-mode="flat">FLAT / INVALID</button>
+            </div>
+            <div class="kdt-crossing-presets" role="group" aria-label="Bridge preset">
+              ${Object.values(BRIDGE_PRESETS).map((preset) => `<button type="button" data-crossing-preset="${preset.id}"><b>${preset.label}</b><span>${preset.baseHeight.toFixed(1)} m deck</span></button>`).join('')}
+            </div>
+            <label class="kdt-crossing-approach">
+              <span><b>APPROACH LENGTH</b><output data-role="crossing-approach">AUTO</output></span>
+              <input type="range" min="20" max="180" step="1" value="40" data-setting="crossing-approach">
+            </label>
+            <dl class="kdt-crossing-metrics">
+              <div><dt>ANGLE</dt><dd data-role="crossing-angle">—</dd></div>
+              <div><dt>GRADE</dt><dd data-role="crossing-grade">—</dd></div>
+              <div><dt>CLEARANCE</dt><dd data-role="crossing-clearance">—</dd></div>
+              <div><dt>APPROACH</dt><dd data-role="crossing-capacity">—</dd></div>
+            </dl>
+            <p data-role="crossing-message">Select which route branch travels above the other.</p>
+          </aside>
+          <aside class="kdt-feature-workbench" aria-label="Course feature palette" hidden>
+            <header>
+              <div><span>PLACE WORKBENCH</span><b>STAMP REAL COURSE PARTS</b></div>
+              <div class="kdt-auto-dress-actions">
+                <button type="button" data-action="auto-dress">✦ AUTO DRESS</button>
+                <button type="button" data-action="clear-auto-dress">× DRESS</button>
+              </div>
+              <p><strong data-role="feature-count">0</strong> PLACED</p>
+              <button class="kdt-feature-collapse" type="button" data-action="toggle-feature-workbench" aria-expanded="true" aria-label="Collapse feature palette">⌄</button>
+            </header>
+            <nav class="kdt-feature-categories" aria-label="Feature categories">${featureCategories}</nav>
+            <div class="kdt-feature-layout">
+              <div class="kdt-feature-cards" data-role="feature-cards">${featureCards}</div>
+              <article class="kdt-feature-inspector">
+                <i data-role="feature-preview" style="${featureThumbnailStyle(getCourseFeature(this.selectedFeatureId))}" aria-hidden="true"></i>
+                <div><b data-role="feature-name">SMALL KICKER</b><span data-role="feature-anchor">SELECT · THEN TAP ROAD</span></div>
+                <p data-role="feature-message" data-state="valid">Choose a final asset and stamp it onto the racing line.</p>
+                <div class="kdt-feature-transform" role="group" aria-label="Feature transform controls">
+                  <button type="button" data-action="feature-rotate-left" title="Rotate left · Q">↶ <span>ROTATE</span></button>
+                  <button type="button" data-action="feature-rotate-right" title="Rotate right · E">↷ <span>ROTATE</span></button>
+                  <button type="button" data-action="feature-flip" title="Flip direction · R">⇄ <span>FLIP</span></button>
+                  <button type="button" data-action="feature-scale-down" title="Scale down">− <span>SIZE</span></button>
+                  <button type="button" data-action="feature-scale-up" title="Scale up">+ <span>SIZE</span></button>
+                  <button type="button" data-action="feature-duplicate" title="Duplicate · Y">⧉ <span>COPY</span></button>
+                  <button type="button" data-action="feature-delete" title="Delete · X">× <span>DELETE</span></button>
+                  <button type="button" data-action="feature-test" title="Test From Here">▶ <span>TEST HERE</span></button>
+                </div>
+              </article>
+            </div>
+          </aside>
           <aside class="kdt-health" aria-label="Track validation">
             <header><b>RACEABILITY</b><span data-role="health-summary">Start drawing</span></header>
             <div class="kdt-length-budget"><span><b data-role="length-current">0 m</b><em data-role="length-message">Draw a loop</em></span><i><b></b></i><small data-role="length-range">Recommended —</small></div>
@@ -378,11 +548,12 @@ export class DrawTrackUI {
         <section class="kdt-tuning">
           <label><span><b>SMOOTHING</b><output data-role="smoothing">55%</output></span><input type="range" min="0" max="100" value="55" data-setting="smoothing"></label>
           <div class="kdt-switches">
-            <label><input type="checkbox" data-modifier="randomJumps"><span>Random jumps</span></label>
+            <label><input type="checkbox" data-modifier="randomJumps"><span>Auto-fill jumps</span></label>
             <label><input type="checkbox" data-setting="reverse"><span>Reverse direction</span></label>
             <label><input type="checkbox" data-modifier="nightRace"><span>Night race</span></label>
             <label><input type="checkbox" data-modifier="mirror"><span>Mirror layout</span></label>
           </div>
+          <p class="kdt-crossing-orphans" data-role="crossing-orphans" hidden></p>
         </section>
         <div class="kdt-library-actions">
           <button type="button" data-action="gallery">SAVED TRACKS <span data-role="save-count">0</span></button>
@@ -408,7 +579,7 @@ export class DrawTrackUI {
       <dialog class="kdt-code-dialog">
         <form method="dialog"><button class="kdt-dialog-close" value="cancel" aria-label="Close">×</button>
           <span>VERSIONED · OFFLINE · SAFE</span><h2>TRACK CODE</h2>
-          <textarea rows="5" spellcheck="false" placeholder="Paste a KDT1- or KDT2- track code"></textarea>
+          <textarea rows="5" spellcheck="false" placeholder="Paste a KDT1-, KDT2-, or KDT3- track code"></textarea>
           <p data-role="code-message">A code reproduces shape, size, width, theme, seed, direction and supported modifiers.</p>
           <div><button type="button" data-code-action="copy">COPY CURRENT</button><button type="button" data-code-action="load">IMPORT TRACK</button></div>
         </form>
@@ -443,6 +614,11 @@ export class DrawTrackUI {
       if (button.dataset.theme) this.setTheme(button.dataset.theme);
       else if (button.dataset.size) this.setSize(button.dataset.size);
       else if (button.dataset.width) this.setWidth(button.dataset.width);
+      else if (button.dataset.featureCategory) this.setFeatureCategory(button.dataset.featureCategory);
+      else if (button.dataset.featureId) this.selectFeature(button.dataset.featureId);
+      else if (button.dataset.crossingMode) this.setCrossingMode(button.dataset.crossingMode);
+      else if (button.dataset.crossingPreset) this.setCrossingPreset(button.dataset.crossingPreset);
+      else if (button.dataset.stage) this.setEditorStage(button.dataset.stage);
       else if (button.dataset.action) this.action(button.dataset.action, button);
       else if (button.dataset.galleryAction) this.galleryAction(button);
       else if (button.dataset.codeAction) this.codeAction(button.dataset.codeAction);
@@ -474,6 +650,19 @@ export class DrawTrackUI {
     this.root.querySelector('.kdt-name input').addEventListener('input', (event) => {
       this.draft.name = event.target.value.slice(0, 42);
     });
+    const crossingApproach = this.root.querySelector('[data-setting="crossing-approach"]');
+    crossingApproach.addEventListener('pointerdown', () => {
+      if (!this._crossingApproachGesture) {
+        this.pushHistory();
+        this._crossingApproachGesture = true;
+      }
+    });
+    crossingApproach.addEventListener('pointerup', () => {
+      this._crossingApproachGesture = false;
+    });
+    crossingApproach.addEventListener('input', (event) => {
+      this.setCrossingApproach(Number(event.target.value), { recordHistory: false });
+    });
     this.keyHandler = (event) => this.keydown(event);
     document.addEventListener('keydown', this.keyHandler, true);
     document.addEventListener('keyup', (this.keyUpHandler = (event) => {
@@ -501,8 +690,13 @@ export class DrawTrackUI {
       sizeId: this.draft.sizeId,
       widthId: this.draft.widthId,
       smoothing: this.draft.smoothing,
-      layoutTransform: { ...this.draft.layoutTransform },
       modifiers: { ...this.draft.modifiers },
+      crossingOverrides: this.draft.crossingOverrides.map((override) => ({
+        ...override,
+        point: override.point ? { ...override.point } : undefined,
+        branchFractions: override.branchFractions ? [...override.branchFractions] : undefined,
+      })),
+      featurePlacements: structuredClone(this.draft.featurePlacements),
       themeId: this.draft.themeId,
       laps: this.draft.laps,
       layoutReady: this.layoutReady,
@@ -527,6 +721,8 @@ export class DrawTrackUI {
       smoothing: snapshot.smoothing,
       layoutTransform: { ...snapshot.layoutTransform },
       modifiers: { ...snapshot.modifiers },
+      crossingOverrides: sanitizeCrossingOverrides(snapshot.crossingOverrides),
+      featurePlacements: structuredClone(snapshot.featurePlacements || []),
       themeId: snapshot.themeId,
       laps: snapshot.laps,
     });
@@ -534,6 +730,12 @@ export class DrawTrackUI {
     this.layoutReady = snapshot.layoutReady;
     this.sampler.reset(this.draft.rawStroke);
     this.repairPreview = null;
+    this.selectedCrossingId = null;
+    this.selectedCrossingReference = null;
+    this.selectedPlacementId = null;
+    this.placementGhost = null;
+    this.placementGesture = null;
+    this.featureStampArmed = false;
     this.lastInteraction = this.closed ? 'adjust' : 'draw';
     this.recalculate();
     this._syncControls();
@@ -668,6 +870,7 @@ export class DrawTrackUI {
     this.closureState = null;
     this.sampler.reset(this.draft.rawStroke);
     this.lastInteraction = 'adjust';
+    this.editorStage = 'adjust';
     this.recalculate({ allowSuggestedStart: true });
     this.fitView();
     this.toast('Loop closed · we placed the grid on your safest straight');
@@ -802,6 +1005,229 @@ export class DrawTrackUI {
     });
   }
 
+  zoomLimits() {
+    const preset = TRACK_SIZE_PRESETS[this.draft.sizeId] || TRACK_SIZE_PRESETS.club;
+    return {
+      min: preset.editorMinZoom || 0.8,
+      max: preset.editorMaxZoom || 2.5,
+    };
+  }
+
+  crossingNormalizedPoint(crossing) {
+    const size = TRACK_SIZE_PRESETS[this.draft.sizeId] || TRACK_SIZE_PRESETS.club;
+    return {
+      x: 0.5 + Number(crossing?.point?.x || 0) / size.width,
+      y: 0.5 - Number(crossing?.point?.y || 0) / size.depth,
+    };
+  }
+
+  hitCrossing(point) {
+    if (!this.closed || !this.validation?.crossings?.length) return null;
+    const target = this.normalizedToScreen(point);
+    let best = null;
+    let bestDistance = Infinity;
+    for (const crossing of this.validation.crossings) {
+      const screen = this.normalizedToScreen(this.crossingNormalizedPoint(crossing));
+      const distance = Math.hypot(screen.x - target.x, screen.y - target.y);
+      if (distance <= 28 && distance < bestDistance) {
+        best = crossing;
+        bestDistance = distance;
+      }
+    }
+    return best;
+  }
+
+  selectedCrossing() {
+    return this.validation?.crossings?.find((crossing) => crossing.id === this.selectedCrossingId) || null;
+  }
+
+  _restoreSelectedCrossing() {
+    if (!this.selectedCrossingReference || this.selectedCrossing()) return;
+    let best = null;
+    let bestCost = Infinity;
+    for (const crossing of this.validation?.crossings || []) {
+      const pointDistance = Math.hypot(
+        crossing.canonicalPoint.x - this.selectedCrossingReference.point.x,
+        crossing.canonicalPoint.y - this.selectedCrossingReference.point.y,
+      );
+      const fractionDistance = (
+        circularFractionDistance(
+          crossing.branchA.canonicalFraction,
+          this.selectedCrossingReference.branchFractions[0],
+        )
+        + circularFractionDistance(
+          crossing.branchB.canonicalFraction,
+          this.selectedCrossingReference.branchFractions[1],
+        )
+      );
+      const cost = pointDistance + fractionDistance * 2.5;
+      if (pointDistance <= 0.16 && fractionDistance <= 0.14 && cost < bestCost) {
+        best = crossing;
+        bestCost = cost;
+      }
+    }
+    if (best) {
+      this.selectedCrossingId = best.id;
+      this.selectedCrossingReference = {
+        point: { ...best.canonicalPoint },
+        branchFractions: [
+          best.branchA.canonicalFraction,
+          best.branchB.canonicalFraction,
+        ],
+      };
+    } else {
+      this.selectedCrossingId = null;
+    }
+  }
+
+  selectCrossing(crossing) {
+    if (!crossing?.id) return;
+    this.selectedCrossingId = crossing.id;
+    this.selectedCrossingReference = {
+      point: { ...crossing.canonicalPoint },
+      branchFractions: [
+        crossing.branchA.canonicalFraction,
+        crossing.branchB.canonicalFraction,
+      ],
+    };
+    this.editorStage = 'adjust';
+    this.startMoveArmed = false;
+    this._updateCrossingPanel();
+    this._syncStageFlow();
+    this.requestDraw();
+    this.toast(
+      crossing.bridgeable
+        ? 'Crossing selected · choose AUTO or the upper branch'
+        : crossing.conflictExplanation || 'Crossing selected · inspect the safety limits',
+      crossing.bridgeable ? 'ok' : 'error',
+    );
+  }
+
+  closeCrossing() {
+    this.selectedCrossingId = null;
+    this.selectedCrossingReference = null;
+    this._updateCrossingPanel();
+    this.requestDraw();
+  }
+
+  _replaceCrossingOverride(next) {
+    const crossing = this.selectedCrossing();
+    if (!crossing) return;
+    this.draft.crossingOverrides = sanitizeCrossingOverrides([
+      ...this.draft.crossingOverrides.filter((override) => override.id !== crossing.id),
+      next,
+    ]);
+    this.recalculate();
+  }
+
+  setCrossingMode(mode) {
+    const crossing = this.selectedCrossing();
+    if (!crossing || !CROSSING_OVERRIDE_MODES.includes(mode)) return;
+    this.pushHistory();
+    const existing = crossing.override || {};
+    this._replaceCrossingOverride(createCrossingOverride(crossing, {
+      mode,
+      preset: existing.preset || crossing.preset || 'standard',
+      approachLength: existing.approachLength ?? null,
+    }));
+  }
+
+  setCrossingPreset(preset) {
+    const crossing = this.selectedCrossing();
+    if (!crossing || !BRIDGE_PRESETS[preset]) return;
+    this.pushHistory();
+    const existing = crossing.override || {};
+    this._replaceCrossingOverride(createCrossingOverride(crossing, {
+      mode: existing.mode || 'auto',
+      preset,
+      approachLength: null,
+    }));
+  }
+
+  setCrossingApproach(approachLength, { recordHistory = true } = {}) {
+    const crossing = this.selectedCrossing();
+    if (!crossing || !Number.isFinite(approachLength)) return;
+    if (recordHistory) this.pushHistory();
+    const existing = crossing.override || {};
+    this._replaceCrossingOverride(createCrossingOverride(crossing, {
+      mode: existing.mode || 'auto',
+      preset: existing.preset || crossing.preset || 'standard',
+      approachLength,
+    }));
+  }
+
+  cycleCrossingMode(direction) {
+    const crossing = this.selectedCrossing();
+    if (!crossing) return;
+    const mode = crossing.override?.mode || 'auto';
+    const index = CROSSING_OVERRIDE_MODES.indexOf(mode);
+    const next = CROSSING_OVERRIDE_MODES[
+      (index + direction + CROSSING_OVERRIDE_MODES.length) % CROSSING_OVERRIDE_MODES.length
+    ];
+    this.setCrossingMode(next);
+  }
+
+  cycleCrossingPreset(direction) {
+    const crossing = this.selectedCrossing();
+    if (!crossing) return;
+    const ids = Object.keys(BRIDGE_PRESETS);
+    const index = ids.indexOf(crossing.override?.preset || crossing.preset || 'standard');
+    this.setCrossingPreset(ids[(index + direction + ids.length) % ids.length]);
+  }
+
+  _updateCrossingPanel() {
+    const panel = this.root?.querySelector('.kdt-crossing-panel');
+    if (!panel) return;
+    const crossing = this.selectedCrossing();
+    panel.hidden = !crossing;
+    const orphanNode = this.root.querySelector('[data-role="crossing-orphans"]');
+    const orphanCount = this.validation?.orphanedCrossingOverrides?.length || 0;
+    orphanNode.hidden = !orphanCount;
+    orphanNode.textContent = orphanCount
+      ? `⚠ ${orphanCount} saved crossing choice${orphanCount === 1 ? '' : 's'} no longer match this route. Undo the reshape or create a new crossing.`
+      : '';
+    if (!crossing) return;
+    const override = crossing.override || {};
+    const mode = override.mode || 'auto';
+    const preset = override.preset || crossing.preset || 'standard';
+    const orientation = crossing.selectedOrientation
+      || crossing.orientations.find((entry) => entry.mode === mode)
+      || crossing.orientations.find((entry) => entry.valid)
+      || crossing.orientations[0];
+    const approach = override.approachLength ?? orientation?.approachLength ?? BRIDGE_PRESETS[preset].minimumApproach;
+    const capacity = Math.max(
+      BRIDGE_PRESETS[preset].minimumApproach,
+      ...crossing.orientations.map((entry) => Number(entry.maximumApproach) || 0),
+    );
+    panel.querySelector('[data-role="crossing-title"]').textContent = `CROSSING ${this.validation.crossings.indexOf(crossing) + 1} · ${crossing.bridgeable ? 'BRIDGE READY' : 'NEEDS ATTENTION'}`;
+    panel.querySelectorAll('[data-crossing-mode]').forEach((button) => {
+      button.classList.toggle('is-selected', button.dataset.crossingMode === mode);
+    });
+    panel.querySelectorAll('[data-crossing-preset]').forEach((button) => {
+      button.classList.toggle('is-selected', button.dataset.crossingPreset === preset);
+    });
+    const slider = panel.querySelector('[data-setting="crossing-approach"]');
+    slider.min = String(Math.ceil(BRIDGE_PRESETS[preset].minimumApproach));
+    slider.max = String(Math.max(Number(slider.min), Math.min(180, Math.floor(capacity))));
+    slider.value = String(clamp(Math.round(approach), Number(slider.min), Number(slider.max)));
+    panel.querySelector('[data-role="crossing-approach"]').textContent = override.approachLength == null
+      ? `AUTO · ${Math.round(approach)} m`
+      : `${Math.round(approach)} m`;
+    panel.querySelector('[data-role="crossing-angle"]').textContent = `${crossingAngleDegrees(crossing).toFixed(0)}°`;
+    panel.querySelector('[data-role="crossing-grade"]').textContent = orientation?.grade != null
+      ? `${crossingGradePercent(orientation).toFixed(1)}%`
+      : '—';
+    panel.querySelector('[data-role="crossing-clearance"]').textContent = orientation?.clearance != null
+      ? `${orientation.clearance.toFixed(1)} m`
+      : '—';
+    panel.querySelector('[data-role="crossing-capacity"]').textContent = `${Math.floor(capacity)} m max`;
+    const message = panel.querySelector('[data-role="crossing-message"]');
+    message.dataset.state = crossing.bridgeable ? 'valid' : 'invalid';
+    message.textContent = crossing.bridgeable
+      ? `${orientation.presetLabel} selected by the global solver · ${orientation.overBranch} travels over ${orientation.underBranch}.`
+      : crossing.conflictExplanation || 'No compatible safe bridge orientation is available here.';
+  }
+
   beginDeform(point) {
     if (!this.closed || !this.draft.rawStroke.length) return false;
     this.pushHistory();
@@ -819,6 +1245,7 @@ export class DrawTrackUI {
       points: this.draft.rawStroke.map((entry) => ({ ...entry })),
     };
     this.lastInteraction = 'adjust';
+    this.editorStage = 'adjust';
     return true;
   }
 
@@ -856,6 +1283,7 @@ export class DrawTrackUI {
       bounds: pointsBounds(this._baseSamples()),
     };
     this.lastInteraction = 'adjust';
+    this.editorStage = 'adjust';
     return true;
   }
 
@@ -915,6 +1343,7 @@ export class DrawTrackUI {
     this.pushHistory();
     this.startTouched = true;
     this.lastInteraction = 'start';
+    this.editorStage = 'start';
     this.moveStart(point);
   }
 
@@ -974,6 +1403,8 @@ export class DrawTrackUI {
     this.draft.controlPoints = TrackSpline.clean(this.draft.rawStroke, this.draft.smoothing);
     if (!this.closed || this.draft.controlPoints.length < 6) {
       this.validation = null;
+      this.featureDiagnostics = [];
+      this.selectedCrossingId = null;
       this._updateStats();
       const closure = this._updateClosureState();
       this._setStatus(
@@ -982,6 +1413,8 @@ export class DrawTrackUI {
       );
       this._updateHealth();
       this._syncStageFlow();
+      this._updateCrossingPanel();
+      this._syncFeatureWorkbench();
       this.requestDraw();
       this._syncButtons();
       return;
@@ -997,6 +1430,8 @@ export class DrawTrackUI {
       mirror: !!this.draft.modifiers.mirror,
       allowOverpasses: true,
       layoutTransform: this.repairPreview?.layoutTransform || this.draft.layoutTransform,
+      crossingOverrides: this.draft.crossingOverrides,
+      featurePlacements: this.draft.featurePlacements,
     };
     this.validation = TrackValidator.validate(options);
     if (allowSuggestedStart && this.validation.stats) {
@@ -1005,6 +1440,13 @@ export class DrawTrackUI {
       options.startFraction = this.draft.startFraction;
       this.validation = TrackValidator.validate(options);
     }
+    this.draft.crossingOverrides = sanitizeCrossingOverrides([
+      ...(this.validation.crossingOverrides || []),
+      ...(this.validation.orphanedCrossingOverrides || []),
+    ]);
+    this.featureDiagnostics = this.draft.featurePlacements.map((placement) => this._validateFeature(placement));
+    if (this.selectedPlacementId && !this.selectedPlacement()) this.selectedPlacementId = null;
+    this._restoreSelectedCrossing();
     if (!this.draft.name && this.validation.stats) {
       this.draft.name = proceduralTrackName(this.draft.seed, this.validation.stats);
       this.root.querySelector('.kdt-name input').value = this.draft.name;
@@ -1021,6 +1463,8 @@ export class DrawTrackUI {
     }
     this._updateHealth();
     this._syncStageFlow();
+    this._updateCrossingPanel();
+    this._syncFeatureWorkbench();
     this._syncButtons();
     this.requestDraw();
   }
@@ -1073,6 +1517,13 @@ export class DrawTrackUI {
       { label: 'Corner radius', issue: first((item) => item.id === 'tight-corner' || item.id === 'corner-rounded'), ok: !!stats && !first((item) => item.id === 'tight-corner') },
       { label: 'Road clearance', issue: first((item) => item.id.startsWith('clearance-') || item.id.startsWith('intersection-') || item.id === 'layout-bounds'), ok: !!stats && !first((item) => item.id.startsWith('clearance-') || item.id.startsWith('intersection-') || item.id === 'layout-bounds') },
       { label: 'Crossings / overpasses', issue: first((item) => item.id.startsWith('intersection-') || item.id.startsWith('overpass-')), ok: !!stats && !first((item) => item.id.startsWith('intersection-')) },
+      {
+        label: 'Placed features',
+        issue: this.featureDiagnostics?.find((item) => !item.valid)
+          ? { id: 'feature-placement', severity: 'error', message: this.featureDiagnostics.find((item) => !item.valid).message }
+          : null,
+        ok: !this.featureDiagnostics?.some((item) => !item.valid),
+      },
       { label: 'Start grid', issue: first((item) => item.id.startsWith('grid-')), ok: !!stats && !first((item) => item.id.startsWith('grid-')) },
       { label: 'AI safety route', issue: first((item) => item.id === 'invalid-geometry' || item.id === 'tight-corner'), ok: !!stats && !first((item) => item.id === 'invalid-geometry' || item.id === 'tight-corner') },
     ];
@@ -1097,9 +1548,15 @@ export class DrawTrackUI {
     const shapeErrors = (this.validation?.errors || []).filter((issue) => !issue.id.startsWith('grid-'));
     const gridErrors = (this.validation?.errors || []).filter((issue) => issue.id.startsWith('grid-'));
     let active = 'draw';
-    if (this.closed) active = shapeErrors.length ? 'adjust' : gridErrors.length ? 'start' : 'race';
+    if (this.closed) {
+      if (shapeErrors.length) active = 'adjust';
+      else if (this.editorStage === 'race' && gridErrors.length) active = 'start';
+      else active = ['adjust', 'place', 'start', 'race'].includes(this.editorStage)
+        ? this.editorStage
+        : 'adjust';
+    }
     this.root.dataset.editorStage = active;
-    const order = ['draw', 'adjust', 'start', 'race'];
+    const order = ['draw', 'adjust', 'place', 'start', 'race'];
     const activeIndex = order.indexOf(active);
     this.root.querySelectorAll('[data-stage]').forEach((node) => {
       const index = order.indexOf(node.dataset.stage);
@@ -1108,11 +1565,577 @@ export class DrawTrackUI {
     });
     const help = this.root.querySelector('.kdt-canvas-help');
     if (help) {
-      help.querySelector('b').textContent = this.closed ? active === 'start' ? 'START / FINISH' : 'ADJUST' : 'DRAW';
-      help.querySelector('span').textContent = this.closed
-        ? active === 'start' ? 'Drag the checkered gate to a safe straight' : 'Drag the road · pull a handle to stretch'
-        : 'Release inside the checkered circle';
+      const copy = {
+        draw: ['DRAW', 'Release inside the checkered circle'],
+        adjust: ['ADJUST', 'Select a crossing · drag the road · pull a handle'],
+        place: ['PLACE', 'Choose a feature, then stamp it onto the road'],
+        start: ['START / FINISH', 'Drag the checkered gate to a safe straight'],
+        race: ['TEST / RACE', 'Test-drive, save, share, or build the full event'],
+      }[active];
+      help.querySelector('b').textContent = copy[0];
+      help.querySelector('span').textContent = copy[1];
     }
+    const hint = this.root.querySelector('.kdt-controller-hint');
+    if (hint) hint.textContent = active === 'adjust'
+      ? 'LEFT STICK · CURSOR   A · SELECT / DRAG   D-PAD · BRIDGE CHOICE   X · UNDO'
+      : active === 'place'
+        ? 'LEFT STICK · CURSOR   A · PLACE / SELECT   B · CANCEL   Y · DUPLICATE'
+        : active === 'start'
+          ? 'LEFT STICK · CURSOR   A · MOVE GRID   B · CANCEL   LB · FIT VIEW'
+          : 'LEFT STICK · CURSOR   A · DRAW   X · UNDO   Y · CLEAR';
+  }
+
+  setEditorStage(stage) {
+    if (!['draw', 'adjust', 'place', 'start', 'race'].includes(stage)) return;
+    if (!this.closed && stage !== 'draw') {
+      this.toast('Close a basic loop before opening the next workbench', 'error');
+      return;
+    }
+    if (stage === 'draw' && this.closed) stage = 'adjust';
+    if (stage === 'race' && !this.validation?.valid) {
+      this.toast(this.validation?.errors?.[0]?.message || 'Repair the course before test driving', 'error');
+      return;
+    }
+    this.editorStage = stage;
+    this.startMoveArmed = stage === 'start';
+    if (stage === 'place' && !this.selectedPlacementId) this.featureStampArmed = true;
+    if (stage !== 'place') {
+      this.placementGhost = null;
+      this.placementGesture = null;
+    }
+    this.root.querySelector('[data-action="start"]')?.classList.toggle('is-active', this.startMoveArmed);
+    if (stage !== 'adjust') this.closeCrossing();
+    this._syncStageFlow();
+    this._syncFeatureWorkbench();
+    this.requestDraw();
+  }
+
+  _featureRuntimeSamples() {
+    const source = this.validation?.samples || [];
+    return source.map((point, index) => {
+      const before = source[(index - 1 + source.length) % source.length] || point;
+      const after = source[(index + 1) % source.length] || point;
+      const dx = after.x - before.x;
+      const dz = after.y - before.y;
+      const length = Math.hypot(dx, dz) || 1;
+      return {
+        x: point.x,
+        y: 0,
+        z: point.y,
+        tangent: { x: dx / length, y: 0, z: dz / length },
+        normal: { x: -dz / length, y: 0, z: dx / length },
+      };
+    });
+  }
+
+  _authoredFraction(runtimeFraction) {
+    const start = this.draft.startFraction;
+    const value = this.draft.reverse
+      ? 1 - start - runtimeFraction
+      : start + runtimeFraction;
+    return ((value % 1) + 1) % 1;
+  }
+
+  _featurePlacementPoint(placement) {
+    const samples = this.validation?.normalizedSamples || [];
+    const world = this.validation?.samples || [];
+    if (!samples.length || !placement?.anchor) return null;
+    const fraction = circuitRuntimeFraction(placement.anchor.fraction, {
+      startFraction: this.draft.startFraction,
+      reverse: this.draft.reverse,
+    });
+    const index = Math.round(fraction * samples.length) % samples.length;
+    const point = samples[index];
+    const before = samples[(index - 1 + samples.length) % samples.length];
+    const after = samples[(index + 1) % samples.length];
+    const pointScreen = this.normalizedToScreen(point);
+    const beforeScreen = this.normalizedToScreen(before);
+    const afterScreen = this.normalizedToScreen(after);
+    const tx = afterScreen.x - beforeScreen.x;
+    const ty = afterScreen.y - beforeScreen.y;
+    const screenLength = Math.hypot(tx, ty) || 1;
+    const worldBefore = world[(index - 1 + world.length) % world.length] || { x: 0, y: 0 };
+    const worldAfter = world[(index + 1) % world.length] || { x: 1, y: 0 };
+    const metresPerPixel = Math.hypot(
+      worldAfter.x - worldBefore.x,
+      worldAfter.y - worldBefore.y,
+    ) / screenLength;
+    const lateralPixels = placement.anchor.lateralOffset / Math.max(0.0001, metresPerPixel);
+    const screen = {
+      x: pointScreen.x + (-ty / screenLength) * lateralPixels,
+      y: pointScreen.y + (tx / screenLength) * lateralPixels,
+    };
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: this.screenToNormalized(screen.x, screen.y).x,
+      y: this.screenToNormalized(screen.x, screen.y).y,
+      screen,
+      tangent: { x: tx / screenLength, y: ty / screenLength },
+      index,
+      fraction,
+    };
+  }
+
+  _featureCandidate(point, base = null) {
+    const samples = this.validation?.normalizedSamples || [];
+    const world = this.validation?.samples || [];
+    const feature = getCourseFeature(base?.featureId || this.selectedFeatureId);
+    if (!feature || !samples.length) return null;
+    const target = this.normalizedToScreen(point);
+    let index = 0;
+    let best = Infinity;
+    for (let at = 0; at < samples.length; at++) {
+      const screen = this.normalizedToScreen(samples[at]);
+      const distance = Math.hypot(screen.x - target.x, screen.y - target.y);
+      if (distance < best) { best = distance; index = at; }
+    }
+    const before = this.normalizedToScreen(samples[(index - 1 + samples.length) % samples.length]);
+    const after = this.normalizedToScreen(samples[(index + 1) % samples.length]);
+    const center = this.normalizedToScreen(samples[index]);
+    const tx = after.x - before.x;
+    const ty = after.y - before.y;
+    const screenLength = Math.hypot(tx, ty) || 1;
+    const worldBefore = world[(index - 1 + world.length) % world.length] || { x: 0, y: 0 };
+    const worldAfter = world[(index + 1) % world.length] || { x: 1, y: 0 };
+    const metresPerPixel = Math.hypot(
+      worldAfter.x - worldBefore.x,
+      worldAfter.y - worldBefore.y,
+    ) / screenLength;
+    const lateralOffset = clamp(
+      ((target.x - center.x) * (-ty / screenLength) + (target.y - center.y) * (tx / screenLength))
+        * metresPerPixel,
+      -32,
+      32,
+    );
+    const anchor = {
+      mode: 'spline',
+      fraction: this._authoredFraction(index / samples.length),
+      lateralOffset,
+      facing: base?.anchor?.facing || 'forward',
+      rotationOffset: base?.anchor?.rotationOffset || 0,
+      scaleX: base?.anchor?.scaleX || 1,
+      scaleY: base?.anchor?.scaleY || 1,
+      scaleZ: base?.anchor?.scaleZ || 1,
+    };
+    const placement = {
+      id: base?.id || createCourseFeaturePlacementId(feature.id, this.draft.seed, this._placementOrdinal),
+      featureId: feature.id,
+      source: base?.source || 'manual',
+      createdAt: base?.createdAt || 0,
+      properties: { ...(base?.properties || {}) },
+      anchor,
+    };
+    return this._validateFeature(placement);
+  }
+
+  _validateFeature(placement, {
+    checkpointFractions = [],
+    respawnFractions = [],
+  } = {}) {
+    const size = TRACK_SIZE_PRESETS[this.draft.sizeId];
+    return validateCircuitFeaturePlacement(placement, {
+      samples: this._featureRuntimeSamples(),
+      routeLength: this.validation?.stats?.length || 1,
+      trackWidth: TRACK_WIDTH_PRESETS[this.draft.widthId].width,
+      startFraction: this.draft.startFraction,
+      reverse: this.draft.reverse,
+      overpasses: this.validation?.overpasses || [],
+      placements: this.draft.featurePlacements,
+      checkpointFractions,
+      respawnFractions,
+      buildBounds: {
+        minX: -size.width,
+        maxX: size.width,
+        minZ: -size.depth,
+        maxZ: size.depth,
+      },
+    });
+  }
+
+  selectedPlacement() {
+    return this.draft.featurePlacements.find((placement) => placement.id === this.selectedPlacementId) || null;
+  }
+
+  hitFeaturePlacement(point) {
+    const target = this.normalizedToScreen(point);
+    let best = null;
+    let bestDistance = Infinity;
+    for (const placement of this.draft.featurePlacements) {
+      const display = this._featurePlacementPoint(placement);
+      if (!display) continue;
+      const distance = Math.hypot(display.screen.x - target.x, display.screen.y - target.y);
+      if (distance <= 31 && distance < bestDistance) {
+        best = placement;
+        bestDistance = distance;
+      }
+    }
+    return best;
+  }
+
+  setFeatureCategory(id) {
+    if (!COURSE_FEATURE_CATEGORIES.some((category) => category.id === id)) return;
+    this.featureCategoryId = id;
+    const features = listCourseFeatures({ mode: 'circuit', category: id });
+    const cards = this.root.querySelector('[data-role="feature-cards"]');
+    cards.innerHTML = features.map(featureCardHtml).join('');
+    if (!features.some((feature) => feature.id === this.selectedFeatureId)) {
+      this.selectFeature(features[0]?.id);
+    } else {
+      this._syncFeatureWorkbench();
+    }
+  }
+
+  cycleFeatureCategory(direction) {
+    const ids = COURSE_FEATURE_CATEGORIES.map((category) => category.id);
+    const index = ids.indexOf(this.featureCategoryId);
+    this.setFeatureCategory(ids[(index + direction + ids.length) % ids.length]);
+  }
+
+  selectFeature(id) {
+    const feature = getCourseFeature(id);
+    if (!feature?.compatibleModes.includes('circuit')) return;
+    this.selectedFeatureId = id;
+    this.selectedPlacementId = null;
+    this.featureStampArmed = true;
+    this.placementGhost = null;
+    this._syncFeatureWorkbench();
+    this.toast(`${feature.label} armed · tap the road to stamp`);
+    this.requestDraw();
+  }
+
+  updatePlacementGhost(point) {
+    if (!this.featureStampArmed || !this.closed) return;
+    this.placementGhost = this._featureCandidate(point);
+    this._syncFeatureWorkbench();
+    this.requestDraw();
+  }
+
+  beginFeaturePointer(point, { repeat = false } = {}) {
+    const hit = this.hitFeaturePlacement(point);
+    if (hit) {
+      this.pushHistory();
+      this.selectedPlacementId = hit.id;
+      this.selectedFeatureId = hit.featureId;
+      this.featureStampArmed = false;
+      this.placementGesture = {
+        original: structuredClone(hit),
+        repeat: false,
+        moved: false,
+        validation: this._validateFeature(hit),
+      };
+      this._syncFeatureWorkbench();
+      this.requestDraw();
+      return;
+    }
+    if (!this.featureStampArmed) {
+      this.toast('Choose a palette asset, or tap a placed feature to edit it', 'error');
+      return;
+    }
+    const candidate = this._featureCandidate(point);
+    this.placementGhost = candidate;
+    if (!candidate?.valid) {
+      this.toast(candidate?.message || 'Outside build area', 'error');
+      this._syncFeatureWorkbench();
+      this.requestDraw();
+      return;
+    }
+    this.pushHistory();
+    this._placementOrdinal++;
+    this.draft.featurePlacements.push(candidate.placement);
+    this.selectedPlacementId = candidate.placement.id;
+    this.placementGesture = {
+      original: null,
+      repeat,
+      moved: false,
+      validation: candidate,
+    };
+    this.featureStampArmed = !!repeat;
+    this._syncFeatureWorkbench();
+    this.requestDraw();
+  }
+
+  updateFeaturePointer(point) {
+    if (!this.placementGesture || !this.selectedPlacementId) {
+      this.updatePlacementGhost(point);
+      return;
+    }
+    const current = this.selectedPlacement();
+    const candidate = this._featureCandidate(point, current);
+    if (!candidate) return;
+    const index = this.draft.featurePlacements.findIndex((placement) => placement.id === current.id);
+    this.draft.featurePlacements[index] = candidate.placement;
+    this.placementGesture.moved = true;
+    this.placementGesture.validation = candidate;
+    this.placementGhost = candidate;
+    this._syncFeatureWorkbench();
+    this.requestDraw();
+  }
+
+  endFeaturePointer() {
+    const gesture = this.placementGesture;
+    if (!gesture) return;
+    if (!gesture.validation?.valid) {
+      if (gesture.original) {
+        const index = this.draft.featurePlacements.findIndex((placement) => placement.id === this.selectedPlacementId);
+        if (index >= 0) this.draft.featurePlacements[index] = gesture.original;
+      } else {
+        this.draft.featurePlacements = this.draft.featurePlacements
+          .filter((placement) => placement.id !== this.selectedPlacementId);
+        this.selectedPlacementId = null;
+      }
+      this.toast(gesture.validation?.message || 'Invalid placement', 'error');
+    } else if (!gesture.repeat) {
+      this.featureStampArmed = false;
+      this.toast(gesture.moved ? 'Feature moved · history updated' : 'Feature placed · select it to transform');
+    } else {
+      this.selectedPlacementId = null;
+      this.featureStampArmed = true;
+      this.toast('Feature placed · Shift-repeat remains armed');
+    }
+    this.placementGesture = null;
+    this.placementGhost = null;
+    this.recalculate();
+    this._syncFeatureWorkbench();
+  }
+
+  cancelFeatureTool() {
+    if (this.placementGesture?.original) {
+      const index = this.draft.featurePlacements.findIndex((placement) => placement.id === this.selectedPlacementId);
+      if (index >= 0) this.draft.featurePlacements[index] = this.placementGesture.original;
+    }
+    this.placementGesture = null;
+    this.placementGhost = null;
+    this.featureStampArmed = false;
+    this._syncFeatureWorkbench();
+    this.requestDraw();
+    this.toast('Placement cancelled');
+  }
+
+  transformSelectedFeature(kind) {
+    const placement = this.selectedPlacement();
+    if (!placement) return;
+    const feature = getCourseFeature(placement.featureId);
+    const step = feature.adjustableProperties.rotationOffset?.step || Math.PI / 12;
+    const next = structuredClone(placement);
+    if (kind === 'rotate-left') next.anchor.rotationOffset -= step;
+    else if (kind === 'rotate-right') next.anchor.rotationOffset += step;
+    else if (kind === 'flip') next.anchor.facing = next.anchor.facing === 'backward' ? 'forward' : 'backward';
+    else if (kind === 'scale-down' || kind === 'scale-up') {
+      const range = feature.adjustableProperties.scale || { min: 1, max: 1, step: 0.05 };
+      const direction = kind === 'scale-up' ? 1 : -1;
+      const scale = clamp(next.anchor.scaleX + direction * (range.step || 0.05), range.min, range.max);
+      next.anchor.scaleX = scale;
+      next.anchor.scaleY = scale;
+      next.anchor.scaleZ = scale;
+    }
+    const result = this._validateFeature(next);
+    if (!result.valid) {
+      this.placementGhost = result;
+      this._syncFeatureWorkbench();
+      this.requestDraw();
+      this.toast(result.message, 'error');
+      return;
+    }
+    this.pushHistory();
+    const index = this.draft.featurePlacements.findIndex((value) => value.id === placement.id);
+    this.draft.featurePlacements[index] = result.placement;
+    this.placementGhost = result;
+    this.recalculate();
+    this._syncFeatureWorkbench();
+  }
+
+  scaleSelectedFeature(direction) {
+    this.transformSelectedFeature(direction > 0 ? 'scale-up' : 'scale-down');
+  }
+
+  nudgeSelectedFeature(amount) {
+    const placement = this.selectedPlacement();
+    if (!placement) return;
+    const next = structuredClone(placement);
+    next.anchor.lateralOffset = clamp(next.anchor.lateralOffset + amount, -32, 32);
+    const result = this._validateFeature(next);
+    if (!result.valid) {
+      this.toast(result.message, 'error');
+      return;
+    }
+    this.pushHistory();
+    const index = this.draft.featurePlacements.findIndex((value) => value.id === placement.id);
+    this.draft.featurePlacements[index] = result.placement;
+    this.recalculate();
+    this._syncFeatureWorkbench();
+  }
+
+  duplicateSelectedFeature() {
+    const placement = this.selectedPlacement();
+    if (!placement) return;
+    const next = structuredClone(placement);
+    next.id = createCourseFeaturePlacementId(next.featureId, this.draft.seed, ++this._placementOrdinal);
+    next.anchor.fraction = ((next.anchor.fraction + 0.025) % 1 + 1) % 1;
+    const result = this._validateFeature(next);
+    if (!result.valid) {
+      this.toast(result.message, 'error');
+      return;
+    }
+    this.pushHistory();
+    this.draft.featurePlacements.push(result.placement);
+    this.selectedPlacementId = result.placement.id;
+    this.recalculate();
+    this._syncFeatureWorkbench();
+    this.toast('Feature duplicated · drag it to its final position');
+  }
+
+  deleteSelectedFeature() {
+    if (!this.selectedPlacementId) return;
+    const feature = getCourseFeature(this.selectedPlacement()?.featureId);
+    this.pushHistory();
+    this.draft.featurePlacements = this.draft.featurePlacements
+      .filter((placement) => placement.id !== this.selectedPlacementId);
+    this.selectedPlacementId = null;
+    this.placementGhost = null;
+    this.recalculate();
+    this._syncFeatureWorkbench();
+    this.toast(`${feature?.label || 'Feature'} removed`);
+  }
+
+  testFromSelectedFeature() {
+    const placement = this.selectedPlacement();
+    if (!placement || !this.validation?.valid) return;
+    this.testFromFraction = circuitRuntimeFraction(placement.anchor.fraction, {
+      startFraction: this.draft.startFraction,
+      reverse: this.draft.reverse,
+    });
+    this.build();
+  }
+
+  autoDress() {
+    if (!this.closed || !this.validation?.valid) {
+      this.toast('Finish a raceable loop before auto dressing', 'error');
+      return;
+    }
+    this.pushHistory();
+    const manual = this.draft.featurePlacements.filter((placement) => placement.source !== 'auto-dress');
+    this.draft.featurePlacements = manual;
+    const themePools = {
+      countryside: ['direction-signs', 'rally-flags', 'foliage-group', 'billboard', 'crowd-section'],
+      forest: ['foliage-group', 'direction-signs', 'floodlights', 'rally-flags', 'theme-landmark'],
+      desert: ['rally-flags', 'billboard', 'construction-equipment', 'direction-signs', 'theme-landmark'],
+      snow: ['floodlights', 'direction-signs', 'rally-flags', 'foliage-group', 'theme-landmark'],
+      neon: ['floodlights', 'billboard', 'rally-flags', 'crowd-section', 'theme-landmark'],
+      coastal: ['rally-flags', 'direction-signs', 'crowd-section', 'grandstand', 'theme-landmark'],
+      industrial: ['construction-equipment', 'floodlights', 'billboard', 'direction-signs', 'theme-landmark'],
+      arena: ['crowd-section', 'grandstand', 'floodlights', 'billboard', 'rally-flags'],
+    };
+    const pool = (themePools[this.draft.themeId] || listCourseFeatures({
+      mode: 'circuit',
+      category: 'scenery',
+    }).map((feature) => feature.id)).map(getCourseFeature).filter(Boolean);
+    const target = ({
+      pocket: 4,
+      club: 6,
+      grand: 8,
+      epic: 10,
+      mega: 14,
+      colossal: 18,
+    })[this.draft.sizeId] || 6;
+    const routeLength = this.validation.stats.length;
+    const checkpointCount = clamp(Math.round(routeLength / 28), 8, 18);
+    const checkpointFractions = Array.from({ length: checkpointCount - 1 }, (_, index) => (
+      (this.draft.startFraction + (index + 1) / checkpointCount) % 1
+    ));
+    let added = 0;
+    for (let attempt = 0; attempt < target * 12 && added < target; attempt++) {
+      const feature = pool[
+        Math.floor(seededUnit(this.draft.seed ^ 0x4b414b49, attempt) * pool.length) % pool.length
+      ];
+      const side = seededUnit(this.draft.seed ^ 0x51ed270b, attempt) < 0.5 ? -1 : 1;
+      const lateral = side * clamp(
+        TRACK_WIDTH_PRESETS[this.draft.widthId].width * 0.5 + feature.footprint.width * 0.5 + 1.4,
+        5.5,
+        19,
+      );
+      const placement = {
+        id: `auto-dress-${(this.draft.seed >>> 0).toString(36)}-${attempt.toString(36)}`,
+        featureId: feature.id,
+        source: 'auto-dress',
+        createdAt: 0,
+        properties: {},
+        anchor: {
+          mode: 'spline',
+          fraction: seededUnit(this.draft.seed ^ 0xa5a5a5a5, attempt),
+          lateralOffset: lateral,
+          facing: seededUnit(this.draft.seed ^ 0xc3c3c3c3, attempt) < 0.5 ? 'forward' : 'backward',
+          rotationOffset: 0,
+          scaleX: 1,
+          scaleY: 1,
+          scaleZ: 1,
+        },
+      };
+      const result = this._validateFeature(placement, {
+        checkpointFractions,
+        respawnFractions: checkpointFractions,
+      });
+      if (!result.valid) continue;
+      this.draft.featurePlacements.push(result.placement);
+      added++;
+    }
+    this.selectedPlacementId = null;
+    this.placementGhost = null;
+    this.recalculate();
+    this._syncFeatureWorkbench();
+    this.toast(
+      added
+        ? `${added} theme-aware details placed · manual work untouched`
+        : 'No safe Auto Dress locations remain',
+      added ? 'ok' : 'error',
+    );
+  }
+
+  clearAutoDress() {
+    const count = this.draft.featurePlacements.filter((placement) => placement.source === 'auto-dress').length;
+    if (!count) {
+      this.toast('No Auto Dress details to remove');
+      return;
+    }
+    this.pushHistory();
+    this.draft.featurePlacements = this.draft.featurePlacements
+      .filter((placement) => placement.source !== 'auto-dress');
+    this.selectedPlacementId = null;
+    this.placementGhost = null;
+    this.recalculate();
+    this._syncFeatureWorkbench();
+    this.toast(`${count} Auto Dress details removed · manual work preserved`);
+  }
+
+  _syncFeatureWorkbench() {
+    const panel = this.root?.querySelector('.kdt-feature-workbench');
+    if (!panel) return;
+    panel.hidden = this.editorStage !== 'place' || !this.closed;
+    panel.querySelector('[data-role="feature-count"]').textContent = String(this.draft.featurePlacements.length);
+    panel.querySelectorAll('[data-feature-category]').forEach((button) => {
+      button.classList.toggle('is-selected', button.dataset.featureCategory === this.featureCategoryId);
+    });
+    panel.querySelectorAll('[data-feature-id]').forEach((button) => {
+      button.classList.toggle(
+        'is-selected',
+        button.dataset.featureId === this.selectedFeatureId && this.featureStampArmed,
+      );
+    });
+    const placement = this.selectedPlacement();
+    const feature = getCourseFeature(placement?.featureId || this.selectedFeatureId);
+    if (!feature) return;
+    const preview = panel.querySelector('[data-role="feature-preview"]');
+    preview.setAttribute('style', featureThumbnailStyle(feature));
+    panel.querySelector('[data-role="feature-name"]').textContent = feature.label.toUpperCase();
+    panel.querySelector('[data-role="feature-anchor"]').textContent = placement
+      ? `${Math.round(placement.anchor.fraction * 100)}% ROUTE · ${placement.anchor.lateralOffset.toFixed(1)} m LATERAL · ${placement.anchor.scaleX.toFixed(2)}×`
+      : this.featureStampArmed ? 'ARMED · TAP ROAD TO STAMP' : 'SELECT · THEN TAP ROAD';
+    const result = this.placementGhost || (placement ? this._validateFeature(placement) : null);
+    const message = panel.querySelector('[data-role="feature-message"]');
+    message.dataset.state = result ? result.valid ? result.warning ? 'warning' : 'valid' : 'invalid' : 'valid';
+    message.textContent = result?.message || 'Choose a final asset and stamp it onto the racing line.';
+    panel.querySelectorAll('.kdt-feature-transform button').forEach((button) => {
+      button.disabled = !placement;
+    });
   }
 
   focusIssue(id) {
@@ -1122,7 +2145,8 @@ export class DrawTrackUI {
       return;
     }
     const rect = this.canvas.getBoundingClientRect();
-    this.view.zoom = 1.75;
+    const limits = this.zoomLimits();
+    this.view.zoom = clamp(1.75, limits.min, limits.max);
     this.view.panX = (0.5 - issue.normalizedPoint.x) * rect.width * this.view.zoom;
     this.view.panY = (0.5 - issue.normalizedPoint.y) * rect.height * this.view.zoom;
     this.requestDraw();
@@ -1130,9 +2154,27 @@ export class DrawTrackUI {
   }
 
   fitView() {
-    this.view.zoom = 1;
-    this.view.panX = 0;
-    this.view.panY = 0;
+    const points = this.validation?.normalizedSamples?.length
+      ? this.validation.normalizedSamples
+      : this.displayPoints(this.draft.controlPoints);
+    const bounds = pointsBounds(points);
+    const limits = this.zoomLimits();
+    if (!bounds || !this.closed) {
+      this.view.zoom = clamp(1, limits.min, limits.max);
+      this.view.panX = 0;
+      this.view.panY = 0;
+      this.requestDraw();
+      return;
+    }
+    const rect = this.canvas.getBoundingClientRect();
+    const horizontalRoom = rect.width < 760 ? 0.88 : 0.82;
+    const verticalRoom = rect.height < 520 ? 0.78 : 0.84;
+    this.view.zoom = clamp(Math.min(
+      horizontalRoom / Math.max(0.04, bounds.width),
+      verticalRoom / Math.max(0.04, bounds.height),
+    ), limits.min, limits.max);
+    this.view.panX = (0.5 - bounds.centerX) * rect.width * this.view.zoom;
+    this.view.panY = (0.5 - bounds.centerY) * rect.height * this.view.zoom;
     this.requestDraw();
   }
 
@@ -1148,6 +2190,7 @@ export class DrawTrackUI {
     this.draft.startFraction = this.validation.suggestedStartFraction;
     this.startTouched = false;
     this.lastInteraction = 'start';
+    this.editorStage = 'start';
     this.recalculate();
     this.toast('Start / finish moved to the safest straight');
   }
@@ -1181,7 +2224,8 @@ export class DrawTrackUI {
   }
 
   _syncButtons() {
-    const ready = !!this.validation?.valid && !this.repairPreview;
+    const featureIssue = this.featureDiagnostics?.find((item) => !item.valid);
+    const ready = !!this.validation?.valid && !featureIssue && !this.repairPreview;
     this.root.querySelector('[data-action="build"]').disabled = !ready;
     this.root.querySelector('[data-action="save"]').disabled = !ready;
     this.root.querySelector('[data-action="share"]').disabled = !ready;
@@ -1198,6 +2242,7 @@ export class DrawTrackUI {
     if (explain) explain.textContent = this.repairPreview ? 'Apply or cancel the repair preview'
       : !this.closed ? 'Close the loop to build'
         : this.validation?.errors?.length ? this.validation.errors[0].message
+          : featureIssue ? featureIssue.message
           : 'Ready to race';
   }
 
@@ -1240,7 +2285,9 @@ export class DrawTrackUI {
     else if (name === 'repair') this.repair();
     else if (name === 'start') {
       this.startMoveArmed = !this.startMoveArmed;
+      this.editorStage = this.startMoveArmed ? 'start' : 'adjust';
       button.classList.toggle('is-active', this.startMoveArmed);
+      this._syncStageFlow();
       this.toast(this.startMoveArmed ? 'Tap or drag anywhere on the route to place the grid' : 'Start-line tool cancelled');
     }
     else if (name === 'clear') this.clear(button);
@@ -1256,6 +2303,25 @@ export class DrawTrackUI {
     else if (name === 'apply-repair') this.applyRepair();
     else if (name === 'cancel-repair') this.cancelRepair();
     else if (name === 'focus-issue') this.focusIssue(button.dataset.issue);
+    else if (name === 'close-crossing') this.closeCrossing();
+    else if (name === 'feature-rotate-left') this.transformSelectedFeature('rotate-left');
+    else if (name === 'feature-rotate-right') this.transformSelectedFeature('rotate-right');
+    else if (name === 'feature-flip') this.transformSelectedFeature('flip');
+    else if (name === 'feature-scale-down') this.transformSelectedFeature('scale-down');
+    else if (name === 'feature-scale-up') this.transformSelectedFeature('scale-up');
+    else if (name === 'feature-duplicate') this.duplicateSelectedFeature();
+    else if (name === 'feature-delete') this.deleteSelectedFeature();
+    else if (name === 'feature-test') this.testFromSelectedFeature();
+    else if (name === 'auto-dress') this.autoDress();
+    else if (name === 'clear-auto-dress') this.clearAutoDress();
+    else if (name === 'toggle-feature-workbench') {
+      const workbench = this.root.querySelector('.kdt-feature-workbench');
+      const collapsed = workbench.classList.toggle('is-collapsed');
+      button.setAttribute('aria-expanded', String(!collapsed));
+      button.setAttribute('aria-label', collapsed ? 'Expand feature palette' : 'Collapse feature palette');
+      button.textContent = collapsed ? '⌃' : '⌄';
+      this.requestDraw();
+    }
     else if (name === 'options') {
       const open = this.root.classList.toggle('is-inspector-open');
       button.setAttribute('aria-expanded', String(open));
@@ -1270,6 +2336,7 @@ export class DrawTrackUI {
     this.draft.rawStroke = TrackSpline.clean(this.draft.rawStroke, clamp(this.draft.smoothing + 0.1, 0, 1));
     this.sampler.reset(this.draft.rawStroke);
     this.lastInteraction = this.closed ? 'adjust' : 'draw';
+    this.editorStage = this.closed ? 'adjust' : 'draw';
     this.recalculate({ allowSuggestedStart: !this.startTouched });
     this.toast('Line cleaned while keeping the authored corners');
   }
@@ -1301,6 +2368,7 @@ export class DrawTrackUI {
     this.closed = true;
     this.layoutReady = true;
     this.lastInteraction = 'adjust';
+    this.editorStage = 'adjust';
     this.recalculate({ allowSuggestedStart: true });
     this.toast('Make Raceable repair applied · Undo restores the exact previous track');
   }
@@ -1325,6 +2393,14 @@ export class DrawTrackUI {
     this.closureState = null;
     this.repairPreview = null;
     this.validation = null;
+    this.draft.crossingOverrides = [];
+    this.draft.featurePlacements = [];
+    this.selectedCrossingId = null;
+    this.selectedCrossingReference = null;
+    this.selectedPlacementId = null;
+    this.placementGhost = null;
+    this.featureStampArmed = false;
+    this.editorStage = 'draw';
     button.classList.remove('is-confirming');
     button.querySelector('b').textContent = 'CLEAR';
     this.recalculate();
@@ -1337,6 +2413,8 @@ export class DrawTrackUI {
       name: this.root.querySelector('.kdt-name input').value.trim() || this.draft.name,
       rawStroke: this.draft.rawStroke.map((point) => ({ ...point })),
       controlPoints: this.draft.controlPoints.map((point) => ({ ...point })),
+      crossingOverrides: sanitizeCrossingOverrides(this.draft.crossingOverrides),
+      featurePlacements: structuredClone(this.draft.featurePlacements),
       stats: this.validation?.stats ? {
         length: this.validation.stats.length,
         estimatedLapTime: this.validation.stats.estimatedLapTime,
@@ -1348,7 +2426,11 @@ export class DrawTrackUI {
   }
 
   save() {
-    if (!this.validation?.valid) return;
+    const featureIssue = this.featureDiagnostics?.find((item) => !item.valid);
+    if (!this.validation?.valid || featureIssue) {
+      if (featureIssue) this.toast(featureIssue.message, 'error');
+      return;
+    }
     try {
       const result = this.gallery.save(this.currentDraft());
       this.draft = { ...this.draft, ...result.track };
@@ -1360,12 +2442,22 @@ export class DrawTrackUI {
   }
 
   build() {
-    if (!this.validation?.valid || this.root.classList.contains('is-building')) return;
+    const featureIssue = this.featureDiagnostics?.find((item) => !item.valid);
+    if (!this.validation?.valid || featureIssue || this.root.classList.contains('is-building')) {
+      if (featureIssue) this.toast(featureIssue.message, 'error');
+      return;
+    }
     const draft = this.currentDraft();
     let course;
     try { course = compileDrawTrackCourse(draft, this.validation); }
     catch (error) { this.toast(error.message || 'Track generation failed', 'error'); return; }
-    this.pendingBuild = { draft, course, validation: this.validation };
+    this.pendingBuild = {
+      draft,
+      course,
+      validation: this.validation,
+      testFromFraction: Number.isFinite(this.testFromFraction) ? this.testFromFraction : null,
+    };
+    this.testFromFraction = null;
     const reveal = this.root.querySelector('.kdt-build-reveal');
     reveal.hidden = false;
     reveal.querySelector('[data-role="build-name"]').textContent = course.name;
@@ -1380,7 +2472,8 @@ export class DrawTrackUI {
       stage = Math.min(stages.length - 1, stage + 1);
       stageNode.textContent = stages[stage];
     }, 650);
-    this._buildTimer = setTimeout(() => this.finishBuild(), 4100);
+    const reducedMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    this._buildTimer = setTimeout(() => this.finishBuild(), reducedMotion ? 280 : 4100);
   }
 
   finishBuild() {
@@ -1525,15 +2618,38 @@ export class DrawTrackUI {
       event.preventDefault();
       const dialog = this.root.querySelector('.kdt-code-dialog');
       if (dialog.open || dialog.hasAttribute('open')) { dialog.close?.(); dialog.removeAttribute('open'); }
+      else if (this.editorStage === 'place' && (this.featureStampArmed || this.selectedPlacementId)) {
+        this.selectedPlacementId = null;
+        this.cancelFeatureTool();
+      }
+      else if (this.selectedCrossing()) this.closeCrossing();
       else if (this.repairPreview) this.cancelRepair();
       else if (!this.root.querySelector('.kdt-gallery').hidden) this.closeGallery();
       else if (this.root.classList.contains('is-inspector-open')) this.action('options', this.root.querySelector('[data-action="options"]'));
       else this.exit();
+    } else if (this.editorStage === 'place' && event.key.toLowerCase() === 'q') {
+      event.preventDefault(); this.transformSelectedFeature('rotate-left');
+    } else if (this.editorStage === 'place' && event.key.toLowerCase() === 'e') {
+      event.preventDefault(); this.transformSelectedFeature('rotate-right');
+    } else if (this.editorStage === 'place' && event.key.toLowerCase() === 'r') {
+      event.preventDefault(); this.transformSelectedFeature('flip');
+    } else if (this.editorStage === 'place' && (event.key === 'Delete' || event.key === 'Backspace')) {
+      event.preventDefault(); this.deleteSelectedFeature();
     } else if (event.key.toLowerCase() === 's') this.smooth();
     else if (event.key.toLowerCase() === 'f') this.repair();
     else if (event.key === 'Home') this.fitView();
     else if (event.key.toLowerCase() === 'c' && !this.closed) this.closeLoop();
     else if (event.key.toLowerCase() === 'g' && this.closed) this.autoPlaceStart();
+    else if (this.selectedCrossing() && ['1', '2', '3', '4'].includes(event.key)) {
+      event.preventDefault();
+      this.setCrossingMode(CROSSING_OVERRIDE_MODES[Number(event.key) - 1]);
+    } else if (this.selectedCrossing() && event.key === '[') {
+      event.preventDefault();
+      this.cycleCrossingPreset(-1);
+    } else if (this.selectedCrossing() && event.key === ']') {
+      event.preventDefault();
+      this.cycleCrossingPreset(1);
+    }
   }
 
   _pollController(time) {
@@ -1553,6 +2669,7 @@ export class DrawTrackUI {
           if (this._controllerEditMode === 'deform') this.updateDeform(this.controllerCursor);
           else if (this._controllerEditMode === 'transform') this.updateLayoutTransform(this.controllerCursor);
           else if (this._controllerEditMode === 'start') this.moveStart(this.controllerCursor);
+          else if (this._controllerEditMode === 'feature') this.updateFeaturePointer(this.controllerCursor);
           else this.extendStroke(this.controllerCursor);
         }
         this.requestDraw();
@@ -1561,8 +2678,14 @@ export class DrawTrackUI {
       const edge = (index) => pressed(index) && !this._lastGamepad.buttons[index];
       if (pressed(0) && !this.controllerCursor.drawing) {
         this.controllerCursor.drawing = true;
-        if (this.closed && this.hitStartMarker(this.controllerCursor)) {
+        if (this.editorStage === 'place' && this.closed) {
+          this._controllerEditMode = 'feature';
+          this.beginFeaturePointer(this.controllerCursor, { repeat: false, pointerType: 'controller' });
+        } else if (this.closed && this.hitStartMarker(this.controllerCursor)) {
           this._controllerEditMode = 'start'; this.beginMoveStart(this.controllerCursor);
+        } else if (this.closed && this.hitCrossing(this.controllerCursor)) {
+          this._controllerEditMode = 'crossing';
+          this.selectCrossing(this.hitCrossing(this.controllerCursor));
         } else if (this.closed && this.hitLayoutHandle(this.controllerCursor)) {
           this._controllerEditMode = 'transform'; this.beginLayoutTransform(this.hitLayoutHandle(this.controllerCursor), this.controllerCursor);
         } else if (this.closed && this.hitTrack(this.controllerCursor)) {
@@ -1575,16 +2698,34 @@ export class DrawTrackUI {
         if (this._controllerEditMode === 'deform') this.endDeform();
         else if (this._controllerEditMode === 'transform') this.endLayoutTransform();
         else if (this._controllerEditMode === 'start') this.endMoveStart();
-        else this.endStroke();
+        else if (this._controllerEditMode === 'feature') this.endFeaturePointer();
+        else if (this._controllerEditMode !== 'crossing') this.endStroke();
         this._controllerEditMode = '';
       }
-      if (edge(2)) this.undo();
-      if (edge(3)) this.clear(this.root.querySelector('[data-action="clear"]'));
-      if (edge(1)) this.repair();
-      if (edge(4)) this.fitView();
-      if (edge(5)) this.autoPlaceStart();
+      if (edge(2)) this.editorStage === 'place' ? this.deleteSelectedFeature() : this.undo();
+      if (edge(3)) this.editorStage === 'place'
+        ? this.duplicateSelectedFeature()
+        : this.clear(this.root.querySelector('[data-action="clear"]'));
+      if (edge(1)) this.editorStage === 'place'
+        ? this.cancelFeatureTool()
+        : this.selectedCrossing() ? this.closeCrossing() : this.repair();
+      if (this.editorStage === 'place' && edge(4)) this.cycleFeatureCategory(-1);
+      else if (edge(4)) this.fitView();
+      if (this.editorStage === 'place' && edge(5)) this.cycleFeatureCategory(1);
+      else if (edge(5)) this.autoPlaceStart();
+      if (this.editorStage === 'place' && edge(14)) this.transformSelectedFeature('rotate-left');
+      else if (this.selectedCrossing() && edge(14)) this.cycleCrossingMode(-1);
+      if (this.editorStage === 'place' && edge(15)) this.transformSelectedFeature('rotate-right');
+      else if (this.selectedCrossing() && edge(15)) this.cycleCrossingMode(1);
+      if (this.editorStage === 'place' && edge(12)) this.nudgeSelectedFeature(-0.5);
+      else if (this.selectedCrossing() && edge(12)) this.cycleCrossingPreset(1);
+      if (this.editorStage === 'place' && edge(13)) this.nudgeSelectedFeature(0.5);
+      else if (this.selectedCrossing() && edge(13)) this.cycleCrossingPreset(-1);
       const widthAxis = (pad.buttons[7]?.value || 0) - (pad.buttons[6]?.value || 0);
-      if (Math.abs(widthAxis) > 0.6 && Math.abs(this._lastGamepad.widthAxis) <= 0.6) this.stepWidth(widthAxis > 0 ? 1 : -1);
+      if (Math.abs(widthAxis) > 0.6 && Math.abs(this._lastGamepad.widthAxis) <= 0.6) {
+        if (this.editorStage === 'place') this.scaleSelectedFeature(widthAxis > 0 ? 1 : -1);
+        else this.stepWidth(widthAxis > 0 ? 1 : -1);
+      }
       this._lastGamepad = { buttons: pad.buttons.map((button) => button.pressed), widthAxis };
     }
     this._controllerFrame = requestAnimationFrame((next) => this._pollController(next));
@@ -1623,6 +2764,8 @@ export class DrawTrackUI {
       this._drawPolyline(ctx, samples, { color: this.repairPreview ? '#ffcb5c' : this.validation?.valid ? '#91f0c4' : '#f4e5bd', width: 3.2, close: this.closed, glow: true });
       if (this.closed) this._drawArrows(ctx, samples);
     }
+    if (this.closed) this._drawCrossings(ctx);
+    if (this.closed) this._drawPlacedFeatures(ctx);
     if (rawDisplay[0] && !this.closed) {
       this._drawClosureTarget(ctx, rawDisplay[0], this.closureState);
       const end = rawDisplay.at(-1);
@@ -1638,6 +2781,7 @@ export class DrawTrackUI {
     if (this.unsafeStartPreview) this._drawUnsafeStart(ctx, this.unsafeStartPreview);
     for (const issue of this.validation?.issues || []) {
       if (!issue.normalizedPoint) continue;
+      if (issue.crossing) continue;
       this._drawIssue(ctx, issue.normalizedPoint, issue);
     }
     if (this.controllerCursor.visible) {
@@ -1795,6 +2939,7 @@ export class DrawTrackUI {
   }
 
   _drawSelection(ctx) {
+    if (this.editorStage !== 'adjust') return;
     const handles = this.selectionHandles();
     if (!handles.nw) return;
     const width = this.canvas.width / this.pixelRatio;
@@ -1813,6 +2958,215 @@ export class DrawTrackUI {
       ctx.fillStyle = id === 'center' ? '#ffcb5c' : '#13242d'; ctx.fill();
       ctx.strokeStyle = id === 'center' ? '#fff0b8' : '#79e9ff'; ctx.lineWidth = 2 / this.view.zoom; ctx.stroke();
     }
+    ctx.restore();
+  }
+
+  _drawPlacedFeatures(ctx) {
+    const width = this.canvas.width / this.pixelRatio;
+    const height = this.canvas.height / this.pixelRatio;
+    const size = TRACK_SIZE_PRESETS[this.draft.sizeId];
+    const pxPerMetre = width / Math.max(1, size.width);
+    const diagnostics = new Map(
+      (this.featureDiagnostics || []).map((result) => [result.placement?.id, result]),
+    );
+    const drawOne = (placement, result = null, ghost = false) => {
+      const feature = getCourseFeature(placement?.featureId);
+      const display = this._featurePlacementPoint(placement);
+      if (!feature || !display) return;
+      const localX = (display.screen.x - this.view.panX - width * 0.5) / this.view.zoom + width * 0.5;
+      const localY = (display.screen.y - this.view.panY - height * 0.5) / this.view.zoom + height * 0.5;
+      const rotation = Math.atan2(display.tangent.y, display.tangent.x)
+        + Math.PI / 2
+        + placement.anchor.rotationOffset
+        + (placement.anchor.facing === 'backward' ? Math.PI : 0);
+      const footprintWidth = feature.footprint.width * placement.anchor.scaleX * pxPerMetre;
+      const footprintLength = feature.footprint.length * placement.anchor.scaleZ * pxPerMetre;
+      const selected = placement.id === this.selectedPlacementId;
+      const state = result
+        ? result.valid ? result.warning ? 'warning' : 'valid' : 'invalid'
+        : 'valid';
+      const color = state === 'invalid' ? '#ff6f61' : state === 'warning' ? '#ffcb5c' : '#91f0c4';
+      ctx.save();
+      ctx.translate(localX, localY);
+      ctx.rotate(rotation);
+      ctx.globalAlpha = ghost ? 0.66 : 0.94;
+      ctx.fillStyle = state === 'invalid'
+        ? 'rgba(255,111,97,.18)'
+        : state === 'warning' ? 'rgba(255,203,92,.15)' : 'rgba(145,240,196,.12)';
+      ctx.strokeStyle = selected ? '#ffcb5c' : color;
+      ctx.lineWidth = (selected ? 2.5 : 1.4) / this.view.zoom;
+      ctx.setLineDash(ghost ? [5 / this.view.zoom, 4 / this.view.zoom] : []);
+      ctx.fillRect(-footprintWidth * 0.5, -footprintLength * 0.5, footprintWidth, footprintLength);
+      ctx.strokeRect(-footprintWidth * 0.5, -footprintLength * 0.5, footprintWidth, footprintLength);
+      ctx.setLineDash([]);
+      if (this.featureThumbnail?.complete && this.featureThumbnail.naturalWidth > 0) {
+        const sourceWidth = this.featureThumbnail.naturalWidth / 7;
+        const sourceHeight = this.featureThumbnail.naturalHeight / 6;
+        const column = feature.previewFrame % 7;
+        const row = Math.floor(feature.previewFrame / 7);
+        const iconWidth = clamp(footprintWidth * 0.92, 24 / this.view.zoom, 72 / this.view.zoom);
+        const iconHeight = clamp(footprintLength * 0.68, 20 / this.view.zoom, 58 / this.view.zoom);
+        ctx.drawImage(
+          this.featureThumbnail,
+          column * sourceWidth,
+          row * sourceHeight,
+          sourceWidth,
+          sourceHeight,
+          -iconWidth * 0.5,
+          -iconHeight * 0.5,
+          iconWidth,
+          iconHeight,
+        );
+      }
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, -footprintLength * 0.56);
+      ctx.lineTo(-5 / this.view.zoom, -footprintLength * 0.39);
+      ctx.lineTo(5 / this.view.zoom, -footprintLength * 0.39);
+      ctx.closePath();
+      ctx.fillStyle = selected ? '#ffcb5c' : color;
+      ctx.fill();
+      if (selected) {
+        for (const [x, y] of [
+          [-footprintWidth * 0.5, -footprintLength * 0.5],
+          [footprintWidth * 0.5, -footprintLength * 0.5],
+          [-footprintWidth * 0.5, footprintLength * 0.5],
+          [footprintWidth * 0.5, footprintLength * 0.5],
+        ]) {
+          ctx.beginPath();
+          ctx.arc(x, y, 5 / this.view.zoom, 0, Math.PI * 2);
+          ctx.fillStyle = '#13242d';
+          ctx.fill();
+          ctx.strokeStyle = '#ffcb5c';
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+
+      if (result?.trajectory?.points?.length) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 2 / this.view.zoom;
+        ctx.setLineDash([5 / this.view.zoom, 4 / this.view.zoom]);
+        ctx.beginPath();
+        result.trajectory.points.forEach((point, index) => {
+          const along = point.distance * pxPerMetre;
+          const lift = point.height * pxPerMetre * 0.72;
+          const x = localX + display.tangent.x * along + display.tangent.y * lift;
+          const y = localY + display.tangent.y * along - display.tangent.x * lift;
+          if (index) ctx.lineTo(x, y);
+          else ctx.moveTo(x, y);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const landing = result.trajectory.points.at(-1);
+        const lx = localX + display.tangent.x * landing.distance * pxPerMetre;
+        const ly = localY + display.tangent.y * landing.distance * pxPerMetre;
+        ctx.strokeRect(lx - 8 / this.view.zoom, ly - 5 / this.view.zoom, 16 / this.view.zoom, 10 / this.view.zoom);
+        ctx.restore();
+      }
+    };
+    for (const placement of this.draft.featurePlacements) {
+      drawOne(placement, diagnostics.get(placement.id), false);
+    }
+    if (
+      this.placementGhost?.placement
+      && !this.draft.featurePlacements.some((placement) => placement.id === this.placementGhost.placement.id)
+    ) drawOne(this.placementGhost.placement, this.placementGhost, true);
+  }
+
+  _drawCrossings(ctx) {
+    const crossings = this.validation?.crossings || [];
+    const samples = this.validation?.normalizedSamples || [];
+    if (!crossings.length || !samples.length) return;
+    const width = this.canvas.width / this.pixelRatio;
+    const height = this.canvas.height / this.pixelRatio;
+    const meanStep = (this.validation.stats?.length || samples.length) / Math.max(1, samples.length);
+    ctx.save();
+    crossings.forEach((crossing, crossingIndex) => {
+      const selected = crossing.id === this.selectedCrossingId;
+      const orientation = crossing.selectedOrientation
+        || crossing.orientations.find((entry) => entry.mode === crossing.override?.mode)
+        || null;
+      if (orientation) {
+        const branch = orientation.overBranch === 'A' ? crossing.branchA : crossing.branchB;
+        const radius = clamp(
+          Math.ceil((orientation.approachLength || 32) / Math.max(0.1, meanStep)),
+          5,
+          Math.max(5, Math.floor(samples.length * 0.16)),
+        );
+        const ribbon = [];
+        for (let offset = -radius; offset <= radius; offset++) {
+          ribbon.push(samples[(branch.segment + offset + samples.length) % samples.length]);
+        }
+        this._drawPolyline(ctx, ribbon, {
+          color: selected ? 'rgba(121,233,255,.48)' : 'rgba(121,233,255,.25)',
+          width: selected ? 13 : 8,
+          close: false,
+          glow: selected,
+        });
+        this._drawPolyline(ctx, ribbon, {
+          color: selected ? '#b8f7ff' : '#79e9ff',
+          width: selected ? 2.8 : 1.5,
+          dash: selected ? [] : [5, 4],
+          close: false,
+        });
+      }
+      const point = this.crossingNormalizedPoint(crossing);
+      const x = point.x * width;
+      const y = point.y * height;
+      const color = crossing.bridgeable ? '#79e9ff' : '#ff8b72';
+      const radius = (selected ? 19 : 14) / this.view.zoom;
+      if (selected) {
+        ctx.beginPath();
+        ctx.arc(x, y, 27 / this.view.zoom, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,203,92,.12)';
+        ctx.fill();
+        ctx.setLineDash([4 / this.view.zoom, 4 / this.view.zoom]);
+        ctx.strokeStyle = '#ffcb5c';
+        ctx.lineWidth = 1.5 / this.view.zoom;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = crossing.bridgeable ? 'rgba(9,38,48,.94)' : 'rgba(54,24,25,.94)';
+      ctx.fill();
+      ctx.strokeStyle = selected ? '#ffcb5c' : color;
+      ctx.lineWidth = (selected ? 3 : 2) / this.view.zoom;
+      ctx.stroke();
+      ctx.font = `${900 / this.view.zoom} ${8 / this.view.zoom}px "Geist Mono", monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = selected ? '#ffdf87' : color;
+      ctx.fillText(crossing.bridgeable ? `↟${crossingIndex + 1}` : `!${crossingIndex + 1}`, x, y);
+      if (selected) {
+        for (const [label, branch, dy] of [
+          ['A', crossing.branchA, -1],
+          ['B', crossing.branchB, 1],
+        ]) {
+          const before = samples[(branch.segment - 4 + samples.length) % samples.length];
+          const after = samples[(branch.segment + 4) % samples.length];
+          const tx = (after.x - before.x) * width;
+          const ty = (after.y - before.y) * height;
+          const length = Math.hypot(tx, ty) || 1;
+          const nx = -ty / length;
+          const ny = tx / length;
+          const ox = nx * dy * 31 / this.view.zoom;
+          const oy = ny * dy * 31 / this.view.zoom;
+          ctx.beginPath();
+          ctx.arc(x + ox, y + oy, 10 / this.view.zoom, 0, Math.PI * 2);
+          ctx.fillStyle = label === orientation?.overBranch ? '#ffcb5c' : '#132a34';
+          ctx.fill();
+          ctx.strokeStyle = label === orientation?.overBranch ? '#fff1b7' : '#79e9ff';
+          ctx.lineWidth = 1.5 / this.view.zoom;
+          ctx.stroke();
+          ctx.fillStyle = label === orientation?.overBranch ? '#17242a' : '#d9fbff';
+          ctx.fillText(label, x + ox, y + oy);
+        }
+      }
+    });
     ctx.restore();
   }
 

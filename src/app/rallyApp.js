@@ -31,6 +31,10 @@ import {
   openDrawTrackMode,
 } from '../racing/drawTrackMode.js';
 import {
+  closeTrialsWorkshop,
+  openTrialsWorkshop,
+} from '../racing/trialsWorkshopUI.js';
+import {
   enterRacing,
   exitRacing,
   getRacingCameraConfig,
@@ -414,6 +418,10 @@ export class KakiRallyApp {
         try { sfx.uiClick(); } catch (_) {}
         void this.openDrawEditor();
       },
+      onOpenTrialsWorkshop: () => {
+        try { sfx.uiClick(); } catch (_) {}
+        void this.openTrialsEditor();
+      },
       onRestartWebGL: () => this.router.restartInWebGL('crash'),
       onExperimentalCrash: () => this.router.enableExperimentalCrash(),
     });
@@ -423,7 +431,7 @@ export class KakiRallyApp {
     this.route = route;
     if (!this.menu) return;
     this.menu.route = route;
-    if (state.racing || state.mode === 'draw') {
+    if (state.racing || state.mode === 'draw' || state.mode === 'trials-workshop') {
       this.exitToMenu('browser-history', { updateHistory: false });
     }
     if (route.mode) this.menu.selectMode(route.mode, { announce: false });
@@ -455,6 +463,7 @@ export class KakiRallyApp {
     }
 
     closeDrawTrackMode();
+    closeTrialsWorkshop();
     if (state.racing) exitRacing(this.scene);
     this.pauseRoot.hidden = true;
     state.time.paused = false;
@@ -555,9 +564,48 @@ export class KakiRallyApp {
     return editor;
   }
 
+  openTrialsEditor(initialCourse = null) {
+    ++this.transitionId;
+    if (state.racing) exitRacing(this.scene);
+    closeDrawTrackMode();
+    this.touchControls?.hide();
+    this.pauseRoot.hidden = true;
+    this.hideLoader();
+    this.menu?.hide();
+    stopRacingAudio({ immediate: true });
+    state.mode = 'trials-workshop';
+    state.time.paused = false;
+    this.setActiveCamera(this.menuCamera);
+    const editor = openTrialsWorkshop({
+      initialCourse,
+      onBuild: ({ course, testFromX }) => {
+        state.mode = 'menu';
+        closeTrialsWorkshop();
+        const settings = readRallySettings();
+        void this.startMode({
+          courseId: course.id,
+          options: {
+            mode: 'trials',
+            customCourse: course,
+            trialsTrackId: course.id,
+            trialsVehicle: settings.trialsVehicle,
+            playerAvatarId: settings.lastDriver,
+            cameraMode: settings.camera,
+            testFromX,
+          },
+        });
+      },
+      onExit: () => this.exitToMenu('trials-workshop-exit'),
+    });
+    state.diagnostics.modeTransitions += 1;
+    this.captureTransition('enter:trials-workshop');
+    return editor;
+  }
+
   exitToMenu(reason = 'mode-exit', { updateHistory = true } = {}) {
     ++this.transitionId;
     closeDrawTrackMode();
+    closeTrialsWorkshop();
     const activeMode = state.racing?.raceMode || state.mode;
     if (state.racing) {
       try { exitRacing(this.scene); } catch (error) {
@@ -906,6 +954,7 @@ export class KakiRallyApp {
       restart: () => app.restartActiveMode(),
       menu: () => app.exitToMenu('qa'),
       openDraw: (track = null) => app.openDrawEditor(track),
+      openTrialsWorkshop: (course = null) => app.openTrialsEditor(course),
       captureTransition: (label = 'qa') => app.captureTransition(label),
     });
     document.body.dataset.kakiRallyReady = 'true';
@@ -917,6 +966,7 @@ export class KakiRallyApp {
     this.disposed = true;
     ++this.transitionId;
     closeDrawTrackMode();
+    closeTrialsWorkshop();
     if (state.racing) exitRacing(this.scene);
     this.menu?.dispose();
     this.router?.dispose();

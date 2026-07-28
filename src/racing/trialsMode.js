@@ -39,6 +39,9 @@ import { buildGhostVehicle, buildTrialsBuggy } from './racingVehicles.js';
 import { buildTrialsEnvironment, updateTrialsEnvironment } from './trialsEnvironment.js';
 import { attachRacingCameraManager } from './cameras/cameraSessionBinding.js';
 import { createTrialsParticleMaterial } from '../rendering/materials/trialsParticleMaterial.js';
+import { buildTrialsCourseFeatureVisuals } from './courseFeatureRuntime.js';
+import { getCourseFeature } from './courseFeatureCatalog.js';
+import { TrialsCourseLibrary } from './trialsWorkshopStorage.js';
 
 const TRIALS_CX = 720;
 const TRIALS_CZ = -520;
@@ -288,6 +291,27 @@ function _buildArch(session, marker, index, finish = false) {
 }
 
 function _buildMarkers(session) {
+  if (session.track.custom) {
+    const placementById = new Map(session.track.featurePlacements.map((placement) => [placement.id, placement]));
+    session.markers = session.track.checkpoints.map((checkpoint, index) => ({
+      group: null,
+      glow: null,
+      index,
+      passed: false,
+      baseEmissive: 1,
+      placement: placementById.get(checkpoint.placementId) || null,
+    }));
+    const finishPlacement = session.track.featurePlacements.find((placement) => placement.featureId === 'trials-finish-gate');
+    session.finishMarker = {
+      group: null,
+      glow: null,
+      index: session.track.checkpoints.length,
+      passed: false,
+      baseEmissive: 1,
+      placement: finishPlacement || null,
+    };
+    return;
+  }
   session.markers = session.track.checkpoints
     .map((checkpoint, index) => _buildArch(session, checkpoint, index, false))
     .filter(Boolean);
@@ -308,6 +332,19 @@ function _buildObstacle(session, data, index) {
   const ground = sampleTrialsGround(track, data.x);
   const group = new THREE.Group();
   group.name = `kaki-trials-obstacle-${data.kind}-${data.id || index}`;
+  if (track.custom && data.featureId) {
+    group.visible = false;
+    root.add(group);
+    return {
+      data,
+      group,
+      groundY: ground?.height || 0,
+      destroyed: false,
+      debrisAge: 0,
+      hitTime: 0,
+      authoredPending: true,
+    };
+  }
   const colors = _obstaclePalette(track, data.kind);
   const mats = colors.map((color, materialIndex) => _material(owned, {
     color,
@@ -691,11 +728,17 @@ function _mountHud(session) {
   root.querySelectorAll('[data-action="menu"]').forEach((button) => button.addEventListener('click', () => navigateToMenu('trials-menu')));
   root.querySelector('[data-action="retry"]')?.addEventListener('click', () => restartTrialsMode(session.scene, {
     trackId: session.track.id,
+    customCourse: session.track.custom ? session.track : null,
     vehicle: session.vehicle.id,
     playerAvatarId: session.playerAvatarId,
     cameraHost: session.cameraHost,
+    testFromX: session.practiceRun ? session.practiceStartX : null,
   }));
   root.querySelector('[data-action="next"]')?.addEventListener('click', () => {
+    if (session.track.custom) {
+      navigateToMenu('trials-menu');
+      return;
+    }
     const current = TRIALS_TRACK_ORDER.indexOf(session.track.id);
     const nextId = TRIALS_TRACK_ORDER[Math.min(TRIALS_TRACK_ORDER.length - 1, current + 1)] || 'meadow';
     restartTrialsMode(session.scene, { trackId: nextId, vehicle: session.vehicle.id, playerAvatarId: session.playerAvatarId, cameraHost: session.cameraHost });
@@ -938,6 +981,64 @@ function _resolveObstacleCollision(session, previousX) {
   return null;
 }
 
+function _resolveCustomCourseObjects(session, previousX) {
+  if (!session.track.custom) return;
+  const currentX = session.physics.x;
+  const low = Math.min(previousX, currentX);
+  const high = Math.max(previousX, currentX);
+  for (const placement of session.track.featurePlacements || []) {
+    if (session.triggeredCourseObjects.has(placement.id)) continue;
+    const feature = getCourseFeature(placement.featureId);
+    const effect = feature?.gameplayEffect;
+    if (!effect || [
+      'checkpoint',
+      'finish',
+      'spectator-reaction',
+      'wind-animation',
+      'local-light',
+      'theme-variant',
+    ].includes(effect.kind)) continue;
+    const radius = Math.max(0.8, feature.footprint.length * placement.anchor.scaleX * 0.5);
+    if (high < placement.anchor.x - radius || low > placement.anchor.x + radius) continue;
+    if (effect.kind === 'jump-ring') {
+      const ground = sampleTrialsGround(session.track, placement.anchor.x);
+      if (session.physics.grounded || session.physics.y < (ground?.height || 0) + 2.2) continue;
+    }
+    session.triggeredCourseObjects.add(placement.id);
+    if (effect.kind === 'turbo-refill') {
+      session.physics.turboHeat = 0;
+      session.physics.turboOverheated = false;
+      session.physics.turboRecovery = 1;
+      _callout(session, 'TURBO REFILLED!', 1.15, 'turbo');
+      _safeSfx('speedBoostActivate');
+    } else if (effect.kind === 'time-bonus') {
+      const seconds = clamp(Number(effect.amount) || 4, 1, 12);
+      session.score.timeCredits = (session.score.timeCredits || 0) + seconds;
+      session.score.styleScore += 220;
+      _callout(session, `TIME BONUS −${seconds.toFixed(0)} SEC`, 1.3, 'perfect');
+      _safeSfx('pickup');
+    } else if (effect.kind === 'style-gate') {
+      session.score.combo = clamp(session.score.combo * (Number(effect.multiplier) || 1.35), 1, 8);
+      session.score.comboTime = 5;
+      session.score.styleScore += 260;
+      _callout(session, `STYLE GATE · ${session.score.combo.toFixed(1)}×`, 1.2, 'style');
+      _safeSfx('racingBoost');
+    } else if (effect.kind === 'destruction-combo') {
+      session.score.combo = clamp(session.score.combo + 1.5, 1, 8);
+      session.score.comboTime = 6;
+      session.destructionBoostUntil = session.physics.elapsedTime + 9;
+      _callout(session, 'SMASH CHAIN ARMED!', 1.3, 'smash');
+      _safeSfx('levelUp');
+    } else if (effect.kind === 'jump-ring') {
+      session.score.styleScore += Math.round((feature.scoreEffect?.points || 750) * session.score.combo);
+      session.score.combo = clamp(session.score.combo + 0.75, 1, 8);
+      session.score.comboTime = 5;
+      _callout(session, 'CROWN RING CLEAN!', 1.35, 'perfect');
+      _safeSfx('victory');
+    }
+  }
+}
+
 function _medalForPace(track, time) {
   if (time <= track.medals.S) return 'S';
   if (time <= track.medals.A) return 'A';
@@ -950,11 +1051,14 @@ function _finishRun(session) {
   _recordGhostSample(session, true);
   session.result = createTrialsResult(session.track, session.score);
   const progress = session.progress;
-  const previous = progress.records[session.track.id];
+  const previous = session.track.custom
+    ? session.track.records?.[session.vehicle.id]
+    : progress.records[session.track.id];
   const oldBest = Number(previous?.effectiveTime ?? previous?.time);
-  session.newBest = !Number.isFinite(oldBest) || session.result.effectiveTime < oldBest - 0.0005;
+  session.newBest = !session.practiceRun
+    && (!Number.isFinite(oldBest) || session.result.effectiveTime < oldBest - 0.0005);
   if (session.newBest) {
-    progress.records[session.track.id] = {
+    const record = {
       rawTime: Number(session.result.rawTime.toFixed(3)),
       effectiveTime: Number(session.result.effectiveTime.toFixed(3)),
       styleScore: session.result.styleScore,
@@ -962,21 +1066,42 @@ function _finishRun(session) {
       vehicle: session.vehicle.id,
       ghost: session.ghostSamples.slice(0, MAX_GHOST_SAMPLES),
     };
+    if (session.track.custom) {
+      session.track.records = {
+        ...(session.track.records || {}),
+        [session.vehicle.id]: record,
+      };
+      session.trialsLibrary.recordResult(
+        session.track.id,
+        session.vehicle.id,
+        record,
+        record.ghost,
+      );
+    } else {
+      progress.records[session.track.id] = record;
+    }
   }
-  if (session.result.medal) {
+  if (!session.practiceRun && !session.track.custom && session.result.medal) {
     const index = TRIALS_TRACK_ORDER.indexOf(session.track.id);
     const next = TRIALS_TRACK_ORDER[index + 1];
     if (next && !progress.unlocked.includes(next)) progress.unlocked.push(next);
   }
-  _writeProgress(progress);
+  if (!session.practiceRun && !session.track.custom) _writeProgress(progress);
   session.phase = 'finished';
   session.physics.vx = 0;
   session.physics.vy = 0;
   session.physics.pitchVelocity = 0;
   session.physics.turboActive = false;
   session.hitStop = Math.max(session.hitStop, 0.085);
-  const award = session.result.medal ? `${session.result.rank} MEDAL` : 'C RANK';
-  _callout(session, `${award} · ${session.newBest ? 'NEW PURRSONAL BEST!' : 'TRIAL COMPLETE!'}`, 2.4, 'finish');
+  const award = session.practiceRun
+    ? 'PRACTICE COMPLETE'
+    : session.result.medal ? `${session.result.rank} MEDAL` : 'C RANK';
+  _callout(
+    session,
+    `${award} · ${session.newBest ? 'NEW PURRSONAL BEST!' : session.practiceRun ? 'RECORDS OFF' : 'TRIAL COMPLETE!'}`,
+    2.4,
+    'finish',
+  );
   _kickCamera(session, 0.42, 0.9, 0);
   _safeSfx('victory');
   return session.result;
@@ -1032,9 +1157,14 @@ function _handleEvents(session, events) {
     if (marker) {
       marker.passed = true;
       marker.baseEmissive = 1.2;
-      marker.glow.color.setHex(0x78ffc4);
-      marker.glow.emissive.setHex(0x42f5a4);
-      marker.glow.emissiveIntensity = 1.2;
+      marker.glow?.color?.setHex?.(0x78ffc4);
+      marker.glow?.emissive?.setHex?.(0x42f5a4);
+      if (marker.glow) marker.glow.emissiveIntensity = 1.2;
+      marker.group?.traverse?.((object) => {
+        if (!object.isMesh || !object.material?.emissive) return;
+        object.material.emissive.setHex(0x42f5a4);
+        object.material.emissiveIntensity = Math.max(1.2, object.material.emissiveIntensity || 0);
+      });
     }
     _callout(session, checkpoint.clean ? `${checkpoint.label} · CLEAN SECTION!` : `${checkpoint.label} · CHECKPOINT`, 1.55, 'checkpoint');
     session.hitStop = Math.max(session.hitStop, 0.025);
@@ -1061,9 +1191,9 @@ function _animateWorld(session, dt) {
     const pulse = marker.passed
       ? (freezeAmbientPulse ? 1 : 1.15)
       : freezeAmbientPulse ? 0.72 : 0.72 + Math.sin(session.visualClock * 3.4 + marker.index) * 0.18;
-    marker.glow.emissiveIntensity = marker.baseEmissive * pulse;
+    if (marker.glow) marker.glow.emissiveIntensity = marker.baseEmissive * pulse;
   }
-  if (session.finishMarker) {
+  if (session.finishMarker?.glow) {
     session.finishMarker.glow.emissiveIntensity = freezeAmbientPulse
       ? session.finishMarker.baseEmissive
       : 1 + Math.sin(session.visualClock * 5) * 0.3;
@@ -1083,6 +1213,18 @@ function _restartCheckpoint(session, reason = 'manual') {
     checkpointIndex: session.physics.checkpointIndex,
     preserveRun: true,
   });
+  if (
+    session.practiceRun
+    && session.physics.checkpointIndex <= session.practiceCheckpointIndex
+  ) {
+    const ground = sampleTrialsGround(session.track, session.practiceStartX);
+    if (ground) {
+      session.physics.x = session.practiceStartX;
+      session.physics.y = ground.height + session.vehicle.rideHeight;
+      session.physics.pitch = ground.angle;
+      session.physics.maxX = Math.max(session.physics.maxX, session.practiceStartX);
+    }
+  }
   session.score.combo = 1;
   session.score.comboTime = 0;
   session.score.rawTime = session.physics.elapsedTime;
@@ -1110,11 +1252,14 @@ function _updateHud(session) {
     rawTime: p.elapsedTime,
     styleScore: session.score.styleScore,
   });
-  const courseProgress = clamp((p.maxX - session.track.spawn.x) / Math.max(1, session.track.finish - session.track.spawn.x), 0, 1);
+  const runStart = session.practiceRun ? session.practiceStartX : session.track.spawn.x;
+  const courseProgress = clamp((p.maxX - runStart) / Math.max(1, session.track.finish - runStart), 0, 1);
   const projected = courseProgress > 0.035 ? preview.effectiveTime / courseProgress : Infinity;
   const pace = Number.isFinite(projected) ? _medalForPace(session.track, projected) : '—';
   hud.clock.textContent = _formatTime(p.elapsedTime);
-  hud.effective.textContent = `EFFECTIVE ${_formatTime(preview.effectiveTime)} · PACE ${pace}`;
+  hud.effective.textContent = session.practiceRun
+    ? `PRACTICE · RECORDS OFF · ${_formatTime(preview.effectiveTime)}`
+    : `EFFECTIVE ${_formatTime(preview.effectiveTime)} · PACE ${pace}`;
   hud.checkpoint.textContent = `${Math.max(0, p.checkpointIndex + 1)} / ${session.track.checkpoints.length}`;
   hud.progress.style.transform = `scaleX(${courseProgress})`;
   hud.speed.textContent = String(Math.round(Math.abs(p.vx) * 5));
@@ -1133,13 +1278,15 @@ function _updateHud(session) {
   }
   if (session.result) {
     hud.finish.hidden = false;
-    hud.medal.textContent = session.result.medal ? `${session.result.rank} MEDAL` : 'C RANK · NO MEDAL';
-    hud.resultTime.textContent = `RAW ${_formatTime(session.result.rawTime)} · STYLE CREDIT −${session.result.styleTimeBonus.toFixed(2)}s · EFFECTIVE ${_formatTime(session.result.effectiveTime)}`;
-    hud.resultStyle.textContent = `${session.result.styleScore.toLocaleString()} STYLE · ${session.score.flips} FLIPS · ${session.score.destruction}/${session.obstacles.length} CRUSHED${session.newBest ? ' · NEW PB!' : ''}`;
+    hud.medal.textContent = session.practiceRun
+      ? 'PRACTICE COMPLETE'
+      : session.result.medal ? `${session.result.rank} MEDAL` : 'C RANK · NO MEDAL';
+    hud.resultTime.textContent = `RAW ${_formatTime(session.result.rawTime)} · STYLE −${session.result.styleTimeBonus.toFixed(2)}s · COURSE −${session.result.courseTimeCredits.toFixed(2)}s · EFFECTIVE ${_formatTime(session.result.effectiveTime)}`;
+    hud.resultStyle.textContent = `${session.result.styleScore.toLocaleString()} STYLE · ${session.score.flips} FLIPS · ${session.score.destruction}/${session.obstacles.length} CRUSHED${session.practiceRun ? ' · RECORDS OFF' : session.newBest ? ' · NEW PB!' : ''}`;
     const index = TRIALS_TRACK_ORDER.indexOf(session.track.id);
     const nextId = TRIALS_TRACK_ORDER[index + 1];
     if (hud.next) {
-      hud.next.hidden = !nextId;
+      hud.next.hidden = session.track.custom || !nextId;
       hud.next.disabled = !!nextId && !session.progress.unlocked.includes(nextId);
       hud.next.textContent = nextId ? `NEXT · ${TRIALS_TRACKS[nextId].difficultyLabel}` : 'ALL CROWNED';
     }
@@ -1183,6 +1330,52 @@ function _placeForQa(session, x, speed = 18) {
   p.maxX = Math.max(p.maxX, x);
   session.phase = 'racing';
   session.countdown = 0;
+  return true;
+}
+
+function _applyPracticeStart(session, requestedX) {
+  if (!session?.physics || !Number.isFinite(Number(requestedX))) return false;
+  const minimum = Math.max(2, session.track.spawn.x);
+  const maximum = Math.max(minimum, session.track.finish - 3);
+  const target = clamp(Number(requestedX), minimum, maximum);
+  let safeX = target;
+  let ground = sampleTrialsGround(session.track, safeX);
+  for (let step = 1; !ground && step <= 48; step += 1) {
+    const distance = step * 0.5;
+    const before = target - distance;
+    const after = target + distance;
+    if (before >= minimum) {
+      ground = sampleTrialsGround(session.track, before);
+      if (ground) safeX = before;
+    }
+    if (!ground && after <= maximum) {
+      ground = sampleTrialsGround(session.track, after);
+      if (ground) safeX = after;
+    }
+  }
+  if (!ground) return false;
+  let checkpointIndex = -1;
+  session.track.checkpoints.forEach((checkpoint, index) => {
+    if (checkpoint.x <= safeX + 0.01) checkpointIndex = index;
+  });
+  const checkpoint = session.track.checkpoints[checkpointIndex] || null;
+  Object.assign(session.physics, {
+    x: safeX,
+    y: ground.height + session.vehicle.rideHeight,
+    vx: 0,
+    vy: 0,
+    pitch: ground.angle,
+    pitchVelocity: 0,
+    grounded: true,
+    wheelContact: { front: true, rear: true },
+    checkpointIndex,
+    checkpointId: checkpoint?.id || 'practice-start',
+    checkpointX: safeX,
+    maxX: safeX,
+  });
+  session.practiceRun = true;
+  session.practiceStartX = safeX;
+  session.practiceCheckpointIndex = checkpointIndex;
   return true;
 }
 
@@ -1273,7 +1466,13 @@ export function enterTrialsMode(scene, options = {}) {
     if (state.racing.raceMode === 'trials') exitTrialsMode(scene, state.racing);
     else throw new Error('Exit the active Kaki Rally session before entering Trials');
   }
-  const track = getTrialsTrack(options.trackId || options.trialsTrackId || 'meadow');
+  const track = getTrialsTrack(
+    options.customCourse
+      || options.track
+      || options.trackId
+      || options.trialsTrackId
+      || 'meadow',
+  );
   const vehicle = getTrialsProfile(options.vehicle || options.trialsVehicle || 'monster');
   const hero = state.hero.mesh;
   const owned = { geometries: new Set(), materials: new Set(), textures: new Set() };
@@ -1288,6 +1487,7 @@ export function enterTrialsMode(scene, options = {}) {
     assetLease: null,
     assetError: '',
     trialsEnvironment: null,
+    courseFeatureVisuals: null,
     track,
     trackId: track.id,
     vehicle,
@@ -1314,6 +1514,8 @@ export function enterTrialsMode(scene, options = {}) {
     ghost: null,
     visual: null,
     obstacles: [],
+    triggeredCourseObjects: new Set(),
+    destructionBoostUntil: 0,
     particles: [],
     particleMesh: null,
     particleAlpha: null,
@@ -1336,14 +1538,24 @@ export function enterTrialsMode(scene, options = {}) {
     cameraFx: { shake: 0, punch: 0, roll: 0, phase: 0 },
     result: null,
     newBest: false,
+    practiceRun: false,
+    practiceStartX: track.spawn.x,
+    practiceCheckpointIndex: -1,
+    trialsLibrary: new TrialsCourseLibrary(),
   };
   hero.traverse?.((object) => {
     if (object.isMesh) session.savedHero.shadowStates.push({ object, castShadow: object.castShadow });
   });
-  session.pbGhost = _validGhost(session.progress.records[track.id], track);
+  _applyPracticeStart(session, options.testFromX);
+  session.pbGhost = session.practiceRun
+    ? []
+    : _validGhost(
+      track.custom ? track.records?.[vehicle.id] : session.progress.records[track.id],
+      track,
+    );
   try {
     session.assetLease = createRallyAssetLease({
-      courseId: track.id,
+      courseId: track.custom ? (track.themeId || track.sourceOfficialId || 'meadow') : track.id,
       mode: 'trials',
       rendererService: state.rendererService,
       trials: true,
@@ -1355,6 +1567,33 @@ export function enterTrialsMode(scene, options = {}) {
     buildTrialsEnvironment(session);
     _buildMarkers(session);
     _buildObstacles(session);
+    if (track.custom) {
+      session.courseFeatureVisuals = buildTrialsCourseFeatureVisuals({
+        root,
+        track,
+        placements: track.featurePlacements,
+        assetLease: session.assetLease,
+        owned,
+        sampleGround: (x) => sampleTrialsGround(track, x),
+        quality: state.options?.quality || 'high',
+      });
+      session.courseFeatureVisuals?.ready?.then(() => {
+        if (state.racing !== session) return;
+        const placements = new Map(track.featurePlacements.map((placement) => [placement.id, placement]));
+        for (const obstacle of session.obstacles) {
+          const placement = placements.get(obstacle.data.placementId || obstacle.data.id);
+          if (!placement?.visual) continue;
+          obstacle.group.removeFromParent();
+          obstacle.group = placement.visual;
+          obstacle.authoredPending = false;
+          obstacle.group.visible = !obstacle.destroyed;
+        }
+        for (const marker of session.markers) marker.group = marker.placement?.visual || null;
+        if (session.finishMarker) session.finishMarker.group = session.finishMarker.placement?.visual || null;
+      }).catch((error) => {
+        session.assetError = error?.message || String(error);
+      });
+    }
     _buildParticlePool(session);
     hero.parent?.remove(hero);
     session.visual = _buildPlayerVehicle(session, hero);
@@ -1413,7 +1652,17 @@ export function tickTrialsMode(dt) {
     const events = stepTrials(session.physics, controls, safeDt, session.track, session.vehicle);
     stepTrialsScore(session.score, session.physics, events, safeDt);
     _handleEvents(session, events);
-    _resolveObstacleCollision(session, previousX);
+    _resolveCustomCourseObjects(session, previousX);
+    const obstacleResult = _resolveObstacleCollision(session, previousX);
+    if (
+      obstacleResult?.destroyed
+      && session.physics.elapsedTime < session.destructionBoostUntil
+    ) {
+      const bonus = Math.round((obstacleResult.points || 100) * 0.5);
+      session.score.styleScore += bonus;
+      session.score.score += bonus;
+      _callout(session, `SMASH CHAIN +${bonus}`, 1.25, 'smash');
+    }
     _recordGhostSample(session);
     if (session.physics.crashed && session.crashDelay > 0) {
       session.crashDelay = Math.max(0, session.crashDelay - safeDt);
@@ -1464,9 +1713,14 @@ export function restartTrialsMode(scene, options = {}) {
   if (options.checkpoint && current) return _restartCheckpoint(current, 'manual');
   const nextOptions = {
     trackId: options.trackId || current?.track?.id || 'meadow',
+    customCourse: options.customCourse
+      || (current?.track?.custom ? current.track : null),
     vehicle: options.vehicle || current?.vehicle?.id || 'monster',
     playerAvatarId: options.playerAvatarId || current?.playerAvatarId || 'kitty',
     cameraHost: options.cameraHost || current?.cameraHost || {},
+    testFromX: Number.isFinite(Number(options.testFromX))
+      ? Number(options.testFromX)
+      : current?.practiceRun ? current.practiceStartX : null,
   };
   const ownerScene = scene || current?.scene || state.scene;
   if (current) exitTrialsMode(ownerScene, current);
@@ -1498,6 +1752,7 @@ export function exitTrialsMode(scene, explicitSession = null) {
     });
   } catch (_) {}
   try { session.particleMesh?.dispose?.(); } catch (_) {}
+  try { session.courseFeatureVisuals?.dispose?.(); } catch (_) {}
   try { session.root?.parent?.remove(session.root); } catch (_) {}
   for (const texture of session.owned?.textures || []) { try { texture.dispose(); } catch (_) {} }
   for (const material of session.owned?.materials || []) { try { material.dispose(); } catch (_) {} }
@@ -1563,7 +1818,15 @@ export function getTrialsSnapshot() {
     raceMode: 'trials',
     phase: session.phase,
     trackId: session.track.id,
-    track: { id: session.track.id, name: session.track.name, difficulty: session.track.difficulty, finish: session.track.finish },
+    customCourse: !!session.track.custom,
+    sourceOfficialId: session.track.sourceOfficialId || null,
+    track: {
+      id: session.track.id,
+      name: session.track.name,
+      difficulty: session.track.difficulty,
+      finish: session.track.finish,
+      custom: !!session.track.custom,
+    },
     vehicleId: session.vehicle.id,
     vehicle: { id: session.vehicle.id, name: session.vehicle.name },
     x: p.x,
@@ -1590,6 +1853,8 @@ export function getTrialsSnapshot() {
     finish: { active: p.finished, rawTime: p.finishTime, effectiveTime: result?.effectiveTime ?? null },
     medal: result?.medal || null,
     rank: result?.rank || null,
+    practiceRun: session.practiceRun,
+    practiceStartX: session.practiceRun ? session.practiceStartX : null,
     ghostSampleCount: session.ghostSamples.length,
     ghostSamples: session.ghostSamples.length,
     pbGhostSampleCount: session.pbGhost.length,
@@ -1607,6 +1872,7 @@ export function getTrialsSnapshot() {
       ids: session.assetLease?.ids || [],
       error: session.assetError || '',
       cache: getRallyAssetCacheSnapshot(),
+      workshop: session.courseFeatureVisuals?.diagnostics || null,
     },
     performance: {
       fps: Math.round(1 / Math.max(1 / 240, session.frameTimeEma || 1 / 60)),

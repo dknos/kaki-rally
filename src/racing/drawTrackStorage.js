@@ -13,12 +13,18 @@ import {
   DRAW_TRACK_THEMES,
   createDrawTrackId,
 } from './drawTrackThemes.js';
+import { sanitizeCourseFeaturePlacements } from './courseFeaturePlacement.js';
+import { sanitizeCrossingOverrides } from './drawTrackCrossings.js';
 
-export const DRAW_TRACK_SCHEMA_VERSION = 2;
+export const DRAW_TRACK_SCHEMA_VERSION = 3;
 export const DRAW_TRACK_STORAGE_KEY = 'kks_draw_tracks_v1';
-const CODE_PREFIX = 'KDT2-';
+const CODE_PREFIX = 'KDT3-';
+const COMPATIBLE_CODE_PREFIX = 'KDT2-';
 const LEGACY_CODE_PREFIX = 'KDT1-';
 const MAX_SAVED_TRACKS = 36;
+const MAX_SHARE_FEATURES = 96;
+const MAX_SHARE_EXTENSION_BYTES = 48 * 1024;
+const MAX_SHARE_CODE_CHARS = 70 * 1024;
 
 const SIZE_ORDER = Object.freeze(Object.keys(TRACK_SIZE_PRESETS));
 const WIDTH_ORDER = Object.freeze(Object.keys(TRACK_WIDTH_PRESETS));
@@ -68,6 +74,8 @@ function normalizeDraft(input = {}) {
   } else {
     layoutTransform = { ...DEFAULT_LAYOUT_TRANSFORM };
   }
+  const crossingOverrides = sanitizeCrossingOverrides(input.crossingOverrides);
+  const features = sanitizeCourseFeaturePlacements(input.featurePlacements, { mode: 'spline' });
   return {
     version: DRAW_TRACK_SCHEMA_VERSION,
     id,
@@ -86,6 +94,12 @@ function normalizeDraft(input = {}) {
     modifiers: { ...(input.modifiers || {}) },
     rawStroke,
     controlPoints,
+    crossingOverrides,
+    featurePlacements: features.placements,
+    dataWarnings: [
+      ...(Array.isArray(input.dataWarnings) ? input.dataWarnings.filter((value) => typeof value === 'string').slice(0, 32) : []),
+      ...features.warnings,
+    ].slice(0, 48),
     favorite: !!input.favorite,
     raceCount: Math.max(0, Math.round(Number(input.raceCount) || 0)),
     bestLap: Number(input.bestLap) > 0 ? Number(input.bestLap) : null,
@@ -233,12 +247,100 @@ function codePoints(draft) {
   return points;
 }
 
+function compactNumber(value, precision = 10000) {
+  return Math.round((Number(value) || 0) * precision) / precision;
+}
+
+function encodeExtension(draft) {
+  if (draft.featurePlacements.length > MAX_SHARE_FEATURES) {
+    throw new Error(`A KDT3 share code supports up to ${MAX_SHARE_FEATURES} placed features`);
+  }
+  const payload = {
+    c: draft.crossingOverrides.map((override) => [
+      override.id || '',
+      override.mode,
+      override.preset,
+      override.approachLength == null ? null : compactNumber(override.approachLength, 100),
+      override.point ? compactNumber(override.point.x) : null,
+      override.point ? compactNumber(override.point.y) : null,
+      override.branchFractions ? compactNumber(override.branchFractions[0], 100000) : null,
+      override.branchFractions ? compactNumber(override.branchFractions[1], 100000) : null,
+      override.overBranchFraction == null ? null : compactNumber(override.overBranchFraction, 100000),
+    ]),
+    f: draft.featurePlacements.map((placement) => [
+      placement.id,
+      placement.featureId,
+      compactNumber(placement.anchor.fraction, 100000),
+      compactNumber(placement.anchor.lateralOffset),
+      placement.anchor.facing === 'backward' ? 1 : 0,
+      compactNumber(placement.anchor.rotationOffset),
+      compactNumber(placement.anchor.scaleX),
+      compactNumber(placement.anchor.scaleY),
+      compactNumber(placement.anchor.scaleZ),
+      placement.source === 'auto-dress' ? 2 : placement.source === 'auto-fill' ? 1 : 0,
+      Object.keys(placement.properties || {}).length ? placement.properties : null,
+    ]),
+  };
+  const encoded = new TextEncoder().encode(JSON.stringify(payload));
+  if (encoded.length > MAX_SHARE_EXTENSION_BYTES || encoded.length > 65535) {
+    throw new Error('KDT3 feature data is too large to share safely');
+  }
+  return encoded;
+}
+
+function decodeExtension(bytes) {
+  let parsed;
+  try {
+    parsed = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+  } catch (_) {
+    throw new Error('KDT3 extension data is corrupt');
+  }
+  if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.c) || !Array.isArray(parsed.f)) {
+    throw new Error('KDT3 extension data is invalid');
+  }
+  if (parsed.c.length > 48 || parsed.f.length > MAX_SHARE_FEATURES) {
+    throw new Error('KDT3 contains too many crossings or placed features');
+  }
+  const crossingOverrides = parsed.c.map((value) => ({
+    id: String(value?.[0] || ''),
+    mode: value?.[1],
+    preset: value?.[2],
+    approachLength: value?.[3],
+    ...(value?.[4] != null && value?.[5] != null
+      ? { point: { x: value[4], y: value[5] } }
+      : {}),
+    ...(value?.[6] != null && value?.[7] != null
+      ? { branchFractions: [value[6], value[7]] }
+      : {}),
+    ...(value?.[8] != null ? { overBranchFraction: value[8] } : {}),
+  }));
+  const featurePlacements = parsed.f.map((value) => ({
+    id: String(value?.[0] || ''),
+    featureId: String(value?.[1] || ''),
+    source: value?.[9] === 2 ? 'auto-dress' : value?.[9] === 1 ? 'auto-fill' : 'manual',
+    properties: value?.[10] && typeof value[10] === 'object' ? value[10] : {},
+    anchor: {
+      mode: 'spline',
+      fraction: value?.[2],
+      lateralOffset: value?.[3],
+      facing: value?.[4] === 1 ? 'backward' : 'forward',
+      rotationOffset: value?.[5],
+      scaleX: value?.[6],
+      scaleY: value?.[7],
+      scaleZ: value?.[8],
+    },
+  }));
+  return { crossingOverrides, featurePlacements };
+}
+
 export class TrackCodeCodec {
   static encode(input) {
     const draft = normalizeDraft(input);
     const points = codePoints(draft);
+    const hasExtension = draft.crossingOverrides.length > 0 || draft.featurePlacements.length > 0;
+    const version = hasExtension ? 3 : 2;
     const bytes = [
-      DRAW_TRACK_SCHEMA_VERSION,
+      version,
       Math.max(0, DRAW_TRACK_THEME_ORDER.indexOf(draft.themeId)),
       Math.max(0, SIZE_ORDER.indexOf(draft.sizeId)),
       Math.max(0, WIDTH_ORDER.indexOf(draft.widthId)),
@@ -258,8 +360,15 @@ export class TrackCodeCodec {
       pushUint16(bytes, Math.round(clamp(point.x, 0, 1) * 4095));
       pushUint16(bytes, Math.round(clamp(point.y, 0, 1) * 4095));
     }
+    if (version === 3) {
+      const extension = encodeExtension(draft);
+      pushUint16(bytes, extension.length);
+      bytes.push(...extension);
+    }
     pushUint32(bytes, fnv1a(bytes));
-    return `${CODE_PREFIX}${bytesToBase64Url(Uint8Array.from(bytes))}`;
+    const code = `${version === 3 ? CODE_PREFIX : COMPATIBLE_CODE_PREFIX}${bytesToBase64Url(Uint8Array.from(bytes))}`;
+    if (code.length > MAX_SHARE_CODE_CHARS) throw new Error('Track code exceeds the safe share-code size');
+    return code;
   }
 
   static encodeLegacy(input) {
@@ -287,16 +396,21 @@ export class TrackCodeCodec {
   static decode(code) {
     const source = String(code || '').trim().replace(/\s+/g, '');
     const prefix = source.startsWith(CODE_PREFIX) ? CODE_PREFIX
+      : source.startsWith(COMPATIBLE_CODE_PREFIX) ? COMPATIBLE_CODE_PREFIX
       : source.startsWith(LEGACY_CODE_PREFIX) ? LEGACY_CODE_PREFIX : null;
-    if (!prefix) throw new Error('Track code must begin with KDT1- or KDT2-');
+    if (!prefix) throw new Error('Track code must begin with KDT1-, KDT2-, or KDT3-');
+    if (source.length > MAX_SHARE_CODE_CHARS) throw new Error('Track code exceeds the safe size limit');
     const bytes = base64UrlToBytes(source.slice(prefix.length));
     if (bytes.length < 18) throw new Error('Track code is incomplete');
     const storedChecksum = readUint32(bytes, bytes.length - 4);
     const actualChecksum = fnv1a(bytes, bytes.length - 4);
     if (storedChecksum !== actualChecksum) throw new Error('Track code is corrupted or mistyped');
     const version = bytes[0];
-    if (version !== 1 && version !== DRAW_TRACK_SCHEMA_VERSION) throw new Error(`Unsupported track-code version ${version}`);
-    if ((version === 1) !== (prefix === LEGACY_CODE_PREFIX)) throw new Error('Track code prefix and version do not match');
+    if (![1, 2, 3].includes(version)) throw new Error(`Unsupported track-code version ${version}`);
+    const expectedPrefix = version === 1
+      ? LEGACY_CODE_PREFIX
+      : version === 2 ? COMPATIBLE_CODE_PREFIX : CODE_PREFIX;
+    if (prefix !== expectedPrefix) throw new Error('Track code prefix and version do not match');
     const themeId = DRAW_TRACK_THEME_ORDER[bytes[1]];
     const sizeId = SIZE_ORDER[bytes[2]];
     const widthId = WIDTH_ORDER[bytes[3]];
@@ -308,8 +422,10 @@ export class TrackCodeCodec {
     const smoothing = bytes[12] / 255;
     const count = bytes[13];
     const pointOffset = version >= 2 ? 24 : 14;
-    const expectedLength = pointOffset + count * 4 + 4;
-    if (count < 6 || count > 62 || bytes.length !== expectedLength) throw new Error('Track code has an invalid point count');
+    const pointsEnd = pointOffset + count * 4;
+    const minimumLength = pointsEnd + (version === 3 ? 2 : 0) + 4;
+    if (count < 6 || count > 62 || bytes.length < minimumLength) throw new Error('Track code has an invalid point count');
+    if (version < 3 && bytes.length !== pointsEnd + 4) throw new Error('Track code has an invalid point count');
     const layoutTransform = version >= 2 ? sanitizeLayoutTransform({
       version: 1,
       occupancy: decodeRange(readUint16(bytes, 14), 0.48, 1.04),
@@ -322,6 +438,15 @@ export class TrackCodeCodec {
     let offset = pointOffset;
     for (let i = 0; i < count; i++, offset += 4) {
       controlPoints.push({ x: readUint16(bytes, offset) / 4095, y: readUint16(bytes, offset + 2) / 4095 });
+    }
+    let extension = { crossingOverrides: [], featurePlacements: [] };
+    if (version === 3) {
+      const extensionLength = readUint16(bytes, pointsEnd);
+      if (
+        extensionLength > MAX_SHARE_EXTENSION_BYTES
+        || pointsEnd + 2 + extensionLength + 4 !== bytes.length
+      ) throw new Error('KDT3 extension length is invalid');
+      extension = decodeExtension(bytes.slice(pointsEnd + 2, pointsEnd + 2 + extensionLength));
     }
     return normalizeDraft({
       id: createDrawTrackId(seed ^ actualChecksum),
@@ -337,6 +462,8 @@ export class TrackCodeCodec {
       ...(layoutTransform ? { layoutTransform } : {}),
       rawStroke: controlPoints,
       controlPoints,
+      crossingOverrides: extension.crossingOverrides,
+      featurePlacements: extension.featurePlacements,
     });
   }
 }
