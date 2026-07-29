@@ -24,18 +24,26 @@ export function nearestCourseSample(
   y = 0,
   preferredIndex = null,
   candidateIndices = null,
+  target = null,
+  candidateCount = candidateIndices?.length || 0,
 ) {
   if (!Array.isArray(samples) || !samples.length) {
-    return { index: -1, distance: Infinity, verticalDistance: Infinity, sample: null };
+    const empty = target || {};
+    empty.index = -1;
+    empty.distance = Infinity;
+    empty.verticalDistance = Infinity;
+    empty.score = Infinity;
+    empty.sample = null;
+    return empty;
   }
-  const indices = candidateIndices?.length
-    ? candidateIndices
-    : samples.map((_, index) => index);
-  let best = indices[0] ?? 0;
+  const useCandidates = !!candidateIndices && candidateCount > 0;
+  let best = useCandidates ? candidateIndices[0] : 0;
   let bestScore = Infinity;
   let bestHorizontalSq = Infinity;
   let bestVertical = Infinity;
-  for (const rawIndex of indices) {
+  const count = useCandidates ? Math.min(candidateCount, candidateIndices.length) : samples.length;
+  for (let candidateIndex = 0; candidateIndex < count; candidateIndex++) {
+    const rawIndex = useCandidates ? candidateIndices[candidateIndex] : candidateIndex;
     const index = ((Math.trunc(rawIndex) % samples.length) + samples.length) % samples.length;
     const sample = samples[index];
     if (!sample) continue;
@@ -64,13 +72,13 @@ export function nearestCourseSample(
       bestVertical = Math.abs(vertical);
     }
   }
-  return {
-    index: best,
-    distance: Math.sqrt(bestHorizontalSq),
-    verticalDistance: bestVertical,
-    score: bestScore,
-    sample: samples[best],
-  };
+  const result = target || {};
+  result.index = best;
+  result.distance = Math.sqrt(bestHorizontalSq);
+  result.verticalDistance = bestVertical;
+  result.score = bestScore;
+  result.sample = samples[best];
+  return result;
 }
 
 export class CourseSurfaceIndex {
@@ -79,12 +87,18 @@ export class CourseSurfaceIndex {
     this.trackWidth = Math.max(1, finite(trackWidth, 9.2));
     this.cellSize = Math.max(5, this.trackWidth * 1.4);
     this.hash = new CourseSpatialHash(this.cellSize);
+    this.candidateMarks = new Uint32Array(0);
+    this.candidateIndices = new Int32Array(0);
+    this.candidateGeneration = 0;
     this.rebuild(samples);
   }
 
   rebuild(samples = this.samples) {
     this.samples = Array.isArray(samples) ? samples : [];
     this.hash.clear();
+    this.candidateMarks = new Uint32Array(this.samples.length);
+    this.candidateIndices = new Int32Array(this.samples.length);
+    this.candidateGeneration = 0;
     if (!this.samples.length) return this;
     const expansion = Math.max(0.5, this.trackWidth * 0.12);
     for (let index = 0; index < this.samples.length; index++) {
@@ -103,25 +117,55 @@ export class CourseSurfaceIndex {
     return this;
   }
 
-  nearest(x, z, y = 0, preferredIndex = null) {
-    if (!this.samples.length) return nearestCourseSample([], x, z, y, preferredIndex);
-    let radius = Math.max(this.trackWidth, this.cellSize);
-    let entries = [];
-    for (let attempt = 0; attempt < 3 && !entries.length; attempt++) {
-      entries = this.hash.queryRadius(x, z, radius);
-      radius *= 2;
+  _appendCandidate(index, count, generation) {
+    const sampleCount = this.samples.length;
+    const normalized = ((Math.trunc(index) % sampleCount) + sampleCount) % sampleCount;
+    if (this.candidateMarks[normalized] === generation) return count;
+    this.candidateMarks[normalized] = generation;
+    this.candidateIndices[count] = normalized;
+    return count + 1;
+  }
+
+  nearest(x, z, y = 0, preferredIndex = null, target = null) {
+    if (!this.samples.length) {
+      return nearestCourseSample([], x, z, y, preferredIndex, null, target);
     }
-    const candidates = new Set();
-    for (const entry of entries) {
-      candidates.add(entry.payload.index);
-      candidates.add(entry.payload.nextIndex);
-      candidates.add((entry.payload.index - 1 + this.samples.length) % this.samples.length);
-      candidates.add((entry.payload.nextIndex + 1) % this.samples.length);
+    this.candidateGeneration++;
+    if (this.candidateGeneration >= 0xffffffff) {
+      this.candidateMarks.fill(0);
+      this.candidateGeneration = 1;
+    }
+    const generation = this.candidateGeneration;
+    let candidateCount = 0;
+    let radius = Math.max(this.trackWidth, this.cellSize);
+    for (let attempt = 0; attempt < 3 && candidateCount === 0; attempt++) {
+      const radiusSq = radius * radius;
+      const minCellX = Math.floor((x - radius) / this.cellSize);
+      const maxCellX = Math.floor((x + radius) / this.cellSize);
+      const minCellZ = Math.floor((z - radius) / this.cellSize);
+      const maxCellZ = Math.floor((z + radius) / this.cellSize);
+      for (let cellZ = minCellZ; cellZ <= maxCellZ; cellZ++) {
+        for (let cellX = minCellX; cellX <= maxCellX; cellX++) {
+          const bucket = this.hash.cells.get(`${cellX}:${cellZ}`);
+          if (!bucket) continue;
+          for (let bucketIndex = 0; bucketIndex < bucket.length; bucketIndex++) {
+            const entry = this.hash.entries[bucket[bucketIndex]];
+            const nearestX = Math.max(entry.bounds.minX, Math.min(x, entry.bounds.maxX));
+            const nearestZ = Math.max(entry.bounds.minY, Math.min(z, entry.bounds.maxY));
+            if ((nearestX - x) ** 2 + (nearestZ - z) ** 2 > radiusSq) continue;
+            candidateCount = this._appendCandidate(entry.payload.index, candidateCount, generation);
+            candidateCount = this._appendCandidate(entry.payload.nextIndex, candidateCount, generation);
+            candidateCount = this._appendCandidate(entry.payload.index - 1, candidateCount, generation);
+            candidateCount = this._appendCandidate(entry.payload.nextIndex + 1, candidateCount, generation);
+          }
+        }
+      }
+      radius *= 2;
     }
     if (Number.isFinite(preferredIndex)) {
       const preferred = ((Math.trunc(preferredIndex) % this.samples.length) + this.samples.length) % this.samples.length;
       for (let offset = -5; offset <= 5; offset++) {
-        candidates.add((preferred + offset + this.samples.length) % this.samples.length);
+        candidateCount = this._appendCandidate(preferred + offset, candidateCount, generation);
       }
     }
     return nearestCourseSample(
@@ -130,7 +174,9 @@ export class CourseSurfaceIndex {
       z,
       y,
       preferredIndex,
-      [...candidates],
+      candidateCount ? this.candidateIndices : null,
+      target,
+      candidateCount,
     );
   }
 

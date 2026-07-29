@@ -18,6 +18,7 @@
     "test:browser:webgl": "node tools/smoke-rally-browser-matrix.mjs --backend webgl",
     "test:browser:webgpu": "node tools/smoke-rally-browser-matrix.mjs --backend webgpu",
     "qa:performance": "node tools/benchmark-rally-transitions.mjs",
+    "qa:performance:hardware": "node tools/benchmark-rally-transitions.mjs --hardware",
     "test:production-assets": "node tools/validate-production-assets.mjs",
     "vendor:check": "node tools/prune-three-vendor.mjs",
     "vendor:prune": "node tools/prune-three-vendor.mjs --apply"

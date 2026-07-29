@@ -278,32 +278,43 @@ export function driftScoreStep(kart, dt, comboMultiplier = 1) {
  * optional airPitch/lean. contact: onRoad, ramp, boostPad, surfaceGrip and
  * surfaceDrag. Returns one-frame presentation events.
  */
-export function stepKart(kart, controls = {}, contact = {}, dt, tuning = RACE_TUNING) {
-  const events = {
-    boostStarted: false,
-    boostLevel: 0,
-    boostHeat: clamp(Number(kart?.boostHeat) || 0, 0, 1),
-    overheated: false,
-    cooled: false,
-    jumped: false,
-    landed: false,
-    landingSpeed: 0,
-    landingQuality: 0,
-    landingGrade: '',
-    perfectLanding: false,
-    cleanLanding: false,
-    hardLanding: false,
-    bottomedOut: false,
-    landingType: '',
-    airTime: Number(kart?.airTime) || 0,
-    driftStrength: 0,
-    driftTier: 0,
-    driftPerfectWindow: false,
-    perfectDrift: false,
-    perfectDriftChain: 0,
-    driftOvercooked: false,
-    impactStrength: Number(kart?.pendingImpactStrength) || 0,
-  };
+export function stepKart(
+  kart,
+  controls = {},
+  contact = {},
+  dt,
+  tuning = RACE_TUNING,
+  eventTarget = null,
+) {
+  // Runtime callers reuse one event record per vehicle. Keeping the optional
+  // target preserves the pure/test-friendly API while removing up to thirty
+  // short-lived objects per Stock Cup simulation frame.
+  const events = eventTarget || {};
+  events.boostStarted = false;
+  events.boostLevel = 0;
+  events.boostHeat = clamp(Number(kart?.boostHeat) || 0, 0, 1);
+  events.overheated = false;
+  events.cooled = false;
+  events.jumped = false;
+  events.landed = false;
+  events.landingSpeed = 0;
+  events.landingQuality = 0;
+  events.landingGrade = '';
+  events.perfectLanding = false;
+  events.cleanLanding = false;
+  events.hardLanding = false;
+  events.bottomedOut = false;
+  events.landingType = '';
+  events.landingContact = '';
+  events.airTime = Number(kart?.airTime) || 0;
+  events.driftStrength = 0;
+  events.driftTier = 0;
+  events.driftPerfectWindow = false;
+  events.perfectDrift = false;
+  events.perfectDriftChain = 0;
+  events.driftOvercooked = false;
+  events.impactStrength = Number(kart?.pendingImpactStrength) || 0;
+  events.wheelContacts = null;
   if (!(dt > 0) || !kart) return events;
 
   let groundHeight = _finiteOr(contact.groundHeight, _finiteOr(kart.groundHeight, 0));
@@ -806,8 +817,12 @@ export function raceProgressScore(kart, sampleCount = 1) {
   return (Number(kart.unwrappedIndex) || 0) / Math.max(1, sampleCount);
 }
 
-export function rankRaceCars(cars, sampleCount = 1) {
-  return [...(cars || [])].sort((a, b) => {
+export function rankRaceCars(cars, sampleCount = 1, target = null) {
+  const source = cars || [];
+  const ranking = target || [];
+  ranking.length = source.length;
+  for (let index = 0; index < source.length; index++) ranking[index] = source[index];
+  return ranking.sort((a, b) => {
     const scoreDiff = raceProgressScore(b.physics, sampleCount) - raceProgressScore(a.physics, sampleCount);
     if (Math.abs(scoreDiff) > 1e-9) return scoreDiff;
     return (a.gridIndex || 0) - (b.gridIndex || 0);

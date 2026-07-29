@@ -233,7 +233,7 @@ function _makeWheel(kit, side, axle, registry, name) {
   beadOutside.userData.raceOwned = true;
   beadOutside.rotation.y = Math.PI / 2;
   beadOutside.position.x = side * kit.width * 0.48;
-  if (kit.detail === 'pack') wheel.add(tire, rim, hub);
+  if (kit.detail === 'pack') wheel.add(tire, rim);
   else wheel.add(tire, sidewall, rim, hub, beadOutside);
   return wheel;
 }
@@ -582,14 +582,16 @@ export function buildRallyCar(options = {}) {
     bodyPivot.add(cockpitRim);
   }
 
-  const rearDeck = _mesh(
-    registry,
-    _roundedDeckGeometry(1.95, 0.7, 0.28, 0.2, 0.05),
-    creamMaterial,
-    'rear-engine-cowl',
-  );
-  rearDeck.position.set(0, stanceY + 0.33, -1.38);
-  bodyPivot.add(rearDeck);
+  if (!isPack) {
+    const rearDeck = _mesh(
+      registry,
+      _roundedDeckGeometry(1.95, 0.7, 0.28, 0.2, 0.05),
+      creamMaterial,
+      'rear-engine-cowl',
+    );
+    rearDeck.position.set(0, stanceY + 0.33, -1.38);
+    bodyPivot.add(rearDeck);
+  }
 
   const wheelRadius = isStock ? 0.54 : 0.49;
   const wheelTrack = isDrift ? 1.33 : isStock ? 1.27 : 1.25;
@@ -606,17 +608,19 @@ export function buildRallyCar(options = {}) {
     detail: detailTier,
   });
 
-  const fenderGeometry = _ownGeometry(registry, new THREE.TorusGeometry(wheelRadius * 0.83, 0.1, isPack ? 5 : 7, isPack ? 12 : 18, Math.PI));
-  for (const wheel of wheels) {
-    const fender = new THREE.Mesh(fenderGeometry, bodyMaterial);
-    fender.name = `${wheel.userData.side}-${wheel.userData.axle}-fender`;
-    fender.userData.raceOwned = true;
-    fender.rotation.y = Math.PI / 2;
-    fender.position.copy(wheel.position);
-    fender.position.x -= (wheel.userData.side === 'left' ? -1 : 1) * 0.05;
-    fender.position.y += wheelRadius * 0.05;
-    fender.castShadow = true;
-    bodyPivot.add(fender);
+  if (!isPack) {
+    const fenderGeometry = _ownGeometry(registry, new THREE.TorusGeometry(wheelRadius * 0.83, 0.1, 7, 18, Math.PI));
+    for (const wheel of wheels) {
+      const fender = new THREE.Mesh(fenderGeometry, bodyMaterial);
+      fender.name = `${wheel.userData.side}-${wheel.userData.axle}-fender`;
+      fender.userData.raceOwned = true;
+      fender.rotation.y = Math.PI / 2;
+      fender.position.copy(wheel.position);
+      fender.position.x -= (wheel.userData.side === 'left' ? -1 : 1) * 0.05;
+      fender.position.y += wheelRadius * 0.05;
+      fender.castShadow = true;
+      bodyPivot.add(fender);
+    }
   }
 
   const rearBumperY = stanceY - 0.02;
@@ -631,15 +635,17 @@ export function buildRallyCar(options = {}) {
   bumper.userData.role = 'damage-bumper';
   bodyPivot.add(bumper);
 
-  const frontGuard = _mesh(
-    registry,
-    _capsuleGeometry(0.105, 2.38, 5, 10),
-    isStock ? rimMaterial : darkMaterial,
-    'front-bumper',
-  );
-  frontGuard.rotation.z = Math.PI / 2;
-  frontGuard.position.set(0, stanceY - 0.02, 1.96);
-  bodyPivot.add(frontGuard);
+  if (!isPack) {
+    const frontGuard = _mesh(
+      registry,
+      _capsuleGeometry(0.105, 2.38, 5, 10),
+      isStock ? rimMaterial : darkMaterial,
+      'front-bumper',
+    );
+    frontGuard.rotation.z = Math.PI / 2;
+    frontGuard.position.set(0, stanceY - 0.02, 1.96);
+    bodyPivot.add(frontGuard);
+  }
 
   if (isDrift) {
     const wing = _mesh(
@@ -662,7 +668,7 @@ export function buildRallyCar(options = {}) {
       );
       bodyPivot.add(mount);
     }
-  } else if (isStock) {
+  } else if (isStock && !isPack) {
     const cagePoints = [
       [new THREE.Vector3(-0.78, stanceY + 0.43, -0.86), new THREE.Vector3(-0.65, stanceY + 1.26, -0.3)],
       [new THREE.Vector3(0.78, stanceY + 0.43, -0.86), new THREE.Vector3(0.65, stanceY + 1.26, -0.3)],
@@ -690,7 +696,9 @@ export function buildRallyCar(options = {}) {
   }
 
   _addCatEars(registry, bodyPivot, bodyMaterial, 0.52, stanceY + 1.24, -0.23, 0.54);
-  const headlights = _addHeadlights(registry, bodyPivot, lampMaterial, 0.67, stanceY + 0.29, 1.79, 0.17);
+  const headlights = isPack
+    ? []
+    : _addHeadlights(registry, bodyPivot, lampMaterial, 0.67, stanceY + 0.29, 1.79, 0.17);
 
   if (!isPack) {
     const grille = _mesh(
@@ -707,11 +715,13 @@ export function buildRallyCar(options = {}) {
     bodyPivot.add(grille);
   }
 
-  const flames = [-0.55, 0.55].map((x, index) => {
-    const flame = _makeFlame(registry, accentMaterial, new THREE.Vector3(x, stanceY - 0.05, -2.05), 1.1, index);
-    bodyPivot.add(flame);
-    return flame;
-  });
+  const flames = isPack
+    ? []
+    : [-0.55, 0.55].map((x, index) => {
+        const flame = _makeFlame(registry, accentMaterial, new THREE.Vector3(x, stanceY - 0.05, -2.05), 1.1, index);
+        bodyPivot.add(flame);
+        return flame;
+      });
 
   const decalPanels = _addDecals({
     registry,
@@ -736,6 +746,14 @@ export function buildRallyCar(options = {}) {
   const shadow = _makeShadow(registry, isDrift ? 1.82 : 1.72, isPlayer ? 0.3 : 0.26);
   shadow.scale.set(isDrift ? 1.08 : 1, 1.32, 1);
   root.add(shadow);
+  if (isPack) {
+    // The pack already owns a soft contact-shadow card. Re-rasterizing every
+    // tiny rival wheel, badge, and decal into the sun map roughly doubles the
+    // field's submissions while adding no legible shadow detail at race range.
+    bodyPivot.traverse((object) => {
+      if (object.isMesh) object.castShadow = false;
+    });
+  }
 
   const damageMeshes = [chassis, nose, lowerNose, bumper];
   const animationAnchors = { bodyPivot, wheels, flames, headlights, decalPanels };

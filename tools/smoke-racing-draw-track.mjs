@@ -576,7 +576,11 @@ for (const contract of ['TrackMeshBuilder', 'CheckpointGenerator', 'RespawnGener
 }
 assert.match(runtimeSource, /customCourse:\s*options\.customCourse/, 'runtime does not accept the compiled player course');
 assert.match(runtimeSource, /queryCircuitFeatureContact/, 'runtime does not use the shared visible/contact feature profiles');
-assert.match(runtimeSource, /rampDirection:\s*ramp\?\.runtime\?\.forward/, 'authored ramp contact does not preserve the visible takeoff direction');
+assert.match(
+  runtimeSource,
+  /(?:rampDirection:\s*|contact\.rampDirection\s*=\s*)ramp\?\.runtime\?\.forward/,
+  'authored ramp contact does not preserve the visible takeoff direction',
+);
 for (const bridgePart of ['bridge-decks', 'bridge-fascias', 'bridge-portal-posts', 'bridge-portal-beams', 'bridge-marker-lights']) {
   assert.match(generationSource, new RegExp(`draw-track-${bridgePart}`), `procedural ${bridgePart} kit is missing`);
 }

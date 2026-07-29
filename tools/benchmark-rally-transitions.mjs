@@ -9,7 +9,25 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const OUTPUT = path.join(ROOT, 'docs', 'qa', 'performance-transitions.json');
+const HARDWARE = process.argv.includes('--hardware');
+const NATIVE_WINDOWS = process.platform === 'win32';
+const argumentValue = (name, fallback) => {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? Number(process.argv[index + 1]) || fallback : fallback;
+};
+const VIEWPORT = {
+  width: Math.max(640, Math.round(argumentValue('--width', 1280))),
+  height: Math.max(360, Math.round(argumentValue('--height', 720))),
+};
+const SESSION_COUNT = Math.max(1, Math.round(argumentValue('--sessions', 25)));
+const OUTPUT = path.join(
+  ROOT,
+  'docs',
+  'qa',
+  HARDWARE
+    ? `performance-hardware-${VIEWPORT.width}x${VIEWPORT.height}.json`
+    : 'performance-transitions.json',
+);
 const CHROMIUM = [
   process.env.KAKI_RALLY_CHROMIUM,
   '/home/nemoclaw/bin/chromium',
@@ -17,7 +35,7 @@ const CHROMIUM = [
 ].find((candidate) => candidate && fs.existsSync(candidate));
 assert(CHROMIUM, 'No Chromium executable is available');
 
-const sequence = [
+const baseSequence = [
   ['circuit', 'forest', { carCount: 6 }],
   ['drift', 'twilight', { carCount: 6 }],
   ['stock', 'cinder', { carCount: 12 }],
@@ -29,6 +47,7 @@ const sequence = [
   ['monster', 'forest', { carCount: 1, monsterArena: 'pileup-pyramid-yard', monsterEvent: 'freestyle', monsterVehicle: 'cyber' }],
   ['trials', 'forest', { trialsTrackId: 'quarry', trialsVehicle: 'buggy' }],
 ];
+const sequence = Array.from({ length: SESSION_COUNT }, (_, index) => baseSequence[index % baseSequence.length]);
 
 const mime = {
   '.css': 'text/css; charset=utf-8',
@@ -52,12 +71,20 @@ function percentile(values, fraction) {
 
 function summarize(values) {
   const average = values.reduce((sum, value) => sum + value, 0) / Math.max(1, values.length);
+  const median = percentile(values, 0.5);
+  const p95 = percentile(values, 0.95);
+  const p99 = percentile(values, 0.99);
   return {
     samples: values.length,
     averageMs: Number(average.toFixed(3)),
-    p95Ms: Number(percentile(values, 0.95).toFixed(3)),
+    medianMs: Number(median.toFixed(3)),
+    p95Ms: Number(p95.toFixed(3)),
+    p99Ms: Number(p99.toFixed(3)),
     maxMs: Number(Math.max(...values).toFixed(3)),
     averageFps: Number((1000 / Math.max(0.001, average)).toFixed(2)),
+    medianFps: Number((1000 / Math.max(0.001, median)).toFixed(2)),
+    onePercentLowFps: Number((1000 / Math.max(0.001, p99)).toFixed(2)),
+    warmedSpikeCount: values.filter((value) => value > median + 4).length,
   };
 }
 
@@ -97,13 +124,15 @@ const browser = await chromium.launch({
   args: [
     '--no-sandbox',
     '--disable-dev-shm-usage',
-    '--use-gl=swiftshader',
+    ...(HARDWARE
+      ? (NATIVE_WINDOWS ? [] : ['--use-angle=gl'])
+      : ['--use-gl=swiftshader']),
     '--enable-webgl',
     '--ignore-gpu-blocklist',
     '--enable-precise-memory-info',
   ],
 });
-const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
 await context.route(/https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/, (route) => route.fulfill({
   status: 204,
   body: '',
@@ -125,13 +154,22 @@ page.on('response', (response) => {
 const report = {
   schema: 1,
   generatedAt: new Date().toISOString(),
-  sourceCommit: '3711e8fc0c2c86b27911171c5394723ceb9e45aa',
+  sourceCommit: '37a3584ccbff0bb5d45539fcadd4002e1e16bdce',
   environment: {
     browser: CHROMIUM,
     renderer: 'webgl',
-    gpuProfile: 'SwiftShader software WebGL',
-    viewport: [1280, 720],
-    note: 'Comparative CI evidence only; software rendering does not predict physical-device thermals or frame pacing.',
+    gpuProfile: HARDWARE ? 'pending browser renderer query' : 'SwiftShader software WebGL',
+    adapterSelector: process.env.MESA_D3D12_DEFAULT_ADAPTER_NAME || '',
+    viewport: [VIEWPORT.width, VIEWPORT.height],
+    quality: VIEWPORT.width >= 2560 ? 'ultra' : 'high',
+    physicalGpu: HARDWARE,
+    sessions: SESSION_COUNT,
+    runtime: NATIVE_WINDOWS ? 'Windows native Chrome' : 'Linux Chromium under WSL',
+    note: HARDWARE
+      ? (NATIVE_WINDOWS
+          ? 'Native Windows Chrome physical-adapter measurement; this does not establish phone thermals.'
+          : 'Physical D3D12 adapter measured through WSL/ANGLE; this does not establish phone thermals.')
+      : 'Comparative CI evidence only; software rendering does not predict physical-device thermals or frame pacing.',
   },
   browserDiagnostics,
   transitions: [],
@@ -141,7 +179,7 @@ try {
   await page.addInitScript(() => {
     localStorage.setItem('kaki_rally_settings_v1', JSON.stringify({
       renderer: 'webgl',
-      quality: 'high',
+      quality: innerWidth >= 2560 ? 'ultra' : 'high',
       lastDriver: 'kitty',
       camera: 'chase',
     }));
@@ -152,10 +190,28 @@ try {
   });
   report.coldBaseline = await page.evaluate(() => window.__kakiRally.getDiagnostics());
   assert.equal(report.coldBaseline.backend, 'webgl');
+  report.environment.webgl = await page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl2');
+    const extension = gl?.getExtension('WEBGL_debug_renderer_info');
+    return {
+      webgl2: !!gl,
+      vendor: gl && extension ? gl.getParameter(extension.UNMASKED_VENDOR_WEBGL) : '',
+      renderer: gl && extension ? gl.getParameter(extension.UNMASKED_RENDERER_WEBGL) : '',
+    };
+  });
+  report.environment.gpuProfile = report.environment.webgl.renderer || 'unreported WebGL adapter';
+  if (HARDWARE) {
+    assert(
+      report.environment.webgl.webgl2
+        && !/swiftshader|llvmpipe|software/i.test(report.environment.webgl.renderer),
+      `hardware benchmark did not acquire a physical adapter: ${report.environment.webgl.renderer}`,
+    );
+  }
 
   // The first authored scene compiles and retains renderer-wide post-processing
   // support resources. Establish the leak baseline after that one-time warmup,
-  // then require all ten measured sessions to return to the same counters.
+  // then require all twenty-five measured sessions to return to the same counters.
   assert(await page.evaluate(() => window.__kakiRally.start('circuit', 'forest', { carCount: 2 }).then(Boolean)));
   await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
   await page.evaluate(() => window.__kkRacing?.skipCountdown?.());
@@ -186,20 +242,55 @@ try {
       await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
     }
     await page.evaluate(() => window.__kkRacing?.skipCountdown?.());
+    const enterDurationMs = Date.now() - startedAt;
+    // Scene construction intentionally happens behind the branded transition
+    // and countdown. Let upload/compilation garbage settle before measuring
+    // interactive play so a legal transition is not mislabeled as a race hitch.
+    await page.evaluate(() => new Promise((resolve) => {
+      // Match the normal 3.4 second countdown. This is the period during which
+      // every visible pack material and effect is intentionally rendered once.
+      let frames = innerWidth >= 2560 ? 240 : 210;
+      const settle = () => {
+        frames--;
+        if (frames <= 0) resolve();
+        else requestAnimationFrame(settle);
+      };
+      requestAnimationFrame(settle);
+    }));
     const frameDeltas = await page.evaluate(() => new Promise((resolve) => {
       const values = [];
       let previous = performance.now();
       const frame = (now) => {
         values.push(now - previous);
         previous = now;
-        if (values.length >= 24) resolve(values);
+        if (values.length >= (innerWidth >= 2560 ? 180 : 120)) resolve(values);
         else requestAnimationFrame(frame);
       };
       requestAnimationFrame(frame);
     }));
-    const active = await page.evaluate(() => window.__kakiRally.getDiagnostics());
+    const active = await page.evaluate(() => ({
+      ...window.__kakiRally.getDiagnostics(),
+      jsHeapBytes: performance.memory?.usedJSHeapSize || 0,
+    }));
     assert(active.renderer.drawCalls > 0, `${mode} made no render submissions`);
     assert.equal(active.hudRoots, 1, `${mode} has the wrong HUD count`);
+    let restartDurationMs = null;
+    if (index < 5) {
+      const restartStartedAt = Date.now();
+      assert(
+        await page.evaluate(() => window.__kakiRally.restart().then(Boolean)),
+        `${mode} failed its measured restart`,
+      );
+      await page.waitForFunction((expected) => (
+        window.__kakiRally.getDiagnostics().activeMode === expected
+      ), mode, { timeout: 120_000 });
+      await page.evaluate(() => window.__kakiRally.state.racing?.assetLease?.ready);
+      await page.evaluate(() => window.__kkRacing?.skipCountdown?.());
+      await page.evaluate(() => new Promise((resolve) => (
+        requestAnimationFrame(() => requestAnimationFrame(resolve))
+      )));
+      restartDurationMs = Date.now() - restartStartedAt;
+    }
     await page.evaluate((label) => window.__kakiRally.captureTransition(label), `benchmark:${index + 1}`);
     await page.evaluate(() => window.__kakiRally.menu());
     await page.waitForFunction(() => {
@@ -207,7 +298,10 @@ try {
       return diagnostics.appMode === 'menu' && diagnostics.hudRoots === 0 && diagnostics.sessionRoots === 0;
     });
     await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    const afterExit = await page.evaluate(() => window.__kakiRally.getDiagnostics());
+    const afterExit = await page.evaluate(() => ({
+      ...window.__kakiRally.getDiagnostics(),
+      jsHeapBytes: performance.memory?.usedJSHeapSize || 0,
+    }));
     assert.equal(afterExit.sceneObjects, report.baseline.sceneObjects, `scene object leak after transition ${index + 1}`);
     assert.equal(afterExit.hudRoots, 0, `HUD leak after transition ${index + 1}`);
     assert.equal(afterExit.sessionRoots, 0, `scene-root leak after transition ${index + 1}`);
@@ -219,7 +313,8 @@ try {
       index: index + 1,
       mode,
       courseId,
-      enterDurationMs: Date.now() - startedAt,
+      enterDurationMs,
+      restartDurationMs,
       frames: summarize(frameDeltas),
       active: {
         domNodes: active.domNodes,
@@ -230,7 +325,8 @@ try {
         textures: active.renderer.textures,
         geometries: active.renderer.geometries,
         renderTargets: active.renderer.renderTargets,
-        gpuMemoryBytes: active.renderer.gpuMemoryBytes,
+        estimatedGpuMemoryBytes: active.estimatedGpuMemoryBytes,
+        jsHeapBytes: active.jsHeapBytes,
         cpuFrameTimeMs: active.renderer.cpuFrameTimeMs,
         cpuFrameTimeP99Ms: active.renderer.cpuFrameTimeP99Ms,
         renderSubmissionTimeMs: active.renderer.renderSubmissionTimeMs,
@@ -243,7 +339,8 @@ try {
         textures: afterExit.renderer.textures,
         geometries: afterExit.renderer.geometries,
         renderTargets: afterExit.renderer.renderTargets,
-        gpuMemoryBytes: afterExit.renderer.gpuMemoryBytes,
+        estimatedGpuMemoryBytes: afterExit.estimatedGpuMemoryBytes,
+        jsHeapBytes: afterExit.jsHeapBytes,
         racingAudio: afterExit.audio.racingActive,
       },
     });
@@ -258,8 +355,18 @@ try {
       / report.transitions.length
     ).toFixed(3)),
     frameP95WorstMs: Math.max(...report.transitions.map((entry) => entry.frames.p95Ms)),
+    frameP99WorstMs: Math.max(...report.transitions.map((entry) => entry.frames.p99Ms)),
+    minimumOnePercentLowFps: Math.min(...report.transitions.map((entry) => entry.frames.onePercentLowFps)),
+    warmedSpikeCount: report.transitions.reduce((sum, entry) => sum + entry.frames.warmedSpikeCount, 0),
+    enterP95Ms: percentile(report.transitions.map((entry) => entry.enterDurationMs), 0.95),
+    restartP95Ms: percentile(
+      report.transitions.map((entry) => entry.restartDurationMs).filter(Number.isFinite),
+      0.95,
+    ),
     peakDrawCalls: Math.max(...report.transitions.map((entry) => entry.active.drawCalls)),
     peakTriangles: Math.max(...report.transitions.map((entry) => entry.active.triangles)),
+    peakEstimatedGpuMemoryBytes: Math.max(...report.transitions.map((entry) => entry.active.estimatedGpuMemoryBytes)),
+    peakJsHeapBytes: Math.max(...report.transitions.map((entry) => entry.active.jsHeapBytes)),
     peakDomNodes: Math.max(...report.transitions.map((entry) => entry.active.domNodes)),
     peakSceneObjects: Math.max(...report.transitions.map((entry) => entry.active.sceneObjects)),
     baselineDomNodes: report.baseline.domNodes,
@@ -273,7 +380,7 @@ try {
     baselineRenderTargets: report.baseline.renderer.renderTargets,
     finalRenderTargets: report.final.renderer.renderTargets,
   };
-  assert.equal(report.summary.entries, 10);
+  assert.equal(report.summary.entries, SESSION_COUNT);
   assert.equal(report.summary.finalDomNodes, report.summary.baselineDomNodes);
   assert.equal(report.summary.finalSceneObjects, report.summary.baselineSceneObjects);
   assert.equal(report.summary.finalTextures, report.summary.baselineTextures);

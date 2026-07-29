@@ -257,9 +257,11 @@ function triggerContact(runtime, coordinates) {
   };
 }
 
-export function queryCircuitFeatureContact(runtimes, car) {
+export function queryCircuitFeatureContact(runtimes, car, target = null) {
   let selectedRamp = null;
-  const triggers = [];
+  const result = target || {};
+  const triggers = result.triggers || [];
+  triggers.length = 0;
   for (const runtime of runtimes || []) {
     const coordinates = localCoordinates(runtime, Number(car.x) || 0, Number(car.z) || 0);
     const ramp = rampContact(runtime, coordinates, car);
@@ -274,7 +276,9 @@ export function queryCircuitFeatureContact(runtimes, car) {
     const trigger = triggerContact(runtime, coordinates);
     if (trigger) triggers.push(trigger);
   }
-  return { ramp: selectedRamp, triggers };
+  result.ramp = selectedRamp;
+  result.triggers = triggers;
+  return result;
 }
 
 function collisionNormal(runtime, coordinates, component) {

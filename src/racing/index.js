@@ -149,6 +149,19 @@ const _cameraTarget = new THREE.Vector3(RACE_CX, 0, RACE_CZ);
 const STANDARD_CAMERA = Object.freeze({ offset: 22, height: 34, frustum: 16.5, lookAtBase: 0.72 });
 const MONSTER_CAMERA = Object.freeze({ offset: 27, height: 41, frustum: 20.5, lookAtBase: 1.2 });
 const REMOTE_ARENA_MAX_RENDER_PIXELS = 1920 * 1080;
+const NEUTRAL_CONTROLS = Object.freeze({
+  throttle: 0,
+  steer: 0,
+  drift: false,
+  handbrake: false,
+  boost: false,
+  hop: false,
+});
+const DEFAULT_CONTACT = Object.freeze({ onRoad: true });
+const EMPTY_FEATURE_CONTACT = Object.freeze({
+  ramp: null,
+  triggers: Object.freeze([]),
+});
 const SURFACE_FEEL = Object.freeze({
   forest: Object.freeze({ id: 'mud', grip: 0.84, drag: 0.22 }),
   twilight: Object.freeze({ id: 'wet', grip: 0.76, drag: 0.12 }),
@@ -509,7 +522,7 @@ function _proxyColor(avatar) {
   return new THREE.Color().setHSL((hash % 360) / 360, 0.62, 0.58).getHex();
 }
 
-function _makeHeroRacerProxy(avatar, owned) {
+function _makeHeroRacerProxy(avatar, owned, compact = false) {
   const group = new THREE.Group();
   const color = _proxyColor(avatar);
   const suitMat = new THREE.MeshStandardMaterial({ color, roughness: 0.68 });
@@ -519,14 +532,16 @@ function _makeHeroRacerProxy(avatar, owned) {
   torso.position.y = 1.08;
   torso.scale.z = 0.72;
   group.add(torso);
-  const head = _ownedMesh(new THREE.SphereGeometry(0.83, 10, 7), paleMat, owned);
-  head.position.y = 2.35;
-  group.add(head);
-  for (const side of [-1, 1]) {
-    const ear = _ownedMesh(new THREE.ConeGeometry(0.38, 0.82, 6), suitMat, owned);
-    ear.position.set(side * 0.52, 3.04, 0);
-    ear.rotation.z = side * -0.16;
-    group.add(ear);
+  if (!compact) {
+    const head = _ownedMesh(new THREE.SphereGeometry(0.83, 10, 7), paleMat, owned);
+    head.position.y = 2.35;
+    group.add(head);
+    for (const side of [-1, 1]) {
+      const ear = _ownedMesh(new THREE.ConeGeometry(0.38, 0.82, 6), suitMat, owned);
+      ear.position.set(side * 0.52, 3.04, 0);
+      ear.rotation.z = side * -0.16;
+      group.add(ear);
+    }
   }
   const canvas = document.createElement('canvas');
   canvas.width = 256;
@@ -553,16 +568,18 @@ function _makeHeroRacerProxy(avatar, owned) {
   );
   badge.position.set(0, 2.18, 0.72);
   group.add(badge);
-  const visor = _ownedMesh(new THREE.CapsuleGeometry(0.14, 0.9, 4, 10), darkMat, owned);
-  visor.rotation.z = Math.PI / 2;
-  visor.scale.z = 0.65;
-  visor.position.set(0, 2.5, 0.68);
-  group.add(visor);
+  if (!compact) {
+    const visor = _ownedMesh(new THREE.CapsuleGeometry(0.14, 0.9, 4, 10), darkMat, owned);
+    visor.rotation.z = Math.PI / 2;
+    visor.scale.z = 0.65;
+    visor.position.set(0, 2.5, 0.68);
+    group.add(visor);
+  }
   return group;
 }
 
 function _makeRivalDriver(avatar, fallback, owned, fullDetail = false) {
-  if (!fullDetail) return _makeHeroRacerProxy(avatar, owned);
+  if (!fullDetail) return _makeHeroRacerProxy(avatar, owned, true);
   const source = cloneCached(avatar?.glb ? `hero_${avatar.id}` : 'hero') || fallback.clone(true);
   const wrapper = new THREE.Group();
   const box = new THREE.Box3().setFromObject(source);
@@ -677,7 +694,7 @@ function _createRacers(session, hero) {
       visual.cameraCollisionProxy = collisionProxy;
     }
     root.add(visual.root);
-    cars.push({
+    const car = {
       id: i === 0 ? 'player' : `rival-${i}`,
       name: i === 0 ? 'YOU' : (avatar?.name || `RIVAL ${i}`),
       avatarId: avatar?.id || 'kitty',
@@ -693,10 +710,46 @@ function _createRacers(session, hero) {
       skidClock: i * 0.03,
       smokeClock: i * 0.07,
       suspensionKick: 0,
-      frameEvents: { boostStarted: false, boostLevel: 0, jumped: false, landed: false, landingSpeed: 0, driftStrength: 0 },
+      frameEvents: {
+        boostStarted: false,
+        boostLevel: 0,
+        jumped: false,
+        landed: false,
+        landingSpeed: 0,
+        driftStrength: 0,
+        wheelContacts: [],
+      },
+      stepEvents: {},
+      aiControls: {
+        throttle: 0,
+        steer: 0,
+        drift: false,
+        handbrake: false,
+        boost: false,
+        hop: false,
+      },
+      contactScratch: {},
+      groundScratch: { result: {}, nearest: {}, feature: { triggers: [] }, probe: {} },
+      sampleGroundScratch: { result: {}, nearest: {}, feature: { triggers: [] }, probe: {} },
+      sampleGroundResult: {},
       frameControls: null,
       frameContact: null,
-    });
+    };
+    car.sampleGround = (sampleX, sampleZ) => {
+      const sampled = _featureGroundAt(
+        session,
+        car.physics,
+        sampleX,
+        sampleZ,
+        car.physics.y,
+        car.contactScratch.nearest?.index ?? car.physics.nearestIndex,
+        car.sampleGroundScratch,
+      );
+      car.sampleGroundResult.height = sampled.height;
+      car.sampleGroundResult.pitch = sampled.pitch;
+      return car.sampleGroundResult;
+    };
+    cars.push(car);
   }
   return cars;
 }
@@ -727,8 +780,8 @@ function _tickParticles(session, dt) {
   updateRacingVfx(session.racingVfx, dt);
 }
 
-function _nearestSample(samples, x, z, y = 0, preferredIndex = null) {
-  return nearestCourseSample(samples, x, z, y, preferredIndex);
+function _nearestSample(samples, x, z, y = 0, preferredIndex = null, target = null) {
+  return nearestCourseSample(samples, x, z, y, preferredIndex, null, target);
 }
 
 function _nearIndex(index, targets, count, radius = 3) {
@@ -746,41 +799,46 @@ function _activeShortcut(shortcuts, x, z) {
     const dz = shortcut.bz - shortcut.az;
     const t = clamp(((x - shortcut.ax) * dx + (z - shortcut.az) * dz) / Math.max(0.001, dx * dx + dz * dz), 0, 1);
     const distance = Math.hypot(x - (shortcut.ax + dx * t), z - (shortcut.az + dz * t));
-    if (distance <= shortcut.width * 0.52 && t > 0.025 && t < 0.985) return { ...shortcut, t, distance };
+    if (distance <= shortcut.width * 0.52 && t > 0.025 && t < 0.985) return shortcut;
   }
   return null;
 }
 
-function _featureGroundAt(session, carPhysics, x, z, y, preferredIndex) {
+function _featureGroundAt(session, carPhysics, x, z, y, preferredIndex, scratch) {
+  const result = scratch?.result || {};
   const nearest = session.surfaceIndex?.nearest?.(
     x,
     z,
     y,
     preferredIndex,
-  ) || _nearestSample(session.samples, x, z, y, preferredIndex);
+    scratch?.nearest || null,
+  ) || _nearestSample(session.samples, x, z, y, preferredIndex, scratch?.nearest || null);
   const roadSample = session.samples[nearest.index];
   const shortcut = _activeShortcut(session.shortcuts, x, z);
   const onRoad = nearest.distance <= session.course.trackWidth * 0.66 || !!shortcut;
-  const probe = {
-    ...carPhysics,
-    x,
-    z,
-    y,
-  };
-  const featureContact = queryCircuitFeatureContact(session.courseFeatureRuntimes, probe);
+  let probe = carPhysics;
+  if (x !== carPhysics.x || z !== carPhysics.z || y !== carPhysics.y) {
+    probe = scratch?.probe || {};
+    Object.assign(probe, carPhysics);
+    probe.x = x;
+    probe.z = z;
+    probe.y = y;
+  }
+  const featureContact = session.courseFeatureRuntimes.length
+    ? queryCircuitFeatureContact(session.courseFeatureRuntimes, probe, scratch?.feature || null)
+    : EMPTY_FEATURE_CONTACT;
   const ramp = featureContact.ramp;
-  return {
-    nearest,
-    shortcut,
-    onRoad,
-    featureContact,
-    height: ramp?.hasSurface
-      ? ramp.groundHeight
-      : onRoad && !shortcut ? (roadSample?.y || 0) : 0,
-    pitch: ramp?.hasSurface
-      ? ramp.groundPitch
-      : onRoad && !shortcut ? (roadSample?.groundPitch || 0) : 0,
-  };
+  result.nearest = nearest;
+  result.shortcut = shortcut;
+  result.onRoad = onRoad;
+  result.featureContact = featureContact;
+  result.height = ramp?.hasSurface
+    ? ramp.groundHeight
+    : onRoad && !shortcut ? (roadSample?.y || 0) : 0;
+  result.pitch = ramp?.hasSurface
+    ? ramp.groundPitch
+    : onRoad && !shortcut ? (roadSample?.groundPitch || 0) : 0;
+  return result;
 }
 
 function _contactFor(session, car) {
@@ -800,6 +858,7 @@ function _contactFor(session, car) {
     car.physics.z,
     car.physics.y,
     car.physics.nearestIndex,
+    car.groundScratch,
   );
   const {
     nearest,
@@ -808,66 +867,57 @@ function _contactFor(session, car) {
     featureContact,
   } = ground;
   const surface = SURFACE_FEEL[session.course.id] || SURFACE_FEEL.forest;
-  const materialContact = featureContact.triggers.find((trigger) => trigger.kind === 'material');
-  const effects = featureContact.triggers
-    .map((trigger) => trigger.gameplayEffect)
-    .filter(Boolean);
+  let materialContact = null;
+  let boostPad = false;
+  let repairBay = false;
+  for (let triggerIndex = 0; triggerIndex < featureContact.triggers.length; triggerIndex++) {
+    const trigger = featureContact.triggers[triggerIndex];
+    if (!materialContact && trigger.kind === 'material') materialContact = trigger;
+    const effect = trigger.gameplayEffect;
+    if (effect?.kind === 'boost' || effect?.kind === 'turbo-refill') boostPad = true;
+    else if (effect?.kind === 'repair') repairBay = true;
+  }
   const ramp = featureContact.ramp;
-  const boostPad = effects.some((effect) => effect.kind === 'boost' || effect.kind === 'turbo-refill');
-  const repairBay = effects.some((effect) => effect.kind === 'repair');
-  return {
-    nearest,
-    onRoad,
-    shortcut,
-    groundHeight: ground.height,
-    groundPitch: ground.pitch,
-    groundRoll: session.samples[nearest.index]?.groundRoll || 0,
-    surface: materialContact?.surface
-      || (shortcut ? 'shortcut-dirt' : onRoad ? surface.id : 'loose-dirt'),
-    surfaceGrip: Number.isFinite(materialContact?.grip)
-      ? materialContact.grip
-      : shortcut ? 0.68 : onRoad ? surface.grip : 0.62,
-    surfaceDrag: Number.isFinite(materialContact?.drag)
-      ? materialContact.drag
-      : shortcut ? 0.36 : onRoad ? surface.drag : 0.72,
-    ramp: !!ramp?.takeoff || (
-      !session.courseFeatureRuntimes.length
-      && !shortcut
-      && onRoad
-      && _nearIndex(nearest.index, session.rampIndices, session.samples.length, 2)
-    ),
-    preserveRampSpeed: !!ramp?.takeoff,
-    rampDirection: ramp?.runtime?.forward || null,
-    takeoffSlope: ramp?.takeoffSlope || 0,
-    rampVelocity: 0,
-    boostPad: boostPad || (
-      !session.courseFeatureRuntimes.length
-      && !shortcut
-      && onRoad
-      && _nearIndex(nearest.index, session.boostIndices, session.samples.length, 2)
-    ),
-    repairBay: repairBay || (
-      !session.courseFeatureRuntimes.length
-      && onRoad
-      && _nearIndex(nearest.index, session.repairIndices, session.samples.length, 5)
-      && nearest.distance > session.course.trackWidth * 0.15
-    ),
-    courseFeatureTriggers: featureContact.triggers,
-    sampleGround: (x, z) => {
-      const sampled = _featureGroundAt(
-        session,
-        car.physics,
-        x,
-        z,
-        car.physics.y,
-        nearest.index,
-      );
-      return {
-        height: sampled.height,
-        pitch: sampled.pitch,
-      };
-    },
-  };
+  const contact = car.contactScratch;
+  contact.nearest = nearest;
+  contact.onRoad = onRoad;
+  contact.shortcut = shortcut;
+  contact.groundHeight = ground.height;
+  contact.groundPitch = ground.pitch;
+  contact.groundRoll = session.samples[nearest.index]?.groundRoll || 0;
+  contact.surface = materialContact?.surface
+    || (shortcut ? 'shortcut-dirt' : onRoad ? surface.id : 'loose-dirt');
+  contact.surfaceGrip = Number.isFinite(materialContact?.grip)
+    ? materialContact.grip
+    : shortcut ? 0.68 : onRoad ? surface.grip : 0.62;
+  contact.surfaceDrag = Number.isFinite(materialContact?.drag)
+    ? materialContact.drag
+    : shortcut ? 0.36 : onRoad ? surface.drag : 0.72;
+  contact.ramp = !!ramp?.takeoff || (
+    !session.courseFeatureRuntimes.length
+    && !shortcut
+    && onRoad
+    && _nearIndex(nearest.index, session.rampIndices, session.samples.length, 2)
+  );
+  contact.preserveRampSpeed = !!ramp?.takeoff;
+  contact.rampDirection = ramp?.runtime?.forward || null;
+  contact.takeoffSlope = ramp?.takeoffSlope || 0;
+  contact.rampVelocity = 0;
+  contact.boostPad = boostPad || (
+    !session.courseFeatureRuntimes.length
+    && !shortcut
+    && onRoad
+    && _nearIndex(nearest.index, session.boostIndices, session.samples.length, 2)
+  );
+  contact.repairBay = repairBay || (
+    !session.courseFeatureRuntimes.length
+    && onRoad
+    && _nearIndex(nearest.index, session.repairIndices, session.samples.length, 5)
+    && nearest.distance > session.course.trackWidth * 0.15
+  );
+  contact.courseFeatureTriggers = featureContact.triggers;
+  contact.sampleGround = car.sampleGround;
+  return contact;
 }
 
 function _draftStrengthFor(session, car) {
@@ -923,12 +973,14 @@ function _aiControls(session, car) {
   if (behind > count * 0.17 && p.boostTime <= 0) p.boostTime = 0.18;
   const targetSpeed = Number(target.targetSpeed) || 24;
   const speedError = targetSpeed - p.speed;
-  return {
-    throttle: Math.abs(delta) > 1.2 ? 0.18 : speedError < -1.5 ? -0.42 : speedError < 0.5 ? 0.42 : car.aiSkill,
-    steer: clamp(delta * 1.75, -1, 1),
-    drift: Math.abs(delta) > 0.34 && p.speed > 9,
-    hop: false,
-  };
+  const controls = car.aiControls;
+  controls.throttle = Math.abs(delta) > 1.2 ? 0.18 : speedError < -1.5 ? -0.42 : speedError < 0.5 ? 0.42 : car.aiSkill;
+  controls.steer = clamp(delta * 1.75, -1, 1);
+  controls.drift = Math.abs(delta) > 0.34 && p.speed > 9;
+  controls.handbrake = false;
+  controls.boost = false;
+  controls.hop = false;
+  return controls;
 }
 
 function _impactZone(kart, nx, nz) {
@@ -2007,18 +2059,16 @@ function _drawMinimap(session) {
   const { minX, maxX, minZ, maxZ } = session.mapBounds;
   const margin = 15;
   const scale = Math.min((MINIMAP_W - margin * 2) / (maxX - minX), (MINIMAP_H - margin * 2) / (maxZ - minZ));
-  const project = (x, z) => [
-    margin + (x - minX) * scale,
-    MINIMAP_H - margin - (z - minZ) * scale,
-  ];
   ctx.clearRect(0, 0, MINIMAP_W, MINIMAP_H);
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.beginPath();
-  session.samples.forEach((sample, index) => {
-    const [x, y] = project(sample.x, sample.z);
+  for (let index = 0; index < session.samples.length; index++) {
+    const sample = session.samples[index];
+    const x = margin + (sample.x - minX) * scale;
+    const y = MINIMAP_H - margin - (sample.z - minZ) * scale;
     if (!index) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  });
+  }
   ctx.closePath();
   ctx.strokeStyle = 'rgba(10,6,12,.72)';
   ctx.lineWidth = 12;
@@ -2033,21 +2083,26 @@ function _drawMinimap(session) {
       const sample = session.samples[i];
       const next = session.samples[(i + 1) % session.samples.length];
       if ((sample.y || 0) < 1 || (next.y || 0) < 1) continue;
-      const [ax, ay] = project(sample.x, sample.z);
-      const [bx, by] = project(next.x, next.z);
+      const ax = margin + (sample.x - minX) * scale;
+      const ay = MINIMAP_H - margin - (sample.z - minZ) * scale;
+      const bx = margin + (next.x - minX) * scale;
+      const by = MINIMAP_H - margin - (next.z - minZ) * scale;
       ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
     }
   }
   const start = session.samples[0];
   if (start) {
     const half = session.course.trackWidth * 0.58;
-    const [ax, ay] = project(start.x + start.normal.x * half, start.z + start.normal.z * half);
-    const [bx, by] = project(start.x - start.normal.x * half, start.z - start.normal.z * half);
+    const ax = margin + (start.x + start.normal.x * half - minX) * scale;
+    const ay = MINIMAP_H - margin - (start.z + start.normal.z * half - minZ) * scale;
+    const bx = margin + (start.x - start.normal.x * half - minX) * scale;
+    const by = MINIMAP_H - margin - (start.z - start.normal.z * half - minZ) * scale;
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
     ctx.strokeStyle = '#fff7dd'; ctx.lineWidth = 3; ctx.stroke();
   }
   for (const car of session.cars) {
-    const [x, y] = project(car.physics.x, car.physics.z);
+    const x = margin + (car.physics.x - minX) * scale;
+    const y = MINIMAP_H - margin - (car.physics.z - minZ) * scale;
     ctx.beginPath();
     ctx.arc(x, y, car.id === 'player' ? 5.2 : 3.5, 0, Math.PI * 2);
     ctx.fillStyle = car.id === 'player' ? '#fff7dd' : `#${session.course.kartColors[car.gridIndex].toString(16).padStart(6, '0')}`;
@@ -2063,9 +2118,18 @@ function _drawMinimap(session) {
 function _updateHud(session) {
   const hud = session.hud;
   if (!hud) return;
+  session.rescueFlash = Math.max(0, session.rescueFlash - state.time.dt);
+  session.landFlash = Math.max(0, session.landFlash - state.time.dt);
+  session.crashFlash = Math.max(0, session.crashFlash - state.time.dt);
+  session.smashFlash = Math.max(0, (session.smashFlash || 0) - state.time.dt);
+  session.roundFlash = Math.max(0, (session.roundFlash || 0) - state.time.dt);
+  const hudNow = performance.now();
+  if (hudNow < session.nextHudUpdateAt) return session.lastHudPosition;
+  session.nextHudUpdateAt = hudNow + 1000 / 30;
   const player = session.cars[0].physics;
-  const ranking = rankRaceCars(session.cars, session.samples.length);
+  const ranking = rankRaceCars(session.cars, session.samples.length, session.rankBuffer);
   const position = ranking.findIndex((car) => car.id === 'player') + 1;
+  session.lastHudPosition = position;
   if (session.raceMode === 'monster') {
     const monster = session.monsterScore;
     const rounds = session.monsterRounds;
@@ -2156,8 +2220,8 @@ function _updateHud(session) {
   hud.root.dataset.fps = String(Math.round(1 / Math.max(1 / 240, session.frameTimeEma || 1 / 60)));
   hud.root.dataset.assetCount = String(getRallyAssetCacheSnapshot().length);
   hud.root.dataset.assetError = session.assetError || '';
-  hud.root.dataset.drivers = session.cars.map((car) => car.avatarId).join(',');
-  hud.root.dataset.showcaseDrivers = String(session.cars.filter((car) => car.renderTier === 'showcase').length);
+  hud.root.dataset.drivers = session.driverDataset;
+  hud.root.dataset.showcaseDrivers = String(session.showcaseDriverCount);
   if (session.raceMode === 'monster') {
     const spotlight = session.monsterSpotlight;
     if (hud.spotlight) {
@@ -2182,11 +2246,6 @@ function _updateHud(session) {
     hud.root.dataset.monsterEvent = session.monsterEvent;
     hud.root.dataset.pendingTrick = session.monsterScore.pendingTrick?.label || '';
   }
-  session.rescueFlash = Math.max(0, session.rescueFlash - state.time.dt);
-  session.landFlash = Math.max(0, session.landFlash - state.time.dt);
-  session.crashFlash = Math.max(0, session.crashFlash - state.time.dt);
-  session.smashFlash = Math.max(0, (session.smashFlash || 0) - state.time.dt);
-  session.roundFlash = Math.max(0, (session.roundFlash || 0) - state.time.dt);
   if (session.phase === 'countdown') {
     const count = Math.ceil(session.countdown);
     hud.callout.textContent = count > 3 ? 'READY?' : String(Math.max(1, count));
@@ -2584,6 +2643,19 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
     styleEventTime: 0,
     perfectDriftChain: 0,
     frameTimeEma: 1 / 60,
+    playerControls: {
+      throttle: 0,
+      steer: 0,
+      drift: false,
+      handbrake: false,
+      boost: false,
+      hop: false,
+    },
+    rankBuffer: [],
+    driverDataset: '',
+    showcaseDriverCount: 0,
+    nextHudUpdateAt: 0,
+    lastHudPosition: 1,
     hitStop: 0,
     cameraFx: { shake: 0, roll: 0, punch: 0, phase: 0 },
     monsterScore: raceMode === 'monster' ? createMonsterScoreState(modeDef.duration) : null,
@@ -2717,6 +2789,11 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
 
     if (hero.parent) hero.parent.remove(hero);
     session.cars = _createRacers(session, hero);
+    session.driverDataset = session.cars.map((car) => car.avatarId).join(',');
+    session.showcaseDriverCount = session.cars.reduce(
+      (count, car) => count + (car.renderTier === 'showcase' ? 1 : 0),
+      0,
+    );
     _makeParticlePool(session);
     _mountHud(session);
     _installMonsterControls(session);
@@ -2900,14 +2977,13 @@ export function tickRacing(dt, elapsedDt = dt) {
   // Space still feeds the shared edge queue used by survivor modes. Drain it
   // here so a racing handbrake press cannot leak into a later scene as a jump.
   consumeJump();
-  const playerControls = {
-    throttle: drivingPhase ? -playerInput.y : 0,
-    steer: drivingPhase ? mapRacingSteerInput(playerInput.x) : 0,
-    drift: (!monsterMode && actionPressed) || handbrakePressed,
-    handbrake: handbrakePressed,
-    boost: monsterMode && actionPressed,
-    hop: false,
-  };
+  const playerControls = session.playerControls;
+  playerControls.throttle = drivingPhase ? -playerInput.y : 0;
+  playerControls.steer = drivingPhase ? mapRacingSteerInput(playerInput.x) : 0;
+  playerControls.drift = (!monsterMode && actionPressed) || handbrakePressed;
+  playerControls.handbrake = handbrakePressed;
+  playerControls.boost = monsterMode && actionPressed;
+  playerControls.hop = false;
   if (monsterMode) {
     _tickMonsterRecovery(session, dt, playerControls);
     if (session.recoveryTime > 0) {
@@ -2937,7 +3013,7 @@ export function tickRacing(dt, elapsedDt = dt) {
     car.frameEvents.landingType = '';
     car.frameEvents.landingContact = '';
     car.frameEvents.groundedWheels = car.physics.groundedWheelCount ?? 0;
-    car.frameEvents.wheelContacts = [];
+    car.frameEvents.wheelContacts.length = 0;
     car.frameEvents.airTime = car.physics.airTime || 0;
     car.frameEvents.driftStrength = 0;
     car.frameEvents.driftTier = 0;
@@ -2954,7 +3030,7 @@ export function tickRacing(dt, elapsedDt = dt) {
   for (let step = 0; step < steps; step++) {
     for (const car of session.cars) {
       let controls = car.id === 'player' ? playerControls
-        : (drivingPhase ? _aiControls(session, car) : { throttle: 0, steer: 0, drift: false, hop: false });
+        : (drivingPhase ? _aiControls(session, car) : NEUTRAL_CONTROLS);
       const contact = _contactFor(session, car);
       contact.draftStrength = monsterMode ? 0 : _draftStrengthFor(session, car);
       const p = car.physics;
@@ -3000,7 +3076,7 @@ export function tickRacing(dt, elapsedDt = dt) {
       if (!monsterMode && ((contact.repairBay && p.integrity < 99.9) || p.pitLocked)) {
         p.repairTime += stepDt;
         repairKart(p, 27 * stepDt);
-        if (p.pitLocked && p.integrity < 96) controls = { throttle: 0, steer: 0, drift: false, hop: false };
+        if (p.pitLocked && p.integrity < 96) controls = NEUTRAL_CONTROLS;
         if (p.integrity >= 96) p.pitLocked = false;
       } else {
         p.repairTime = 0;
@@ -3014,6 +3090,7 @@ export function tickRacing(dt, elapsedDt = dt) {
         contact,
         stepDt,
         monsterMode ? session.monsterVehicleProfile.tuning : session.handlingProfile,
+        car.stepEvents,
       );
       const resolvedContact = monsterMode ? _contactFor(session, car) : contact;
       if (monsterMode) {
@@ -3046,7 +3123,11 @@ export function tickRacing(dt, elapsedDt = dt) {
         accumulated.airTime = Math.max(accumulated.airTime, events.airTime || 0);
       }
       accumulated.groundedWheels = events.groundedWheels ?? accumulated.groundedWheels;
-      if (events.wheelContacts?.length) accumulated.wheelContacts.push(...events.wheelContacts);
+      if (events.wheelContacts?.length) {
+        for (let contactIndex = 0; contactIndex < events.wheelContacts.length; contactIndex++) {
+          accumulated.wheelContacts.push(events.wheelContacts[contactIndex]);
+        }
+      }
       accumulated.driftStrength = Math.max(accumulated.driftStrength, events.driftStrength || 0);
       accumulated.driftTier = Math.max(accumulated.driftTier, events.driftTier || 0);
       accumulated.driftPerfectWindow ||= events.driftPerfectWindow;
@@ -3172,9 +3253,9 @@ export function tickRacing(dt, elapsedDt = dt) {
       session,
       car,
       dt,
-      car.frameControls || { throttle: 0, steer: 0, drift: false, hop: false },
+      car.frameControls || NEUTRAL_CONTROLS,
       car.frameEvents,
-      car.frameContact || { onRoad: true },
+      car.frameContact || DEFAULT_CONTACT,
     );
   }
   _tickParticles(session, dt);
