@@ -14,7 +14,7 @@ import {
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MAX_RUNTIME_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_RUNTIME_TOTAL_BYTES = 20 * 1024 * 1024;
-// Repository archive includes both Monster Smash and Catastrophe authored GLBs.
+// Frozen Catastrophe files are intentionally outside this production manifest.
 // Runtime working-set limits below remain mode-scoped at 20 MiB.
 const MAX_MANIFEST_TOTAL_BYTES = 32 * 1024 * 1024;
 const MAX_IMAGE_EDGE = 4096;
@@ -179,7 +179,7 @@ await check('manifest URLs are local, unique, present, decodable, and budgeted',
   expect(runtimeTotalBytes <= MAX_MANIFEST_TOTAL_BYTES, `manifest archive total ${runtimeTotalBytes} bytes exceeds ${MAX_MANIFEST_TOTAL_BYTES} byte repository budget`);
   const workingSets = [];
   for (const courseId of Object.keys(RALLY_COURSE_ASSETS)) {
-    for (const mode of ['circuit', 'monster', 'crash']) {
+    for (const mode of ['circuit', 'monster']) {
       if (mode === 'monster') {
         for (const vehicle of ['meowster', 'cyber', 'tipsy']) {
           workingSets.push([`${mode}/${courseId}/${vehicle}`, rallyAssetIds(courseId, mode, vehicle)]);

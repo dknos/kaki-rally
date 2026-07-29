@@ -39,6 +39,7 @@ import {
   exitRacing,
   getRacingCameraConfig,
   getRacingSnapshot,
+  registerDevelopmentRacingMode,
   resizeRacingCamera,
   restartRacing,
   setRacingCameraMode,
@@ -72,6 +73,30 @@ import { RallyTouchControls } from './rallyTouchControls.js';
 const SOURCE_COMMIT = '3711e8fc0c2c86b27911171c5394723ceb9e45aa';
 const MAX_FRAME_SECONDS = 0.05;
 const MAX_LOGIC_SECONDS = 1 / 30;
+let catastropheDevelopmentPromise = null;
+
+function loadCatastropheDevelopment() {
+  if (catastropheDevelopmentPromise) return catastropheDevelopmentPromise;
+  const stylesheet = new Promise((resolve, reject) => {
+    const existing = document.querySelector('link[data-catastrophe-development]');
+    if (existing?.sheet) {
+      resolve(true);
+      return;
+    }
+    const link = existing || document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './src/racing/crash/crash.css';
+    link.dataset.catastropheDevelopment = 'true';
+    link.addEventListener('load', () => resolve(true), { once: true });
+    link.addEventListener('error', () => reject(new Error('Catastrophe development styles failed to load')), { once: true });
+    if (!existing) document.head.appendChild(link);
+  });
+  catastropheDevelopmentPromise = Promise.all([
+    stylesheet,
+    import('../racing/crash/crashMode.js'),
+  ]).then(([, catastrophe]) => catastrophe);
+  return catastropheDevelopmentPromise;
+}
 
 function requireElement(id) {
   const element = document.getElementById(id);
@@ -423,7 +448,6 @@ export class KakiRallyApp {
         void this.openTrialsEditor();
       },
       onRestartWebGL: () => this.router.restartInWebGL('crash'),
-      onExperimentalCrash: () => this.router.enableExperimentalCrash(),
     });
   }
 
@@ -452,11 +476,11 @@ export class KakiRallyApp {
     const mode = options.mode || 'circuit';
     if (!canLaunchRacingMode(mode, {
       backend: this.rendererService.backend,
-      experimental: !!this.route.experimentalCrash,
+      development: !!this.route.catastropheDevelopment,
     })) {
       const availability = getRacingModeAvailability(mode, {
         backend: this.rendererService.backend,
-        experimental: !!this.route.experimentalCrash,
+        development: !!this.route.catastropheDevelopment,
       });
       this.menu?.toast(availability.detail || 'This mode is not available on the active renderer', 'error');
       return null;
@@ -471,6 +495,10 @@ export class KakiRallyApp {
     this.showLoader(`Loading ${mode === 'crash' ? 'Kaki Catastrophe' : 'the starting grid'}`, 'Preparing course, vehicles, and controls…');
 
     try {
+      if (mode === 'crash') {
+        const catastrophe = await loadCatastropheDevelopment();
+        registerDevelopmentRacingMode('crash', catastrophe);
+      }
       const selectedDriver = options.playerAvatarId || readRallySettings().lastDriver;
       await this.ensureDriver(selectedDriver);
       if (token !== this.transitionId) return null;

@@ -20,32 +20,27 @@ for (const backend of ['webgl', 'webgpu']) {
   }
 }
 
-const crashWebGl = getRacingModeAvailability('crash', { backend: 'webgl' });
-assert.equal(crashWebGl.status, 'beta');
-assert.equal(crashWebGl.canLaunch, true);
-assert.equal(crashWebGl.reason, 'validated-webgl-beta');
+const frozenCrash = getRacingModeAvailability('crash', { backend: 'webgl' });
+assert.equal(frozenCrash.status, 'frozen');
+assert.equal(frozenCrash.canLaunch, false);
+assert.equal(frozenCrash.reason, 'out-of-production-scope');
 
-const crashWebGpu = getRacingModeAvailability('crash', { backend: 'webgpu' });
+const crashWebGpu = getRacingModeAvailability('crash', {
+  backend: 'webgpu',
+  development: true,
+});
 assert.equal(crashWebGpu.status, 'renderer-required');
 assert.equal(crashWebGpu.canLaunch, false);
 assert.equal(crashWebGpu.action, 'restart-webgl');
 assert.match(crashWebGpu.detail, /requires WebGL 2/i);
 
-const gated = getRacingModeAvailability('crash', {
+const development = getRacingModeAvailability('crash', {
   backend: 'webgl',
-  catastropheValidated: false,
+  development: true,
 });
-assert.equal(gated.status, 'gated');
-assert.equal(gated.canLaunch, false);
-assert.equal(gated.action, 'experimental-query');
-
-const experimental = getRacingModeAvailability('crash', {
-  backend: 'webgl',
-  catastropheValidated: false,
-  experimental: true,
-});
-assert.equal(experimental.status, 'experimental');
-assert.equal(experimental.canLaunch, true);
+assert.equal(development.status, 'development');
+assert.equal(development.canLaunch, true);
+assert.equal(development.reason, 'localhost-development-flag');
 
 for (const [alias, expected] of Object.entries({
   race: 'circuit',
@@ -60,15 +55,30 @@ for (const [alias, expected] of Object.entries({
   assert.equal(normalizeRouteMode(alias), expected);
 }
 
-const retained = routeUrl('https://dknos.github.io/kaki-rally/?mode=crash&play=1&qa=1#grid', {
+const blockedRemote = readRallyRoute('https://dknos.github.io/kaki-rally/?mode=crash&dev=catastrophe&play=1');
+assert.equal(blockedRemote.mode, null);
+assert.equal(blockedRemote.catastropheDevelopment, false);
+
+const localDevelopment = readRallyRoute('http://127.0.0.1:4173/?mode=crash&dev=catastrophe&play=1');
+assert.equal(localDevelopment.mode, 'crash');
+assert.equal(localDevelopment.catastropheDevelopment, true);
+assert.equal(localDevelopment.autoStart, true);
+
+const retained = routeUrl('https://dknos.github.io/kaki-rally/?mode=monster&play=1&qa=1#grid', {
   renderer: 'webgl',
   autoStart: false,
 });
-assert.equal(retained.searchParams.get('mode'), 'crash');
+assert.equal(retained.searchParams.get('mode'), 'monster');
 assert.equal(retained.searchParams.get('renderer'), 'webgl');
 assert.equal(retained.searchParams.has('play'), false);
 assert.equal(retained.searchParams.get('qa'), '1');
 assert.equal(retained.hash, '#grid');
+
+const localDevUrl = routeUrl('http://localhost:8080/', {
+  mode: 'crash',
+  catastropheDevelopment: true,
+});
+assert.equal(localDevUrl.searchParams.get('dev'), 'catastrophe');
 
 const route = readRallyRoute('https://dknos.github.io/kaki-rally/?mode=monster&renderer=webgpu&play=1');
 assert.equal(route.mode, 'monster');

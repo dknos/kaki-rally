@@ -9,7 +9,6 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const QA_DIR = path.join(ROOT, 'docs', 'qa');
 const requestedBackend = process.argv.includes('--backend')
   ? process.argv[process.argv.indexOf('--backend') + 1]
   : 'all';
@@ -17,6 +16,23 @@ assert(['all', 'webgl', 'webgpu'].includes(requestedBackend), `Unknown backend: 
 const requestedScope = process.argv.includes('--scope')
   ? process.argv[process.argv.indexOf('--scope') + 1]
   : 'all';
+const catastropheRequested = process.argv.includes('--catastrophe');
+assert(
+  requestedScope !== 'crash' || catastropheRequested,
+  'The frozen Catastrophe matrix requires the explicit --catastrophe flag',
+);
+const fullProductionMatrix = requestedBackend === 'all'
+  && requestedScope === 'all'
+  && !catastropheRequested;
+const QA_DIR = fullProductionMatrix
+  ? path.join(ROOT, 'docs', 'qa')
+  : path.join(
+    ROOT,
+    'docs',
+    'qa',
+    'targeted',
+    `${requestedBackend}-${requestedScope}${catastropheRequested ? '-catastrophe' : ''}`,
+  );
 
 const CHROMIUM = [
   process.env.KAKI_RALLY_CHROMIUM,
@@ -84,6 +100,14 @@ function createServer() {
 }
 
 function watchPage(page, origin, diagnostics) {
+  page.on('request', (request) => {
+    if (
+      !catastropheRequested
+      &&
+      request.url().startsWith(origin)
+      && /(?:\/src\/racing\/crash\/|\/assets\/racing\/crash\/|\/rapier\.mjs(?:$|[?#]))/i.test(request.url())
+    ) diagnostics.frozenModeRequests.push(request.url());
+  });
   page.on('pageerror', (error) => diagnostics.pageErrors.push(error.message));
   page.on('console', (message) => {
     if (message.type() !== 'error') return;
@@ -156,6 +180,7 @@ async function installQaState(page) {
 async function bootPage(browser, origin, backend, diagnostics, {
   viewport = { width: 1280, height: 720 },
   touch = false,
+  catastrophe = false,
 } = {}) {
   const context = await browser.newContext({
     viewport,
@@ -174,7 +199,8 @@ async function bootPage(browser, origin, backend, diagnostics, {
   const page = await context.newPage();
   watchPage(page, origin, diagnostics);
   await installQaState(page);
-  await page.goto(`${origin}/index.html?qa=1&renderer=${backend}`, {
+  const development = catastrophe ? '&dev=catastrophe' : '';
+  await page.goto(`${origin}/index.html?qa=1&renderer=${backend}${development}`, {
     waitUntil: 'load',
     timeout: 120_000,
   });
@@ -1571,11 +1597,17 @@ async function runCrash(page, backend, evidence) {
 
 async function runWebGl(browser, origin, report) {
   const diagnostics = report.webgl.diagnostics;
-  const { context, page, boot } = await bootPage(browser, origin, 'webgl', diagnostics);
+  const { context, page, boot } = await bootPage(browser, origin, 'webgl', diagnostics, {
+    catastrophe: catastropheRequested,
+  });
   report.webgl.boot = boot;
   try {
     assert(await page.locator('[data-mode="circuit"]').count(), 'Off-Road GP menu control is missing');
-    assert(await page.locator('[data-mode="crash"]').count(), 'Catastrophe menu control is missing');
+    assert.equal(
+      await page.locator('[data-mode="crash"]').count(),
+      catastropheRequested ? 1 : 0,
+      'Catastrophe menu visibility does not match the explicit development flag',
+    );
     if (requestedScope === 'all' || requestedScope === 'circuit') await runRoadMode(page, {
       mode: 'circuit',
       courseId: 'forest',
@@ -1597,36 +1629,42 @@ async function runWebGl(browser, origin, report) {
     if (requestedScope === 'all' || requestedScope === 'draw') await runDraw(page, 'webgl', report.webgl.modes.draw);
     if (requestedScope === 'all' || requestedScope === 'monster') await runMonster(page, 'webgl', report.webgl.modes.monster);
     if (requestedScope === 'all' || requestedScope === 'trials') await runTrials(page, 'webgl', report.webgl.modes.trials);
-    if (requestedScope === 'all' || requestedScope === 'crash') await runCrash(page, 'webgl', report.webgl.modes.crash);
+    if (catastropheRequested && (requestedScope === 'all' || requestedScope === 'crash')) {
+      await runCrash(page, 'webgl', report.webgl.modes.crash);
+    }
 
     if (requestedScope === 'all') {
-      const persistenceBefore = await page.evaluate(() => ({
+      const persistenceBefore = await page.evaluate((includeCatastrophe) => ({
         draw: localStorage.getItem('kks_draw_tracks_v1'),
         trials: localStorage.getItem('kks_rally_trials_v1'),
         trialsCourses: localStorage.getItem('kks_rally_trials_courses_v1'),
-        crash: localStorage.getItem('kks_kaki_catastrophe_records_v1'),
-      }));
+        ...(includeCatastrophe ? {
+          crash: localStorage.getItem('kks_kaki_catastrophe_records_v1'),
+        } : {}),
+      }), catastropheRequested);
       assert(
         persistenceBefore.draw
           && persistenceBefore.trials
           && persistenceBefore.trialsCourses
-          && persistenceBefore.crash,
+          && (!catastropheRequested || persistenceBefore.crash),
         'legacy or Workshop save keys were not populated',
       );
       await page.reload({ waitUntil: 'load', timeout: 120_000 });
       await page.waitForFunction(() => !!window.__kakiRally);
-      const persistenceAfter = await page.evaluate(() => ({
+      const persistenceAfter = await page.evaluate((includeCatastrophe) => ({
         draw: localStorage.getItem('kks_draw_tracks_v1'),
         trials: localStorage.getItem('kks_rally_trials_v1'),
         trialsCourses: localStorage.getItem('kks_rally_trials_courses_v1'),
-        crash: localStorage.getItem('kks_kaki_catastrophe_records_v1'),
-      }));
+        ...(includeCatastrophe ? {
+          crash: localStorage.getItem('kks_kaki_catastrophe_records_v1'),
+        } : {}),
+      }), catastropheRequested);
       assert.deepEqual(persistenceAfter, persistenceBefore, 'records changed across reload');
       report.webgl.persistence = {
         drawBytes: persistenceAfter.draw.length,
         trialsBytes: persistenceAfter.trials.length,
         trialsCourseBytes: persistenceAfter.trialsCourses.length,
-        crashBytes: persistenceAfter.crash.length,
+        ...(persistenceAfter.crash ? { crashBytes: persistenceAfter.crash.length } : {}),
       };
     }
 
@@ -1713,9 +1751,10 @@ async function runWebGpu(browser, origin, report) {
         cardText: document.querySelector('.rally-mode-rail button[data-mode="crash"]')?.textContent || '',
       };
     });
-    assert(!crashAvailability.availability.canLaunch && crashAvailability.availability.action === 'restart-webgl');
+    assert(!crashAvailability.availability.canLaunch);
+    assert.equal(crashAvailability.availability.reason, 'out-of-production-scope');
     assert(!crashAvailability.launched && crashAvailability.activeMode === null, 'Catastrophe launched on WebGPU');
-    assert(/WEBGL/i.test(crashAvailability.cardText), 'Catastrophe WebGPU card does not explain its requirement');
+    assert.equal(crashAvailability.cardText, '', 'Catastrophe appeared in the production WebGPU menu');
     report.webgpu.modes.crash = crashAvailability;
     await page.screenshot({ path: path.join(QA_DIR, 'webgpu-menu.png') });
   } finally {
@@ -1730,6 +1769,7 @@ function emptyDiagnostics() {
     badResponses: [],
     failedRequests: [],
     expectedAborts: [],
+    frozenModeRequests: [],
   };
 }
 
@@ -1780,12 +1820,14 @@ try {
 
 for (const [backend, section] of Object.entries({ webgl: report.webgl, webgpu: report.webgpu })) {
   if (requestedBackend !== 'all' && requestedBackend !== backend) continue;
-  for (const key of ['pageErrors', 'consoleErrors', 'badResponses', 'failedRequests']) {
+  for (const key of ['pageErrors', 'consoleErrors', 'badResponses', 'failedRequests', 'frozenModeRequests']) {
     assert.deepEqual(section.diagnostics[key], [], `${backend} ${key}: ${section.diagnostics[key].join(' | ')}`);
   }
 }
 
 const covered = [];
-if (requestedBackend === 'all' || requestedBackend === 'webgl') covered.push('WebGL seven-mode lifecycle/touch/gamepad');
-if (requestedBackend === 'all' || requestedBackend === 'webgpu') covered.push('WebGPU normal-mode smoke and crash gate');
+if (requestedBackend === 'all' || requestedBackend === 'webgl') {
+  covered.push(`WebGL six-mode lifecycle/touch/gamepad${catastropheRequested ? ' plus optional Catastrophe' : ''}`);
+}
+if (requestedBackend === 'all' || requestedBackend === 'webgpu') covered.push('WebGPU production-mode smoke and frozen-mode gate');
 console.log(`Kaki Rally browser matrix passed: ${covered.join('; ')}`);

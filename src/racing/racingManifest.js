@@ -15,9 +15,6 @@ export const RALLY_ASSET_MANIFEST = Object.freeze({
   cyberKakiBody: Object.freeze({ url: 'assets/racing/models/cyber-kaki-body-v1.glb', kind: 'model' }),
   tipsyTumblerBody: Object.freeze({ url: 'assets/racing/monster-arena/models/tipsy-tumbler-monster-truck-v2.glb', kind: 'model' }),
   arenaTrafficKit: Object.freeze({ url: 'assets/racing/models/arena-traffic-kit-runtime-v2.glb', kind: 'model' }),
-  crashVehicleKit: Object.freeze({ url: 'assets/racing/crash/kaki-crash-kit-v1.glb', kind: 'model' }),
-  crashVehicleKitV2: Object.freeze({ url: 'assets/racing/crash/kaki-catastrophe-vehicles-v2.glb', kind: 'model' }),
-  crashEnvironmentV2: Object.freeze({ url: 'assets/racing/crash/pawprint-moonpaw-environment-v2.glb', kind: 'model' }),
   monsterEnvironmentKit: Object.freeze({ url: 'assets/racing/monster-arena/models/monster-arena-environment-kit-v1.glb', kind: 'model' }),
   monsterAudienceBank: Object.freeze({ url: 'assets/racing/monster-arena/models/arena-audience-bank-v1.glb', kind: 'model' }),
   monsterArenaBackdrop: Object.freeze({ url: 'assets/racing/domino-grand-yard-exterior-grok-v2.webp', kind: 'color' }),
@@ -105,9 +102,6 @@ export function rallyAssetIds(
   monsterVehicleId = 'meowster',
   { monsterProductionAssets = false } = {},
 ) {
-  if (mode === 'crash') {
-    return ['decalAtlas', 'crashVehicleKitV2', 'crashEnvironmentV2', 'skyTwilight'];
-  }
   // Release Monster Smash uses the decimated, instanced traffic kit plus a
   // bounded selection of authored arena props. The expensive full stadium and
   // 3D audience remain opt-in, but ordinary play no longer falls all the way

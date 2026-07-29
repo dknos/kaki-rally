@@ -4,7 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
-import { rallyAssetIds, RALLY_ASSET_MANIFEST } from '../src/racing/racingManifest.js';
+import {
+  CATASTROPHE_ASSET_IDS,
+  CATASTROPHE_ASSET_MANIFEST,
+} from '../src/racing/crash/crashManifest.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const VEHICLE_FILE = path.join(ROOT, 'assets/racing/crash/kaki-catastrophe-vehicles-v2.glb');
@@ -171,10 +174,10 @@ function validateEnvironment(json) {
 }
 
 function validateRuntimeBoundary() {
-  const crashAssets = rallyAssetIds('forest', 'crash');
+  const crashAssets = CATASTROPHE_ASSET_IDS;
   check(JSON.stringify(crashAssets) === JSON.stringify(['decalAtlas', 'crashVehicleKitV2', 'crashEnvironmentV2', 'skyTwilight']), 'Catastrophe working set contains a legacy asset');
   for (const id of crashAssets) {
-    const url = RALLY_ASSET_MANIFEST[id]?.url || '';
+    const url = CATASTROPHE_ASSET_MANIFEST[id]?.url || '';
     check(url && !/^(?:https?:)?\/\//i.test(url), `Catastrophe asset ${id} is not local-only`);
   }
   const crashDir = path.join(ROOT, 'src/racing/crash');

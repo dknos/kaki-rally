@@ -17,7 +17,6 @@ import {
   TRIALS_TRACKS,
 } from '../racing/trialsTracks.js';
 import { TRIALS_VEHICLE_PROFILES } from '../racing/trialsPhysics.js';
-import { CRASH_PLAYER_PROFILES } from '../racing/crash/crashConfig.js';
 import { rendererPreferenceReloadUrl } from '../rendering/rendererSettings.js';
 import {
   exportRallySave,
@@ -90,6 +89,12 @@ const MODE_DATA = Object.freeze({
   }),
 });
 
+const CATASTROPHE_DEVELOPMENT_VEHICLES = Object.freeze([
+  Object.freeze({ value: 'pocket', label: 'Pocket Pouncer' }),
+  Object.freeze({ value: 'muscle', label: 'Kaki Muscle' }),
+  Object.freeze({ value: 'iron', label: 'Iron Tabby' }),
+]);
+
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>'"]/g, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
@@ -129,7 +134,6 @@ function recordSummary() {
   const draw = safeJson('kks_draw_tracks_v1', { tracks: [] });
   const monster = safeJson('kks_monster_records_v1', { records: {} });
   const trials = safeJson('kks_rally_trials_v1', { records: {}, unlocked: ['meadow'] });
-  const crash = safeJson('kks_kaki_catastrophe_records_v1', {});
   const trialRecords = Object.values(trials.records || {});
   return {
     rallyRecords: Object.keys(rally).length,
@@ -139,7 +143,6 @@ function recordSummary() {
     monsterRecords: Object.keys(monster.records || monster).length,
     trialsMedals: trialRecords.filter((record) => record?.medal).length,
     trialsUnlocked: (trials.unlocked || ['meadow']).length,
-    crashScore: Number(crash.score || 0),
   };
 }
 
@@ -166,7 +169,6 @@ export class RallyMenu {
     onOpenDraw = null,
     onOpenTrialsWorkshop = null,
     onRestartWebGL = null,
-    onExperimentalCrash = null,
   } = {}) {
     if (!host) throw new TypeError('RallyMenu requires a host element');
     this.host = host;
@@ -177,10 +179,13 @@ export class RallyMenu {
     this.onOpenDraw = onOpenDraw;
     this.onOpenTrialsWorkshop = onOpenTrialsWorkshop;
     this.onRestartWebGL = onRestartWebGL;
-    this.onExperimentalCrash = onExperimentalCrash;
+    this.catastropheDevelopment = !!route.catastropheDevelopment;
     this.settings = readRallySettings();
     this.optionsBaseline = { ...this.settings };
-    this.selectedMode = route.mode || this.settings.lastMode || 'circuit';
+    const requestedMode = route.mode || this.settings.lastMode || 'circuit';
+    this.selectedMode = requestedMode === 'crash' && !this.catastropheDevelopment
+      ? 'circuit'
+      : requestedMode;
     this.screen = 'main';
     this.visible = false;
     this.toastTimer = null;
@@ -211,7 +216,7 @@ export class RallyMenu {
           <button type="button" data-mode="draw"><span>✎</span><strong>DRAW YOUR TRACK</strong></button>
           <button type="button" data-mode="monster"><span>✦</span><strong>MONSTER SMASH</strong></button>
           <button type="button" data-mode="trials"><span>△</span><strong>KAKI TRIALS</strong></button>
-          <button type="button" data-mode="crash"><span>β</span><strong>KAKI CATASTROPHE</strong><em></em></button>
+          ${this.catastropheDevelopment ? '<button type="button" data-mode="crash"><span>DEV</span><strong>KAKI CATASTROPHE</strong><em></em></button>' : ''}
         </nav>
         <section class="rally-detail" aria-live="polite"></section>
         <footer class="rally-utilities">
@@ -249,12 +254,12 @@ export class RallyMenu {
   availability() {
     return getRacingModeAvailability('crash', {
       backend: this.backend,
-      experimental: !!this.route.experimentalCrash,
+      development: this.catastropheDevelopment,
     });
   }
 
   show({ mode = null } = {}) {
-    if (mode) this.selectedMode = mode;
+    if (mode && (mode !== 'crash' || this.catastropheDevelopment)) this.selectedMode = mode;
     this.visible = true;
     this.host.hidden = false;
     this.screen = 'main';
@@ -268,7 +273,7 @@ export class RallyMenu {
   }
 
   selectMode(mode, { announce = true } = {}) {
-    if (!MODE_DATA[mode]) return false;
+    if (!MODE_DATA[mode] || (mode === 'crash' && !this.catastropheDevelopment)) return false;
     this.selectedMode = mode;
     this.settings = writeRallySettings({ ...this.settings, lastMode: mode });
     this.screen = 'main';
@@ -288,8 +293,10 @@ export class RallyMenu {
     });
     const crashButton = root.querySelector('.rally-mode-rail button[data-mode="crash"]');
     const availability = this.availability();
-    crashButton.querySelector('em').textContent = availability.label;
-    crashButton.classList.toggle('is-blocked', !availability.canLaunch);
+    if (crashButton) {
+      crashButton.querySelector('em').textContent = availability.label;
+      crashButton.classList.toggle('is-blocked', !availability.canLaunch);
+    }
     if (this.screen === 'options') this.renderOptions();
     else if (this.screen === 'records') this.renderRecords();
     else this.renderMode();
@@ -344,7 +351,7 @@ export class RallyMenu {
         ${this.cameraSelect()}`;
     } else {
       setup = `
-        ${selectMarkup('crashVehicle', 'Impact car', Object.values(CRASH_PLAYER_PROFILES).map((profile) => ({ value: profile.id, label: profile.name })), this.settings.crashVehicle)}
+        ${selectMarkup('crashVehicle', 'Impact car', CATASTROPHE_DEVELOPMENT_VEHICLES, this.settings.crashVehicle)}
         ${selectMarkup('crashQuality', 'Traffic budget', [
           { value: 'low', label: 'Low · 24 bodies' },
           { value: 'medium', label: 'Medium · 38 bodies' },
@@ -359,9 +366,7 @@ export class RallyMenu {
         ? '<button class="rally-launch is-secondary" type="button" data-action="trials-workshop">COURSE WORKSHOP <span>✎</span></button><button class="rally-launch" type="button" data-action="launch">START KAKI TRIALS <span>→</span></button>'
       : this.selectedMode === 'crash' && availability.action === 'restart-webgl'
         ? '<button class="rally-launch" type="button" data-action="restart-webgl">RESTART IN WEBGL <span>↻</span></button>'
-        : this.selectedMode === 'crash' && availability.action === 'experimental-query'
-          ? '<button class="rally-launch" type="button" data-action="experimental-crash">ENABLE EXPERIMENTAL <span>→</span></button>'
-          : `<button class="rally-launch" type="button" data-action="launch"${canLaunchRacingMode(this.selectedMode, { backend: this.backend, experimental: !!this.route.experimentalCrash }) ? '' : ' disabled'}>START ${escapeHtml(data.short.toUpperCase())} <span>→</span></button>`;
+      : `<button class="rally-launch" type="button" data-action="launch"${canLaunchRacingMode(this.selectedMode, { backend: this.backend, development: this.catastropheDevelopment }) ? '' : ' disabled'}>START ${escapeHtml(data.short.toUpperCase())} <span>→</span></button>`;
     this.host.querySelector('.rally-detail').innerHTML = `
       <div class="rally-detail-copy">
         <span class="rally-eyebrow">${escapeHtml(data.eyebrow)}</span>
@@ -434,7 +439,6 @@ export class RallyMenu {
         <article><span>DRAW LIBRARY</span><strong>${summary.drawTracks}</strong><p>${summary.drawBest ? `${escapeHtml(summary.drawBest.name)} · ${formatTime(summary.drawBest.bestLap)}` : 'No saved best lap.'}</p></article>
         <article><span>MONSTER ROUTES</span><strong>${summary.monsterRecords}</strong><p>Personal routes and event records.</p></article>
         <article><span>TRIALS MEDALS</span><strong>${summary.trialsMedals}</strong><p>${summary.trialsUnlocked} / 3 courses unlocked.</p></article>
-        <article><span>CATASTROPHE PB</span><strong>${Math.round(summary.crashScore).toLocaleString()}</strong><p>Pawprint Interchange destruction value.</p></article>
         <article><span>DRIVER</span><strong>${escapeHtml(AVATARS.find((avatar) => avatar.id === this.settings.lastDriver)?.icon || '🐱')}</strong><p>${escapeHtml(AVATARS.find((avatar) => avatar.id === this.settings.lastDriver)?.name || 'Kitty Kaki')}</p></article>
       </div>
       <div class="rally-save-actions">
@@ -543,8 +547,6 @@ export class RallyMenu {
       this.render();
     } else if (action === 'restart-webgl') {
       this.onRestartWebGL?.();
-    } else if (action === 'experimental-crash') {
-      this.onExperimentalCrash?.();
     } else if (action === 'apply-options') {
       const before = this.optionsBaseline;
       const form = this.host.querySelector('.rally-options-form');
@@ -570,7 +572,7 @@ export class RallyMenu {
     } else if (action === 'import-save') {
       this.importInput.click();
     } else if (action === 'reset-records') {
-      if (confirm('Reset all race, Monster, Trials, and Catastrophe records? Draw Track creations will remain.')) {
+      if (confirm('Reset all race, Monster, and Trials records? Draw Track creations will remain.')) {
         resetRallyRecords({ confirmed: true });
         this.renderRecords();
         this.toast('Records reset');

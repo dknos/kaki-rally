@@ -2,6 +2,10 @@ import * as THREE from 'three';
 import { buildRallyCar } from '../racingVehicles.js';
 import { createRallyAssetLease } from '../racingAssets.js';
 import { crashVehicleProfile } from './crashConfig.js';
+import {
+  CATASTROPHE_ASSET_IDS,
+  CATASTROPHE_ASSET_MANIFEST,
+} from './crashManifest.js';
 
 const COLORS = [0xff6f91, 0x65d9f3, 0xffc859, 0x83dc86, 0xa986ef, 0xee795e, 0x4bc6ad, 0xe9e0d0, 0x64798f, 0xd24b57, 0xf3a0d3, 0x5f73d9];
 
@@ -354,7 +358,11 @@ export function attachCrashPlayerProductionModel(visual, gltf, profile, owned) {
 }
 
 export function createCrashAssetLease(renderer = null) {
-  return createRallyAssetLease({ courseId: 'forest', mode: 'crash', renderer });
+  return createRallyAssetLease({
+    renderer,
+    assetIds: CATASTROPHE_ASSET_IDS,
+    manifest: CATASTROPHE_ASSET_MANIFEST,
+  });
 }
 
 export function buildCrashPlayerVisual({ profile, hero, owned, decalTexture }) {

@@ -26,7 +26,7 @@
   "summary": {
     "files": 119,
     "bytes": 63917381,
-    "referencedFiles": 94,
+    "referencedFiles": 93,
     "byKind": {
       "support": 4,
       "model": 25,
@@ -273,8 +273,7 @@
       "sha256": "4a63431c39d1ca4272961cec854d7df893ac36361e39cb6a8d8880e2935cd317",
       "kind": "model",
       "references": [
-        "manifest:crashVehicleKitV2",
-        "source:src/racing/racingManifest.js"
+        "source:src/racing/crash/crashManifest.js"
       ]
     },
     {
@@ -282,10 +281,7 @@
       "bytes": 1065392,
       "sha256": "baf976d8b754629024c9eb6469dc23649cd6bf90f8dea5a0506a28d192cfff9a",
       "kind": "model",
-      "references": [
-        "manifest:crashVehicleKit",
-        "source:src/racing/racingManifest.js"
-      ]
+      "references": []
     },
     {
       "path": "assets/racing/crash/pawprint-moonpaw-environment-v2.glb",
@@ -293,8 +289,7 @@
       "sha256": "0ee552728b76b6d6dc3288d91845e94a953f93accb66235ddf0d05c13c431f97",
       "kind": "model",
       "references": [
-        "manifest:crashEnvironmentV2",
-        "source:src/racing/racingManifest.js"
+        "source:src/racing/crash/crashManifest.js"
       ]
     },
     {
@@ -321,6 +316,7 @@
       "kind": "image",
       "references": [
         "manifest:decalAtlas",
+        "source:src/racing/crash/crashManifest.js",
         "source:src/racing/racingManifest.js"
       ]
     },
@@ -1028,6 +1024,7 @@
       "kind": "image",
       "references": [
         "manifest:skyTwilight",
+        "source:src/racing/crash/crashManifest.js",
         "source:src/racing/racingManifest.js"
       ]
     },

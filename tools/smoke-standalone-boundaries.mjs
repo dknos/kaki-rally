@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENTRY = path.join(ROOT, 'src', 'main.js');
-const IMPORT_PATTERN = /(?:import|export)\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+const STATIC_IMPORT_PATTERN = /(?:import|export)\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"]/g;
+const DYNAMIC_IMPORT_PATTERN = /import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 const FORBIDDEN_PATHS = [
   /(?:^|\/)bullethell(?:\/|$)/i,
   /(?:^|\/)weapons?(?:\/|\.js$)/i,
@@ -38,8 +39,8 @@ while (queue.length) {
   visited.add(file);
   assert.equal(fs.existsSync(file), true, `production import is missing: ${relative(file)}`);
   const source = fs.readFileSync(file, 'utf8');
-  for (const match of source.matchAll(IMPORT_PATTERN)) {
-    const specifier = match[1] || match[2];
+  for (const match of source.matchAll(STATIC_IMPORT_PATTERN)) {
+    const specifier = match[1];
     edges.push({ owner: relative(file), specifier });
     for (const forbidden of FORBIDDEN_PATHS) {
       assert.doesNotMatch(specifier, forbidden, `${relative(file)} imports forbidden Survivors subsystem ${specifier}`);
@@ -52,6 +53,19 @@ while (queue.length) {
     assert.ok(resolved.startsWith(path.join(ROOT, 'src') + path.sep), `${relative(file)} imports outside src: ${specifier}`);
     queue.push(resolved);
   }
+  for (const match of source.matchAll(DYNAMIC_IMPORT_PATTERN)) {
+    const specifier = match[1];
+    edges.push({ owner: relative(file), specifier, dynamic: true });
+    if (!specifier.startsWith('.')) {
+      assert.match(specifier, /^three(?:\/|$)/, `unapproved lazy bare import: ${specifier}`);
+      continue;
+    }
+    assert.equal(
+      `${relative(file)}:${specifier}`,
+      'src/app/rallyApp.js:../racing/crash/crashMode.js',
+      `unapproved lazy production import: ${relative(file)} -> ${specifier}`,
+    );
+  }
 }
 
 const main = fs.readFileSync(ENTRY, 'utf8');
@@ -62,6 +76,7 @@ assert.ok(visited.size >= 70, `standalone graph is unexpectedly small (${visited
 const graphPaths = [...visited].map(relative);
 for (const file of graphPaths) {
   for (const forbidden of FORBIDDEN_PATHS) assert.doesNotMatch(file, forbidden);
+  assert.doesNotMatch(file, /^src\/racing\/crash\//, 'normal startup statically imports frozen Catastrophe code');
 }
 
 const racingSource = fs.readFileSync(path.join(ROOT, 'src', 'racing', 'index.js'), 'utf8');

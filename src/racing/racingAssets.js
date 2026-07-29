@@ -35,8 +35,8 @@ function _configureTexture(texture, spec, rendererSource) {
   return texture;
 }
 
-function _acquire(id, rendererSource) {
-  const spec = RALLY_ASSET_MANIFEST[id];
+function _acquire(id, rendererSource, manifest = RALLY_ASSET_MANIFEST) {
+  const spec = manifest[id];
   if (!spec) throw new Error(`[Kaki Rally assets] Unknown manifest id: ${id}`);
   let entry = _cache.get(spec.url);
   if (!entry) {
@@ -87,11 +87,13 @@ export function createRallyAssetLease({
   rendererService = null,
   trials = false,
   monsterProductionAssets = false,
+  assetIds = null,
+  manifest = RALLY_ASSET_MANIFEST,
 } = {}) {
-  const ids = trials
+  const ids = assetIds || (trials
     ? trialsAssetIds(courseId)
-    : rallyAssetIds(courseId, mode, monsterVehicleId, { monsterProductionAssets });
-  const entries = ids.map((id) => _acquire(id, rendererService || renderer));
+    : rallyAssetIds(courseId, mode, monsterVehicleId, { monsterProductionAssets }));
+  const entries = ids.map((id) => _acquire(id, rendererService || renderer, manifest));
   const textureEntries = entries.filter((entry) => entry.kind === 'texture');
   const entriesById = Object.fromEntries(ids.map((id, index) => [id, entries[index]]));
   const textures = Object.fromEntries(textureEntries.map((entry) => [entry.id, entry.texture]));

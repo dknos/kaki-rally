@@ -159,17 +159,14 @@ const SURFACE_FEEL = Object.freeze({
 let _touchDrift = false;
 let _touchHandbrake = false;
 let _crashModeApi = null;
-let _crashModePromise = null;
 
-function _loadCrashMode() {
-  if (_crashModeApi) return Promise.resolve(_crashModeApi);
-  if (!_crashModePromise) {
-    _crashModePromise = import('./crash/crashMode.js').then((module) => {
-      _crashModeApi = module;
-      return module;
-    });
+export function registerDevelopmentRacingMode(mode, api) {
+  if (mode !== 'crash') throw new Error(`Unknown development racing mode: ${mode}`);
+  if (!api?.enterCrashMode || !api?.exitCrashMode) {
+    throw new TypeError('Catastrophe development API is incomplete');
   }
-  return _crashModePromise;
+  _crashModeApi = api;
+  return true;
 }
 
 function _kickCamera(session, strength = 0.3, roll = 0, punch = 0.25) {
@@ -2424,8 +2421,11 @@ function _snapshot(session) {
 
 export function enterRacing(scene, courseId = 'forest', options = {}) {
   if (options.mode === 'crash') {
+    if (!_crashModeApi) {
+      throw new Error('Kaki Catastrophe is frozen; use the explicit local-development route');
+    }
     if (state.racing && state.racing.raceMode !== 'crash') exitRacing(scene);
-    return _loadCrashMode().then((api) => api.enterCrashMode(scene, { ...options, courseId }));
+    return _crashModeApi.enterCrashMode(scene, { ...options, courseId });
   }
   if (options.mode === 'trials') {
     return enterTrialsMode(scene, {

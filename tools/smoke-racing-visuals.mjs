@@ -30,7 +30,6 @@ const RACING_INDEX_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'racing',
 const MAIN_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'app', 'rallyApp.js'), 'utf8');
 const RACING_ENVIRONMENT_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'racing', 'racingEnvironment.js'), 'utf8');
 const MONSTER_ARENA_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'racing', 'monsterArena.js'), 'utf8');
-const CRASH_ASSETS_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'racing', 'crash', 'crashAssets.js'), 'utf8');
 const BACKDROP_MATERIAL_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'rendering', 'materials', 'racingBackdropMaterials.js'), 'utf8');
 
 const failures = [];
@@ -283,7 +282,6 @@ check('detailed driver shadow proxies preserve hero lifecycle and authored-body 
   expect(/entry\.object\.castShadow = entry\.castShadow/.test(RACING_INDEX_SOURCE), 'Rally does not restore the persistent hero shadow state');
   expect(/shadowStates:\s*\[\]/.test(TRIALS_MODE_SOURCE), 'Trials does not snapshot the persistent hero shadow state');
   expect(/entry\.object\.castShadow = entry\.castShadow/.test(TRIALS_MODE_SOURCE), 'Trials does not restore the persistent hero shadow state');
-  expect(/optimizeDriverShadow:\s*false/.test(CRASH_ASSETS_SOURCE), 'deferred Catastrophe accidentally inherits the shared Rally driver-shadow mutation');
 });
 
 check('Trials touch controls fit 320/360px portrait with accessible targets', () => {

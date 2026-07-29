@@ -1,5 +1,3 @@
-export const CATASTROPHE_WEBGL_BETA_VALIDATED = true;
-
 const AVAILABLE = Object.freeze({
   status: 'available',
   canLaunch: true,
@@ -14,45 +12,34 @@ function normalizedBackend(value) {
 
 export function getRacingModeAvailability(mode, {
   backend = 'webgl',
-  experimental = false,
-  catastropheValidated = CATASTROPHE_WEBGL_BETA_VALIDATED,
+  development = false,
 } = {}) {
   if (String(mode || '') !== 'crash') return AVAILABLE;
+  if (!development) {
+    return Object.freeze({
+      status: 'frozen',
+      canLaunch: false,
+      reason: 'out-of-production-scope',
+      label: 'FROZEN',
+      detail: 'Kaki Catastrophe is preserved outside the production menu.',
+    });
+  }
   if (normalizedBackend(backend) === 'webgpu') {
     return Object.freeze({
       status: 'renderer-required',
       canLaunch: false,
       reason: 'webgl-required',
-      label: 'WEBGL BETA',
-      detail: 'Kaki Catastrophe Beta currently requires WebGL 2.',
+      label: 'DEV · WEBGL',
+      detail: 'The frozen Catastrophe development route requires WebGL 2.',
       action: 'restart-webgl',
     });
   }
-  if (catastropheValidated) {
-    return Object.freeze({
-      status: 'beta',
-      canLaunch: true,
-      reason: 'validated-webgl-beta',
-      label: 'WEBGL BETA',
-      detail: 'Validated for WebGL 2. WebGPU remains experimental.',
-    });
-  }
-  if (experimental) {
-    return Object.freeze({
-      status: 'experimental',
-      canLaunch: true,
-      reason: 'experimental-query',
-      label: 'EXPERIMENTAL',
-      detail: 'Enabled by ?experimental=crash while the WebGL beta gate is under review.',
-    });
-  }
   return Object.freeze({
-    status: 'gated',
-    canLaunch: false,
-    reason: 'browser-validation-blocked',
-    label: 'PRESERVED',
-    detail: 'Source, tests, and assets are preserved. Launch with ?experimental=crash.',
-    action: 'experimental-query',
+    status: 'development',
+    canLaunch: true,
+    reason: 'localhost-development-flag',
+    label: 'DEV ONLY',
+    detail: 'Frozen experiment enabled explicitly for this localhost session.',
   });
 }
 

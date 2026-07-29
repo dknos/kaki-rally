@@ -16,12 +16,21 @@ export function normalizeRouteMode(value) {
   return MODE_ALIASES[String(value || '').trim().toLowerCase()] || null;
 }
 
+function isLocalDevelopmentUrl(parsed) {
+  return ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname);
+}
+
 export function readRallyRoute(url = globalThis.location?.href || 'https://local.invalid/') {
   const parsed = new URL(url, 'https://local.invalid/');
+  const catastropheDevelopment = (
+    isLocalDevelopmentUrl(parsed)
+    && parsed.searchParams.get('dev') === 'catastrophe'
+  );
+  const requestedMode = normalizeRouteMode(parsed.searchParams.get('mode'));
   return Object.freeze({
-    mode: normalizeRouteMode(parsed.searchParams.get('mode')),
+    mode: requestedMode === 'crash' && !catastropheDevelopment ? null : requestedMode,
     renderer: parsed.searchParams.get('renderer'),
-    experimentalCrash: parsed.searchParams.get('experimental') === 'crash',
+    catastropheDevelopment,
     autoStart: parsed.searchParams.get('play') === '1',
     qa: parsed.searchParams.has('qa'),
   });
@@ -30,7 +39,7 @@ export function readRallyRoute(url = globalThis.location?.href || 'https://local
 export function routeUrl(currentHref, {
   mode,
   renderer,
-  experimentalCrash,
+  catastropheDevelopment,
   autoStart,
 } = {}) {
   const url = new URL(currentHref);
@@ -38,8 +47,10 @@ export function routeUrl(currentHref, {
   else if (mode) url.searchParams.set('mode', normalizeRouteMode(mode) || mode);
   if (renderer === null) url.searchParams.delete('renderer');
   else if (renderer) url.searchParams.set('renderer', renderer);
-  if (experimentalCrash === false) url.searchParams.delete('experimental');
-  else if (experimentalCrash === true) url.searchParams.set('experimental', 'crash');
+  if (catastropheDevelopment === false) url.searchParams.delete('dev');
+  else if (catastropheDevelopment === true && isLocalDevelopmentUrl(url)) {
+    url.searchParams.set('dev', 'catastrophe');
+  }
   if (autoStart === false) url.searchParams.delete('play');
   else if (autoStart === true) url.searchParams.set('play', '1');
   return url;
@@ -71,13 +82,12 @@ export class RallyRouter {
   }
 
   restartInWebGL(mode = 'crash') {
-    const url = routeUrl(location.href, { mode, renderer: 'webgl', autoStart: false });
-    location.assign(url.href);
-    return url;
-  }
-
-  enableExperimentalCrash() {
-    const url = routeUrl(location.href, { mode: 'crash', experimentalCrash: true });
+    const url = routeUrl(location.href, {
+      mode,
+      renderer: 'webgl',
+      catastropheDevelopment: mode === 'crash',
+      autoStart: false,
+    });
     location.assign(url.href);
     return url;
   }
