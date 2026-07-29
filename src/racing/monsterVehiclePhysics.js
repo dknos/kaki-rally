@@ -110,6 +110,28 @@ function _targetSupportsTire(target, x, z, kart, contactProfile) {
   };
 }
 
+function _targetAtTire(target, x, z, contactProfile) {
+  if (!target || target.active === false || _finite(target.respawnProgress, 1) < 0.9) return null;
+  if (target.kind === 'stuntman' || target.stackState === 'falling') return null;
+  const stats = target.stats;
+  if (!stats) return null;
+  const local = _targetLocal(target, x, z);
+  const pad = Math.max(0.32, contactProfile.wheelRadius * 0.5);
+  const halfLength = target.dominoGroup
+    ? stats.height * 0.35 + stats.length * 0.5 * Math.abs(Math.cos(_finite(target.pitch)))
+    : stats.length * 0.5;
+  if (Math.abs(local.x) > stats.width * 0.5 + pad || Math.abs(local.z) > halfLength + pad) return null;
+  const top = _finite(target.top, _finite(target.baseY) + stats.height);
+  const terrain = _finite(target.ground, _finite(target.baseY));
+  return {
+    target,
+    targetId: target.id || '',
+    targetKind: target.kind || '',
+    height: top,
+    rise: top - terrain,
+  };
+}
+
 /** Highest driveable support at one tire footprint. */
 export function sampleMonsterWheelSupport(terrainSampler, destruction, x, z, kart, profile = {}) {
   const contactProfile = _contactProfile(profile);
@@ -142,6 +164,121 @@ export function sampleMonsterWheelSupport(terrainSampler, destruction, x, z, kar
     };
   }
   return result;
+}
+
+/**
+ * Sweep one tire footprint from its previous to current position and probe the
+ * lower-forward arc. This is deliberately deterministic and bounded: it is a
+ * continuous arcade contact approximation, not a second rigid-body world.
+ */
+function _sampleSweptWheelContact({
+  terrainSampler,
+  destruction,
+  previous,
+  current,
+  yaw,
+  kart,
+  profile,
+  support,
+}) {
+  const contactProfile = _contactProfile(profile);
+  const dx = current.x - previous.x;
+  const dz = current.z - previous.z;
+  const distance = Math.hypot(dx, dz);
+  const steps = clamp(Math.ceil(distance / Math.max(0.18, contactProfile.wheelRadius * 0.38)), 1, 7);
+  const motionX = distance > 1e-6 ? dx / distance : Math.sin(yaw);
+  const motionZ = distance > 1e-6 ? dz / distance : Math.cos(yaw);
+  const arcOffsets = [0, contactProfile.wheelRadius * 0.38, contactProfile.wheelRadius * 0.72];
+  let firstTarget = null;
+  let wall = null;
+  let steepGround = null;
+  let previousTerrain = terrainSampler?.(previous.x, previous.z) || support;
+
+  for (let step = 0; step <= steps; step += 1) {
+    const alpha = step / steps;
+    const centerX = previous.x + dx * alpha;
+    const centerZ = previous.z + dz * alpha;
+    for (const arcOffset of arcOffsets) {
+      const probeX = centerX + motionX * arcOffset;
+      const probeZ = centerZ + motionZ * arcOffset;
+      const terrain = terrainSampler?.(probeX, probeZ) || support;
+      const rise = _finite(terrain.height) - _finite(previousTerrain?.height);
+      if (
+        !steepGround
+        && rise > contactProfile.maxClimbHeight
+        && terrain.surface !== 'ramp-dirt'
+      ) {
+        steepGround = {
+          type: 'vertical-wall',
+          alpha,
+          x: probeX,
+          z: probeZ,
+          height: _finite(terrain.height),
+          rise,
+          targetId: '',
+          targetKind: '',
+        };
+      }
+      previousTerrain = terrain;
+      for (const target of destruction?.targets || []) {
+        const hit = _targetAtTire(target, probeX, probeZ, contactProfile);
+        if (!hit) continue;
+        const driveable = !!target.destroyed || _finite(target.crush) >= 0.3
+          || hit.rise <= contactProfile.maxClimbHeight;
+        const record = {
+          type: driveable ? 'climbable-edge' : 'vertical-wall',
+          alpha,
+          x: probeX,
+          z: probeZ,
+          height: hit.height,
+          rise: hit.rise,
+          targetId: hit.targetId,
+          targetKind: hit.targetKind,
+          target,
+        };
+        if (driveable && !firstTarget) firstTarget = record;
+        if (!driveable && !wall) wall = record;
+      }
+    }
+  }
+
+  if (wall || steepGround) return wall || steepGround;
+  if (firstTarget) return firstTarget;
+  if (support.targetId) {
+    return {
+      type: 'wreck-roof',
+      alpha: 1,
+      x: current.x,
+      z: current.z,
+      height: support.height,
+      rise: support.height - support.terrainHeight,
+      targetId: support.targetId,
+      targetKind: support.targetKind,
+      target: support.target,
+    };
+  }
+  if (support.syntheticRampDeparture || support.unsupported) {
+    return {
+      type: 'unsupported-air',
+      alpha: 1,
+      x: current.x,
+      z: current.z,
+      height: support.height,
+      rise: 0,
+      targetId: '',
+      targetKind: '',
+    };
+  }
+  return {
+    type: support.surface === 'ramp-dirt' ? 'ramp' : 'ground-below',
+    alpha: 1,
+    x: current.x,
+    z: current.z,
+    height: support.height,
+    rise: 0,
+    targetId: '',
+    targetKind: '',
+  };
 }
 
 function _bridgeRampDeparture(samples, kart, contactProfile, yaw) {
@@ -204,14 +341,34 @@ export function sampleMonsterSupportPlane(kart, terrainSampler, destruction, pro
   const samples = MONSTER_WHEEL_LAYOUT.map((layout) => {
     const local = _wheelLocal(layout, contactProfile);
     const world = _worldPoint(centerX, centerZ, yaw, local.x, local.z);
+    const previousWorld = _worldPoint(
+      _finite(position?.previousX, _finite(kart?.previousX, centerX)),
+      _finite(position?.previousZ, _finite(kart?.previousZ, centerZ)),
+      _finite(position?.previousYaw, yaw),
+      local.x,
+      local.z,
+    );
     const support = sampleMonsterWheelSupport(terrainSampler, destruction, world.x, world.z, kart, profile);
+    const sweptContact = _sampleSweptWheelContact({
+      terrainSampler,
+      destruction,
+      previous: previousWorld,
+      current: world,
+      yaw,
+      kart,
+      profile,
+      support,
+    });
     return {
       ...layout,
       localX: local.x,
       localZ: local.z,
       worldX: world.x,
       worldZ: world.z,
+      previousWorldX: previousWorld.x,
+      previousWorldZ: previousWorld.z,
       support,
+      sweptContact,
     };
   });
   _bridgeRampDeparture(samples, kart, contactProfile, yaw);
@@ -249,6 +406,8 @@ export function sampleMonsterSupportPlane(kart, terrainSampler, destruction, pro
     surface: representative.support.surface,
     surfaceGrip: samples.reduce((sum, sample) => sum + _finite(sample.support.surfaceGrip, 1), 0) / samples.length,
     surfaceDrag: samples.reduce((sum, sample) => sum + _finite(sample.support.surfaceDrag), 0) / samples.length,
+    obstacleContact: samples.some((sample) => sample.sweptContact?.type === 'vertical-wall'),
+    contactType: representative.sweptContact?.type || 'ground-below',
     wheels: samples,
   };
 }
@@ -266,6 +425,8 @@ export function createMonsterVehicleContact(baseContact, kart, destruction, prof
     surface: support.surface || baseContact?.surface,
     surfaceGrip: support.surfaceGrip,
     surfaceDrag: support.surfaceDrag,
+    obstacleContact: support.obstacleContact,
+    contactType: support.contactType,
     wheelSupport: support,
     sampleGround(x, z) {
       const next = sampleMonsterSupportPlane(kart, terrainSampler, destruction, profile, { x, z, yaw: kart?.yaw });
@@ -277,6 +438,8 @@ export function createMonsterVehicleContact(baseContact, kart, destruction, prof
         surface: next.surface,
         surfaceGrip: next.surfaceGrip,
         surfaceDrag: next.surfaceDrag,
+        obstacleContact: next.obstacleContact,
+        contactType: next.contactType,
         wheelSupport: next,
       };
     },
@@ -298,6 +461,10 @@ function _newWheelState(layout, contactProfile) {
     load: 0,
     visualOffset: -contactProfile.suspensionTravel * 0.26,
     impactSpeed: 0,
+    obstacleContact: false,
+    contactType: 'unsupported-air',
+    contactTarget: '',
+    contactSurface: '',
   };
 }
 
@@ -315,6 +482,9 @@ export function initializeMonsterVehiclePhysics(kart, profile = {}) {
   kart.groundedWheelCount = 4;
   kart.contactPitch = -_finite(kart.groundPitch);
   kart.contactRoll = -_finite(kart.groundRoll);
+  kart.contactPitchVelocity = 0;
+  kart.antiBackflipTorque = 0;
+  kart.frontalSnag = false;
   kart.bottomedOut = false;
   kart.wheelRpm = 0;
   kart.wheelSlip = 0;
@@ -372,6 +542,10 @@ export function stepMonsterContactPatches(kart, contact, profile = {}, dt, event
     state.worldZ = sample.worldZ;
     state.height = sample.support.height;
     state.surface = sample.support.surface;
+    state.obstacleContact = sample.sweptContact?.type === 'vertical-wall';
+    state.contactType = sample.sweptContact?.type || 'ground-below';
+    state.contactTarget = sample.sweptContact?.targetId || sample.support.targetId || '';
+    state.contactSurface = sample.support.surface || '';
     state.load = grounded ? clamp(0.24 + state.compression * 1.18 + Math.max(0, state.velocity) * 0.08, 0, 1.55) : 0;
     state.visualOffset = grounded
       ? (sample.support.height - support.fittedHeight) * 0.42 - (1 - state.compression) * contactProfile.suspensionTravel * 0.17
@@ -392,9 +566,33 @@ export function stepMonsterContactPatches(kart, contact, profile = {}, dt, event
   const averageCompression = _mean(states, () => true, 'compression');
   const averageVelocity = _mean(states, () => true, 'velocity');
   kart.groundedWheelCount = groundedCount;
-  kart.contactPitch = -support.pitch * contactProfile.pitchResponse
+  const targetPitch = -support.pitch * contactProfile.pitchResponse
     + _finite(kart.bodyPitch) * (profile.id === 'cyber' ? 0.62 : 0.88)
     + (rearCompression - frontCompression) * 0.12;
+  const previousPitch = _finite(kart.contactPitch, targetPitch);
+  const measuredPitchVelocity = clamp((targetPitch - previousPitch) / dt, -5.2, 5.2);
+  kart.contactPitchVelocity = _finite(kart.contactPitchVelocity)
+    + (measuredPitchVelocity - _finite(kart.contactPitchVelocity)) * (1 - Math.exp(-11 * dt));
+  const frontStates = states.filter((state) => state.axle === 'front');
+  const frontalSnag = groundedCount >= 2
+    && _finite(kart.forwardSpeed, kart.speed) > 3
+    && frontStates.some((state) => state.obstacleContact);
+  kart.frontalSnag = frontalSnag;
+  // Assistance is a torque-limited correction to an excessive grounded
+  // nose-up velocity. It never snaps attitude and fades immediately once the
+  // truck is airborne or the snag is gone.
+  const pitchThreshold = 1.05;
+  const requestedAssist = frontalSnag && kart.grounded && kart.contactPitchVelocity < -pitchThreshold
+    ? (-kart.contactPitchVelocity - pitchThreshold) * 5.4
+    : 0;
+  kart.antiBackflipTorque = clamp(requestedAssist, 0, 8.5);
+  if (kart.antiBackflipTorque > 0) {
+    kart.contactPitchVelocity = Math.min(
+      -pitchThreshold,
+      kart.contactPitchVelocity + kart.antiBackflipTorque * dt,
+    );
+  }
+  kart.contactPitch = previousPitch + kart.contactPitchVelocity * dt;
   kart.contactRoll = -support.roll * contactProfile.rollResponse
     + _finite(kart.bodyRoll) * (profile.id === 'cyber' ? 0.58 : 0.9)
     + (leftCompression - rightCompression) * 0.11;
@@ -414,6 +612,10 @@ export function stepMonsterContactPatches(kart, contact, profile = {}, dt, event
   events.wheelContacts = entered;
   events.bottomedOut = bottomedOut;
   events.groundedWheels = groundedCount;
+  events.obstacleContact = states.some((state) => state.obstacleContact);
+  events.contactTarget = states.find((state) => state.contactTarget)?.contactTarget || '';
+  events.contactSurface = states.find((state) => state.contactSurface)?.contactSurface || '';
+  events.antiBackflipTorque = kart.antiBackflipTorque;
   if (events.landed) {
     const first = [...states].sort((a, b) => b.height - a.height || b.load - a.load)[0];
     events.landingContact = first?.axle === 'front'
@@ -434,9 +636,18 @@ export function monsterContactPatchSnapshot(kart) {
       compression: _finite(contact.compression),
       load: _finite(contact.load),
       height: _finite(contact.height),
+      compressionVelocity: _finite(contact.velocity),
+      visualOffset: _finite(contact.visualOffset),
+      surface: contact.contactSurface || contact.surface || '',
+      obstacleContact: !!contact.obstacleContact,
+      contactType: contact.contactType || '',
+      contactTarget: contact.contactTarget || '',
     }])),
     pitch: _finite(kart?.contactPitch),
     roll: _finite(kart?.contactRoll),
+    pitchVelocity: _finite(kart?.contactPitchVelocity),
+    obstacleContact: !!kart?.frontalSnag,
+    antiBackflipTorque: _finite(kart?.antiBackflipTorque),
     bottomedOut: !!kart?.bottomedOut,
     wheelRpm: _finite(kart?.wheelRpm),
     wheelSlip: _finite(kart?.wheelSlip),

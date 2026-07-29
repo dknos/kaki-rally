@@ -69,6 +69,7 @@ import { applyRallyOptions } from './rallyOptions.js';
 import { RallyRouter, readRallyRoute, routeUrl } from './rallyRouter.js';
 import { readRallySettings } from './rallySave.js';
 import { RallyTouchControls } from './rallyTouchControls.js';
+import { DeveloperOverlay } from './developerOverlay.js';
 
 const SOURCE_COMMIT = '3711e8fc0c2c86b27911171c5394723ceb9e45aa';
 const MAX_FRAME_SECONDS = 0.05;
@@ -115,6 +116,62 @@ function sessionRootCount(scene) {
     /^kaki-(rally|trials|catastrophe)-/.test(child.name)
     && !child.name.startsWith('kaki-rally-driver-')
   )).length || 0;
+}
+
+function sceneRenderables(scene) {
+  let visible = 0;
+  let instanced = 0;
+  let instances = 0;
+  scene?.traverseVisible?.((object) => {
+    visible += 1;
+    if (object.isInstancedMesh) {
+      instanced += 1;
+      instances += Number(object.count) || 0;
+    }
+  });
+  return { visible, instanced, instances };
+}
+
+function estimateSceneGpuBytes(scene) {
+  const geometries = new Set();
+  const textures = new Set();
+  scene?.traverse?.((object) => {
+    if (object.geometry) geometries.add(object.geometry);
+    const materials = Array.isArray(object.material) ? object.material : [object.material];
+    for (const material of materials) {
+      if (!material) continue;
+      for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
+    }
+  });
+  let bytes = 0;
+  for (const geometry of geometries) {
+    for (const attribute of Object.values(geometry.attributes || {})) {
+      bytes += attribute?.array?.byteLength || 0;
+    }
+    bytes += geometry.index?.array?.byteLength || 0;
+  }
+  for (const texture of textures) {
+    const image = texture.image;
+    const width = Number(image?.width || image?.videoWidth) || 0;
+    const height = Number(image?.height || image?.videoHeight) || 0;
+    bytes += width * height * 4 * (texture.generateMipmaps === false ? 1 : 4 / 3);
+  }
+  return Math.round(bytes);
+}
+
+function modePoolUsage(session) {
+  if (!session) return { active: 0, capacity: 0 };
+  const pools = session.racingVfx
+    ? [session.racingVfx.puffs, session.racingVfx.debris, session.racingVfx.skids]
+    : [session.particles];
+  let active = 0;
+  let capacity = 0;
+  for (const pool of pools) {
+    if (!Array.isArray(pool)) continue;
+    capacity += pool.length;
+    for (const item of pool) if ((Number(item?.life) || 0) > 0) active += 1;
+  }
+  return { active, capacity };
 }
 
 function isCoarseDevice() {
@@ -171,6 +228,9 @@ export class KakiRallyApp {
     this.frameCount = 0;
     this.disposed = false;
     this.audioUnlocked = false;
+    this.developerOverlay = null;
+    this.lastUpdateTimeMs = 0;
+    this.lastRenderTimeMs = 0;
     this._resize = () => this.resize();
     this._orientation = () => setTimeout(() => this.updateOrientationGate(), 50);
     this._visibility = () => this.handleVisibility();
@@ -201,6 +261,9 @@ export class KakiRallyApp {
     this.touchControls = new RallyTouchControls({ host: this.touchRoot });
     this.installNavigation();
     this.installMenu();
+    this.developerOverlay = new DeveloperOverlay({
+      getDiagnostics: () => this.getDiagnostics(),
+    });
 
     resetRuntimeSession();
     state.scene = this.scene;
@@ -516,6 +579,12 @@ export class KakiRallyApp {
         playerAvatarId: selectedDriver,
         cameraHost,
       }));
+      // Keep the branded loading card up until the selected mode's actual
+      // textures and GLBs are decoded. Environment builders attach their
+      // authored replacements from this same promise, so the first playable
+      // frame never exposes a temporary fallback tree/car/world.
+      await session?.assetLease?.ready;
+      await Promise.resolve();
       if (token !== this.transitionId) {
         exitRacing(this.scene, session);
         return null;
@@ -535,6 +604,10 @@ export class KakiRallyApp {
         paused: false,
       });
       if (cameraUpdate?.camera) this.setActiveCamera(cameraUpdate.camera);
+      // Zero-scale pooled VFX and all common materials are already present in
+      // the scene. Compile them behind the loading transition to avoid the
+      // first-drift, first-crush, first-bridge shader hitch.
+      await this.rendererService.pipeline?.compile?.(this.scene, this.activeCamera);
       this.touchControls?.show(mode);
       this.lastFrameTime = 0;
       state.diagnostics.modeTransitions += 1;
@@ -755,6 +828,17 @@ export class KakiRallyApp {
   }
 
   handleKeyDown(event) {
+    if (event.code === 'F3') {
+      event.preventDefault();
+      this.developerOverlay?.toggle();
+      return;
+    }
+    if (event.code === 'KeyH' && state.racing) {
+      event.preventDefault();
+      state.racing.controlsHelpUntil = performance.now() + 6_000;
+      state.racing.hud?.root?.classList.remove('is-controls-faded');
+      return;
+    }
     if (event.code === 'Escape' && state.racing) {
       event.preventDefault();
       this.togglePause('escape');
@@ -798,6 +882,7 @@ export class KakiRallyApp {
     state.time.real += realDt;
     this.frameCount += 1;
 
+    const updateStarted = performance.now();
     sampleInput();
     if (state.mode === 'menu') this.menu?.updateGamepad(gamepadState);
     if (state.racing && gamepadState.justPressed.start) this.togglePause('gamepad');
@@ -834,7 +919,16 @@ export class KakiRallyApp {
     if (state.postFXPass?.uniforms?.time) {
       state.postFXPass.uniforms.time.value = state.time.real;
     }
+    this.lastUpdateTimeMs = performance.now() - updateStarted;
+    const renderStarted = performance.now();
     this.rendererService.render(this.scene, this.activeCamera);
+    this.lastRenderTimeMs = performance.now() - renderStarted;
+    this.developerOverlay?.recordFrame({
+      frameMs: elapsedDt * 1000,
+      updateMs: this.lastUpdateTimeMs,
+      physicsMs: state.racing?.physicsTimeMs || 0,
+      renderMs: this.lastRenderTimeMs,
+    });
   }
 
   resize({ renderer = true } = {}) {
@@ -953,13 +1047,17 @@ export class KakiRallyApp {
       renderer: this.rendererService?.getDiagnostics?.() || null,
       racing: getRacingSnapshot(),
       sceneObjects: sceneObjectCount(this.scene),
+      sceneRenderables: sceneRenderables(this.scene),
+      estimatedGpuMemoryBytes: estimateSceneGpuBytes(this.scene),
       domNodes: document.getElementsByTagName('*').length,
+      modeOwnedDomNodes: state.racing?.hud?.root?.getElementsByTagName('*').length || 0,
       hudRoots: document.querySelectorAll('.kkr-hud,.kkc-hud').length,
       sessionRoots: sessionRootCount(this.scene),
       assets: getAssetDiagnostics(),
       input: getInputDiagnostics(),
       audio: getAudioDiagnostics(),
       touch: this.touchControls?.getDiagnostics() || null,
+      poolUsage: modePoolUsage(state.racing),
       transitions: [...this.transitionSamples],
       frameCount: this.frameCount,
       stateDiagnostics: { ...state.diagnostics },
@@ -999,6 +1097,7 @@ export class KakiRallyApp {
     this.menu?.dispose();
     this.router?.dispose();
     this.touchControls?.dispose();
+    this.developerOverlay?.dispose();
     disposeInput();
     window.removeEventListener('resize', this._resize);
     window.removeEventListener('orientationchange', this._orientation);

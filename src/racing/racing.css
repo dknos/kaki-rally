@@ -51,6 +51,7 @@
 .kkr-health,
 .kkr-controls,
 .kkr-menu,
+.kkr-help,
 .kkr-camera-cycle,
 .kkr-camera-list {
   border: 1px solid var(--race-edge);
@@ -390,7 +391,8 @@
   font: inherit;
 }
 
-.kkr-menu {
+.kkr-menu,
+.kkr-help {
   position: absolute;
   top: calc(var(--race-safe-top) + 111px);
   right: var(--race-safe-right);
@@ -404,9 +406,21 @@
   cursor: pointer;
   transition: border-color .16s ease, background-color .16s ease, transform .16s ease;
 }
+.kkr-help {
+  top: calc(var(--race-safe-top) + 153px);
+  min-width: 66px;
+  min-height: 27px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 240, 208, .24);
+  background: rgba(18, 11, 17, .74);
+  opacity: .72;
+}
 .kkr-menu:hover { border-color: var(--race-gold); background-color: rgba(255, 199, 107, .11); }
+.kkr-help:hover { border-color: var(--race-blue); opacity: 1; }
 .kkr-menu:active { transform: translateY(1px); }
+.kkr-help:active { transform: translateY(1px); }
 .kkr-menu:focus-visible,
+.kkr-help:focus-visible,
 .kkr-camera-cycle:focus-visible,
 .kkr-camera-list button:focus-visible,
 .kkr-finish-card button:focus-visible,
@@ -620,7 +634,71 @@
 }
 .kkr-hud[data-race-mode="monster"] .kkr-controls { max-width: min(680px, calc(100% - 700px)); }
 .kkr-controls { transition: opacity .8s ease; }
-.kkr-hud.is-controls-faded .kkr-controls { opacity: .2; }
+.kkr-hud.is-controls-faded .kkr-controls { opacity: 0; }
+
+/* The venue slate belongs to the opening. Once the race is live, the HUD
+   becomes a compact timing strip and returns the horizon to the player. */
+.kkr-course,
+.kkr-topbar,
+.kkr-stat,
+.kkr-timer,
+.kkr-map,
+.kkr-speed,
+.kkr-health,
+.kkr-help {
+  transition:
+    opacity .42s ease,
+    transform .42s cubic-bezier(.2, .8, .2, 1),
+    width .42s ease,
+    min-height .42s ease,
+    padding .42s ease;
+}
+.kkr-hud.is-intro-over .kkr-topbar {
+  grid-template-columns: minmax(112px, 146px) 0 minmax(112px, 146px);
+  gap: 8px;
+}
+.kkr-hud.is-intro-over .kkr-course {
+  width: 0;
+  min-height: 56px;
+  padding-inline: 0;
+  border-width: 0;
+  opacity: 0;
+  transform: translateY(-18px) scale(.94);
+}
+.kkr-hud.is-intro-over .kkr-stat {
+  min-height: 58px;
+  padding: 8px 10px 9px;
+}
+.kkr-hud.is-intro-over .kkr-stat strong { font-size: 24px; }
+.kkr-hud.is-intro-over .kkr-stat .kkr-label { margin-bottom: 5px; font-size: 7px; }
+.kkr-hud.is-intro-over .kkr-stat small { max-width: 54px; font-size: 6px; }
+.kkr-hud.is-intro-over .kkr-timer { top: calc(var(--race-safe-top) + 70px); font-size: 15px; }
+.kkr-hud.is-intro-over .kkr-map {
+  width: 158px;
+  height: 118px;
+  opacity: .84;
+}
+.kkr-hud.is-intro-over .kkr-speed {
+  min-width: 118px;
+  height: 66px;
+  padding: 9px 11px 8px;
+}
+.kkr-hud.is-intro-over .kkr-speed strong { font-size: 34px; }
+.kkr-hud:not(.is-damaged) .kkr-health {
+  opacity: 0;
+  transform: translateX(18px) scale(.94);
+}
+.kkr-hud.is-intro-over .kkr-health {
+  bottom: calc(var(--race-safe-bottom) + 134px);
+  width: 166px;
+  padding: 8px 9px;
+}
+.kkr-hud.is-intro-over .kkr-health em { display: none; }
+.kkr-hud.is-intro-over .kkr-help {
+  top: calc(var(--race-safe-top) + 51px);
+  min-width: 58px;
+  opacity: .55;
+}
 
 .kkr-touch {
   position: absolute;
@@ -851,6 +929,7 @@
 }
 .kkt-track em { color: var(--kkt-accent); }
 .kkt-topbar .kkr-menu { top: 6px; right: 0; }
+.kkt-topbar .kkr-help { top: 48px; right: 0; }
 
 .kkt-clock,
 .kkt-progress {
@@ -935,7 +1014,34 @@
   text-overflow: ellipsis;
   transform: translateX(-50%);
   white-space: nowrap;
+  transition: opacity .8s ease;
 }
+
+.kkt-hud.is-intro-over .kkt-track {
+  opacity: 0;
+  transform: translateY(-18px) scale(.95);
+}
+.kkt-hud.is-intro-over .kkt-clock,
+.kkt-hud.is-intro-over .kkt-progress {
+  top: calc(var(--race-safe-top) + 4px);
+  width: 184px;
+  min-height: 56px;
+  padding: 8px 10px;
+}
+.kkt-hud.is-intro-over .kkt-clock strong { font-size: 21px; }
+.kkt-hud.is-intro-over .kkt-clock em { display: none; }
+.kkt-hud.is-intro-over .kkt-progress { right: calc(var(--race-safe-right) + 62px); }
+.kkt-hud.is-intro-over .kkt-speed {
+  min-width: 112px;
+  padding: 9px 11px;
+}
+.kkt-hud.is-intro-over .kkt-speed strong { font-size: 34px; }
+.kkt-hud.is-intro-over .kkt-style {
+  min-width: 168px;
+  padding: 9px 11px;
+}
+.kkt-hud.is-intro-over .kkt-style strong { font-size: 22px; }
+.kkt-hud.is-intro-over .kkt-heat { width: min(310px, 30vw); padding: 9px 11px 8px; }
 
 .kkt-countdown {
   position: absolute;

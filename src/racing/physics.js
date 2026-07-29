@@ -9,7 +9,16 @@ export const RACE_TUNING = Object.freeze({
   acceleration: 19.5,
   reverseAcceleration: 10.0,
   brake: 26.0,
-  coastDrag: 0.68,
+  rollingResistance: 0.48,
+  aerodynamicDrag: 0.0085,
+  engineBraking: 0.2,
+  surfaceDragScale: 1,
+  accelerationCurve: Object.freeze([
+    Object.freeze([0, 1.08]),
+    Object.freeze([0.36, 1]),
+    Object.freeze([0.72, 0.66]),
+    Object.freeze([1, 0.3]),
+  ]),
   roadGrip: 9.8,
   offroadGrip: 5.4,
   driftGrip: 2.35,
@@ -18,6 +27,11 @@ export const RACE_TUNING = Object.freeze({
   surfaceResponse: 6.0,
   steerRate: 2.15,
   driftSteerRate: 2.75,
+  steeringResponse: 11.5,
+  steeringReturn: 15,
+  speedSensitiveSteering: true,
+  highSpeedSteerScale: 0.58,
+  driftLateralBuild: 0.6,
   maxSpeed: 24.0,
   reverseSpeed: 8.0,
   offroadSpeed: 11.5,
@@ -62,6 +76,59 @@ function _finiteOr(value, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+function _sampleCurve(points, value, fallback = 1) {
+  if (!Array.isArray(points) || !points.length) return fallback;
+  const x = _finiteOr(value, 0);
+  if (x <= points[0][0]) return _finiteOr(points[0][1], fallback);
+  for (let index = 1; index < points.length; index += 1) {
+    const previous = points[index - 1];
+    const next = points[index];
+    if (x > next[0]) continue;
+    const span = Math.max(1e-6, next[0] - previous[0]);
+    const alpha = clamp((x - previous[0]) / span, 0, 1);
+    return _finiteOr(previous[1], fallback)
+      + (_finiteOr(next[1], fallback) - _finiteOr(previous[1], fallback)) * alpha;
+  }
+  return _finiteOr(points.at(-1)?.[1], fallback);
+}
+
+function _powertrainAcceleration(kart, tuning, throttle, speedRatio) {
+  const powertrain = tuning.powertrain;
+  if (!powertrain) {
+    kart.engineRpm = 0;
+    kart.engineTorque = 0;
+    kart.wheelTorque = 0;
+    return tuning.acceleration * _sampleCurve(tuning.accelerationCurve, speedRatio, 1);
+  }
+
+  const speed = Math.abs(_finiteOr(kart.forwardSpeed, kart.speed || 0));
+  const shiftSpeeds = powertrain.shiftSpeeds || [];
+  let gearIndex = 0;
+  while (gearIndex < shiftSpeeds.length && speed >= shiftSpeeds[gearIndex]) gearIndex += 1;
+  const ratios = powertrain.gearRatios || [1];
+  gearIndex = clamp(gearIndex, 0, ratios.length - 1);
+  const ratio = Math.max(0.01, _finiteOr(ratios[gearIndex], 1));
+  const wheelRadius = Math.max(0.2, _finiteOr(powertrain.wheelRadius, 1));
+  const finalDrive = Math.max(0.1, _finiteOr(powertrain.finalDrive, 1));
+  const efficiency = clamp(_finiteOr(powertrain.efficiency, 0.88), 0.1, 1);
+  const idleRpm = Math.max(100, _finiteOr(powertrain.idleRpm, 900));
+  const redlineRpm = Math.max(idleRpm + 100, _finiteOr(powertrain.redlineRpm, 6500));
+  const wheelRpm = speed / (Math.PI * 2 * wheelRadius) * 60;
+  const engineRpm = clamp(wheelRpm * ratio * finalDrive, idleRpm, redlineRpm);
+  const normalizedRpm = (engineRpm - idleRpm) / (redlineRpm - idleRpm);
+  const engineTorque = Math.max(0, _sampleCurve(powertrain.torqueCurve, normalizedRpm, 1)
+    * _finiteOr(powertrain.peakTorque, 1200));
+  const wheelTorque = engineTorque * ratio * finalDrive * efficiency * Math.max(0, throttle);
+  const mass = Math.max(1, _finiteOr(powertrain.mass, 2500));
+  const rawAcceleration = wheelTorque / (wheelRadius * mass);
+  const tractionLimit = Math.max(1, _finiteOr(powertrain.tractionLimit, tuning.acceleration));
+  kart.engineRpm = engineRpm;
+  kart.engineTorque = engineTorque;
+  kart.wheelTorque = wheelTorque;
+  kart.gear = gearIndex + 1;
+  return Math.min(rawAcceleration, tractionLimit);
+}
+
 export function createKartState(overrides = {}) {
   return {
     x: 0,
@@ -72,7 +139,22 @@ export function createKartState(overrides = {}) {
     vy: 0,
     yaw: 0,
     angularVelocity: 0,
+    yawRate: 0,
     speed: 0,
+    forwardSpeed: 0,
+    acceleration: 0,
+    inputSteering: 0,
+    appliedSteering: 0,
+    engineAcceleration: 0,
+    brakeAcceleration: 0,
+    rollingResistance: 0,
+    aerodynamicDrag: 0,
+    offroadResistance: 0,
+    engineBrake: 0,
+    engineRpm: 0,
+    engineTorque: 0,
+    wheelTorque: 0,
+    currentSurface: 'road',
     grounded: true,
     drifting: false,
     driftCharge: 0,
@@ -247,8 +329,20 @@ export function stepKart(kart, controls = {}, contact = {}, dt, tuning = RACE_TU
   }
 
   const throttle = clamp(Number(controls.throttle) || 0, -1, 1);
-  const steer = clamp((Number(controls.steer) || 0) + (kart.steeringDamage || 0) * 0.24, -1, 1);
+  const requestedSteer = clamp((Number(controls.steer) || 0) + (kart.steeringDamage || 0) * 0.24, -1, 1);
+  const steeringRate = Math.abs(requestedSteer) > Math.abs(_finiteOr(kart.appliedSteering, 0))
+    ? _finiteOr(tuning.steeringResponse, 11.5)
+    : _finiteOr(tuning.steeringReturn, tuning.steeringResponse || 15);
+  kart.inputSteering = requestedSteer;
+  kart.appliedSteering = _expApproach(
+    _finiteOr(kart.appliedSteering, 0),
+    requestedSteer,
+    steeringRate,
+    dt,
+  );
+  const steer = clamp(kart.appliedSteering, -1, 1);
   const onRoad = contact.onRoad !== false;
+  kart.currentSurface = String(contact.surface || (onRoad ? 'road' : 'off-road'));
   const gripTarget = clamp(_finiteOr(contact.surfaceGrip, onRoad ? 1 : 0.58), 0.15, 1.45);
   const dragTarget = clamp(_finiteOr(contact.surfaceDrag, onRoad ? 0 : 2.45), 0, 5);
   kart.surfaceGrip = _expApproach(_finiteOr(kart.surfaceGrip, gripTarget), gripTarget, tuning.surfaceResponse || 6, dt);
@@ -278,6 +372,7 @@ export function stepKart(kart, controls = {}, contact = {}, dt, tuning = RACE_TU
   let forwardSpeed = kart.vx * forwardX + kart.vz * forwardZ;
   let lateralSpeed = kart.vx * rightX + kart.vz * rightZ;
   const startingForwardSpeed = forwardSpeed;
+  kart.forwardSpeed = forwardSpeed;
   kart.lateralSpeed = lateralSpeed;
   kart.slipAngle = Math.atan2(lateralSpeed, Math.max(0.1, Math.abs(forwardSpeed)));
 
@@ -433,15 +528,31 @@ export function stepKart(kart, controls = {}, contact = {}, dt, tuning = RACE_TU
   const airSteerScale = kart.grounded ? 1 : 0.34;
   const recoveryStrength = clamp((kart.impactRecovery || 0) / 0.8, 0, 1);
   kart.angularVelocity = clamp(Number(kart.angularVelocity) || 0, -1.45, 1.45);
-  kart.yaw = normalizeAngle(kart.yaw + (steer * steerRate * steerPower * airSteerScale + kart.angularVelocity) * dt);
+  kart.yawRate = steer * steerRate * steerPower * airSteerScale + kart.angularVelocity;
+  kart.yaw = normalizeAngle(kart.yaw + kart.yawRate * dt);
   kart.angularVelocity *= Math.exp(-(2.7 + recoveryStrength * 4.2) * dt);
 
+  kart.engineAcceleration = 0;
+  kart.brakeAcceleration = 0;
   if (throttle > 0) {
     const torqueLift = 1 + Math.max(0, _finiteOr(tuning.lowSpeedTorque, 0)) * (1 - speedRatio) ** 2;
-    forwardSpeed += throttle * tuning.acceleration * torqueLift * (1 - (kart.engineDamage || 0) * 0.56) * dt;
+    kart.forwardSpeed = forwardSpeed;
+    kart.engineAcceleration = throttle
+      * _powertrainAcceleration(kart, tuning, throttle, speedRatio)
+      * torqueLift
+      * (1 - (kart.engineDamage || 0) * 0.56);
+    forwardSpeed += kart.engineAcceleration * dt;
   } else if (throttle < 0) {
-    if (forwardSpeed > 0) forwardSpeed = Math.max(0, forwardSpeed + throttle * tuning.brake * dt);
-    else forwardSpeed = Math.max(-tuning.reverseSpeed, forwardSpeed + throttle * tuning.reverseAcceleration * dt);
+    if (forwardSpeed > 0) {
+      kart.brakeAcceleration = Math.min(tuning.brake, forwardSpeed / dt);
+      forwardSpeed = Math.max(0, forwardSpeed - kart.brakeAcceleration * dt);
+    } else {
+      kart.engineAcceleration = -Math.abs(throttle) * tuning.reverseAcceleration;
+      forwardSpeed = Math.max(-tuning.reverseSpeed, forwardSpeed + kart.engineAcceleration * dt);
+    }
+  } else if (tuning.powertrain) {
+    kart.engineTorque = 0;
+    kart.wheelTorque = 0;
   }
 
   if (kart.boostTime > 0 && !kart.overheated) forwardSpeed += tuning.boostAcceleration * dt;
@@ -460,20 +571,40 @@ export function stepKart(kart, controls = {}, contact = {}, dt, tuning = RACE_TU
     ? baseGrip * progressiveGrip * (1 + recoveryStrength * 0.42)
     : tuning.airGrip;
   lateralSpeed *= Math.exp(-grip * dt);
-  if (wantsDrift) lateralSpeed += steer * Math.abs(forwardSpeed) * (handbrake ? 0.92 : 0.6) * kart.surfaceGrip * dt;
+  if (wantsDrift) {
+    lateralSpeed += steer * Math.abs(forwardSpeed)
+      * (handbrake ? _finiteOr(tuning.handbrakeLateralBuild, 0.92) : _finiteOr(tuning.driftLateralBuild, 0.6))
+      * kart.surfaceGrip * dt;
+  }
 
   let topSpeed = onRoad ? tuning.maxSpeed : tuning.offroadSpeed;
   if (kart.boostTime > 0 && !kart.overheated) {
     topSpeed = tuning.boostSpeed + Math.max(0, (kart.boostLevel || 1) - 1) * 1.5;
   }
   topSpeed *= 1 - (kart.engineDamage || 0) * 0.42;
-  const drag = tuning.coastDrag + kart.surfaceDrag + (Math.abs(throttle) < 0.05 ? 0.7 : 0);
-  forwardSpeed *= Math.exp(-drag * dt);
+  const absoluteForwardSpeed = Math.abs(forwardSpeed);
+  kart.rollingResistance = _finiteOr(tuning.rollingResistance, 0.48);
+  kart.aerodynamicDrag = _finiteOr(tuning.aerodynamicDrag, 0.0085)
+    * absoluteForwardSpeed * absoluteForwardSpeed;
+  kart.offroadResistance = kart.surfaceDrag
+    * absoluteForwardSpeed
+    * _finiteOr(tuning.surfaceDragScale, 1);
+  kart.engineBrake = Math.abs(throttle) < 0.05
+    ? _finiteOr(tuning.engineBraking, 0.2) * absoluteForwardSpeed
+    : 0;
+  const resistance = kart.rollingResistance
+    + kart.aerodynamicDrag
+    + kart.offroadResistance
+    + kart.engineBrake;
+  if (forwardSpeed > 0) forwardSpeed = Math.max(0, forwardSpeed - resistance * dt);
+  else if (forwardSpeed < 0) forwardSpeed = Math.min(0, forwardSpeed + resistance * dt);
   if (handbrake && kart.grounded) forwardSpeed *= Math.exp(-1.15 * dt);
   forwardSpeed *= driftReleasePenalty;
   forwardSpeed = clamp(forwardSpeed, -tuning.reverseSpeed, topSpeed);
 
   const acceleration = (forwardSpeed - startingForwardSpeed) / dt;
+  kart.acceleration = acceleration;
+  kart.forwardSpeed = forwardSpeed;
   const longitudinalTarget = clamp(-acceleration / 30, -1, 1);
   const lateralTarget = clamp(-steer * speedRatio * (wantsDrift ? 1 : 0.72) - lateralSpeed / 18, -1, 1);
   kart.longitudinalWeightTransfer = _expApproach(

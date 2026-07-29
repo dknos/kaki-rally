@@ -25,7 +25,8 @@ assert.doesNotMatch(menu, /from ['"][^'"]*\/crash\//, 'production menu staticall
 assert.match(menu, /this\.catastropheDevelopment \? .*data-mode="crash"/s);
 
 const app = read('src/app/rallyApp.js');
-assert.match(app, /if \(mode === 'crash'\)[\s\S]*import\('\.\.\/racing\/crash\/crashMode\.js'\)/);
+assert.match(app, /function loadCatastropheDevelopment\(\)[\s\S]*import\('\.\.\/racing\/crash\/crashMode\.js'\)/);
+assert.match(app, /if \(mode === 'crash'\) \{[\s\S]*await loadCatastropheDevelopment\(\)/);
 assert.match(app, /catastropheDevelopment/);
 assert.doesNotMatch(read('index.html'), /racing\/crash\/crash\.css/);
 

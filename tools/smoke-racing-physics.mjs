@@ -11,6 +11,10 @@ import {
   driftScoreStep,
 } from '../src/racing/physics.js';
 import { mapRacingSteerInput, RACING_STEER_SIGN } from '../src/racing/racingSteering.js';
+import {
+  RALLY_HANDLING_PROFILES,
+  getRallyHandlingProfile,
+} from '../src/racing/handlingProfiles.js';
 
 // Shared movement input reports left as -1 and right as +1, while all racing
 // vehicle controllers expect the opposite sign. Lock keyboard/stick and crash
@@ -22,10 +26,42 @@ assert.equal(mapRacingSteerInput(0, { touchLeft: true }), 1, 'touch left still s
 assert.equal(mapRacingSteerInput(0, { touchRight: true }), -1, 'touch right still steers left');
 assert.equal(mapRacingSteerInput(0, { touchLeft: true, touchRight: true }), 0, 'opposed touch steering must cancel');
 
-function simulate(kart, controls, contact, seconds, hz = 60) {
+function simulate(kart, controls, contact, seconds, hz = 60, tuning) {
   const dt = 1 / hz;
-  for (let i = 0; i < Math.round(seconds * hz); i++) stepKart(kart, controls, contact, dt);
+  for (let i = 0; i < Math.round(seconds * hz); i++) stepKart(kart, controls, contact, dt, tuning);
 }
+
+// The sign boundary is not enough: mapped keyboard/stick/touch input must
+// produce the same directional yaw and displacement from a known +Z heading.
+function mappedTurn(axis, touch = {}) {
+  const kart = createKartState({ vz: 13, speed: 13, forwardSpeed: 13 });
+  simulate(
+    kart,
+    { throttle: 0.65, steer: mapRacingSteerInput(axis, touch) },
+    { onRoad: true },
+    0.65,
+    120,
+    RALLY_HANDLING_PROFILES.circuit,
+  );
+  return kart;
+}
+for (const [label, axis, touch] of [
+  ['keyboard/controller left', -1, {}],
+  ['touch left', 0, { touchLeft: true }],
+]) {
+  const result = mappedTurn(axis, touch);
+  assert.ok(result.yaw > 0.2 && result.x > 0.5, `${label} did not yaw and displace left`);
+}
+for (const [label, axis, touch] of [
+  ['keyboard/controller right', 1, {}],
+  ['touch right', 0, { touchRight: true }],
+]) {
+  const result = mappedTurn(axis, touch);
+  assert.ok(result.yaw < -0.2 && result.x < -0.5, `${label} did not yaw and displace right`);
+}
+
+assert.equal(getRallyHandlingProfile('unknown'), RALLY_HANDLING_PROFILES.circuit,
+  'unknown circuit mode lost its safe handling profile');
 
 // Gas should produce an arcade-useful road speed without exceeding the cap.
 const launch = createKartState();
@@ -36,6 +72,29 @@ const launch120 = createKartState();
 simulate(launch120, { throttle: 1 }, { onRoad: true }, 2.5, 120);
 assert.ok(Math.abs(launch.speed - launch120.speed) < 0.08, 'road speed is unstable across 60/120 Hz');
 assert.ok(Math.abs(launch.z - launch120.z) < 0.18, 'road distance is unstable across 60/120 Hz');
+
+// Production disciplines share an integrator but retain deliberately distinct
+// response, slip and drafting profiles.
+const gpLaunch = createKartState();
+const stockLaunch = createKartState();
+simulate(gpLaunch, { throttle: 1 }, { onRoad: true }, 1.2, 120, RALLY_HANDLING_PROFILES.circuit);
+simulate(stockLaunch, { throttle: 1 }, { onRoad: true }, 1.2, 120, RALLY_HANDLING_PROFILES.stock);
+assert.ok(gpLaunch.speed > stockLaunch.speed + 0.3,
+  'GP launch no longer feels more immediate than Stock Cup');
+const gpSlide = createKartState({ vz: 18, speed: 18, forwardSpeed: 18 });
+const driftSlide = createKartState({ vz: 18, speed: 18, forwardSpeed: 18 });
+simulate(gpSlide, { throttle: 1, steer: 0.72, drift: true }, { onRoad: true }, 0.8, 120,
+  RALLY_HANDLING_PROFILES.circuit);
+simulate(driftSlide, { throttle: 1, steer: 0.72, drift: true }, { onRoad: true }, 0.8, 120,
+  RALLY_HANDLING_PROFILES.drift);
+assert.ok(Math.abs(driftSlide.lateralSpeed) > Math.abs(gpSlide.lateralSpeed) * 1.3,
+  'Drift Attack no longer builds a more expressive slide than GP');
+const cleanAir = createKartState({ vz: 19, speed: 19, forwardSpeed: 19 });
+const drafted = createKartState({ vz: 19, speed: 19, forwardSpeed: 19 });
+simulate(cleanAir, { throttle: 1 }, { onRoad: true }, 0.8, 120, RALLY_HANDLING_PROFILES.stock);
+simulate(drafted, { throttle: 1 }, { onRoad: true, draftStrength: 0.8 }, 0.8, 120,
+  RALLY_HANDLING_PROFILES.stock);
+assert.ok(drafted.speed > cleanAir.speed + 1.4, 'Stock Cup draft did not deliver a readable pull');
 
 // A committed slide charges a mini-turbo; releasing drift fires it.
 const drifter = createKartState({ vz: 17, speed: 17 });

@@ -137,6 +137,7 @@ import { createCourseSurfaceIndex, nearestCourseSample } from './courseSurfaceQu
 import { TrackCodeCodec, TrackGallery } from './drawTrackStorage.js';
 import { attachRacingCameraManager } from './cameras/cameraSessionBinding.js';
 import { mapRacingSteerInput } from './racingSteering.js';
+import { getRallyHandlingProfile } from './handlingProfiles.js';
 
 export const RACE_CX = 720;
 export const RACE_CZ = -520;
@@ -1487,6 +1488,7 @@ function _mountHud(session) {
       </div>
     </div>
     <button class="kkr-menu" type="button">MENU</button>
+    <button class="kkr-help" type="button" aria-label="Show driving controls">H · HELP</button>
     <div class="kkr-touch">
       <button class="kkr-hop-btn" type="button" aria-label="Hold handbrake">BRAKE</button>
       <button class="kkr-drift-btn" type="button" aria-label="Drift">DRIFT</button>
@@ -1538,6 +1540,10 @@ function _mountHud(session) {
   if (freeRide) root.querySelector('.kkr-best').textContent = 'F · REFILL';
   if (monsterMode && !timedSmashdown) root.querySelector('.kkr-position small').textContent = best ? `PB ${Math.round(best).toLocaleString()}` : 'PB —';
   root.querySelector('.kkr-menu').addEventListener('click', () => navigateToMenu('hud-menu'));
+  root.querySelector('.kkr-help').addEventListener('click', () => {
+    session.controlsHelpUntil = performance.now() + 6_000;
+    root.classList.remove('is-controls-faded');
+  });
   const driftButton = root.querySelector('.kkr-drift-btn');
   if (monsterMode) {
     driftButton.textContent = 'ZOOM';
@@ -2103,6 +2109,7 @@ function _updateHud(session) {
   hud.healthFill.style.transform = `scaleX(${clamp(player.integrity / 100, 0, 1)})`;
   hud.healthText.textContent = `${Math.round(player.integrity)}%`;
   hud.health.classList.toggle('is-critical', player.integrity < 30);
+  hud.root.classList.toggle('is-damaged', player.integrity < 98);
   hud.root.classList.toggle(
     'is-timer-urgent',
     session.raceMode === 'monster' && session.phase === 'racing'
@@ -2139,8 +2146,9 @@ function _updateHud(session) {
   else hud.modeStatus.textContent = '';
   const renderInfo = getRendererDiagnostics(state);
   hud.root.dataset.raceMode = session.raceMode;
-  hud.root.classList.toggle('is-controls-faded', session.phase === 'racing' && session.raceTime > 12);
-  hud.root.classList.toggle('is-intro-over', session.raceMode === 'monster' && session.phase === 'racing' && session.raceTime > 6);
+  const controlsRequested = (session.controlsHelpUntil || 0) > performance.now();
+  hud.root.classList.toggle('is-controls-faded', session.phase === 'racing' && session.raceTime > 10 && !controlsRequested);
+  hud.root.classList.toggle('is-intro-over', session.phase !== 'countdown' && session.raceTime > 5);
   hud.root.dataset.cars = String(session.carCount);
   hud.root.dataset.triangles = String(renderInfo.triangles || 0);
   hud.root.dataset.drawCalls = String(renderInfo.drawCalls || 0);
@@ -2335,6 +2343,37 @@ function _snapshot(session) {
     raceTime: session.raceTime,
     lap: player?.completedLaps || 0,
     speed: player?.speed || 0,
+    telemetry: player
+      ? {
+          profile: session.raceMode === 'monster'
+            ? session.monsterVehicleProfile?.tuning?.id || ''
+            : session.handlingProfile?.id || '',
+          forwardSpeed: player.forwardSpeed || 0,
+          lateralSpeed: player.lateralSpeed || 0,
+          acceleration: player.acceleration || 0,
+          steeringInput: player.inputSteering || 0,
+          appliedSteering: player.appliedSteering || 0,
+          yawRate: player.yawRate || 0,
+          slipAngle: player.slipAngle || 0,
+          surfaceGrip: player.surfaceGrip ?? 1,
+          surfaceDrag: player.surfaceDrag || 0,
+          surface: player.currentSurface || '',
+          grounded: !!player.grounded,
+          jumpState: player.grounded ? 'grounded' : 'airborne',
+          driftState: player.drifting ? 'drifting' : 'grip',
+          collisionIntensity: player.impactStrength || 0,
+          engineAcceleration: player.engineAcceleration || 0,
+          braking: player.brakeAcceleration || 0,
+          rollingResistance: player.rollingResistance || 0,
+          aerodynamicDrag: player.aerodynamicDrag || 0,
+          offroadResistance: player.offroadResistance || 0,
+          engineBraking: player.engineBrake || 0,
+          engineRpm: player.engineRpm || 0,
+          engineTorque: player.engineTorque || 0,
+          wheelTorque: player.wheelTorque || 0,
+          gear: player.gear || 0,
+        }
+      : null,
     drifting: !!player?.drifting,
     boostTime: player?.boostTime || 0,
     boostHeat: player?.boostHeat || 0,
@@ -2477,6 +2516,7 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
     course,
     raceMode,
     modeDef,
+    handlingProfile: raceMode === 'monster' ? null : getRallyHandlingProfile(raceMode),
     carCount,
     testFromFraction: Number.isFinite(options.testFromFraction)
       ? ((Number(options.testFromFraction) % 1) + 1) % 1
@@ -2909,6 +2949,7 @@ export function tickRacing(dt, elapsedDt = dt) {
     car.frameContact = null;
   }
 
+  const physicsStarted = performance.now();
   for (let step = 0; step < steps; step++) {
     for (const car of session.cars) {
       let controls = car.id === 'player' ? playerControls
@@ -2971,7 +3012,7 @@ export function tickRacing(dt, elapsedDt = dt) {
         controls,
         contact,
         stepDt,
-        monsterMode ? session.monsterVehicleProfile.tuning : undefined,
+        monsterMode ? session.monsterVehicleProfile.tuning : session.handlingProfile,
       );
       const resolvedContact = monsterMode ? _contactFor(session, car) : contact;
       if (monsterMode) {
@@ -3079,6 +3120,7 @@ export function tickRacing(dt, elapsedDt = dt) {
     }
     _resolveKartCollisions(session);
   }
+  session.physicsTimeMs = performance.now() - physicsStarted;
   if (session.phase === 'racing' && session.raceMode === 'drift') {
     const player = session.cars[0].physics;
     const earned = driftScoreStep(player, dt, session.driftCombo);

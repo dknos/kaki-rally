@@ -83,6 +83,47 @@ const roofContact = createMonsterVehicleContact(
 assert.equal(roofContact.wheelSupport.wheels.filter((wheel) => wheel.support.targetId === sedan.id).length, 2,
   'broad front tires did not recognize a centered sedan roof');
 
+const sweptKart = initializeMonsterVehiclePhysics(createKartState({
+  previousX: 0,
+  previousZ: -5,
+  x: 0,
+  z: 3.2,
+  y: 0,
+  vz: 24,
+  speed: 24,
+  forwardSpeed: 24,
+}), meowster);
+const sweptSupport = sampleMonsterSupportPlane(sweptKart, flatGround, { targets: [sedan] }, meowster);
+assert.ok(
+  sweptSupport.wheels.some((wheel) => wheel.sweptContact?.targetId === sedan.id),
+  'high-speed tire sweep tunneled through a narrow crush car',
+);
+
+const wallBus = {
+  ...sedan,
+  id: 'wall-bus',
+  kind: 'bus',
+  stats: MONSTER_TARGET_CLASSES.bus,
+  top: MONSTER_TARGET_CLASSES.bus.height + 1.2,
+};
+const wallSupport = sampleMonsterSupportPlane(sweptKart, flatGround, { targets: [wallBus] }, meowster);
+assert.equal(wallSupport.obstacleContact, true, 'unclimbable swept target was treated as ordinary ground support');
+assert.ok(
+  wallSupport.wheels.some((wheel) => wheel.sweptContact?.type === 'vertical-wall'),
+  'front tire sweep did not classify an unclimbable wall',
+);
+const snagContact = createMonsterVehicleContact(
+  { onRoad: true, sampleGround: flatGround },
+  sweptKart,
+  { targets: [wallBus] },
+  meowster,
+);
+sweptKart.contactPitchVelocity = -3;
+stepMonsterContactPatches(sweptKart, snagContact, meowster, 1 / 60, {});
+assert.equal(sweptKart.frontalSnag, true, 'grounded frontal snag was not exposed');
+assert.ok(sweptKart.antiBackflipTorque > 0 && sweptKart.antiBackflipTorque <= 8.5,
+  'frontal snag correction was absent or not torque limited');
+
 function settleSuspension(profile, hz) {
   const kart = initializeMonsterVehiclePhysics(createKartState({ y: roofContact.groundHeight }), profile);
   const contact = createMonsterVehicleContact(
@@ -118,6 +159,16 @@ assert.ok(launch.vz > 14.4, 'ramp launch discarded too much run-up speed');
 assert.ok(launch.stuntPitch < -0.25, 'truck left an uphill ramp with its nose pointed down');
 assert.ok(launch.airControlDelay > 0.18, 'takeoff attitude has no short stabilization window');
 assert.ok(launch.airborneGrace > 0.14, 'rear tires can immediately re-catch the ramp lip after launch');
+
+const torqueLaunch = initializeMonsterVehiclePhysics(createKartState(), meowster);
+for (let index = 0; index < 360; index += 1) {
+  stepKart(torqueLaunch, { throttle: 1 }, { onRoad: true }, 1 / 120, meowster.tuning);
+}
+assert.ok(torqueLaunch.speed > 21, `monster torque curve bogged on launch: ${torqueLaunch.speed}`);
+assert.ok(torqueLaunch.engineRpm >= meowster.tuning.powertrain.idleRpm,
+  'monster drivetrain did not expose engine RPM');
+assert.ok(torqueLaunch.engineTorque > 0 && torqueLaunch.wheelTorque > torqueLaunch.engineTorque,
+  'monster drivetrain did not deliver geared wheel torque');
 
 let apex = launch.y;
 let airborneFrames = 0;

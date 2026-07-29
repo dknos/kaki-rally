@@ -379,10 +379,14 @@ export async function resumeAudio({ menu = false } = {}) {
 }
 
 export function getAudioDiagnostics() {
+  const persistentNodes = context ? 4 : 0;
+  const menuNodes = menuMusic ? 2 : 0;
+  const racingNodes = racingAudio ? 9 : 0;
   return {
     contextState: context?.state || 'uninitialized',
     menuPlaying: !!menuMusic && !menuMusic.element.paused,
     racingActive: !!racingAudio,
+    activeNodes: persistentNodes + menuNodes + racingNodes + cleanupTimers.size * 2,
     cleanupTimers: cleanupTimers.size,
     volumes: { master: masterVolume, music: musicVolume, sfx: sfxVolume, ambient: ambientVolume },
     counters: { ...counters },

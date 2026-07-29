@@ -682,6 +682,7 @@ function _mountHud(session) {
     <div class="kkt-topbar">
       <div class="kkt-track"><span> KAKI TRIALS · ${session.track.difficultyLabel}</span><strong>${session.track.name}</strong><em>${session.vehicle.name}</em></div>
       <button class="kkr-menu" type="button" data-action="menu">MENU</button>
+      <button class="kkr-help" type="button" aria-label="Show Trials controls">H · HELP</button>
     </div>
     <div class="kkt-clock"><span>RAW TIME</span><strong>0:00.000</strong><em>EFFECTIVE 0:00.000 · PACE —</em></div>
     <div class="kkt-progress"><span>CHECKPOINT</span><strong>0 / ${session.track.checkpoints.length}</strong><div><i></i></div></div>
@@ -726,6 +727,10 @@ function _mountHud(session) {
     _touch.restart = true;
   });
   root.querySelectorAll('[data-action="menu"]').forEach((button) => button.addEventListener('click', () => navigateToMenu('trials-menu')));
+  root.querySelector('.kkr-help')?.addEventListener('click', () => {
+    session.controlsHelpUntil = performance.now() + 6_000;
+    root.classList.remove('is-controls-faded');
+  });
   root.querySelector('[data-action="retry"]')?.addEventListener('click', () => restartTrialsMode(session.scene, {
     trackId: session.track.id,
     customCourse: session.track.custom ? session.track : null,
@@ -1295,6 +1300,9 @@ function _updateHud(session) {
   }
   const renderInfo = getRendererDiagnostics(state);
   hud.root.dataset.raceMode = 'trials';
+  const controlsRequested = (session.controlsHelpUntil || 0) > performance.now();
+  hud.root.classList.toggle('is-controls-faded', session.phase === 'racing' && p.elapsedTime > 10 && !controlsRequested);
+  hud.root.classList.toggle('is-intro-over', session.phase !== 'countdown' && p.elapsedTime > 5);
   hud.root.dataset.track = session.track.id;
   hud.root.dataset.vehicle = session.vehicle.id;
   hud.root.dataset.triangles = String(renderInfo.triangles || 0);
@@ -1649,11 +1657,13 @@ export function tickTrialsMode(dt) {
     controls = { throttle: 0, brake: 0, lean: 0, turbo: false };
   } else if (session.phase === 'racing') {
     const previousX = session.physics.x;
+    const physicsStarted = performance.now();
     const events = stepTrials(session.physics, controls, safeDt, session.track, session.vehicle);
     stepTrialsScore(session.score, session.physics, events, safeDt);
     _handleEvents(session, events);
     _resolveCustomCourseObjects(session, previousX);
     const obstacleResult = _resolveObstacleCollision(session, previousX);
+    session.physicsTimeMs = performance.now() - physicsStarted;
     if (
       obstacleResult?.destroyed
       && session.physics.elapsedTime < session.destructionBoostUntil
@@ -1835,6 +1845,30 @@ export function getTrialsSnapshot() {
     vy: p.vy,
     pitch: p.pitch,
     speed: Math.abs(p.vx),
+    telemetry: {
+      profile: session.vehicle.id,
+      forwardSpeed: p.forwardSpeed ?? p.vx,
+      lateralSpeed: 0,
+      acceleration: p.acceleration || 0,
+      steeringInput: p.inputLean || 0,
+      appliedSteering: p.inputLean || 0,
+      yawRate: 0,
+      pitchRate: p.pitchVelocity || 0,
+      slipAngle: 0,
+      surfaceGrip: 1,
+      surfaceDrag: session.vehicle.coastDrag || 0,
+      surface: session.track.theme || session.track.id,
+      grounded: !!p.grounded,
+      jumpState: p.grounded ? 'grounded' : p.crashed ? 'crashed' : 'airborne',
+      driftState: 'n/a',
+      collisionIntensity: p.crashed ? 1 : p.suspensionCompression || 0,
+      engineAcceleration: Math.max(0, p.acceleration || 0),
+      braking: p.inputThrottle < 0 ? Math.abs(p.acceleration || 0) : 0,
+      engineRpm: 0,
+      engineTorque: 0,
+      wheelTorque: 0,
+      gear: 0,
+    },
     grounded: p.grounded,
     heat: p.turboHeat,
     turboHeat: p.turboHeat,

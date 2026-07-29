@@ -99,6 +99,10 @@ export function createTrialsState(track = 'meadow', profile = 'monster', overrid
     y: spawn.y,
     vx: 0,
     vy: 0,
+    forwardSpeed: 0,
+    acceleration: 0,
+    inputThrottle: 0,
+    inputLean: 0,
     pitch: spawn.pitch,
     pitchVelocity: 0,
     grounded: true,
@@ -325,10 +329,12 @@ function stepGrounded(state, controls, track, profile, dt, events) {
   }
   if (controls.brake > 0 && Math.abs(speed) > 0.05) acceleration -= Math.sign(speed) * profile.brakePower * controls.brake;
   if (state.turboActive) acceleration += profile.turboAcceleration;
+  state.acceleration = acceleration;
   speed += acceleration * dt;
   speed *= Math.exp(-profile.coastDrag * (Math.abs(controls.throttle) < 0.05 ? 1.55 : 0.55) * dt);
   const speedCap = state.turboActive ? profile.turboMaxSpeed : profile.maxSpeed;
   speed = clamp(speed, -profile.reverseSpeed, speedCap);
+  state.forwardSpeed = speed;
 
   const continuousTarget = state.pitch + normalizeAngle(
     ground.angle + controls.lean * profile.groundLeanAngle - acceleration * 0.003 - state.pitch,
@@ -369,6 +375,8 @@ function stepGrounded(state, controls, track, profile, dt, events) {
 }
 
 function stepAirborne(state, controls, track, profile, dt, events) {
+  state.acceleration = 0;
+  state.forwardSpeed = state.vx;
   const previousPitch = state.pitch;
   state.pitchVelocity += controls.lean * profile.airLeanTorque * dt;
   state.pitchVelocity *= Math.exp(-profile.airPitchDamping * dt);
@@ -445,6 +453,8 @@ export function stepTrials(state, controls = {}, dt = 1 / 60, track = state?.tra
   const course = getTrialsTrack(track);
   const vehicle = getTrialsProfile(profile);
   const input = normalizedControls(controls);
+  state.inputThrottle = input.throttle;
+  state.inputLean = input.lean;
   const safeDt = Math.min(Number(dt) || 0, 0.5);
   const steps = Math.max(1, Math.ceil(safeDt / MAX_SUBSTEP));
   const subDt = safeDt / steps;
