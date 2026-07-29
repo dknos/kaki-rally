@@ -33,6 +33,7 @@ import {
   writeRallySettings,
 } from './rallySave.js';
 import { applyRallyOptions, optionsNeedReload } from './rallyOptions.js';
+import { RALLY_VERSION_LABEL } from './rallyVersion.js';
 
 const MODE_DATA = Object.freeze({
   circuit: Object.freeze({
@@ -218,7 +219,13 @@ export class RallyMenu {
         <div class="rally-menu-scrim" aria-hidden="true"></div>
         <header class="rally-brand">
           <div class="rally-brand-mark"><i></i><span>KR</span></div>
-          <div><span>KAKI MOTOR CLUB</span><h1>KAKI <b>RALLY</b></h1></div>
+          <div>
+            <span>KAKI MOTOR CLUB</span>
+            <div class="rally-title-line">
+              <h1>KAKI <b>RALLY</b></h1>
+              <span class="rally-version" aria-label="Kaki Rally version ${escapeHtml(RALLY_VERSION_LABEL)}">${escapeHtml(RALLY_VERSION_LABEL)}</span>
+            </div>
+          </div>
           <p class="rally-backend"><i></i><span>${escapeHtml(this.backend.toUpperCase())}</span></p>
         </header>
         <nav class="rally-mode-rail" aria-label="Game modes">

@@ -225,6 +225,8 @@ export function buildDuneClipmap({
         triangles: triangleCount,
         staticTopology: levels.every((entry) => entry.geometry.userData.staticTopology),
         shaderTrimmedUnderlays: levels.slice(1).every((entry) => entry.material.alphaTest > 0),
+        signedTrackContrast: levels.every((entry) => entry.material.userData.signedTrackContrast === true),
+        trackColor: levels[0]?.material.userData.trackColor || '',
         snappedOrigins: levels.map((entry) => [
           entry.centerX,
           entry.centerZ,

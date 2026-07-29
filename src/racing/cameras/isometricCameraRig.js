@@ -39,7 +39,7 @@ export class IsometricCameraRig {
       const depth = vehicle.profileId === 'pocket_pouncer' ? 38 : 41;
       const height = 2.85 + speedRatio * 0.42 + clamp(air * 0.12, 0, 0.42);
       const lookAhead = clamp((vehicle.velocity.x || 0) * 0.27, -3, 9.5);
-      this.focus.set(
+      this.desiredFocus.set(
         vehicle.position.x + lookAhead + shakeX * 0.35,
         vehicle.position.y - vehicle.rideHeight * 0.38 + 1.35 + shakeY * 0.28,
         vehicle.position.z,
@@ -58,25 +58,19 @@ export class IsometricCameraRig {
       const leadX = velocityLength > 0.4 ? vehicle.velocity.x / velocityLength : Math.sin(vehicle.yaw || 0);
       const leadZ = velocityLength > 0.4 ? vehicle.velocity.z / velocityLength : Math.cos(vehicle.yaw || 0);
       const cameraLead = clamp(speed * 0.2, 0, vehicle.monster ? 5.2 : 5.4);
-      const groundHeight = Number.isFinite(Number(vehicle.groundHeight))
-        ? Number(vehicle.groundHeight)
-        : Number(vehicle.position.y) || 0;
-      const airborneMeters = Math.max(0, (Number(vehicle.position.y) || 0) - groundHeight);
       const targetX = vehicle.position.x + leadX * cameraLead;
       const targetZ = vehicle.position.z + leadZ * cameraLead;
       const offset = base.offset + speedRatio * (vehicle.monster ? 3.6 : 3.1);
-      // ISO used to treat its Y coordinate as an absolute world height. Tall
-      // Dune crests and large jumps could therefore carry the truck above the
-      // camera, leaving an all-terrain frame and a disorienting projection
-      // transition back to Chase. Anchor the rig to authoritative ground and
-      // carry most of airborne displacement so the same composition survives
-      // rolling terrain, ridge launches, and arena ramps.
-      const height = groundHeight
+      // Position and focus are one authored camera frame. The previous rig
+      // damped position while snapping focus directly to the airborne truck;
+      // on a hard launch the focus could overtake the camera, turn the view
+      // upward into the sky, and poison the next projection transition. Carry
+      // all vehicle altitude in both targets and damp them as a pair.
+      const height = vehicle.position.y
         + base.height
-        + speedRatio * (vehicle.monster ? 4.2 : 3.4)
-        + airborneMeters * (vehicle.monster ? 0.74 : 0.68);
+        + speedRatio * (vehicle.monster ? 4.2 : 3.4);
       this.desiredPosition.set(targetX + offset + shakeX, height + shakeY, targetZ + offset + shakeZ);
-      this.focus.set(
+      this.desiredFocus.set(
         targetX + shakeX * 0.28,
         vehicle.position.y + base.lookAtBase + speedRatio * 0.28 + shakeY * 0.2,
         targetZ + shakeZ * 0.28,
@@ -89,9 +83,12 @@ export class IsometricCameraRig {
 
     if (!this.initialized || snap) {
       this.position.copy(this.desiredPosition);
+      this.focus.copy(this.desiredFocus);
       this.initialized = true;
     } else {
-      this.position.lerp(this.desiredPosition, expAlpha(damping, dt));
+      const alpha = expAlpha(damping, dt);
+      this.position.lerp(this.desiredPosition, alpha);
+      this.focus.lerp(this.desiredFocus, alpha);
     }
     lookQuaternion(this.position, this.focus, roll, this.quaternion);
     frustum = Math.max(4, frustum);

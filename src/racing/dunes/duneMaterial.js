@@ -196,6 +196,9 @@ export function createDuneMaterial({
     const nearOffset = sampleScalar(deformationTextures.recentOffset, localRecentUv);
     return baseHeight.add(mix(coarseOffset, nearOffset, recentMask));
   };
+  const coarseOffset = sampleScalar(deformationTextures.coarseOffset, baseUv);
+  const recentOffset = sampleScalar(deformationTextures.recentOffset, recentUv);
+  const deformationOffset = mix(coarseOffset, recentOffset, recentMask);
   const resolvedHeight = sampleCombinedHeight(baseUv, recentUv);
   const skirtDepth = attribute('skirtDepth', 'float');
   const displacedPosition = vec3(
@@ -225,10 +228,17 @@ export function createDuneMaterial({
   const lightColor = uniform(new Color(palette?.sandLight ?? 0xdfa663));
   const darkColor = uniform(new Color(palette?.sandDark ?? 0x855139));
   const packedColor = uniform(new Color(palette?.packed ?? 0x9c6947));
+  const trackColor = uniform(new Color(palette?.track ?? 0x4a3043));
   const accentColor = uniform(new Color(palette?.accent ?? 0x6ee7e2));
   const coarsePack = sampleScalar(deformationTextures.coarseCompaction, baseUv);
   const recentPack = sampleScalar(deformationTextures.recentCompaction, recentUv);
   const compaction = mix(coarsePack, recentPack, recentMask).clamp(0, 1);
+  // Signed deformation is a visual signal as well as geometry. Compression
+  // alone produced nearly tone-matched tracks, so fresh trenches vanished at
+  // gameplay distance even though the heightfield was physically correct.
+  const depression = smoothstep(0.0007, 0.018, float(0).sub(deformationOffset));
+  const berm = smoothstep(0.0007, 0.014, deformationOffset);
+  const trackStrength = max(compaction.mul(0.88), depression).clamp(0, 1);
   const macro = sin(worldX.mul(0.017).add(sin(worldZ.mul(0.013)).mul(1.7)))
     .mul(0.5)
     .add(0.5);
@@ -242,7 +252,9 @@ export function createDuneMaterial({
     resolvedHeight,
   );
   let sandColor = mix(darkColor, lightColor, macro.mul(0.54).add(heightTone.mul(0.32)).add(0.12));
-  sandColor = mix(sandColor, packedColor, compaction.mul(0.72));
+  sandColor = mix(sandColor, packedColor, compaction.mul(0.34));
+  sandColor = mix(sandColor, trackColor, trackStrength.mul(0.94));
+  sandColor = mix(sandColor, lightColor, berm.mul(0.72));
   sandColor = sandColor.mul(float(0.93).add(ripple.mul(0.1)));
   if (detailTexture?.isTexture) {
     const detailUv = vec2(worldX, worldZ).mul(0.075);
@@ -279,11 +291,16 @@ export function createDuneMaterial({
     );
     material.alphaTest = 0.5;
   }
-  material.roughnessNode = float(0.82).add(float(1).sub(compaction).mul(0.13)).clamp(0.74, 0.98);
+  material.roughnessNode = float(0.76)
+    .add(float(1).sub(trackStrength).mul(0.18))
+    .add(berm.mul(0.025))
+    .clamp(0.74, 0.98);
   material.metalnessNode = float(0);
   material.userData.tslMaterialFamily = 'kaki-dune-authoritative-terrain';
   material.userData.heightAuthority = heightTexture.name;
   material.userData.deformationAuthority = deformationTextures.recentOffset.name;
+  material.userData.signedTrackContrast = true;
+  material.userData.trackColor = `#${new Color(palette?.track ?? 0x4a3043).getHexString()}`;
   material.userData.lodMorph = !lastLevel;
 
   Object.defineProperty(material, 'duneUniforms', {

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
-  "generatedAt": "2026-07-29T09:18:13.846Z",
+  "generatedAt": "2026-07-29T15:46:07.821Z",
   "chromium": "/home/nemoclaw/bin/chromium",
   "requestedBackend": "webgpu",
   "webgl": {
@@ -11,6 +11,7 @@
       "badResponses": [],
       "failedRequests": [],
       "expectedAborts": [],
+      "expectedAudioDeviceErrors": [],
       "frozenModeRequests": []
     },
     "modes": {
@@ -31,8 +32,9 @@
       "badResponses": [],
       "failedRequests": [],
       "expectedAborts": [
-        "net::ERR_ABORTED http://127.0.0.1:42363/assets/breakroom/runtime-avatars/tower-castle-plain.glb"
+        "net::ERR_ABORTED http://127.0.0.1:38123/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js"
       ],
+      "expectedAudioDeviceErrors": [],
       "frozenModeRequests": []
     },
     "modes": {
@@ -55,23 +57,23 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.536300805237163,
-          "cpuFrameTimeMs": 38.21111109521654,
-          "cpuFrameTimeP99Ms": 207.59999990463257,
-          "renderSubmissionTimeMs": 36.75555555025736,
-          "renderSubmissionTimeP99Ms": 206.89999997615814,
-          "drawCalls": 496,
-          "renderCalls": 132,
+          "fps": 2.8732155819018472,
+          "cpuFrameTimeMs": 21.650000000046568,
+          "cpuFrameTimeP99Ms": 215.20000000018626,
+          "renderSubmissionTimeMs": 20.47000000006519,
+          "renderSubmissionTimeP99Ms": 214.6000000005588,
+          "drawCalls": 518,
+          "renderCalls": 291,
           "frameRenderCalls": 15,
-          "triangles": 200145,
+          "triangles": 206235,
           "points": 0,
           "lines": 0,
           "gpuFrameTimeMs": null,
           "textures": 27,
           "renderTargets": 13,
-          "geometries": 121,
-          "gpuMemoryBytes": 156440555,
-          "programs": 48,
+          "geometries": 130,
+          "gpuMemoryBytes": 156551295,
+          "programs": 50,
           "compilationEventCount": 0,
           "recentCompilationEvents": [],
           "deviceLossCount": 0,
@@ -102,31 +104,31 @@
             "id": "meowster",
             "name": "Mighty Meowster"
           },
-          "speed": 2.6,
-          "x": -1.1846660925289934,
-          "y": -0.08738534748047583,
-          "z": -157.0799491133955,
+          "speed": 13.175894091585858,
+          "x": 0.8360051883063001,
+          "y": -1.207459709238289,
+          "z": -157.05500846567358,
           "grounded": true,
           "telemetry": {
-            "speed": 0,
-            "forwardVelocity": 0,
-            "engineRpm": 0,
-            "requestedDriveForce": 0,
-            "deliveredWheelForce": 0,
-            "normalLoad": 0,
-            "chassisPitchVelocity": 0.9735993162701368,
-            "chassisRoll": 0.017742248697976824,
-            "steeringInput": 0,
-            "wheelAngle": 0,
+            "speed": 13.175894091585858,
+            "forwardVelocity": 13.175894091585858,
+            "engineRpm": 4780.21673471453,
+            "requestedDriveForce": 56115.86378732284,
+            "deliveredWheelForce": 56115.86378732284,
+            "normalLoad": 0.023142340484053635,
+            "chassisPitchVelocity": -0.203965348656141,
+            "chassisRoll": 0.021259279682647066,
+            "steeringInput": 0.2,
+            "wheelAngle": 0.08701088089007768,
             "groundedWheels": 4,
-            "sandResistance": 0,
-            "brushStrength": 0,
+            "sandResistance": 0.658794704579293,
+            "brushStrength": 2,
             "sinkage": 0.008,
-            "wheelSlip": 0
+            "wheelSlip": 0.268545719070419
           },
           "race": {
-            "elapsed": 0.025,
-            "progress": 0.17869415807560127,
+            "elapsed": 0.24166666666666664,
+            "progress": 0.18213058419243974,
             "lap": 0,
             "targetLaps": 2,
             "checkpoint": 1,
@@ -149,7 +151,7 @@
                 -8.878320693969727,
                 13.8679780960083
               ],
-              "checksum": "ce661010"
+              "checksum": "8bb06adc"
             },
             "clipmap": {
               "quality": "medium",
@@ -159,40 +161,42 @@
               "triangles": 57856,
               "staticTopology": true,
               "shaderTrimmedUnderlays": true,
+              "signedTrackContrast": true,
+              "trackColor": "#4a3043",
               "snappedOrigins": [
                 [
-                  -155.20000000000002,
-                  -78.4,
+                  0.8,
+                  -157.60000000000002,
                   0.4
                 ],
                 [
-                  -155.20000000000002,
-                  -78.4,
+                  0,
+                  -158.4,
                   0.8
                 ],
                 [
-                  -156.8,
-                  -80,
+                  0,
+                  -160,
                   1.6
                 ],
                 [
+                  0,
                   -160,
-                  -83.2,
                   3.2
                 ],
                 [
+                  0,
                   -166.4,
-                  -89.60000000000001,
                   6.4
                 ],
                 [
+                  0,
                   -179.20000000000002,
-                  -102.4,
                   12.8
                 ],
                 [
+                  0,
                   -179.20000000000002,
-                  -102.4,
                   25.6
                 ]
               ],
@@ -218,23 +222,23 @@
             "recentWorldSize": 88,
             "coarseResolution": 96,
             "origin": [
-              -199.12156862745098,
-              -122.16470588235293
+              -45.207843137254905,
+              -201.1921568627451
             ],
             "focus": [
-              -155,
-              -78
+              0.7262086679305058,
+              -157.05425328241844
             ],
-            "scrollCount": 0,
-            "appliedBrushes": 0,
+            "scrollCount": 1,
+            "appliedBrushes": 3,
             "droppedBrushes": 0,
-            "maximumDepression": 0,
-            "maximumBerm": 0,
+            "maximumDepression": 0.00024696410400792956,
+            "maximumBerm": 0.00011100192932644859,
             "physicalBounds": [
               -0.15,
               0.08
             ],
-            "version": 1
+            "version": 5
           },
           "environment": {
             "eventId": "whiskerwind",
@@ -251,16 +255,20 @@
             "roosterTail": {
               "quality": "medium",
               "fixedLattice": true,
+              "curvedSurface": true,
+              "bufferAuthorityShared": true,
+              "crossSectionRows": 5,
               "segmentsPerWheel": 18,
-              "activeCurtains": 0,
-              "emittedSamples": 0,
-              "vertexCapacity": 144
+              "activeCurtains": 2,
+              "emittedSamples": 10,
+              "vertexCapacity": 360,
+              "peakHeight": 0.6013502721094335
             },
             "dust": {
               "quality": "medium",
-              "capacity": 128,
-              "active": 0,
-              "spawned": 0,
+              "capacity": 180,
+              "active": 9,
+              "spawned": 10,
               "pooled": true
             }
           },
@@ -268,7 +276,7 @@
             "key": "whiskerwind:meowster",
             "previous": null,
             "result": null,
-            "samples": 0,
+            "samples": 2,
             "ghostVisible": false
           },
           "visual": {
@@ -304,12 +312,12 @@
             "cinematicLabel": "",
             "transitionProgress": 1,
             "projection": "perspective",
-            "fov": 70,
+            "fov": 75.88925034564404,
             "visionStage": null,
             "lookAheadMeters": null,
             "collision": {
               "blocked": false,
-              "distance": 11.036756769993586,
+              "distance": 13.44610763557169,
               "hit": "",
               "lifted": false,
               "lowerFrustumBlocked": false,
@@ -378,20 +386,20 @@
             ]
           },
           "performance": {
-            "fps": 32,
-            "physicsMs": 3.399999976158142,
-            "drawCalls": 496,
-            "triangles": 200145
+            "fps": 21,
+            "physicsMs": 1.2000000001862645,
+            "drawCalls": 518,
+            "triangles": 206235
           }
         },
         "sceneObjects": 1486,
         "sceneRenderables": {
-          "visible": 1269,
+          "visible": 1277,
           "instanced": 1,
-          "instances": 128
+          "instances": 180
         },
-        "estimatedGpuMemoryBytes": 82552992,
-        "domNodes": 217,
+        "estimatedGpuMemoryBytes": 82572424,
+        "domNodes": 219,
         "modeOwnedDomNodes": 54,
         "hudRoots": 1,
         "sessionRoots": 1,
@@ -458,9 +466,9 @@
         "transitions": [
           {
             "label": "boot-menu",
-            "at": 338,
+            "at": 337.59999999962747,
             "mode": "menu",
-            "domNodes": 162,
+            "domNodes": 164,
             "hudRoots": 0,
             "sceneObjects": 4,
             "sessionRoots": 0,
@@ -526,9 +534,9 @@
           },
           {
             "label": "enter:dunes",
-            "at": 752.7999999523163,
+            "at": 2468.2000000001863,
             "mode": "dunes",
-            "domNodes": 224,
+            "domNodes": 226,
             "hudRoots": 1,
             "sceneObjects": 1486,
             "sessionRoots": 1,
@@ -544,13 +552,13 @@
                 "cssHeight": 720
               },
               "dpr": 1,
-              "fps": 15.906680803927651,
-              "cpuFrameTimeMs": 22.44999998807907,
-              "cpuFrameTimeP99Ms": 43.60000002384186,
-              "renderSubmissionTimeMs": 21.974999964237213,
-              "renderSubmissionTimeP99Ms": 43,
+              "fps": 4.428044280442804,
+              "cpuFrameTimeMs": 10.820000000018627,
+              "cpuFrameTimeP99Ms": 45.5,
+              "renderSubmissionTimeMs": 10.5,
+              "renderSubmissionTimeP99Ms": 44.799999999813735,
               "drawCalls": 15,
-              "renderCalls": 57,
+              "renderCalls": 141,
               "frameRenderCalls": 15,
               "triangles": 36014,
               "points": 0,
@@ -593,9 +601,9 @@
             }
           }
         ],
-        "frameCount": 9,
+        "frameCount": 20,
         "stateDiagnostics": {
-          "bootedAt": 1785316694183,
+          "bootedAt": 1785339968223,
           "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
           "rendererFallback": null,
           "modeTransitions": 1,
@@ -635,10 +643,10 @@
         },
         "dpr": 1,
         "fps": 0,
-        "cpuFrameTimeMs": 43.60000002384186,
-        "cpuFrameTimeP99Ms": 43.60000002384186,
-        "renderSubmissionTimeMs": 43,
-        "renderSubmissionTimeP99Ms": 43,
+        "cpuFrameTimeMs": 45.5,
+        "cpuFrameTimeP99Ms": 45.5,
+        "renderSubmissionTimeMs": 44.799999999813735,
+        "renderSubmissionTimeP99Ms": 44.799999999813735,
         "drawCalls": 13,
         "renderCalls": 14,
         "frameRenderCalls": 14,
@@ -670,7 +678,7 @@
         "instances": 0
       },
       "estimatedGpuMemoryBytes": 68935776,
-      "domNodes": 162,
+      "domNodes": 164,
       "modeOwnedDomNodes": 0,
       "hudRoots": 0,
       "sessionRoots": 0,
@@ -737,9 +745,9 @@
       "transitions": [
         {
           "label": "boot-menu",
-          "at": 338,
+          "at": 337.59999999962747,
           "mode": "menu",
-          "domNodes": 162,
+          "domNodes": 164,
           "hudRoots": 0,
           "sceneObjects": 4,
           "sessionRoots": 0,
@@ -806,7 +814,7 @@
       ],
       "frameCount": 1,
       "stateDiagnostics": {
-        "bootedAt": 1785316694183,
+        "bootedAt": 1785339968223,
         "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
         "rendererFallback": null,
         "modeTransitions": 0,

@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 
 const UP = new THREE.Vector3(0, 1, 0);
+const WHEEL_STEER_AXIS = new THREE.Vector3(0, 1, 0);
+const WHEEL_SPIN_AXIS = new THREE.Vector3(1, 0, 0);
+const WHEEL_STEER_QUATERNION = new THREE.Quaternion();
+const WHEEL_SPIN_QUATERNION = new THREE.Quaternion();
+const TAU = Math.PI * 2;
 
 function _registry(options = {}) {
   const owned = options.owned || {};
@@ -1419,6 +1424,43 @@ export function updateVehicleAnimation(visual, signedSpeed, dt) {
   if (visual.animationClock < 0) visual.animationClock += duration;
   for (const action of visual.animationActions) action.time = visual.animationClock;
   visual.animationMixer.update(0);
+}
+
+/**
+ * Compose steering yaw and rolling spin without mixing them through Euler
+ * angles. The wheel's local axle therefore follows steering only; a complete
+ * tire revolution cannot introduce camber/toe wobble.
+ */
+export function updateVehicleWheelPresentation(wheel, {
+  spinDelta = 0,
+  targetSteer = 0,
+  dt = 0,
+  steeringResponse = 16,
+} = {}) {
+  if (!wheel?.quaternion) return null;
+  const data = wheel.userData || (wheel.userData = {});
+  if (!data.presentationBaseQuaternion?.isQuaternion) {
+    data.presentationBaseQuaternion = wheel.quaternion.clone();
+    data.presentationSpin = 0;
+    data.presentationSteer = 0;
+  }
+  data.presentationSpin = ((Number(data.presentationSpin) || 0) + (Number(spinDelta) || 0)) % TAU;
+  const steerAlpha = 1 - Math.exp(
+    -Math.max(0, Number(steeringResponse) || 0) * Math.max(0, Number(dt) || 0),
+  );
+  data.presentationSteer += (
+    (Number(targetSteer) || 0) - (Number(data.presentationSteer) || 0)
+  ) * steerAlpha;
+  WHEEL_STEER_QUATERNION.setFromAxisAngle(WHEEL_STEER_AXIS, data.presentationSteer);
+  WHEEL_SPIN_QUATERNION.setFromAxisAngle(WHEEL_SPIN_AXIS, data.presentationSpin);
+  wheel.quaternion
+    .copy(data.presentationBaseQuaternion)
+    .multiply(WHEEL_STEER_QUATERNION)
+    .multiply(WHEEL_SPIN_QUATERNION);
+  return {
+    spin: data.presentationSpin,
+    steer: data.presentationSteer,
+  };
 }
 
 /**

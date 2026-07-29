@@ -3,10 +3,10 @@ import {
   DynamicDrawUsage,
   InstancedBufferAttribute,
   InstancedMesh,
+  IcosahedronGeometry,
   MeshBasicNodeMaterial,
   NormalBlending,
   Object3D,
-  OctahedronGeometry,
 } from 'three/webgpu';
 import { attribute, uniform } from 'three/tsl';
 import { clamp } from '../physics.js';
@@ -15,10 +15,10 @@ const _object = new Object3D();
 const _color = new Color();
 
 function capacityFor(quality) {
-  if (quality === 'low') return 72;
-  if (quality === 'medium') return 128;
-  if (quality === 'ultra') return 280;
-  return 196;
+  if (quality === 'low') return 96;
+  if (quality === 'medium') return 180;
+  if (quality === 'ultra') return 420;
+  return 300;
 }
 
 function hash(index, serial) {
@@ -28,7 +28,7 @@ function hash(index, serial) {
 }
 
 function createDustMaterial() {
-  const opacity = uniform(0.76);
+  const opacity = uniform(0.84);
   const alpha = attribute('instanceAlpha', 'float');
   const material = new MeshBasicNodeMaterial({
     color: new Color(0xffffff),
@@ -50,8 +50,8 @@ export function createDuneDust(root, {
   reduceMotion = false,
 } = {}) {
   const capacity = capacityFor(quality);
-  const geometry = new OctahedronGeometry(0.16, 0);
-  geometry.name = 'KakiDuneAngularSandGrain';
+  const geometry = new IcosahedronGeometry(0.16, 0);
+  geometry.name = 'KakiDuneFacetedSandGrain';
   const alpha = new InstancedBufferAttribute(new Float32Array(capacity), 1);
   alpha.setUsage(DynamicDrawUsage);
   geometry.setAttribute('instanceAlpha', alpha);
@@ -138,7 +138,10 @@ function spawn(pool, {
 export function emitDuneDust(pool, kart, contact, controls, events, dt) {
   if (!pool || pool.disposed || !kart || !(dt > 0)) return 0;
   if (!kart.grounded || !(kart.speed > 1.2)) return 0;
-  const baseRate = pool.quality === 'low' ? 15 : pool.quality === 'medium' ? 28 : 42;
+  const baseRate = pool.quality === 'low'
+    ? 20
+    : pool.quality === 'medium' ? 36
+      : pool.quality === 'ultra' ? 156 : 126;
   pool.emissionBudget += dt * baseRate * clamp(
     0.12
       + kart.speed / 24
@@ -148,7 +151,7 @@ export function emitDuneDust(pool, kart, contact, controls, events, dt) {
     0,
     2.8,
   );
-  const count = Math.min(pool.reduceMotion ? 2 : 7, Math.floor(pool.emissionBudget));
+  const count = Math.min(pool.reduceMotion ? 2 : 18, Math.floor(pool.emissionBudget));
   pool.emissionBudget -= count;
   if (!(count > 0)) return 0;
   const forwardX = Math.sin(kart.yaw);
@@ -171,12 +174,14 @@ export function emitDuneDust(pool, kart, contact, controls, events, dt) {
       y: wheel.support.height + 0.08,
       z: wheel.worldZ + (randomB - 0.5) * 0.32,
       vx: -forwardX * backward + rightX * lateral,
-      vy: ballistic ? 2.2 + randomB * 3.8 : 0.45 + randomB * 1.25,
+      vy: ballistic ? 2.45 + randomB * 4.35 : 0.55 + randomB * 1.55,
       vz: -forwardZ * backward + rightZ * lateral,
       life: ballistic ? 0.62 + randomA * 0.62 : 0.85 + randomA * 0.75,
-      size: ballistic ? 0.11 + randomB * 0.19 : 0.28 + randomB * 0.52,
+      size: ballistic ? 0.1 + randomB * 0.2 : 0.24 + randomB * 0.42,
       kind: ballistic ? 1 : 0,
-      color: wheel.support.surface === 'packed-sand' ? 0xb97b49 : 0xe2a15c,
+      color: ballistic
+        ? 0xf4c58b
+        : wheel.support.surface === 'packed-sand' ? 0xd8955d : 0xefb56e,
     });
   }
   if (events?.landed && events.landingSpeed > 5) {
@@ -186,7 +191,7 @@ export function emitDuneDust(pool, kart, contact, controls, events, dt) {
 }
 
 export function emitDuneLandingBurst(pool, kart, contact, landingSpeed = 8) {
-  const count = Math.min(pool.reduceMotion ? 5 : 14, Math.round(landingSpeed * 0.72));
+  const count = Math.min(pool.reduceMotion ? 6 : 22, Math.round(landingSpeed * 0.94));
   for (let index = 0; index < count; index += 1) {
     const angle = index / count * Math.PI * 2 + hash(index, pool.serial) * 0.4;
     const wheel = contact.wheels[index % contact.wheels.length];
@@ -199,7 +204,7 @@ export function emitDuneLandingBurst(pool, kart, contact, landingSpeed = 8) {
       vy: 1.1 + hash(index + 5, pool.serial) * 2.8,
       vz: Math.sin(angle) * speed,
       life: 0.7 + hash(index + 17, pool.serial) * 0.55,
-      size: 0.24 + hash(index + 19, pool.serial) * 0.42,
+      size: 0.28 + hash(index + 19, pool.serial) * 0.52,
       kind: 1,
       color: 0xf0b66f,
     });
@@ -261,7 +266,7 @@ export function updateDuneDust(pool, dt, windX = 0.7, windZ = 0.3) {
     _object.scale.set(scale * 1.6, scale * (ballistic ? 0.55 : 0.8), scale);
     _object.updateMatrix();
     pool.mesh.setMatrixAt(index, _object.matrix);
-    pool.alpha.array[index] = fade * (ballistic ? 0.86 : 0.48);
+    pool.alpha.array[index] = fade * (ballistic ? 0.84 : 0.38);
     activeCount += 1;
   }
   pool.activeCount = activeCount;

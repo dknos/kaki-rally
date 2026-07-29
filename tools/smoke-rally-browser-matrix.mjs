@@ -220,6 +220,12 @@ async function bootPage(browser, origin, backend, diagnostics, {
   const boot = await page.evaluate(() => window.__kakiRally.getDiagnostics());
   assert.equal(boot.backend, backend, `${backend} request initialized ${boot.backend}`);
   assert.equal(boot.stateDiagnostics.lastError || '', '', `${backend} boot error: ${boot.stateDiagnostics.lastError}`);
+  const menuVersion = await page.locator('.rally-version').evaluate((node) => ({
+    text: node.textContent.trim(),
+    visible: !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length),
+  }));
+  assert.equal(menuVersion.text, 'V1.1.0', 'main menu version does not match the release');
+  assert(menuVersion.visible, `main menu version is hidden at ${viewport.width}x${viewport.height}`);
   return { context, page, boot };
 }
 
@@ -1014,22 +1020,52 @@ async function runDunes(page, backend, evidence) {
   assert(wheelspin.terrain.clipmap.levels >= 6, 'Dune clipmap lost its nested detail levels');
   assert(wheelspin.terrain.clipmap.staticTopology, 'Dune clipmap rebuilds topology while driving');
   assert(wheelspin.terrain.clipmap.shaderTrimmedUnderlays, 'Dune clipmap lost crack-free underlay trims');
+  assert(wheelspin.terrain.clipmap.signedTrackContrast, 'Dune material no longer shades signed rut depth');
+  assert(/^#[0-9a-f]{6}$/i.test(wheelspin.terrain.clipmap.trackColor), 'Dune track contrast has no authored color');
   assert(wheelspin.telemetry.groundedWheels > 0, 'Dune truck has no terrain contacts');
   assert(wheelspin.deformation.maximumDepression > 0, 'Dune tires made no persistent rut');
   assert(wheelspin.vfx.roosterTail.emittedSamples > 0, 'Dune tires emitted no swept sand wake');
   assert(wheelspin.vfx.roosterTail.activeCurtains > 0, 'Dune swept sand wake is inactive');
+  assert.equal(wheelspin.vfx.roosterTail.crossSectionRows, 5, 'Dune sand wake fell back to a flat curtain');
+  assert.equal(wheelspin.vfx.roosterTail.curvedSurface, true, 'Dune sand wake lost its curled surface');
+  assert.equal(wheelspin.vfx.roosterTail.bufferAuthorityShared, true, 'Dune sand wake animates a detached CPU buffer');
+  assert(wheelspin.vfx.roosterTail.peakHeight > 0.35, 'Dune sand wake has no readable lifted lip');
+  assert(wheelspin.vfx.dust.capacity >= (backend === 'webgl' ? 300 : 180), 'Dune dust pool lost its dense quality tier');
   assert(wheelspin.environment.kitAttached, 'Dune environment kit did not attach');
   assert.equal(wheelspin.assets.error, '', `Dune asset error: ${wheelspin.assets.error}`);
   assert(wheelspin.performance.drawCalls > 0, 'Dune Run submitted no draw calls');
   await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-wheelspin.png`) });
 
+  const wheelPoseSamples = [];
+  for (let index = 0; index < 14; index += 1) {
+    wheelPoseSamples.push(await page.evaluate(() => {
+      const wheel = window.__kakiRally.state.racing.visual.wheels
+        .find((entry) => entry.userData.steerable);
+      const axle = wheel.position.clone().set(1, 0, 0).applyQuaternion(wheel.quaternion);
+      return {
+        axle: axle.toArray(),
+        spin: wheel.userData.presentationSpin,
+        steer: wheel.userData.presentationSteer,
+      };
+    }));
+    await page.waitForTimeout(45);
+  }
   assert(
-    await page.evaluate(() => window.__kkRacing.showDuneState('big-jump')),
-    'Dune Run big-jump camera fixture failed',
+    wheelPoseSamples.every((sample) => Math.abs(sample.axle[1]) < 1e-5),
+    `turning wheel axle wobbled out of plane: ${JSON.stringify(wheelPoseSamples)}`,
   );
   assert(
-    await page.evaluate(() => window.__kakiRally.state.racing.cameraManager.setCameraMode('isometric')),
-    'Dune Run rejected isometric during a big jump',
+    Math.max(...wheelPoseSamples.map((sample) => Math.abs(sample.steer))) > 0.03,
+    'wheel pose stability check never observed steering',
+  );
+  assert(
+    new Set(wheelPoseSamples.map((sample) => Number(sample.spin).toFixed(2))).size >= 5,
+    'wheel pose stability check did not span enough tire rotation',
+  );
+
+  assert(
+    await page.evaluate(() => window.__kkRacing.setCameraMode('isometric')),
+    'Dune Run rejected isometric before a continuous jump',
   );
   await page.waitForFunction(() => {
     const camera = window.__kakiRally?.state?.racing?.cameraManager;
@@ -1037,32 +1073,59 @@ async function runDunes(page, backend, evidence) {
       && camera?.activeCamera?.isOrthographicCamera
       && !camera?.transition;
   }, null, { timeout: 20_000 });
-  const bigJumpIsometric = await page.evaluate(() => {
-    const session = window.__kakiRally.state.racing;
-    const manager = session.cameraManager;
-    const camera = manager.activeCamera;
-    const playerWorld = session.visual.root.getWorldPosition(session.visual.root.position.clone());
-    const playerNdc = playerWorld.clone().project(camera);
-    return {
-      cameraY: camera.position.y,
-      kartWorldY: session.root.position.y + session.kart.y,
-      playerNdc: playerNdc.toArray(),
-      projection: camera.isOrthographicCamera ? 'orthographic' : 'perspective',
-      mode: manager.mode,
-      transitioning: !!manager.transition,
-    };
-  });
+  await page.waitForTimeout(180);
   assert(
-    bigJumpIsometric.cameraY > bigJumpIsometric.kartWorldY + 12,
-    `Dune isometric fell below the big jump: ${JSON.stringify(bigJumpIsometric)}`,
+    await page.evaluate(() => window.__kkRacing.launchDuneJump(38)),
+    'Dune Run continuous jump fixture failed',
   );
+  const continuousJumpFrames = [];
+  for (let index = 0; index < 34; index += 1) {
+    await page.waitForTimeout(50);
+    continuousJumpFrames.push(await page.evaluate(() => {
+      const session = window.__kakiRally.state.racing;
+      const manager = session.cameraManager;
+      const camera = manager.activeCamera;
+      const playerWorld = session.visual.root.getWorldPosition(session.visual.root.position.clone());
+      const playerNdc = playerWorld.clone().project(camera);
+      const forward = camera.getWorldDirection(camera.position.clone());
+      return {
+        altitude: session.kart.y - session.kart.groundHeight,
+        cameraY: camera.position.y,
+        focusY: manager.lastFrame?.focus?.y,
+        playerNdc: playerNdc.toArray(),
+        forwardY: forward.y,
+        projection: camera.isOrthographicCamera ? 'orthographic' : 'perspective',
+        mode: manager.mode,
+        transitioning: !!manager.transition,
+      };
+    }));
+  }
+  const invalidJumpFrame = continuousJumpFrames.find((frame) => (
+    frame.projection !== 'orthographic'
+    || frame.mode !== 'isometric'
+    || frame.transitioning
+    || !(frame.cameraY > frame.focusY + 8)
+    || !(frame.forwardY < -0.15)
+    || Math.abs(frame.playerNdc[0]) >= 0.92
+    || Math.abs(frame.playerNdc[1]) >= 0.92
+    || frame.playerNdc[2] < -1
+    || frame.playerNdc[2] > 1
+  ));
+  const maximumJumpAltitude = Math.max(...continuousJumpFrames.map((frame) => frame.altitude));
   assert(
-    Math.abs(bigJumpIsometric.playerNdc[0]) < 0.92
-      && Math.abs(bigJumpIsometric.playerNdc[1]) < 0.92
-      && bigJumpIsometric.playerNdc[2] >= -1
-      && bigJumpIsometric.playerNdc[2] <= 1,
-    `Dune big-jump player left the isometric frame: ${JSON.stringify(bigJumpIsometric)}`,
+    maximumJumpAltitude > 18,
+    `continuous ISO fixture did not produce a big jump: ${maximumJumpAltitude}`,
   );
+  assert(!invalidJumpFrame, `Dune ISO lost its terrain-facing jump frame: ${JSON.stringify(invalidJumpFrame)}`);
+  const bigJumpIsometric = {
+    maximumAltitude: maximumJumpAltitude,
+    first: continuousJumpFrames[0],
+    apex: continuousJumpFrames.reduce((best, frame) => (
+      frame.altitude > best.altitude ? frame : best
+    ), continuousJumpFrames[0]),
+    last: continuousJumpFrames.at(-1),
+    sampledFrames: continuousJumpFrames.length,
+  };
   await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-big-jump-isometric.png`) });
   await page.click('.kkd-hud .kkr-camera-cycle');
   await page.waitForFunction(() => {
@@ -2105,7 +2168,16 @@ async function runWebGpu(browser, origin, report) {
         || window.__kkRacing.showMonsterJump?.()
       ), mode);
       else await page.evaluate(() => window.__kkRacing.warpCheckpoint(0));
-      await page.waitForTimeout(220);
+      if (mode === 'dunes') {
+        await page.waitForFunction(() => {
+          const snapshot = window.__kkRacing?.snapshot?.();
+          return snapshot?.deformation?.appliedBrushes > 0
+            && snapshot?.vfx?.roosterTail?.emittedSamples > 0
+            && snapshot?.vfx?.dust?.spawned > 0;
+        }, null, { timeout: 20_000 });
+      } else {
+        await page.waitForTimeout(220);
+      }
       const diagnosticsNow = await page.evaluate(() => window.__kakiRally.getDiagnostics());
       assert.equal(diagnosticsNow.backend, 'webgpu');
       assert(diagnosticsNow.renderer.drawCalls > 0, `${mode} WebGPU made no submissions`);
@@ -2113,7 +2185,42 @@ async function runWebGpu(browser, origin, report) {
         const snapshot = await page.evaluate(() => window.__kkRacing.snapshot());
         assert.equal(snapshot.terrain.authorityShared, true, 'Dune WebGPU renderer/physics heights diverged');
         assert(snapshot.terrain.clipmap.shaderTrimmedUnderlays, 'Dune WebGPU lost clipmap trims');
+        assert(snapshot.terrain.clipmap.signedTrackContrast, 'Dune WebGPU lost signed track shading');
+        assert(snapshot.deformation.maximumDepression > 0, 'Dune WebGPU tires produced no rut');
+        assert(snapshot.vfx.roosterTail.bufferAuthorityShared, 'Dune WebGPU wake animates a detached buffer');
+        assert(snapshot.vfx.roosterTail.emittedSamples > 0, 'Dune WebGPU emitted no swept wake');
+        assert(snapshot.vfx.dust.spawned > 0, 'Dune WebGPU emitted no sand grains');
         assert.equal(snapshot.assets.error, '', `Dune WebGPU asset error: ${snapshot.assets.error}`);
+        await page.evaluate(() => window.__kkRacing.setCameraMode('isometric'));
+        await page.waitForFunction(() => {
+          const camera = window.__kakiRally?.state?.racing?.cameraManager;
+          return camera?.mode === 'isometric'
+            && camera?.activeCamera?.isOrthographicCamera
+            && !camera?.transition;
+        });
+        await page.evaluate(() => window.__kkRacing.launchDuneJump(30));
+        await page.waitForFunction(() => (
+          window.__kkRacing?.snapshot?.()?.y
+            - window.__kakiRally.state.racing.kart.groundHeight > 3
+        ), null, { timeout: 20_000 });
+        const jump = await page.evaluate(() => {
+          const session = window.__kakiRally.state.racing;
+          const manager = session.cameraManager;
+          const camera = manager.activeCamera;
+          const player = session.visual.root
+            .getWorldPosition(session.visual.root.position.clone())
+            .project(camera);
+          return {
+            cameraY: camera.position.y,
+            focusY: manager.lastFrame.focus.y,
+            forwardY: camera.getWorldDirection(camera.position.clone()).y,
+            playerNdc: player.toArray(),
+          };
+        });
+        assert(jump.cameraY > jump.focusY + 8 && jump.forwardY < -0.15,
+          `Dune WebGPU ISO lost its terrain-facing jump frame: ${JSON.stringify(jump)}`);
+        assert(Math.abs(jump.playerNdc[0]) < 0.92 && Math.abs(jump.playerNdc[1]) < 0.92,
+          `Dune WebGPU jump left the ISO frame: ${JSON.stringify(jump)}`);
         await page.screenshot({ path: path.join(QA_DIR, 'webgpu-dunes.png') });
       }
       report.webgpu.modes[mode] = diagnosticsNow;

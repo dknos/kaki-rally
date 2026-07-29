@@ -110,7 +110,14 @@ import {
   getDuneSnapshot,
 } from './dunes/duneMode.js';
 import { createRallyAssetLease, getRallyAssetCacheSnapshot } from './racingAssets.js';
-import { attachCyberTruckModel, attachMightyMeowsterModel, attachTipsyTumblerModel, buildRallyCar, updateVehicleAnimation } from './racingVehicles.js';
+import {
+  attachCyberTruckModel,
+  attachMightyMeowsterModel,
+  attachTipsyTumblerModel,
+  buildRallyCar,
+  updateVehicleAnimation,
+  updateVehicleWheelPresentation,
+} from './racingVehicles.js';
 import {
   buildRallyEnvironment,
   disposeRallyEnvironment,
@@ -1238,12 +1245,16 @@ function _syncKartVisual(session, car, dt, controls, events, contact) {
     const wheelRadians = v.monster && Number.isFinite(p.wheelRpm)
       ? (p.wheelRpm / 60) * Math.PI * 2
       : p.speed * 1.8;
-    wheel.rotation.x += wheelRadians * dt;
     const isLeft = wheel.userData.side ? wheel.userData.side === 'left' : i < 2;
     const sideDamage = isLeft ? p.bodyDamage?.left || 0 : p.bodyDamage?.right || 0;
     const steer = wheel.userData.steerable ? controls.steer * (p.drifting ? 0.4 : 0.3) : 0;
     const wobble = Math.sin(session.raceTime * (8 + i)) * sideDamage * 0.18;
-    wheel.rotation.y += (steer + wobble - wheel.rotation.y) * Math.min(1, dt * 14);
+    updateVehicleWheelPresentation(wheel, {
+      spinDelta: wheelRadians * dt,
+      targetSteer: steer + wobble,
+      dt,
+      steeringResponse: 14,
+    });
   }
   for (const spring of v.suspension || []) {
     const contactId = `${spring.userData.side}${spring.userData.axle === 'front' ? 'Front' : 'Rear'}`;

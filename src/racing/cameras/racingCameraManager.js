@@ -131,14 +131,13 @@ export class RacingCameraManager {
     this.rigs[next].reset();
     this.input.closeList();
     if (save) savePreference(next);
-    const vehicle = this._vehicleState();
-    const airborneProjectionChange = vehicle?.grounded === false
-      && (previous === RacingCameraMode.ISOMETRIC || next === RacingCameraMode.ISOMETRIC);
-    // Projection blends are attractive on the ground, but during a large jump
-    // an obsolete airborne ISO frame can spend several frames looking below
-    // the rider. Snap projection changes in flight so Chase/FPV is always an
-    // immediate escape path.
-    const shouldSnap = instant || this.lastReducedMotion || !this.lastFrame || airborneProjectionChange;
+    const projectionChange = previous === RacingCameraMode.ISOMETRIC
+      || next === RacingCameraMode.ISOMETRIC;
+    // Orthographic and perspective lenses have no exact shared intermediate
+    // projection. Always snap across that boundary so a stale ISO frame can
+    // never be blended into Chase/FPV, whether takeoff contact has cleared yet
+    // or not. Chase <-> FPV keeps the authored perspective transition.
+    const shouldSnap = instant || this.lastReducedMotion || !this.lastFrame || projectionChange;
     if (next === RacingCameraMode.DRIVER_FPV) this._applyInteriorVisibility(true);
     // Monster-truck FPV hides the complete exterior root. Restore it before
     // calculating or rendering the destination frame: waiting for the blend

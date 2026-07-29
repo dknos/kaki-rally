@@ -410,7 +410,7 @@ export class DuneDeformationField {
       const rutStrength = clamp(
         (0.00075 + looseness * 0.00125)
         * normalLoad
-        * (1 + slipEnergy * 2.8)
+        * (1 + slipEnergy * 4.1)
         * timeScale,
         0.00012,
         0.014,
