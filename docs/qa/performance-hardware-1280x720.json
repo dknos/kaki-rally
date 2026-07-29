@@ -1,0 +1,1245 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-07-29T06:01:24.839Z",
+  "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
+  "environment": {
+    "browser": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "renderer": "webgl",
+    "gpuProfile": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "adapterSelector": "",
+    "viewport": [
+      1280,
+      720
+    ],
+    "quality": "high",
+    "physicalGpu": true,
+    "sessions": 1,
+    "runtime": "Windows native Chrome",
+    "note": "Native Windows Chrome physical-adapter measurement; this does not establish phone thermals.",
+    "webgl": {
+      "webgl2": true,
+      "vendor": "Google Inc. (NVIDIA)",
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  },
+  "browserDiagnostics": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "badResponses": []
+  },
+  "transitions": [
+    {
+      "index": 1,
+      "mode": "circuit",
+      "courseId": "forest",
+      "enterDurationMs": 4404,
+      "restartDurationMs": 2152,
+      "frames": {
+        "samples": 120,
+        "averageMs": 16.622,
+        "medianMs": 16.7,
+        "p95Ms": 16.8,
+        "p99Ms": 16.8,
+        "maxMs": 16.9,
+        "averageFps": 60.16,
+        "medianFps": 59.88,
+        "onePercentLowFps": 59.52,
+        "warmedSpikeCount": 0
+      },
+      "active": {
+        "domNodes": 254,
+        "sceneObjects": 330,
+        "sessionRoots": 1,
+        "drawCalls": 181,
+        "triangles": 1447497,
+        "textures": 35,
+        "geometries": 166,
+        "renderTargets": 13,
+        "estimatedGpuMemoryBytes": 108564485,
+        "jsHeapBytes": 66960976,
+        "cpuFrameTimeMs": 4.128333327174187,
+        "cpuFrameTimeP99Ms": 5.800000071525574,
+        "renderSubmissionTimeMs": 2.915833326180776
+      },
+      "afterExit": {
+        "domNodes": 158,
+        "sceneObjects": 4,
+        "sessionRoots": 0,
+        "hudRoots": 0,
+        "textures": 19,
+        "geometries": 2,
+        "renderTargets": 12,
+        "estimatedGpuMemoryBytes": 68935776,
+        "jsHeapBytes": 104677759,
+        "racingAudio": false
+      }
+    }
+  ],
+  "coldBaseline": {
+    "sourceCommit": "37a3584ccbff0bb5d45539fcadd4002e1e16bdce",
+    "appMode": "menu",
+    "activeMode": null,
+    "activePhase": null,
+    "paused": false,
+    "backend": "webgl",
+    "renderer": {
+      "backend": "webgl",
+      "deviceDescription": "WebGL 2",
+      "threeRevision": "185",
+      "initialized": true,
+      "resolution": {
+        "width": 1280,
+        "height": 720,
+        "cssWidth": 1280,
+        "cssHeight": 720
+      },
+      "dpr": 1,
+      "fps": 6.253908693865571,
+      "cpuFrameTimeMs": 59.35000002384186,
+      "cpuFrameTimeP99Ms": 117.20000004768372,
+      "renderSubmissionTimeMs": 59.19999998807907,
+      "renderSubmissionTimeP99Ms": 116.89999997615814,
+      "drawCalls": 13,
+      "renderCalls": 28,
+      "frameRenderCalls": 14,
+      "triangles": 13,
+      "points": 0,
+      "lines": 0,
+      "gpuFrameTimeMs": null,
+      "textures": 14,
+      "renderTargets": 12,
+      "geometries": 1,
+      "gpuMemoryBytes": 33662205,
+      "programs": 12,
+      "compilationEventCount": 0,
+      "recentCompilationEvents": [],
+      "deviceLossCount": 0,
+      "rendererState": "ready",
+      "requestedBackend": "webgl",
+      "quality": "high",
+      "dynamicResolutionScale": 1,
+      "activeMode": "menu",
+      "sessionPhase": null,
+      "transitionCount": 0
+    },
+    "racing": null,
+    "sceneObjects": 4,
+    "sceneRenderables": {
+      "visible": 1,
+      "instanced": 0,
+      "instances": 0
+    },
+    "estimatedGpuMemoryBytes": 68935776,
+    "domNodes": 158,
+    "modeOwnedDomNodes": 0,
+    "hudRoots": 0,
+    "sessionRoots": 0,
+    "assets": [
+      {
+        "key": "hero",
+        "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
+        "refs": 1,
+        "status": "ready",
+        "error": "",
+        "roots": 1
+      }
+    ],
+    "input": {
+      "initialized": true,
+      "pressedKeys": [],
+      "jumpQueued": false,
+      "lastDevice": "keyboard",
+      "moveVec": {
+        "x": 0,
+        "y": 0
+      },
+      "touch": {
+        "left": false,
+        "right": false,
+        "throttle": false,
+        "brake": false
+      },
+      "gamepad": {
+        "connected": false,
+        "name": "",
+        "index": -1
+      }
+    },
+    "audio": {
+      "contextState": "running",
+      "menuPlaying": true,
+      "racingActive": false,
+      "activeNodes": 6,
+      "cleanupTimers": 0,
+      "volumes": {
+        "master": 1,
+        "music": 0.55,
+        "sfx": 0.72,
+        "ambient": 0.5
+      },
+      "counters": {
+        "menu": 1,
+        "racing": 0,
+        "impact": 0,
+        "sfx": 0
+      }
+    },
+    "touch": {
+      "mounted": true,
+      "visible": false,
+      "mode": null,
+      "activeControls": []
+    },
+    "poolUsage": {
+      "active": 0,
+      "capacity": 0
+    },
+    "transitions": [
+      {
+        "label": "boot-menu",
+        "at": 359.90000009536743,
+        "mode": "menu",
+        "domNodes": 158,
+        "hudRoots": 0,
+        "sceneObjects": 4,
+        "sessionRoots": 0,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 0,
+          "cpuFrameTimeMs": null,
+          "cpuFrameTimeP99Ms": null,
+          "renderSubmissionTimeMs": null,
+          "renderSubmissionTimeP99Ms": null,
+          "drawCalls": 0,
+          "renderCalls": 0,
+          "frameRenderCalls": 0,
+          "triangles": 0,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 0,
+          "renderTargets": 0,
+          "geometries": 0,
+          "gpuMemoryBytes": 0,
+          "programs": 0,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "menu",
+          "sessionPhase": null,
+          "transitionCount": 0
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": true,
+          "racingActive": false,
+          "activeNodes": 6,
+          "cleanupTimers": 0,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 1,
+            "racing": 0,
+            "impact": 0,
+            "sfx": 0
+          }
+        }
+      }
+    ],
+    "frameCount": 2,
+    "stateDiagnostics": {
+      "bootedAt": 1785304885004,
+      "sourceCommit": "37a3584ccbff0bb5d45539fcadd4002e1e16bdce",
+      "rendererFallback": null,
+      "modeTransitions": 0,
+      "lastError": ""
+    }
+  },
+  "baseline": {
+    "sourceCommit": "37a3584ccbff0bb5d45539fcadd4002e1e16bdce",
+    "appMode": "menu",
+    "activeMode": null,
+    "activePhase": null,
+    "paused": false,
+    "backend": "webgl",
+    "renderer": {
+      "backend": "webgl",
+      "deviceDescription": "WebGL 2",
+      "threeRevision": "185",
+      "initialized": true,
+      "resolution": {
+        "width": 1280,
+        "height": 720,
+        "cssWidth": 1280,
+        "cssHeight": 720
+      },
+      "dpr": 1,
+      "fps": 21.36181575433912,
+      "cpuFrameTimeMs": 28.760833337903023,
+      "cpuFrameTimeP99Ms": 932.2000000476837,
+      "renderSubmissionTimeMs": 27.716666666666665,
+      "renderSubmissionTimeP99Ms": 929.8999999761581,
+      "drawCalls": 13,
+      "renderCalls": 1825,
+      "frameRenderCalls": 14,
+      "triangles": 13,
+      "points": 0,
+      "lines": 0,
+      "gpuFrameTimeMs": null,
+      "textures": 19,
+      "renderTargets": 12,
+      "geometries": 2,
+      "gpuMemoryBytes": 113709621,
+      "programs": 18,
+      "compilationEventCount": 0,
+      "recentCompilationEvents": [],
+      "deviceLossCount": 0,
+      "rendererState": "ready",
+      "requestedBackend": "webgl",
+      "quality": "high",
+      "dynamicResolutionScale": 1,
+      "activeMode": "menu",
+      "sessionPhase": null,
+      "transitionCount": 2
+    },
+    "racing": null,
+    "sceneObjects": 4,
+    "sceneRenderables": {
+      "visible": 1,
+      "instanced": 0,
+      "instances": 0
+    },
+    "estimatedGpuMemoryBytes": 68935776,
+    "domNodes": 158,
+    "modeOwnedDomNodes": 0,
+    "hudRoots": 0,
+    "sessionRoots": 0,
+    "assets": [
+      {
+        "key": "hero",
+        "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
+        "refs": 1,
+        "status": "ready",
+        "error": "",
+        "roots": 1
+      }
+    ],
+    "input": {
+      "initialized": true,
+      "pressedKeys": [],
+      "jumpQueued": false,
+      "lastDevice": "keyboard",
+      "moveVec": {
+        "x": 0,
+        "y": 0
+      },
+      "touch": {
+        "left": false,
+        "right": false,
+        "throttle": false,
+        "brake": false
+      },
+      "gamepad": {
+        "connected": false,
+        "name": "",
+        "index": -1
+      }
+    },
+    "audio": {
+      "contextState": "running",
+      "menuPlaying": true,
+      "racingActive": false,
+      "activeNodes": 8,
+      "cleanupTimers": 1,
+      "volumes": {
+        "master": 1,
+        "music": 0.55,
+        "sfx": 0.72,
+        "ambient": 0.5
+      },
+      "counters": {
+        "menu": 2,
+        "racing": 1,
+        "impact": 0,
+        "sfx": 1
+      }
+    },
+    "touch": {
+      "mounted": true,
+      "visible": false,
+      "mode": null,
+      "activeControls": []
+    },
+    "poolUsage": {
+      "active": 0,
+      "capacity": 0
+    },
+    "transitions": [
+      {
+        "label": "boot-menu",
+        "at": 359.90000009536743,
+        "mode": "menu",
+        "domNodes": 158,
+        "hudRoots": 0,
+        "sceneObjects": 4,
+        "sessionRoots": 0,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 0,
+          "cpuFrameTimeMs": null,
+          "cpuFrameTimeP99Ms": null,
+          "renderSubmissionTimeMs": null,
+          "renderSubmissionTimeP99Ms": null,
+          "drawCalls": 0,
+          "renderCalls": 0,
+          "frameRenderCalls": 0,
+          "triangles": 0,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 0,
+          "renderTargets": 0,
+          "geometries": 0,
+          "gpuMemoryBytes": 0,
+          "programs": 0,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "menu",
+          "sessionPhase": null,
+          "transitionCount": 0
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": true,
+          "racingActive": false,
+          "activeNodes": 6,
+          "cleanupTimers": 0,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 1,
+            "racing": 0,
+            "impact": 0,
+            "sfx": 0
+          }
+        }
+      },
+      {
+        "label": "enter:circuit",
+        "at": 5383.400000095367,
+        "mode": "circuit",
+        "domNodes": 261,
+        "hudRoots": 1,
+        "sceneObjects": 206,
+        "sessionRoots": 1,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 18.0864532464317,
+          "cpuFrameTimeMs": 38.07582417818216,
+          "cpuFrameTimeP99Ms": 1898.1000000238419,
+          "renderSubmissionTimeMs": 37.034065927777974,
+          "renderSubmissionTimeP99Ms": 1890.7000000476837,
+          "drawCalls": 234,
+          "renderCalls": 1363,
+          "frameRenderCalls": 16,
+          "triangles": 1492218,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 31,
+          "renderTargets": 13,
+          "geometries": 102,
+          "gpuMemoryBytes": 152912281,
+          "programs": 147,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "circuit",
+          "sessionPhase": "racing",
+          "transitionCount": 1
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": false,
+          "racingActive": true,
+          "activeNodes": 18,
+          "cleanupTimers": 0,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 1,
+            "racing": 1,
+            "impact": 0,
+            "sfx": 1
+          }
+        }
+      },
+      {
+        "label": "exit:circuit",
+        "at": 6140.700000047684,
+        "mode": "menu",
+        "domNodes": 158,
+        "hudRoots": 0,
+        "sceneObjects": 4,
+        "sessionRoots": 0,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 20.607394212379923,
+          "cpuFrameTimeMs": 29.98739496299199,
+          "cpuFrameTimeP99Ms": 932.2000000476837,
+          "renderSubmissionTimeMs": 28.932773109243698,
+          "renderSubmissionTimeP99Ms": 929.8999999761581,
+          "drawCalls": 233,
+          "renderCalls": 1783,
+          "frameRenderCalls": 15,
+          "triangles": 1492217,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 19,
+          "renderTargets": 12,
+          "geometries": 2,
+          "gpuMemoryBytes": 113709621,
+          "programs": 18,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "menu",
+          "sessionPhase": null,
+          "transitionCount": 2
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": true,
+          "racingActive": false,
+          "activeNodes": 8,
+          "cleanupTimers": 1,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 2,
+            "racing": 1,
+            "impact": 0,
+            "sfx": 1
+          }
+        }
+      }
+    ],
+    "frameCount": 122,
+    "stateDiagnostics": {
+      "bootedAt": 1785304885004,
+      "sourceCommit": "37a3584ccbff0bb5d45539fcadd4002e1e16bdce",
+      "rendererFallback": null,
+      "modeTransitions": 2,
+      "lastError": "",
+      "lastExitReason": "qa"
+    }
+  },
+  "final": {
+    "sourceCommit": "37a3584ccbff0bb5d45539fcadd4002e1e16bdce",
+    "appMode": "menu",
+    "activeMode": null,
+    "activePhase": null,
+    "paused": false,
+    "backend": "webgl",
+    "renderer": {
+      "backend": "webgl",
+      "deviceDescription": "WebGL 2",
+      "threeRevision": "185",
+      "initialized": true,
+      "resolution": {
+        "width": 1280,
+        "height": 720,
+        "cssWidth": 1280,
+        "cssHeight": 720
+      },
+      "dpr": 1,
+      "fps": 29.998500074638656,
+      "cpuFrameTimeMs": 18.51166666050752,
+      "cpuFrameTimeP99Ms": 769.6999999284744,
+      "renderSubmissionTimeMs": 17.268333326776823,
+      "renderSubmissionTimeP99Ms": 767.8999999761581,
+      "drawCalls": 13,
+      "renderCalls": 8199,
+      "frameRenderCalls": 14,
+      "triangles": 13,
+      "points": 0,
+      "lines": 0,
+      "gpuFrameTimeMs": null,
+      "textures": 19,
+      "renderTargets": 12,
+      "geometries": 2,
+      "gpuMemoryBytes": 115050312,
+      "programs": 22,
+      "compilationEventCount": 0,
+      "recentCompilationEvents": [],
+      "deviceLossCount": 0,
+      "rendererState": "ready",
+      "requestedBackend": "webgl",
+      "quality": "high",
+      "dynamicResolutionScale": 1,
+      "activeMode": "menu",
+      "sessionPhase": null,
+      "transitionCount": 5
+    },
+    "racing": null,
+    "sceneObjects": 4,
+    "sceneRenderables": {
+      "visible": 1,
+      "instanced": 0,
+      "instances": 0
+    },
+    "estimatedGpuMemoryBytes": 68935776,
+    "domNodes": 158,
+    "modeOwnedDomNodes": 0,
+    "hudRoots": 0,
+    "sessionRoots": 0,
+    "assets": [
+      {
+        "key": "hero",
+        "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
+        "refs": 1,
+        "status": "ready",
+        "error": "",
+        "roots": 1
+      }
+    ],
+    "input": {
+      "initialized": true,
+      "pressedKeys": [],
+      "jumpQueued": false,
+      "lastDevice": "keyboard",
+      "moveVec": {
+        "x": 0,
+        "y": 0
+      },
+      "touch": {
+        "left": false,
+        "right": false,
+        "throttle": false,
+        "brake": false
+      },
+      "gamepad": {
+        "connected": false,
+        "name": "",
+        "index": -1
+      }
+    },
+    "audio": {
+      "contextState": "running",
+      "menuPlaying": true,
+      "racingActive": false,
+      "activeNodes": 8,
+      "cleanupTimers": 1,
+      "volumes": {
+        "master": 1,
+        "music": 0.55,
+        "sfx": 0.72,
+        "ambient": 0.5
+      },
+      "counters": {
+        "menu": 3,
+        "racing": 3,
+        "impact": 2,
+        "sfx": 6
+      }
+    },
+    "touch": {
+      "mounted": true,
+      "visible": false,
+      "mode": null,
+      "activeControls": []
+    },
+    "poolUsage": {
+      "active": 0,
+      "capacity": 0
+    },
+    "transitions": [
+      {
+        "label": "boot-menu",
+        "at": 359.90000009536743,
+        "mode": "menu",
+        "domNodes": 158,
+        "hudRoots": 0,
+        "sceneObjects": 4,
+        "sessionRoots": 0,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 0,
+          "cpuFrameTimeMs": null,
+          "cpuFrameTimeP99Ms": null,
+          "renderSubmissionTimeMs": null,
+          "renderSubmissionTimeP99Ms": null,
+          "drawCalls": 0,
+          "renderCalls": 0,
+          "frameRenderCalls": 0,
+          "triangles": 0,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 0,
+          "renderTargets": 0,
+          "geometries": 0,
+          "gpuMemoryBytes": 0,
+          "programs": 0,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "menu",
+          "sessionPhase": null,
+          "transitionCount": 0
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": true,
+          "racingActive": false,
+          "activeNodes": 6,
+          "cleanupTimers": 0,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 1,
+            "racing": 0,
+            "impact": 0,
+            "sfx": 0
+          }
+        }
+      },
+      {
+        "label": "enter:circuit",
+        "at": 5383.400000095367,
+        "mode": "circuit",
+        "domNodes": 261,
+        "hudRoots": 1,
+        "sceneObjects": 206,
+        "sessionRoots": 1,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 18.0864532464317,
+          "cpuFrameTimeMs": 38.07582417818216,
+          "cpuFrameTimeP99Ms": 1898.1000000238419,
+          "renderSubmissionTimeMs": 37.034065927777974,
+          "renderSubmissionTimeP99Ms": 1890.7000000476837,
+          "drawCalls": 234,
+          "renderCalls": 1363,
+          "frameRenderCalls": 16,
+          "triangles": 1492218,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 31,
+          "renderTargets": 13,
+          "geometries": 102,
+          "gpuMemoryBytes": 152912281,
+          "programs": 147,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "circuit",
+          "sessionPhase": "racing",
+          "transitionCount": 1
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": false,
+          "racingActive": true,
+          "activeNodes": 18,
+          "cleanupTimers": 0,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 1,
+            "racing": 1,
+            "impact": 0,
+            "sfx": 1
+          }
+        }
+      },
+      {
+        "label": "exit:circuit",
+        "at": 6140.700000047684,
+        "mode": "menu",
+        "domNodes": 158,
+        "hudRoots": 0,
+        "sceneObjects": 4,
+        "sessionRoots": 0,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 20.607394212379923,
+          "cpuFrameTimeMs": 29.98739496299199,
+          "cpuFrameTimeP99Ms": 932.2000000476837,
+          "renderSubmissionTimeMs": 28.932773109243698,
+          "renderSubmissionTimeP99Ms": 929.8999999761581,
+          "drawCalls": 233,
+          "renderCalls": 1783,
+          "frameRenderCalls": 15,
+          "triangles": 1492217,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 19,
+          "renderTargets": 12,
+          "geometries": 2,
+          "gpuMemoryBytes": 113709621,
+          "programs": 18,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "menu",
+          "sessionPhase": null,
+          "transitionCount": 2
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": true,
+          "racingActive": false,
+          "activeNodes": 8,
+          "cleanupTimers": 1,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 2,
+            "racing": 1,
+            "impact": 0,
+            "sfx": 1
+          }
+        }
+      },
+      {
+        "label": "enter:circuit",
+        "at": 9981,
+        "mode": "circuit",
+        "domNodes": 261,
+        "hudRoots": 1,
+        "sceneObjects": 330,
+        "sessionRoots": 1,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 23.60578341693715,
+          "cpuFrameTimeMs": 24.757500006755194,
+          "cpuFrameTimeP99Ms": 680.5,
+          "renderSubmissionTimeMs": 23.650000006953874,
+          "renderSubmissionTimeP99Ms": 679.1000000238419,
+          "drawCalls": 221,
+          "renderCalls": 2727,
+          "frameRenderCalls": 16,
+          "triangles": 1490096,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 31,
+          "renderTargets": 13,
+          "geometries": 97,
+          "gpuMemoryBytes": 187411069,
+          "programs": 128,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "circuit",
+          "sessionPhase": "countdown",
+          "transitionCount": 3
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": false,
+          "racingActive": true,
+          "activeNodes": 18,
+          "cleanupTimers": 0,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 2,
+            "racing": 2,
+            "impact": 0,
+            "sfx": 1
+          }
+        }
+      },
+      {
+        "label": "restart:circuit",
+        "at": 16142.400000095367,
+        "mode": "circuit",
+        "domNodes": 261,
+        "hudRoots": 1,
+        "sceneObjects": 321,
+        "sessionRoots": 1,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 59.99999999999999,
+          "cpuFrameTimeMs": 4.128333327174187,
+          "cpuFrameTimeP99Ms": 5.800000071525574,
+          "renderSubmissionTimeMs": 2.915833326180776,
+          "renderSubmissionTimeP99Ms": 4.299999952316284,
+          "drawCalls": 181,
+          "renderCalls": 8022,
+          "frameRenderCalls": 15,
+          "triangles": 1447497,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 19,
+          "renderTargets": 12,
+          "geometries": 2,
+          "gpuMemoryBytes": 114958812,
+          "programs": 22,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "circuit",
+          "sessionPhase": "countdown",
+          "transitionCount": 4
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": false,
+          "racingActive": false,
+          "activeNodes": 8,
+          "cleanupTimers": 1,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 2,
+            "racing": 2,
+            "impact": 2,
+            "sfx": 6
+          }
+        }
+      },
+      {
+        "label": "benchmark:1",
+        "at": 18242.200000047684,
+        "mode": "circuit",
+        "domNodes": 254,
+        "hudRoots": 1,
+        "sceneObjects": 330,
+        "sessionRoots": 1,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 29.936385181489335,
+          "cpuFrameTimeMs": 18.606666659315426,
+          "cpuFrameTimeP99Ms": 769.6999999284744,
+          "renderSubmissionTimeMs": 17.330833325783413,
+          "renderSubmissionTimeP99Ms": 767.8999999761581,
+          "drawCalls": 220,
+          "renderCalls": 8157,
+          "frameRenderCalls": 15,
+          "triangles": 1490095,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 31,
+          "renderTargets": 13,
+          "geometries": 97,
+          "gpuMemoryBytes": 153721699,
+          "programs": 99,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "circuit",
+          "sessionPhase": "racing",
+          "transitionCount": 4
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": false,
+          "racingActive": true,
+          "activeNodes": 18,
+          "cleanupTimers": 0,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 2,
+            "racing": 3,
+            "impact": 2,
+            "sfx": 6
+          }
+        }
+      },
+      {
+        "label": "exit:circuit",
+        "at": 18250.5,
+        "mode": "menu",
+        "domNodes": 158,
+        "hudRoots": 0,
+        "sceneObjects": 4,
+        "sessionRoots": 0,
+        "renderer": {
+          "backend": "webgl",
+          "deviceDescription": "WebGL 2",
+          "threeRevision": "185",
+          "initialized": true,
+          "resolution": {
+            "width": 1280,
+            "height": 720,
+            "cssWidth": 1280,
+            "cssHeight": 720
+          },
+          "dpr": 1,
+          "fps": 29.936385181489335,
+          "cpuFrameTimeMs": 18.606666659315426,
+          "cpuFrameTimeP99Ms": 769.6999999284744,
+          "renderSubmissionTimeMs": 17.330833325783413,
+          "renderSubmissionTimeP99Ms": 767.8999999761581,
+          "drawCalls": 220,
+          "renderCalls": 8157,
+          "frameRenderCalls": 15,
+          "triangles": 1490095,
+          "points": 0,
+          "lines": 0,
+          "gpuFrameTimeMs": null,
+          "textures": 19,
+          "renderTargets": 12,
+          "geometries": 2,
+          "gpuMemoryBytes": 115050312,
+          "programs": 22,
+          "compilationEventCount": 0,
+          "recentCompilationEvents": [],
+          "deviceLossCount": 0,
+          "rendererState": "ready",
+          "requestedBackend": "webgl",
+          "quality": "high",
+          "dynamicResolutionScale": 1,
+          "activeMode": "menu",
+          "sessionPhase": null,
+          "transitionCount": 5
+        },
+        "audio": {
+          "contextState": "running",
+          "menuPlaying": true,
+          "racingActive": false,
+          "activeNodes": 8,
+          "cleanupTimers": 1,
+          "volumes": {
+            "master": 1,
+            "music": 0.55,
+            "sfx": 0.72,
+            "ambient": 0.5
+          },
+          "counters": {
+            "menu": 3,
+            "racing": 3,
+            "impact": 2,
+            "sfx": 6
+          }
+        }
+      }
+    ],
+    "frameCount": 547,
+    "stateDiagnostics": {
+      "bootedAt": 1785304885004,
+      "sourceCommit": "37a3584ccbff0bb5d45539fcadd4002e1e16bdce",
+      "rendererFallback": null,
+      "modeTransitions": 5,
+      "lastError": "",
+      "lastExitReason": "qa"
+    }
+  },
+  "summary": {
+    "entries": 1,
+    "lifecycleTransitions": 3,
+    "frameAverageMs": 16.622,
+    "frameP95WorstMs": 16.8,
+    "frameP99WorstMs": 16.8,
+    "minimumOnePercentLowFps": 59.52,
+    "warmedSpikeCount": 0,
+    "enterP95Ms": 4404,
+    "restartP95Ms": 2152,
+    "peakDrawCalls": 181,
+    "peakTriangles": 1447497,
+    "peakEstimatedGpuMemoryBytes": 108564485,
+    "peakJsHeapBytes": 66960976,
+    "peakDomNodes": 254,
+    "peakSceneObjects": 330,
+    "baselineDomNodes": 158,
+    "finalDomNodes": 158,
+    "baselineSceneObjects": 4,
+    "finalSceneObjects": 4,
+    "baselineTextures": 19,
+    "finalTextures": 19,
+    "baselineGeometries": 2,
+    "finalGeometries": 2,
+    "baselineRenderTargets": 12,
+    "finalRenderTargets": 12
+  }
+}

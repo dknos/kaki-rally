@@ -154,7 +154,7 @@ page.on('response', (response) => {
 const report = {
   schema: 1,
   generatedAt: new Date().toISOString(),
-  sourceCommit: '37a3584ccbff0bb5d45539fcadd4002e1e16bdce',
+  sourceCommit: 'fc84c36518651c8d80fc708f7398db2536046fd4',
   environment: {
     browser: CHROMIUM,
     renderer: 'webgl',

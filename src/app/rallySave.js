@@ -121,7 +121,7 @@ export function collectSavePayload(storage = null) {
     format: EXPORT_FORMAT,
     version: EXPORT_VERSION,
     exportedAt: new Date().toISOString(),
-    sourceCommit: '3711e8fc0c2c86b27911171c5394723ceb9e45aa',
+    sourceCommit: 'fc84c36518651c8d80fc708f7398db2536046fd4',
     values,
   };
 }

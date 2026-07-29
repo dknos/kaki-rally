@@ -768,6 +768,15 @@ async function assertPauseRestartExitReentry(page, spec, evidence) {
 async function runRoadMode(page, spec, backend, evidence) {
   const opening = await startModeFromMenu(page, spec);
   await skipCountdown(page);
+  if (spec.mode === 'stock') {
+    assert(
+      await page.evaluate(() => window.__kkRacing.setCameraMode('isometric')),
+      'Stock Cup rejected its pack-reading camera',
+    );
+    await page.waitForTimeout(180);
+    await page.screenshot({ path: path.join(QA_DIR, `${backend}-stock-pack.png`) });
+    await page.evaluate(() => window.__kkRacing.setCameraMode('chase'));
+  }
   const keyboard = await exerciseKeyboard(page);
   await exerciseTouch(page, spec.mode);
   const gamepad = await exerciseGamepad(page);
@@ -791,14 +800,6 @@ async function runRoadMode(page, spec, backend, evidence) {
     );
     await page.waitForTimeout(260);
     await page.screenshot({ path: path.join(QA_DIR, `${backend}-circuit-fpv.png`) });
-    await page.evaluate(() => window.__kkRacing.setCameraMode('chase'));
-  } else if (spec.mode === 'stock') {
-    assert(
-      await page.evaluate(() => window.__kkRacing.setCameraMode('isometric')),
-      'Stock Cup rejected its pack-reading camera',
-    );
-    await page.waitForTimeout(260);
-    await page.screenshot({ path: path.join(QA_DIR, `${backend}-stock-pack.png`) });
     await page.evaluate(() => window.__kkRacing.setCameraMode('chase'));
   }
   evidence.opening = opening;
@@ -826,8 +827,21 @@ async function runMonster(page, backend, evidence) {
   evidence.gamepad = await exerciseGamepad(page);
   const target = await page.evaluate(() => window.__kkRacing.warpToMonsterTarget(0));
   assert(target, 'Monster target traversal setup failed');
-  await page.waitForTimeout(260);
+  assert(
+    await page.evaluate(() => window.__kkRacing.setCameraMode('isometric')),
+    'Monster target traversal rejected its articulation camera',
+  );
+  await page.evaluate(() => new Promise((resolve) => (
+    requestAnimationFrame(() => requestAnimationFrame(resolve))
+  )));
+  await page.evaluate(() => {
+    const session = window.__kakiRally.state.racing;
+    session.goFlash = 0;
+    session.hud.callout.className = 'kkr-callout';
+    window.__kakiRally.state.time.paused = true;
+  });
   await page.screenshot({ path: path.join(QA_DIR, `${backend}-monster-crush-traversal.png`) });
+  await page.evaluate(() => { window.__kakiRally.state.time.paused = false; });
   const central = await page.evaluate((targetReady) => ({
     target: targetReady,
     collapsed: window.__kkRacing.collapseMonsterStructure(),
@@ -1240,6 +1254,11 @@ async function runDraw(page, backend, evidence) {
     evidence.flyover.phase === 'flyover' && evidence.flyover.camera?.cinematic,
     'Draw Workshop did not enter its build flyover',
   );
+  await page.evaluate(() => {
+    const cinematic = window.__kakiRally.state.racing?.cameraManager?.cinematic;
+    if (cinematic) cinematic.elapsed = cinematic.duration * 0.28;
+  });
+  await page.waitForTimeout(180);
   await page.screenshot({ path: path.join(QA_DIR, `${backend}-draw-build-flyover.png`) });
   await assertRallyGrass(page, 'draw');
   await skipCountdown(page);
@@ -1550,6 +1569,17 @@ async function runTrials(page, backend, evidence) {
 
   await startMode(page, 'trials', 'forest', { trialsTrackId: 'meadow', trialsVehicle: 'monster' });
   await skipCountdown(page);
+  assert(
+    await page.evaluate(() => window.__kkRacing.setCameraMode('isometric')),
+    'Trials rejected its production side-view camera',
+  );
+  await page.evaluate(() => {
+    const session = window.__kakiRally.state.racing;
+    session.goTime = 0;
+    session.calloutTime = 0;
+    session.callout = '';
+  });
+  await page.waitForTimeout(260);
   const ghost = await page.evaluate(() => window.__kakiRally.getSnapshot());
   assert(ghost.pbGhostSampleCount >= 2, 'saved Trials ghost did not replay on re-entry');
   await page.screenshot({ path: path.join(QA_DIR, `${backend}-trials.png`) });
@@ -1829,7 +1859,7 @@ function emptyDiagnostics() {
 
 const report = {
   schema: 1,
-  sourceCommit: '3711e8fc0c2c86b27911171c5394723ceb9e45aa',
+  sourceCommit: 'fc84c36518651c8d80fc708f7398db2536046fd4',
   generatedAt: new Date().toISOString(),
   chromium: CHROMIUM,
   requestedBackend,

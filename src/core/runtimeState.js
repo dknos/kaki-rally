@@ -43,7 +43,7 @@ export const state = {
   options: {},
   diagnostics: {
     bootedAt: 0,
-    sourceCommit: '3711e8fc0c2c86b27911171c5394723ceb9e45aa',
+    sourceCommit: 'fc84c36518651c8d80fc708f7398db2536046fd4',
     rendererFallback: null,
     modeTransitions: 0,
     lastError: '',

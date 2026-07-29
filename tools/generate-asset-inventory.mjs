@@ -19,7 +19,7 @@ import { RALLY_ASSET_MANIFEST } from '../src/racing/racingManifest.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUTPUT = path.join(ROOT, 'docs', 'ASSET_INVENTORY.json');
 const CHECK = process.argv.includes('--check');
-const SOURCE_SHA = '3711e8fc0c2c86b27911171c5394723ceb9e45aa';
+const SOURCE_SHA = 'fc84c36518651c8d80fc708f7398db2536046fd4';
 
 const TEXT_ROOTS = ['src', 'index.html'];
 const SHIPPED_ASSET_ROOTS = ['assets', 'images'];

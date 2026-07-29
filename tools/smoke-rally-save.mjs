@@ -52,7 +52,7 @@ assert.equal(settings.renderer, 'webgpu');
 const serialized = exportRallySave(source);
 const payload = JSON.parse(serialized);
 assert.equal(payload.format, EXPORT_FORMAT);
-assert.equal(payload.sourceCommit, '3711e8fc0c2c86b27911171c5394723ceb9e45aa');
+assert.equal(payload.sourceCommit, 'fc84c36518651c8d80fc708f7398db2536046fd4');
 for (const [key, value] of Object.entries(legacyValues)) {
   assert.equal(payload.values[key], value, `${key} changed during export`);
 }

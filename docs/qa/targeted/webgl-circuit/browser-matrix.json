@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
-  "generatedAt": "2026-07-29T04:16:44.986Z",
+  "generatedAt": "2026-07-29T05:06:01.208Z",
   "chromium": "/home/nemoclaw/bin/chromium",
   "requestedBackend": "webgl",
   "webgl": {
@@ -34,23 +34,23 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 3.4063895170115663,
-            "cpuFrameTimeMs": 21.90833332637946,
-            "cpuFrameTimeP99Ms": 600.0999999046326,
-            "renderSubmissionTimeMs": 20.868749991059303,
-            "renderSubmissionTimeP99Ms": 597.6999999284744,
-            "drawCalls": 306,
-            "renderCalls": 683,
+            "fps": 4.336250184272701,
+            "cpuFrameTimeMs": 22.007843134449978,
+            "cpuFrameTimeP99Ms": 564.1000000238419,
+            "renderSubmissionTimeMs": 20.921568632125854,
+            "renderSubmissionTimeP99Ms": 551.1999999284744,
+            "drawCalls": 314,
+            "renderCalls": 729,
             "frameRenderCalls": 15,
-            "triangles": 1519151,
+            "triangles": 1505991,
             "points": 0,
             "lines": 0,
             "gpuFrameTimeMs": null,
-            "textures": 31,
+            "textures": 35,
             "renderTargets": 13,
-            "geometries": 150,
-            "gpuMemoryBytes": 151493471,
-            "programs": 93,
+            "geometries": 210,
+            "gpuMemoryBytes": 154977225,
+            "programs": 137,
             "compilationEventCount": 0,
             "recentCompilationEvents": [],
             "deviceLossCount": 0,
@@ -70,9 +70,36 @@
             "courseName": "Borrowed Post Switchback",
             "arenaId": null,
             "phase": "racing",
-            "raceTime": 0.13333333333333333,
+            "raceTime": 0.16666666666666666,
             "lap": 0,
             "speed": 0,
+            "telemetry": {
+              "profile": "off-road-gp-balanced",
+              "forwardSpeed": 0,
+              "lateralSpeed": 0,
+              "acceleration": 0,
+              "steeringInput": 0,
+              "appliedSteering": 0,
+              "yawRate": 0,
+              "slipAngle": 0,
+              "surfaceGrip": 0.8518837725142935,
+              "surfaceDrag": 0.2036598127928465,
+              "surface": "mud",
+              "grounded": true,
+              "jumpState": "grounded",
+              "driftState": "grip",
+              "collisionIntensity": 0,
+              "engineAcceleration": 0,
+              "braking": 0,
+              "rollingResistance": 0.5,
+              "aerodynamicDrag": 0,
+              "offroadResistance": 0,
+              "engineBraking": 0,
+              "engineRpm": 0,
+              "engineTorque": 0,
+              "wheelTorque": 0,
+              "gear": 0
+            },
             "drifting": false,
             "boostTime": 0,
             "boostHeat": 0,
@@ -169,7 +196,7 @@
               "lookAheadMeters": null,
               "collision": {
                 "blocked": true,
-                "distance": 2.027021174983047,
+                "distance": 2.009762178245661,
                 "hit": "rival-2-camera-collision-proxy",
                 "lifted": false,
                 "lowerFrustumBlocked": true,
@@ -177,724 +204,9 @@
                 "foregroundObject": "rival-1-camera-collision-proxy",
                 "contained": false,
                 "containingObject": "",
-                "candidates": 37,
-                "activeCandidates": 37,
-                "boomCandidates": 13,
-                "foregroundCandidates": 6,
-                "raycasts": 53
-              },
-              "zoom": 1
-            },
-            "assets": {
-              "ids": [
-                "decalAtlas",
-                "environmentKitV2",
-                "courseWorkshopKit",
-                "skyGolden",
-                "groundForest",
-                "groundForestV2Color",
-                "groundForestV2Normal",
-                "groundForestV2Roughness",
-                "mudColor",
-                "mudNormal",
-                "mudRoughness"
-              ],
-              "error": "",
-              "cache": [
-                {
-                  "id": "decalAtlas",
-                  "url": "assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "environmentKitV2",
-                  "url": "assets/racing/models/kaki-rally-environment-kit-v2.glb",
-                  "refs": 1,
-                  "kind": "model",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "courseWorkshopKit",
-                  "url": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
-                  "refs": 1,
-                  "kind": "model",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "skyGolden",
-                  "url": "assets/textures/sky_golden.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "groundForest",
-                  "url": "assets/textures/ground_detail_forest_512.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "groundForestV2Color",
-                  "url": "assets/racing/terrain-v2/forest-ground-color.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "groundForestV2Normal",
-                  "url": "assets/racing/terrain-v2/forest-ground-normal.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "groundForestV2Roughness",
-                  "url": "assets/racing/terrain-v2/forest-ground-roughness.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "mudColor",
-                  "url": "assets/sprites/brown_mud/diff.jpg",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "mudNormal",
-                  "url": "assets/sprites/brown_mud/nor_gl.jpg",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "mudRoughness",
-                  "url": "assets/sprites/brown_mud/rough.jpg",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                }
-              ]
-            },
-            "performance": {
-              "fps": 3,
-              "drawCalls": 306,
-              "triangles": 1519151
-            },
-            "environment": {
-              "authoredReady": true,
-              "grass": {
-                "schema": "kaki-rally-terra-grass@1",
-                "courseId": "forest",
-                "quality": "high",
-                "counts": {
-                  "carpet": 4200,
-                  "emergent": 820,
-                  "total": 5020
-                },
-                "roadClearance": 7.35,
-                "drawCalls": 6,
-                "submittedTriangles": 412044,
-                "geometryBytes": 31080,
-                "instanceBytes": 381520,
-                "wind": "tsl-tip-weighted"
-              }
-            },
-            "monster": null
-          },
-          "sceneObjects": 415,
-          "domNodes": 243,
-          "hudRoots": 1,
-          "sessionRoots": 1,
-          "assets": [
-            {
-              "key": "hero",
-              "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
-              "refs": 1,
-              "status": "ready",
-              "error": "",
-              "roots": 1
-            }
-          ],
-          "input": {
-            "initialized": true,
-            "pressedKeys": [],
-            "jumpQueued": false,
-            "lastDevice": "pointer",
-            "moveVec": {
-              "x": 0,
-              "y": 0
-            },
-            "touch": {
-              "left": false,
-              "right": false,
-              "throttle": false,
-              "brake": false
-            },
-            "gamepad": {
-              "connected": true,
-              "name": "Kaki Rally QA Gamepad",
-              "index": 0
-            }
-          },
-          "audio": {
-            "contextState": "running",
-            "menuPlaying": false,
-            "racingActive": true,
-            "cleanupTimers": 0,
-            "volumes": {
-              "master": 1,
-              "music": 0.55,
-              "sfx": 0.72,
-              "ambient": 0.5
-            },
-            "counters": {
-              "menu": 2,
-              "racing": 1,
-              "impact": 0,
-              "sfx": 3
-            }
-          },
-          "touch": {
-            "mounted": true,
-            "visible": true,
-            "mode": "circuit",
-            "activeControls": []
-          },
-          "transitions": [
-            {
-              "label": "boot-menu",
-              "at": 382.5,
-              "mode": "menu",
-              "domNodes": 148,
-              "hudRoots": 0,
-              "sceneObjects": 4,
-              "sessionRoots": 0,
-              "renderer": {
-                "backend": "webgl",
-                "deviceDescription": "WebGL 2",
-                "threeRevision": "185",
-                "initialized": true,
-                "resolution": {
-                  "width": 1280,
-                  "height": 720,
-                  "cssWidth": 1280,
-                  "cssHeight": 720
-                },
-                "dpr": 1,
-                "fps": 0,
-                "cpuFrameTimeMs": null,
-                "cpuFrameTimeP99Ms": null,
-                "renderSubmissionTimeMs": null,
-                "renderSubmissionTimeP99Ms": null,
-                "drawCalls": 0,
-                "renderCalls": 0,
-                "frameRenderCalls": 0,
-                "triangles": 0,
-                "points": 0,
-                "lines": 0,
-                "gpuFrameTimeMs": null,
-                "textures": 0,
-                "renderTargets": 0,
-                "geometries": 0,
-                "gpuMemoryBytes": 0,
-                "programs": 0,
-                "compilationEventCount": 0,
-                "recentCompilationEvents": [],
-                "deviceLossCount": 0,
-                "rendererState": "ready",
-                "requestedBackend": "webgl",
-                "quality": "high",
-                "dynamicResolutionScale": 1,
-                "activeMode": "menu",
-                "sessionPhase": null,
-                "transitionCount": 0
-              },
-              "audio": {
-                "contextState": "running",
-                "menuPlaying": true,
-                "racingActive": false,
-                "cleanupTimers": 0,
-                "volumes": {
-                  "master": 1,
-                  "music": 0.55,
-                  "sfx": 0.72,
-                  "ambient": 0.5
-                },
-                "counters": {
-                  "menu": 1,
-                  "racing": 0,
-                  "impact": 0,
-                  "sfx": 0
-                }
-              }
-            },
-            {
-              "label": "enter:circuit",
-              "at": 6701.100000023842,
-              "mode": "circuit",
-              "domNodes": 250,
-              "hudRoots": 1,
-              "sceneObjects": 406,
-              "sessionRoots": 1,
-              "renderer": {
-                "backend": "webgl",
-                "deviceDescription": "WebGL 2",
-                "threeRevision": "185",
-                "initialized": true,
-                "resolution": {
-                  "width": 1280,
-                  "height": 720,
-                  "cssWidth": 1280,
-                  "cssHeight": 720
-                },
-                "dpr": 1,
-                "fps": 5.9888208677848604,
-                "cpuFrameTimeMs": 3.7621621698946566,
-                "cpuFrameTimeP99Ms": 69.39999997615814,
-                "renderSubmissionTimeMs": 3.4216216190441235,
-                "renderSubmissionTimeP99Ms": 68.79999995231628,
-                "drawCalls": 13,
-                "renderCalls": 518,
-                "frameRenderCalls": 14,
-                "triangles": 13,
-                "points": 0,
-                "lines": 0,
-                "gpuFrameTimeMs": null,
-                "textures": 14,
-                "renderTargets": 12,
-                "geometries": 1,
-                "gpuMemoryBytes": 33662205,
-                "programs": 12,
-                "compilationEventCount": 0,
-                "recentCompilationEvents": [],
-                "deviceLossCount": 0,
-                "rendererState": "ready",
-                "requestedBackend": "webgl",
-                "quality": "high",
-                "dynamicResolutionScale": 1,
-                "activeMode": "circuit",
-                "sessionPhase": "countdown",
-                "transitionCount": 1
-              },
-              "audio": {
-                "contextState": "running",
-                "menuPlaying": false,
-                "racingActive": false,
-                "cleanupTimers": 1,
-                "volumes": {
-                  "master": 1,
-                  "music": 0.55,
-                  "sfx": 0.72,
-                  "ambient": 0.5
-                },
-                "counters": {
-                  "menu": 2,
-                  "racing": 0,
-                  "impact": 0,
-                  "sfx": 2
-                }
-              }
-            }
-          ],
-          "frameCount": 48,
-          "stateDiagnostics": {
-            "bootedAt": 1785298605378,
-            "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
-            "rendererFallback": null,
-            "modeTransitions": 1,
-            "lastError": ""
-          }
-        },
-        "keyboard": {
-          "before": {
-            "mode": "racing",
-            "raceMode": "circuit",
-            "courseId": "forest",
-            "customTrackId": null,
-            "courseName": "Borrowed Post Switchback",
-            "arenaId": null,
-            "phase": "racing",
-            "raceTime": 0.19999999999999998,
-            "lap": 0,
-            "speed": 0,
-            "drifting": false,
-            "boostTime": 0,
-            "boostHeat": 0,
-            "overheated": false,
-            "integrity": 100,
-            "engineDamage": 0,
-            "driftScore": 0,
-            "driftCombo": 1,
-            "styleScore": 0,
-            "styleCombo": 1,
-            "perfectDriftChain": 0,
-            "drafting": 0,
-            "airborne": false,
-            "cars": 6,
-            "drivers": [
-              {
-                "id": "player",
-                "avatarId": "kitty",
-                "name": "YOU",
-                "renderTier": "showcase",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-1",
-                "avatarId": "sote",
-                "name": "Sote",
-                "renderTier": "showcase",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-2",
-                "avatarId": "cowboy",
-                "name": "CowboyKaki",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-3",
-                "avatarId": "pipes",
-                "name": "Pipes",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-4",
-                "avatarId": "bomdia",
-                "name": "Bom Dia",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-5",
-                "avatarId": "mothman",
-                "name": "Mothman",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              }
-            ],
-            "ramps": 2,
-            "boostPads": 2,
-            "checkpoints": 0,
-            "overpasses": 0,
-            "workshop": {
-              "bridges": null,
-              "features": null
-            },
-            "camera": {
-              "mode": "chase",
-              "available": [
-                "isometric",
-                "chase",
-                "driver_fpv"
-              ],
-              "transitioning": false,
-              "cinematic": false,
-              "cinematicProgress": 1,
-              "cinematicLabel": "",
-              "transitionProgress": 1,
-              "projection": "perspective",
-              "fov": 72,
-              "visionStage": null,
-              "lookAheadMeters": null,
-              "collision": {
-                "blocked": true,
-                "distance": 2.0062336008451074,
-                "hit": "rival-2-camera-collision-proxy",
-                "lifted": false,
-                "lowerFrustumBlocked": true,
-                "foregroundBlocked": true,
-                "foregroundObject": "rival-1-camera-collision-proxy",
-                "contained": false,
-                "containingObject": "",
-                "candidates": 37,
-                "activeCandidates": 37,
-                "boomCandidates": 13,
-                "foregroundCandidates": 6,
-                "raycasts": 53
-              },
-              "zoom": 1
-            },
-            "assets": {
-              "ids": [
-                "decalAtlas",
-                "environmentKitV2",
-                "courseWorkshopKit",
-                "skyGolden",
-                "groundForest",
-                "groundForestV2Color",
-                "groundForestV2Normal",
-                "groundForestV2Roughness",
-                "mudColor",
-                "mudNormal",
-                "mudRoughness"
-              ],
-              "error": "",
-              "cache": [
-                {
-                  "id": "decalAtlas",
-                  "url": "assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "environmentKitV2",
-                  "url": "assets/racing/models/kaki-rally-environment-kit-v2.glb",
-                  "refs": 1,
-                  "kind": "model",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "courseWorkshopKit",
-                  "url": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
-                  "refs": 1,
-                  "kind": "model",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "skyGolden",
-                  "url": "assets/textures/sky_golden.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "groundForest",
-                  "url": "assets/textures/ground_detail_forest_512.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "groundForestV2Color",
-                  "url": "assets/racing/terrain-v2/forest-ground-color.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "groundForestV2Normal",
-                  "url": "assets/racing/terrain-v2/forest-ground-normal.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "groundForestV2Roughness",
-                  "url": "assets/racing/terrain-v2/forest-ground-roughness.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "mudColor",
-                  "url": "assets/sprites/brown_mud/diff.jpg",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "mudNormal",
-                  "url": "assets/sprites/brown_mud/nor_gl.jpg",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "mudRoughness",
-                  "url": "assets/sprites/brown_mud/rough.jpg",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                }
-              ]
-            },
-            "performance": {
-              "fps": 3,
-              "drawCalls": 308,
-              "triangles": 1519655
-            },
-            "environment": {
-              "authoredReady": true,
-              "grass": {
-                "schema": "kaki-rally-terra-grass@1",
-                "courseId": "forest",
-                "quality": "high",
-                "counts": {
-                  "carpet": 4200,
-                  "emergent": 820,
-                  "total": 5020
-                },
-                "roadClearance": 7.35,
-                "drawCalls": 6,
-                "submittedTriangles": 412044,
-                "geometryBytes": 31080,
-                "instanceBytes": 381520,
-                "wind": "tsl-tip-weighted"
-              }
-            },
-            "monster": null
-          },
-          "after": {
-            "mode": "racing",
-            "raceMode": "circuit",
-            "courseId": "forest",
-            "customTrackId": null,
-            "courseName": "Borrowed Post Switchback",
-            "arenaId": null,
-            "phase": "racing",
-            "raceTime": 0.36666666666666664,
-            "lap": 0,
-            "speed": 1.7606519829587837,
-            "drifting": false,
-            "boostTime": 0,
-            "boostHeat": 0,
-            "overheated": false,
-            "integrity": 100,
-            "engineDamage": 0,
-            "driftScore": 0,
-            "driftCombo": 1,
-            "styleScore": 0,
-            "styleCombo": 1,
-            "perfectDriftChain": 0,
-            "drafting": 0,
-            "airborne": false,
-            "cars": 6,
-            "drivers": [
-              {
-                "id": "player",
-                "avatarId": "kitty",
-                "name": "YOU",
-                "renderTier": "showcase",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-1",
-                "avatarId": "sote",
-                "name": "Sote",
-                "renderTier": "showcase",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-2",
-                "avatarId": "cowboy",
-                "name": "CowboyKaki",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-3",
-                "avatarId": "pipes",
-                "name": "Pipes",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-4",
-                "avatarId": "bomdia",
-                "name": "Bom Dia",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-5",
-                "avatarId": "mothman",
-                "name": "Mothman",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              }
-            ],
-            "ramps": 2,
-            "boostPads": 2,
-            "checkpoints": 0,
-            "overpasses": 0,
-            "workshop": {
-              "bridges": null,
-              "features": null
-            },
-            "camera": {
-              "mode": "chase",
-              "available": [
-                "isometric",
-                "chase",
-                "driver_fpv"
-              ],
-              "transitioning": false,
-              "cinematic": false,
-              "cinematicProgress": 1,
-              "cinematicLabel": "",
-              "transitionProgress": 1,
-              "projection": "perspective",
-              "fov": 72.59634986519572,
-              "visionStage": null,
-              "lookAheadMeters": null,
-              "collision": {
-                "blocked": true,
-                "distance": 2.0001593403949984,
-                "hit": "rival-2-camera-collision-proxy",
-                "lifted": true,
-                "lowerFrustumBlocked": true,
-                "foregroundBlocked": true,
-                "foregroundObject": "rival-1-camera-collision-proxy",
-                "contained": false,
-                "containingObject": "",
-                "candidates": 37,
-                "activeCandidates": 37,
-                "boomCandidates": 13,
+                "candidates": 38,
+                "activeCandidates": 38,
+                "boomCandidates": 14,
                 "foregroundCandidates": 7,
                 "raycasts": 53
               },
@@ -1007,9 +319,9 @@
               ]
             },
             "performance": {
-              "fps": 2,
-              "drawCalls": 304,
-              "triangles": 1518769
+              "fps": 5,
+              "drawCalls": 314,
+              "triangles": 1505991
             },
             "environment": {
               "authoredReady": true,
@@ -1031,588 +343,16 @@
               }
             },
             "monster": null
-          }
-        },
-        "gamepad": {
-          "initialized": true,
-          "pressedKeys": [],
-          "jumpQueued": false,
-          "lastDevice": "gamepad",
-          "moveVec": {
-            "x": 0.5508422083307387,
-            "y": -1
           },
-          "touch": {
-            "left": false,
-            "right": false,
-            "throttle": false,
-            "brake": false
+          "sceneObjects": 418,
+          "sceneRenderables": {
+            "visible": 372,
+            "instanced": 19,
+            "instances": 5864
           },
-          "gamepad": {
-            "connected": true,
-            "name": "Kaki Rally QA Gamepad",
-            "index": 0
-          }
-        },
-        "mechanic": {
-          "mode": "racing",
-          "raceMode": "circuit",
-          "courseId": "forest",
-          "customTrackId": null,
-          "courseName": "Borrowed Post Switchback",
-          "arenaId": null,
-          "phase": "racing",
-          "raceTime": 0.7666666666666666,
-          "lap": 0,
-          "speed": 0,
-          "drifting": false,
-          "boostTime": 0,
-          "boostHeat": 0,
-          "overheated": false,
-          "integrity": 100,
-          "engineDamage": 0,
-          "driftScore": 0,
-          "driftCombo": 1,
-          "styleScore": 0,
-          "styleCombo": 1,
-          "perfectDriftChain": 0,
-          "drafting": 0,
-          "airborne": true,
-          "cars": 6,
-          "drivers": [
-            {
-              "id": "player",
-              "avatarId": "kitty",
-              "name": "YOU",
-              "renderTier": "showcase",
-              "integrity": 100,
-              "wrecked": false,
-              "repairing": false
-            },
-            {
-              "id": "rival-1",
-              "avatarId": "sote",
-              "name": "Sote",
-              "renderTier": "showcase",
-              "integrity": 100,
-              "wrecked": false,
-              "repairing": false
-            },
-            {
-              "id": "rival-2",
-              "avatarId": "cowboy",
-              "name": "CowboyKaki",
-              "renderTier": "pack",
-              "integrity": 100,
-              "wrecked": false,
-              "repairing": false
-            },
-            {
-              "id": "rival-3",
-              "avatarId": "pipes",
-              "name": "Pipes",
-              "renderTier": "pack",
-              "integrity": 100,
-              "wrecked": false,
-              "repairing": false
-            },
-            {
-              "id": "rival-4",
-              "avatarId": "bomdia",
-              "name": "Bom Dia",
-              "renderTier": "pack",
-              "integrity": 100,
-              "wrecked": false,
-              "repairing": false
-            },
-            {
-              "id": "rival-5",
-              "avatarId": "mothman",
-              "name": "Mothman",
-              "renderTier": "pack",
-              "integrity": 100,
-              "wrecked": false,
-              "repairing": false
-            }
-          ],
-          "ramps": 2,
-          "boostPads": 2,
-          "checkpoints": 0,
-          "overpasses": 0,
-          "workshop": {
-            "bridges": null,
-            "features": null
-          },
-          "camera": {
-            "mode": "chase",
-            "available": [
-              "isometric",
-              "chase",
-              "driver_fpv"
-            ],
-            "transitioning": false,
-            "cinematic": false,
-            "cinematicProgress": 1,
-            "cinematicLabel": "",
-            "transitionProgress": 1,
-            "projection": "perspective",
-            "fov": 72,
-            "visionStage": null,
-            "lookAheadMeters": null,
-            "collision": {
-              "blocked": false,
-              "distance": 9.330439646661894,
-              "hit": "",
-              "lifted": false,
-              "lowerFrustumBlocked": false,
-              "foregroundBlocked": false,
-              "foregroundObject": "",
-              "contained": false,
-              "containingObject": "",
-              "candidates": 37,
-              "activeCandidates": 37,
-              "boomCandidates": 6,
-              "foregroundCandidates": 0,
-              "raycasts": 7
-            },
-            "zoom": 1
-          },
-          "assets": {
-            "ids": [
-              "decalAtlas",
-              "environmentKitV2",
-              "courseWorkshopKit",
-              "skyGolden",
-              "groundForest",
-              "groundForestV2Color",
-              "groundForestV2Normal",
-              "groundForestV2Roughness",
-              "mudColor",
-              "mudNormal",
-              "mudRoughness"
-            ],
-            "error": "",
-            "cache": [
-              {
-                "id": "decalAtlas",
-                "url": "assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp",
-                "refs": 1,
-                "kind": "texture",
-                "loaded": true,
-                "colorSpace": "srgb"
-              },
-              {
-                "id": "environmentKitV2",
-                "url": "assets/racing/models/kaki-rally-environment-kit-v2.glb",
-                "refs": 1,
-                "kind": "model",
-                "loaded": true,
-                "colorSpace": ""
-              },
-              {
-                "id": "courseWorkshopKit",
-                "url": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
-                "refs": 1,
-                "kind": "model",
-                "loaded": true,
-                "colorSpace": ""
-              },
-              {
-                "id": "skyGolden",
-                "url": "assets/textures/sky_golden.webp",
-                "refs": 1,
-                "kind": "texture",
-                "loaded": true,
-                "colorSpace": "srgb"
-              },
-              {
-                "id": "groundForest",
-                "url": "assets/textures/ground_detail_forest_512.webp",
-                "refs": 1,
-                "kind": "texture",
-                "loaded": true,
-                "colorSpace": "srgb"
-              },
-              {
-                "id": "groundForestV2Color",
-                "url": "assets/racing/terrain-v2/forest-ground-color.webp",
-                "refs": 1,
-                "kind": "texture",
-                "loaded": true,
-                "colorSpace": "srgb"
-              },
-              {
-                "id": "groundForestV2Normal",
-                "url": "assets/racing/terrain-v2/forest-ground-normal.webp",
-                "refs": 1,
-                "kind": "texture",
-                "loaded": true,
-                "colorSpace": ""
-              },
-              {
-                "id": "groundForestV2Roughness",
-                "url": "assets/racing/terrain-v2/forest-ground-roughness.webp",
-                "refs": 1,
-                "kind": "texture",
-                "loaded": true,
-                "colorSpace": ""
-              },
-              {
-                "id": "mudColor",
-                "url": "assets/sprites/brown_mud/diff.jpg",
-                "refs": 1,
-                "kind": "texture",
-                "loaded": true,
-                "colorSpace": "srgb"
-              },
-              {
-                "id": "mudNormal",
-                "url": "assets/sprites/brown_mud/nor_gl.jpg",
-                "refs": 1,
-                "kind": "texture",
-                "loaded": true,
-                "colorSpace": ""
-              },
-              {
-                "id": "mudRoughness",
-                "url": "assets/sprites/brown_mud/rough.jpg",
-                "refs": 1,
-                "kind": "texture",
-                "loaded": true,
-                "colorSpace": ""
-              }
-            ]
-          },
-          "performance": {
-            "fps": 2,
-            "drawCalls": 272,
-            "triangles": 1477733
-          },
-          "environment": {
-            "authoredReady": true,
-            "grass": {
-              "schema": "kaki-rally-terra-grass@1",
-              "courseId": "forest",
-              "quality": "high",
-              "counts": {
-                "carpet": 4200,
-                "emergent": 820,
-                "total": 5020
-              },
-              "roadClearance": 7.35,
-              "drawCalls": 6,
-              "submittedTriangles": 412044,
-              "geometryBytes": 31080,
-              "instanceBytes": 381520,
-              "wind": "tsl-tip-weighted"
-            }
-          },
-          "monster": null
-        },
-        "restart": {
-          "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
-          "appMode": "racing",
-          "activeMode": "circuit",
-          "activePhase": "countdown",
-          "paused": false,
-          "backend": "webgl",
-          "renderer": {
-            "backend": "webgl",
-            "deviceDescription": "WebGL 2",
-            "threeRevision": "185",
-            "initialized": true,
-            "resolution": {
-              "width": 1280,
-              "height": 720,
-              "cssWidth": 1280,
-              "cssHeight": 720
-            },
-            "dpr": 1,
-            "fps": 2.338074271890192,
-            "cpuFrameTimeMs": 22.00833333248184,
-            "cpuFrameTimeP99Ms": 600.0999999046326,
-            "renderSubmissionTimeMs": 20.684523803847178,
-            "renderSubmissionTimeP99Ms": 597.6999999284744,
-            "drawCalls": 297,
-            "renderCalls": 1223,
-            "frameRenderCalls": 15,
-            "triangles": 698951,
-            "points": 0,
-            "lines": 0,
-            "gpuFrameTimeMs": null,
-            "textures": 31,
-            "renderTargets": 13,
-            "geometries": 142,
-            "gpuMemoryBytes": 151349598,
-            "programs": 76,
-            "compilationEventCount": 0,
-            "recentCompilationEvents": [],
-            "deviceLossCount": 0,
-            "rendererState": "ready",
-            "requestedBackend": "webgl",
-            "quality": "high",
-            "dynamicResolutionScale": 1,
-            "activeMode": "circuit",
-            "sessionPhase": "countdown",
-            "transitionCount": 2
-          },
-          "racing": {
-            "mode": "racing",
-            "raceMode": "circuit",
-            "courseId": "forest",
-            "customTrackId": null,
-            "courseName": "Borrowed Post Switchback",
-            "arenaId": null,
-            "phase": "countdown",
-            "raceTime": 0,
-            "lap": 0,
-            "speed": 0,
-            "drifting": false,
-            "boostTime": 0,
-            "boostHeat": 0,
-            "overheated": false,
-            "integrity": 100,
-            "engineDamage": 0,
-            "driftScore": 0,
-            "driftCombo": 1,
-            "styleScore": 0,
-            "styleCombo": 1,
-            "perfectDriftChain": 0,
-            "drafting": 0,
-            "airborne": false,
-            "cars": 6,
-            "drivers": [
-              {
-                "id": "player",
-                "avatarId": "kitty",
-                "name": "YOU",
-                "renderTier": "showcase",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-1",
-                "avatarId": "sote",
-                "name": "Sote",
-                "renderTier": "showcase",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-2",
-                "avatarId": "cowboy",
-                "name": "CowboyKaki",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-3",
-                "avatarId": "pipes",
-                "name": "Pipes",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-4",
-                "avatarId": "bomdia",
-                "name": "Bom Dia",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              },
-              {
-                "id": "rival-5",
-                "avatarId": "mothman",
-                "name": "Mothman",
-                "renderTier": "pack",
-                "integrity": 100,
-                "wrecked": false,
-                "repairing": false
-              }
-            ],
-            "ramps": 2,
-            "boostPads": 2,
-            "checkpoints": 0,
-            "overpasses": 0,
-            "workshop": {
-              "bridges": null,
-              "features": null
-            },
-            "camera": {
-              "mode": "chase",
-              "available": [
-                "isometric",
-                "chase",
-                "driver_fpv"
-              ],
-              "transitioning": false,
-              "cinematic": false,
-              "cinematicProgress": 1,
-              "cinematicLabel": "",
-              "transitionProgress": 1,
-              "projection": "perspective",
-              "fov": 72,
-              "visionStage": null,
-              "lookAheadMeters": null,
-              "collision": {
-                "blocked": true,
-                "distance": 2.1688043007148052,
-                "hit": "rival-2-camera-collision-proxy",
-                "lifted": false,
-                "lowerFrustumBlocked": true,
-                "foregroundBlocked": true,
-                "foregroundObject": "rival-1-camera-collision-proxy",
-                "contained": false,
-                "containingObject": "",
-                "candidates": 37,
-                "activeCandidates": 37,
-                "boomCandidates": 13,
-                "foregroundCandidates": 6,
-                "raycasts": 52
-              },
-              "zoom": 1
-            },
-            "assets": {
-              "ids": [
-                "decalAtlas",
-                "environmentKitV2",
-                "courseWorkshopKit",
-                "skyGolden",
-                "groundForest",
-                "groundForestV2Color",
-                "groundForestV2Normal",
-                "groundForestV2Roughness",
-                "mudColor",
-                "mudNormal",
-                "mudRoughness"
-              ],
-              "error": "",
-              "cache": [
-                {
-                  "id": "decalAtlas",
-                  "url": "assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "environmentKitV2",
-                  "url": "assets/racing/models/kaki-rally-environment-kit-v2.glb",
-                  "refs": 1,
-                  "kind": "model",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "courseWorkshopKit",
-                  "url": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
-                  "refs": 1,
-                  "kind": "model",
-                  "loaded": false,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "skyGolden",
-                  "url": "assets/textures/sky_golden.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "groundForest",
-                  "url": "assets/textures/ground_detail_forest_512.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "groundForestV2Color",
-                  "url": "assets/racing/terrain-v2/forest-ground-color.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "groundForestV2Normal",
-                  "url": "assets/racing/terrain-v2/forest-ground-normal.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "groundForestV2Roughness",
-                  "url": "assets/racing/terrain-v2/forest-ground-roughness.webp",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "mudColor",
-                  "url": "assets/sprites/brown_mud/diff.jpg",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": "srgb"
-                },
-                {
-                  "id": "mudNormal",
-                  "url": "assets/sprites/brown_mud/nor_gl.jpg",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                },
-                {
-                  "id": "mudRoughness",
-                  "url": "assets/sprites/brown_mud/rough.jpg",
-                  "refs": 1,
-                  "kind": "texture",
-                  "loaded": true,
-                  "colorSpace": ""
-                }
-              ]
-            },
-            "performance": {
-              "fps": 10,
-              "drawCalls": 297,
-              "triangles": 698951
-            },
-            "environment": {
-              "authoredReady": false,
-              "grass": {
-                "schema": "kaki-rally-terra-grass@1",
-                "courseId": "forest",
-                "quality": "high",
-                "counts": {
-                  "carpet": 4200,
-                  "emergent": 820,
-                  "total": 5020
-                },
-                "roadClearance": 7.35,
-                "drawCalls": 6,
-                "submittedTriangles": 412044,
-                "geometryBytes": 31080,
-                "instanceBytes": 381520,
-                "wind": "tsl-tip-weighted"
-              }
-            },
-            "monster": null
-          },
-          "sceneObjects": 406,
-          "domNodes": 243,
+          "estimatedGpuMemoryBytes": 108804709,
+          "domNodes": 254,
+          "modeOwnedDomNodes": 95,
           "hudRoots": 1,
           "sessionRoots": 1,
           "assets": [
@@ -1629,7 +369,7 @@
             "initialized": true,
             "pressedKeys": [],
             "jumpQueued": false,
-            "lastDevice": "gamepad",
+            "lastDevice": "pointer",
             "moveVec": {
               "x": 0,
               "y": 0
@@ -1650,6 +390,7 @@
             "contextState": "running",
             "menuPlaying": false,
             "racingActive": true,
+            "activeNodes": 15,
             "cleanupTimers": 0,
             "volumes": {
               "master": 1,
@@ -1659,7 +400,7 @@
             },
             "counters": {
               "menu": 2,
-              "racing": 3,
+              "racing": 1,
               "impact": 0,
               "sfx": 3
             }
@@ -1670,12 +411,16 @@
             "mode": "circuit",
             "activeControls": []
           },
+          "poolUsage": {
+            "active": 0,
+            "capacity": 321
+          },
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 382.5,
+              "at": 297.7000000476837,
               "mode": "menu",
-              "domNodes": 148,
+              "domNodes": 158,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -1723,6 +468,7 @@
                 "contextState": "running",
                 "menuPlaying": true,
                 "racingActive": false,
+                "activeNodes": 6,
                 "cleanupTimers": 0,
                 "volumes": {
                   "master": 1,
@@ -1740,11 +486,11 @@
             },
             {
               "label": "enter:circuit",
-              "at": 6701.100000023842,
+              "at": 11857.800000071526,
               "mode": "circuit",
-              "domNodes": 250,
+              "domNodes": 261,
               "hudRoots": 1,
-              "sceneObjects": 406,
+              "sceneObjects": 418,
               "sessionRoots": 1,
               "renderer": {
                 "backend": "webgl",
@@ -1758,23 +504,23 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 5.9888208677848604,
-                "cpuFrameTimeMs": 3.7621621698946566,
-                "cpuFrameTimeP99Ms": 69.39999997615814,
-                "renderSubmissionTimeMs": 3.4216216190441235,
-                "renderSubmissionTimeP99Ms": 68.79999995231628,
-                "drawCalls": 13,
-                "renderCalls": 518,
-                "frameRenderCalls": 14,
-                "triangles": 13,
+                "fps": 4.278018840708581,
+                "cpuFrameTimeMs": 22.34199999809265,
+                "cpuFrameTimeP99Ms": 564.1000000238419,
+                "renderSubmissionTimeMs": 21.256000003814698,
+                "renderSubmissionTimeP99Ms": 551.1999999284744,
+                "drawCalls": 315,
+                "renderCalls": 714,
+                "frameRenderCalls": 16,
+                "triangles": 1505992,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
-                "textures": 14,
-                "renderTargets": 12,
-                "geometries": 1,
-                "gpuMemoryBytes": 33662205,
-                "programs": 12,
+                "textures": 35,
+                "renderTargets": 13,
+                "geometries": 210,
+                "gpuMemoryBytes": 154977225,
+                "programs": 137,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
                 "deviceLossCount": 0,
@@ -1783,14 +529,15 @@
                 "quality": "high",
                 "dynamicResolutionScale": 1,
                 "activeMode": "circuit",
-                "sessionPhase": "countdown",
+                "sessionPhase": "racing",
                 "transitionCount": 1
               },
               "audio": {
                 "contextState": "running",
                 "menuPlaying": false,
-                "racingActive": false,
-                "cleanupTimers": 1,
+                "racingActive": true,
+                "activeNodes": 15,
+                "cleanupTimers": 0,
                 "volumes": {
                   "master": 1,
                   "music": 0.55,
@@ -1799,524 +546,24 @@
                 },
                 "counters": {
                   "menu": 2,
-                  "racing": 0,
-                  "impact": 0,
-                  "sfx": 2
-                }
-              }
-            },
-            {
-              "label": "restart:circuit",
-              "at": 33688.90000009537,
-              "mode": "circuit",
-              "domNodes": 250,
-              "hudRoots": 1,
-              "sceneObjects": 406,
-              "sessionRoots": 1,
-              "renderer": {
-                "backend": "webgl",
-                "deviceDescription": "WebGL 2",
-                "threeRevision": "185",
-                "initialized": true,
-                "resolution": {
-                  "width": 1280,
-                  "height": 720,
-                  "cssWidth": 1280,
-                  "cssHeight": 720
-                },
-                "dpr": 1,
-                "fps": 2.441950263583338,
-                "cpuFrameTimeMs": 15.356790123162446,
-                "cpuFrameTimeP99Ms": 600.0999999046326,
-                "renderSubmissionTimeMs": 14.067901228681023,
-                "renderSubmissionTimeP99Ms": 597.6999999284744,
-                "drawCalls": 272,
-                "renderCalls": 1178,
-                "frameRenderCalls": 15,
-                "triangles": 1477733,
-                "points": 0,
-                "lines": 0,
-                "gpuFrameTimeMs": null,
-                "textures": 19,
-                "renderTargets": 12,
-                "geometries": 2,
-                "gpuMemoryBytes": 112606446,
-                "programs": 16,
-                "compilationEventCount": 0,
-                "recentCompilationEvents": [],
-                "deviceLossCount": 0,
-                "rendererState": "ready",
-                "requestedBackend": "webgl",
-                "quality": "high",
-                "dynamicResolutionScale": 1,
-                "activeMode": "circuit",
-                "sessionPhase": "countdown",
-                "transitionCount": 2
-              },
-              "audio": {
-                "contextState": "running",
-                "menuPlaying": false,
-                "racingActive": false,
-                "cleanupTimers": 1,
-                "volumes": {
-                  "master": 1,
-                  "music": 0.55,
-                  "sfx": 0.72,
-                  "ambient": 0.5
-                },
-                "counters": {
-                  "menu": 2,
-                  "racing": 2,
+                  "racing": 1,
                   "impact": 0,
                   "sfx": 3
                 }
               }
             }
           ],
-          "frameCount": 84,
+          "frameCount": 51,
           "stateDiagnostics": {
-            "bootedAt": 1785298605378,
+            "bootedAt": 1785301561538,
             "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
             "rendererFallback": null,
-            "modeTransitions": 2,
+            "modeTransitions": 1,
             "lastError": ""
           }
         },
-        "exit": {
-          "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
-          "appMode": "menu",
-          "activeMode": null,
-          "activePhase": null,
-          "paused": false,
-          "backend": "webgl",
-          "renderer": {
-            "backend": "webgl",
-            "deviceDescription": "WebGL 2",
-            "threeRevision": "185",
-            "initialized": true,
-            "resolution": {
-              "width": 1280,
-              "height": 720,
-              "cssWidth": 1280,
-              "cssHeight": 720
-            },
-            "dpr": 1,
-            "fps": 2.352139635984598,
-            "cpuFrameTimeMs": 21.09090908819979,
-            "cpuFrameTimeP99Ms": 600.0999999046326,
-            "renderSubmissionTimeMs": 19.81022726812146,
-            "renderSubmissionTimeP99Ms": 597.6999999284744,
-            "drawCalls": 13,
-            "renderCalls": 1280,
-            "frameRenderCalls": 14,
-            "triangles": 13,
-            "points": 0,
-            "lines": 0,
-            "gpuFrameTimeMs": null,
-            "textures": 19,
-            "renderTargets": 12,
-            "geometries": 2,
-            "gpuMemoryBytes": 112697946,
-            "programs": 16,
-            "compilationEventCount": 0,
-            "recentCompilationEvents": [],
-            "deviceLossCount": 0,
-            "rendererState": "ready",
-            "requestedBackend": "webgl",
-            "quality": "high",
-            "dynamicResolutionScale": 1,
-            "activeMode": "menu",
-            "sessionPhase": null,
-            "transitionCount": 3
-          },
-          "racing": null,
-          "sceneObjects": 4,
-          "domNodes": 148,
-          "hudRoots": 0,
-          "sessionRoots": 0,
-          "assets": [
-            {
-              "key": "hero",
-              "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
-              "refs": 1,
-              "status": "ready",
-              "error": "",
-              "roots": 1
-            }
-          ],
-          "input": {
-            "initialized": true,
-            "pressedKeys": [],
-            "jumpQueued": false,
-            "lastDevice": "gamepad",
-            "moveVec": {
-              "x": 0,
-              "y": 0
-            },
-            "touch": {
-              "left": false,
-              "right": false,
-              "throttle": false,
-              "brake": false
-            },
-            "gamepad": {
-              "connected": true,
-              "name": "Kaki Rally QA Gamepad",
-              "index": 0
-            }
-          },
-          "audio": {
-            "contextState": "running",
-            "menuPlaying": true,
-            "racingActive": false,
-            "cleanupTimers": 0,
-            "volumes": {
-              "master": 1,
-              "music": 0.55,
-              "sfx": 0.72,
-              "ambient": 0.5
-            },
-            "counters": {
-              "menu": 3,
-              "racing": 3,
-              "impact": 0,
-              "sfx": 3
-            }
-          },
-          "touch": {
-            "mounted": true,
-            "visible": false,
-            "mode": null,
-            "activeControls": []
-          },
-          "transitions": [
-            {
-              "label": "boot-menu",
-              "at": 382.5,
-              "mode": "menu",
-              "domNodes": 148,
-              "hudRoots": 0,
-              "sceneObjects": 4,
-              "sessionRoots": 0,
-              "renderer": {
-                "backend": "webgl",
-                "deviceDescription": "WebGL 2",
-                "threeRevision": "185",
-                "initialized": true,
-                "resolution": {
-                  "width": 1280,
-                  "height": 720,
-                  "cssWidth": 1280,
-                  "cssHeight": 720
-                },
-                "dpr": 1,
-                "fps": 0,
-                "cpuFrameTimeMs": null,
-                "cpuFrameTimeP99Ms": null,
-                "renderSubmissionTimeMs": null,
-                "renderSubmissionTimeP99Ms": null,
-                "drawCalls": 0,
-                "renderCalls": 0,
-                "frameRenderCalls": 0,
-                "triangles": 0,
-                "points": 0,
-                "lines": 0,
-                "gpuFrameTimeMs": null,
-                "textures": 0,
-                "renderTargets": 0,
-                "geometries": 0,
-                "gpuMemoryBytes": 0,
-                "programs": 0,
-                "compilationEventCount": 0,
-                "recentCompilationEvents": [],
-                "deviceLossCount": 0,
-                "rendererState": "ready",
-                "requestedBackend": "webgl",
-                "quality": "high",
-                "dynamicResolutionScale": 1,
-                "activeMode": "menu",
-                "sessionPhase": null,
-                "transitionCount": 0
-              },
-              "audio": {
-                "contextState": "running",
-                "menuPlaying": true,
-                "racingActive": false,
-                "cleanupTimers": 0,
-                "volumes": {
-                  "master": 1,
-                  "music": 0.55,
-                  "sfx": 0.72,
-                  "ambient": 0.5
-                },
-                "counters": {
-                  "menu": 1,
-                  "racing": 0,
-                  "impact": 0,
-                  "sfx": 0
-                }
-              }
-            },
-            {
-              "label": "enter:circuit",
-              "at": 6701.100000023842,
-              "mode": "circuit",
-              "domNodes": 250,
-              "hudRoots": 1,
-              "sceneObjects": 406,
-              "sessionRoots": 1,
-              "renderer": {
-                "backend": "webgl",
-                "deviceDescription": "WebGL 2",
-                "threeRevision": "185",
-                "initialized": true,
-                "resolution": {
-                  "width": 1280,
-                  "height": 720,
-                  "cssWidth": 1280,
-                  "cssHeight": 720
-                },
-                "dpr": 1,
-                "fps": 5.9888208677848604,
-                "cpuFrameTimeMs": 3.7621621698946566,
-                "cpuFrameTimeP99Ms": 69.39999997615814,
-                "renderSubmissionTimeMs": 3.4216216190441235,
-                "renderSubmissionTimeP99Ms": 68.79999995231628,
-                "drawCalls": 13,
-                "renderCalls": 518,
-                "frameRenderCalls": 14,
-                "triangles": 13,
-                "points": 0,
-                "lines": 0,
-                "gpuFrameTimeMs": null,
-                "textures": 14,
-                "renderTargets": 12,
-                "geometries": 1,
-                "gpuMemoryBytes": 33662205,
-                "programs": 12,
-                "compilationEventCount": 0,
-                "recentCompilationEvents": [],
-                "deviceLossCount": 0,
-                "rendererState": "ready",
-                "requestedBackend": "webgl",
-                "quality": "high",
-                "dynamicResolutionScale": 1,
-                "activeMode": "circuit",
-                "sessionPhase": "countdown",
-                "transitionCount": 1
-              },
-              "audio": {
-                "contextState": "running",
-                "menuPlaying": false,
-                "racingActive": false,
-                "cleanupTimers": 1,
-                "volumes": {
-                  "master": 1,
-                  "music": 0.55,
-                  "sfx": 0.72,
-                  "ambient": 0.5
-                },
-                "counters": {
-                  "menu": 2,
-                  "racing": 0,
-                  "impact": 0,
-                  "sfx": 2
-                }
-              }
-            },
-            {
-              "label": "restart:circuit",
-              "at": 33688.90000009537,
-              "mode": "circuit",
-              "domNodes": 250,
-              "hudRoots": 1,
-              "sceneObjects": 406,
-              "sessionRoots": 1,
-              "renderer": {
-                "backend": "webgl",
-                "deviceDescription": "WebGL 2",
-                "threeRevision": "185",
-                "initialized": true,
-                "resolution": {
-                  "width": 1280,
-                  "height": 720,
-                  "cssWidth": 1280,
-                  "cssHeight": 720
-                },
-                "dpr": 1,
-                "fps": 2.441950263583338,
-                "cpuFrameTimeMs": 15.356790123162446,
-                "cpuFrameTimeP99Ms": 600.0999999046326,
-                "renderSubmissionTimeMs": 14.067901228681023,
-                "renderSubmissionTimeP99Ms": 597.6999999284744,
-                "drawCalls": 272,
-                "renderCalls": 1178,
-                "frameRenderCalls": 15,
-                "triangles": 1477733,
-                "points": 0,
-                "lines": 0,
-                "gpuFrameTimeMs": null,
-                "textures": 19,
-                "renderTargets": 12,
-                "geometries": 2,
-                "gpuMemoryBytes": 112606446,
-                "programs": 16,
-                "compilationEventCount": 0,
-                "recentCompilationEvents": [],
-                "deviceLossCount": 0,
-                "rendererState": "ready",
-                "requestedBackend": "webgl",
-                "quality": "high",
-                "dynamicResolutionScale": 1,
-                "activeMode": "circuit",
-                "sessionPhase": "countdown",
-                "transitionCount": 2
-              },
-              "audio": {
-                "contextState": "running",
-                "menuPlaying": false,
-                "racingActive": false,
-                "cleanupTimers": 1,
-                "volumes": {
-                  "master": 1,
-                  "music": 0.55,
-                  "sfx": 0.72,
-                  "ambient": 0.5
-                },
-                "counters": {
-                  "menu": 2,
-                  "racing": 2,
-                  "impact": 0,
-                  "sfx": 3
-                }
-              }
-            },
-            {
-              "label": "exit:circuit",
-              "at": 37087,
-              "mode": "menu",
-              "domNodes": 148,
-              "hudRoots": 0,
-              "sceneObjects": 4,
-              "sessionRoots": 0,
-              "renderer": {
-                "backend": "webgl",
-                "deviceDescription": "WebGL 2",
-                "threeRevision": "185",
-                "initialized": true,
-                "resolution": {
-                  "width": 1280,
-                  "height": 720,
-                  "cssWidth": 1280,
-                  "cssHeight": 720
-                },
-                "dpr": 1,
-                "fps": 2.3208202441819155,
-                "cpuFrameTimeMs": 21.802352940334995,
-                "cpuFrameTimeP99Ms": 600.0999999046326,
-                "renderSubmissionTimeMs": 20.4788235243629,
-                "renderSubmissionTimeP99Ms": 597.6999999284744,
-                "drawCalls": 297,
-                "renderCalls": 1238,
-                "frameRenderCalls": 15,
-                "triangles": 698951,
-                "points": 0,
-                "lines": 0,
-                "gpuFrameTimeMs": null,
-                "textures": 19,
-                "renderTargets": 12,
-                "geometries": 2,
-                "gpuMemoryBytes": 112697946,
-                "programs": 16,
-                "compilationEventCount": 0,
-                "recentCompilationEvents": [],
-                "deviceLossCount": 0,
-                "rendererState": "ready",
-                "requestedBackend": "webgl",
-                "quality": "high",
-                "dynamicResolutionScale": 1,
-                "activeMode": "menu",
-                "sessionPhase": null,
-                "transitionCount": 3
-              },
-              "audio": {
-                "contextState": "running",
-                "menuPlaying": true,
-                "racingActive": false,
-                "cleanupTimers": 1,
-                "volumes": {
-                  "master": 1,
-                  "music": 0.55,
-                  "sfx": 0.72,
-                  "ambient": 0.5
-                },
-                "counters": {
-                  "menu": 3,
-                  "racing": 3,
-                  "impact": 0,
-                  "sfx": 3
-                }
-              }
-            }
-          ],
-          "frameCount": 88,
-          "stateDiagnostics": {
-            "bootedAt": 1785298605378,
-            "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
-            "rendererFallback": null,
-            "modeTransitions": 3,
-            "lastError": "",
-            "lastExitReason": "qa"
-          }
-        },
-        "reentry": {
-          "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
-          "appMode": "racing",
-          "activeMode": "circuit",
-          "activePhase": "racing",
-          "paused": false,
-          "backend": "webgl",
-          "renderer": {
-            "backend": "webgl",
-            "deviceDescription": "WebGL 2",
-            "threeRevision": "185",
-            "initialized": true,
-            "resolution": {
-              "width": 1280,
-              "height": 720,
-              "cssWidth": 1280,
-              "cssHeight": 720
-            },
-            "dpr": 1,
-            "fps": 2.211324583428901,
-            "cpuFrameTimeMs": 25.440776694168164,
-            "cpuFrameTimeP99Ms": 514.6000000238419,
-            "renderSubmissionTimeMs": 24.151456302809486,
-            "renderSubmissionTimeP99Ms": 514.2000000476837,
-            "drawCalls": 310,
-            "renderCalls": 1504,
-            "frameRenderCalls": 15,
-            "triangles": 1519659,
-            "points": 0,
-            "lines": 0,
-            "gpuFrameTimeMs": null,
-            "textures": 31,
-            "renderTargets": 13,
-            "geometries": 151,
-            "gpuMemoryBytes": 151765929,
-            "programs": 93,
-            "compilationEventCount": 0,
-            "recentCompilationEvents": [],
-            "deviceLossCount": 0,
-            "rendererState": "ready",
-            "requestedBackend": "webgl",
-            "quality": "high",
-            "dynamicResolutionScale": 1,
-            "activeMode": "circuit",
-            "sessionPhase": "racing",
-            "transitionCount": 4
-          },
-          "racing": {
+        "keyboard": {
+          "before": {
             "mode": "racing",
             "raceMode": "circuit",
             "courseId": "forest",
@@ -2327,6 +574,33 @@
             "raceTime": 0.2333333333333333,
             "lap": 0,
             "speed": 0,
+            "telemetry": {
+              "profile": "off-road-gp-balanced",
+              "forwardSpeed": 0,
+              "lateralSpeed": 0,
+              "acceleration": 0,
+              "steeringInput": 0,
+              "appliedSteering": 0,
+              "yawRate": 0,
+              "slipAngle": 0,
+              "surfaceGrip": 0.8479659309388584,
+              "surfaceDrag": 0.20904684495906992,
+              "surface": "mud",
+              "grounded": true,
+              "jumpState": "grounded",
+              "driftState": "grip",
+              "collisionIntensity": 0,
+              "engineAcceleration": 0,
+              "braking": 0,
+              "rollingResistance": 0.5,
+              "aerodynamicDrag": 0,
+              "offroadResistance": 0,
+              "engineBraking": 0,
+              "engineRpm": 0,
+              "engineTorque": 0,
+              "wheelTorque": 0,
+              "gear": 0
+            },
             "drifting": false,
             "boostTime": 0,
             "boostHeat": 0,
@@ -2423,7 +697,7 @@
               "lookAheadMeters": null,
               "collision": {
                 "blocked": true,
-                "distance": 2.002994031530783,
+                "distance": 2.0022520679652316,
                 "hit": "rival-2-camera-collision-proxy",
                 "lifted": false,
                 "lowerFrustumBlocked": true,
@@ -2431,10 +705,10 @@
                 "foregroundObject": "rival-1-camera-collision-proxy",
                 "contained": false,
                 "containingObject": "",
-                "candidates": 37,
-                "activeCandidates": 37,
-                "boomCandidates": 13,
-                "foregroundCandidates": 6,
+                "candidates": 38,
+                "activeCandidates": 38,
+                "boomCandidates": 14,
+                "foregroundCandidates": 7,
                 "raycasts": 53
               },
               "zoom": 1
@@ -2546,9 +820,9 @@
               ]
             },
             "performance": {
-              "fps": 3,
-              "drawCalls": 310,
-              "triangles": 1519659
+              "fps": 4,
+              "drawCalls": 317,
+              "triangles": 1506279
             },
             "environment": {
               "authoredReady": true,
@@ -2571,8 +845,930 @@
             },
             "monster": null
           },
-          "sceneObjects": 415,
-          "domNodes": 243,
+          "after": {
+            "mode": "racing",
+            "raceMode": "circuit",
+            "courseId": "forest",
+            "customTrackId": null,
+            "courseName": "Borrowed Post Switchback",
+            "arenaId": null,
+            "phase": "racing",
+            "raceTime": 0.39999999999999997,
+            "lap": 0,
+            "speed": 2.142930987011276,
+            "telemetry": {
+              "profile": "off-road-gp-balanced",
+              "forwardSpeed": 2.1429309870112765,
+              "lateralSpeed": 1.1102230246251565e-16,
+              "acceleration": -1.3928672627425076,
+              "steeringInput": 0,
+              "appliedSteering": -0.11727362752638866,
+              "yawRate": -0.11028269993868377,
+              "slipAngle": 5.180862245935288e-17,
+              "surfaceGrip": 0.8429305022221977,
+              "surfaceDrag": 0.21597055944447846,
+              "surface": "mud",
+              "grounded": true,
+              "jumpState": "grounded",
+              "driftState": "grip",
+              "collisionIntensity": 0,
+              "engineAcceleration": 0,
+              "braking": 0,
+              "rollingResistance": 0.5,
+              "aerodynamicDrag": 0.038201520639650904,
+              "offroadResistance": 0.46615242991536043,
+              "engineBraking": 0.3885133121875148,
+              "engineRpm": 0,
+              "engineTorque": 0,
+              "wheelTorque": 0,
+              "gear": 0
+            },
+            "drifting": false,
+            "boostTime": 0,
+            "boostHeat": 0,
+            "overheated": false,
+            "integrity": 100,
+            "engineDamage": 0,
+            "driftScore": 0,
+            "driftCombo": 1,
+            "styleScore": 0,
+            "styleCombo": 1,
+            "perfectDriftChain": 0,
+            "drafting": 0,
+            "airborne": false,
+            "cars": 6,
+            "drivers": [
+              {
+                "id": "player",
+                "avatarId": "kitty",
+                "name": "YOU",
+                "renderTier": "showcase",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-1",
+                "avatarId": "sote",
+                "name": "Sote",
+                "renderTier": "showcase",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-2",
+                "avatarId": "cowboy",
+                "name": "CowboyKaki",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-3",
+                "avatarId": "pipes",
+                "name": "Pipes",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-4",
+                "avatarId": "bomdia",
+                "name": "Bom Dia",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-5",
+                "avatarId": "mothman",
+                "name": "Mothman",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              }
+            ],
+            "ramps": 2,
+            "boostPads": 2,
+            "checkpoints": 0,
+            "overpasses": 0,
+            "workshop": {
+              "bridges": null,
+              "features": null
+            },
+            "camera": {
+              "mode": "chase",
+              "available": [
+                "isometric",
+                "chase",
+                "driver_fpv"
+              ],
+              "transitioning": false,
+              "cinematic": false,
+              "cinematicProgress": 1,
+              "cinematicLabel": "",
+              "transitionProgress": 1,
+              "projection": "perspective",
+              "fov": 72.72583146334253,
+              "visionStage": null,
+              "lookAheadMeters": null,
+              "collision": {
+                "blocked": true,
+                "distance": 2.0000575663100766,
+                "hit": "rival-2-camera-collision-proxy",
+                "lifted": true,
+                "lowerFrustumBlocked": true,
+                "foregroundBlocked": true,
+                "foregroundObject": "rival-1-camera-collision-proxy",
+                "contained": false,
+                "containingObject": "",
+                "candidates": 38,
+                "activeCandidates": 38,
+                "boomCandidates": 14,
+                "foregroundCandidates": 8,
+                "raycasts": 49
+              },
+              "zoom": 1
+            },
+            "assets": {
+              "ids": [
+                "decalAtlas",
+                "environmentKitV2",
+                "courseWorkshopKit",
+                "skyGolden",
+                "groundForest",
+                "groundForestV2Color",
+                "groundForestV2Normal",
+                "groundForestV2Roughness",
+                "mudColor",
+                "mudNormal",
+                "mudRoughness"
+              ],
+              "error": "",
+              "cache": [
+                {
+                  "id": "decalAtlas",
+                  "url": "assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "environmentKitV2",
+                  "url": "assets/racing/models/kaki-rally-environment-kit-v2.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "courseWorkshopKit",
+                  "url": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "skyGolden",
+                  "url": "assets/textures/sky_golden.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "groundForest",
+                  "url": "assets/textures/ground_detail_forest_512.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "groundForestV2Color",
+                  "url": "assets/racing/terrain-v2/forest-ground-color.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "groundForestV2Normal",
+                  "url": "assets/racing/terrain-v2/forest-ground-normal.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "groundForestV2Roughness",
+                  "url": "assets/racing/terrain-v2/forest-ground-roughness.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "mudColor",
+                  "url": "assets/sprites/brown_mud/diff.jpg",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "mudNormal",
+                  "url": "assets/sprites/brown_mud/nor_gl.jpg",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "mudRoughness",
+                  "url": "assets/sprites/brown_mud/rough.jpg",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                }
+              ]
+            },
+            "performance": {
+              "fps": 3,
+              "drawCalls": 303,
+              "triangles": 1503839
+            },
+            "environment": {
+              "authoredReady": true,
+              "grass": {
+                "schema": "kaki-rally-terra-grass@1",
+                "courseId": "forest",
+                "quality": "high",
+                "counts": {
+                  "carpet": 4200,
+                  "emergent": 820,
+                  "total": 5020
+                },
+                "roadClearance": 7.35,
+                "drawCalls": 6,
+                "submittedTriangles": 412044,
+                "geometryBytes": 31080,
+                "instanceBytes": 381520,
+                "wind": "tsl-tip-weighted"
+              }
+            },
+            "monster": null
+          }
+        },
+        "gamepad": {
+          "initialized": true,
+          "pressedKeys": [],
+          "jumpQueued": false,
+          "lastDevice": "gamepad",
+          "moveVec": {
+            "x": 0.5508422083307387,
+            "y": -1
+          },
+          "touch": {
+            "left": false,
+            "right": false,
+            "throttle": false,
+            "brake": false
+          },
+          "gamepad": {
+            "connected": true,
+            "name": "Kaki Rally QA Gamepad",
+            "index": 0
+          }
+        },
+        "mechanic": {
+          "mode": "racing",
+          "raceMode": "circuit",
+          "courseId": "forest",
+          "customTrackId": null,
+          "courseName": "Borrowed Post Switchback",
+          "arenaId": null,
+          "phase": "racing",
+          "raceTime": 0.7999999999999999,
+          "lap": 0,
+          "speed": 0,
+          "telemetry": {
+            "profile": "off-road-gp-balanced",
+            "forwardSpeed": 0,
+            "lateralSpeed": 0,
+            "acceleration": 0,
+            "steeringInput": 0,
+            "appliedSteering": -0.15407917916677055,
+            "yawRate": -0.040044562348727004,
+            "slipAngle": 0,
+            "surfaceGrip": 0.8402658491637078,
+            "surfaceDrag": 0.21963445739990176,
+            "surface": "mud",
+            "grounded": false,
+            "jumpState": "airborne",
+            "driftState": "grip",
+            "collisionIntensity": 0,
+            "engineAcceleration": 0,
+            "braking": 0,
+            "rollingResistance": 0.5,
+            "aerodynamicDrag": 0,
+            "offroadResistance": 0,
+            "engineBraking": 0,
+            "engineRpm": 0,
+            "engineTorque": 0,
+            "wheelTorque": 0,
+            "gear": 0
+          },
+          "drifting": false,
+          "boostTime": 0,
+          "boostHeat": 0,
+          "overheated": false,
+          "integrity": 100,
+          "engineDamage": 0,
+          "driftScore": 0,
+          "driftCombo": 1,
+          "styleScore": 0,
+          "styleCombo": 1,
+          "perfectDriftChain": 0,
+          "drafting": 0,
+          "airborne": true,
+          "cars": 6,
+          "drivers": [
+            {
+              "id": "player",
+              "avatarId": "kitty",
+              "name": "YOU",
+              "renderTier": "showcase",
+              "integrity": 100,
+              "wrecked": false,
+              "repairing": false
+            },
+            {
+              "id": "rival-1",
+              "avatarId": "sote",
+              "name": "Sote",
+              "renderTier": "showcase",
+              "integrity": 100,
+              "wrecked": false,
+              "repairing": false
+            },
+            {
+              "id": "rival-2",
+              "avatarId": "cowboy",
+              "name": "CowboyKaki",
+              "renderTier": "pack",
+              "integrity": 100,
+              "wrecked": false,
+              "repairing": false
+            },
+            {
+              "id": "rival-3",
+              "avatarId": "pipes",
+              "name": "Pipes",
+              "renderTier": "pack",
+              "integrity": 100,
+              "wrecked": false,
+              "repairing": false
+            },
+            {
+              "id": "rival-4",
+              "avatarId": "bomdia",
+              "name": "Bom Dia",
+              "renderTier": "pack",
+              "integrity": 100,
+              "wrecked": false,
+              "repairing": false
+            },
+            {
+              "id": "rival-5",
+              "avatarId": "mothman",
+              "name": "Mothman",
+              "renderTier": "pack",
+              "integrity": 100,
+              "wrecked": false,
+              "repairing": false
+            }
+          ],
+          "ramps": 2,
+          "boostPads": 2,
+          "checkpoints": 0,
+          "overpasses": 0,
+          "workshop": {
+            "bridges": null,
+            "features": null
+          },
+          "camera": {
+            "mode": "chase",
+            "available": [
+              "isometric",
+              "chase",
+              "driver_fpv"
+            ],
+            "transitioning": false,
+            "cinematic": false,
+            "cinematicProgress": 1,
+            "cinematicLabel": "",
+            "transitionProgress": 1,
+            "projection": "perspective",
+            "fov": 72,
+            "visionStage": null,
+            "lookAheadMeters": null,
+            "collision": {
+              "blocked": false,
+              "distance": 9.330439646661922,
+              "hit": "",
+              "lifted": false,
+              "lowerFrustumBlocked": false,
+              "foregroundBlocked": false,
+              "foregroundObject": "",
+              "contained": false,
+              "containingObject": "",
+              "candidates": 38,
+              "activeCandidates": 38,
+              "boomCandidates": 7,
+              "foregroundCandidates": 1,
+              "raycasts": 27
+            },
+            "zoom": 1
+          },
+          "assets": {
+            "ids": [
+              "decalAtlas",
+              "environmentKitV2",
+              "courseWorkshopKit",
+              "skyGolden",
+              "groundForest",
+              "groundForestV2Color",
+              "groundForestV2Normal",
+              "groundForestV2Roughness",
+              "mudColor",
+              "mudNormal",
+              "mudRoughness"
+            ],
+            "error": "",
+            "cache": [
+              {
+                "id": "decalAtlas",
+                "url": "assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp",
+                "refs": 1,
+                "kind": "texture",
+                "loaded": true,
+                "colorSpace": "srgb"
+              },
+              {
+                "id": "environmentKitV2",
+                "url": "assets/racing/models/kaki-rally-environment-kit-v2.glb",
+                "refs": 1,
+                "kind": "model",
+                "loaded": true,
+                "colorSpace": ""
+              },
+              {
+                "id": "courseWorkshopKit",
+                "url": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
+                "refs": 1,
+                "kind": "model",
+                "loaded": true,
+                "colorSpace": ""
+              },
+              {
+                "id": "skyGolden",
+                "url": "assets/textures/sky_golden.webp",
+                "refs": 1,
+                "kind": "texture",
+                "loaded": true,
+                "colorSpace": "srgb"
+              },
+              {
+                "id": "groundForest",
+                "url": "assets/textures/ground_detail_forest_512.webp",
+                "refs": 1,
+                "kind": "texture",
+                "loaded": true,
+                "colorSpace": "srgb"
+              },
+              {
+                "id": "groundForestV2Color",
+                "url": "assets/racing/terrain-v2/forest-ground-color.webp",
+                "refs": 1,
+                "kind": "texture",
+                "loaded": true,
+                "colorSpace": "srgb"
+              },
+              {
+                "id": "groundForestV2Normal",
+                "url": "assets/racing/terrain-v2/forest-ground-normal.webp",
+                "refs": 1,
+                "kind": "texture",
+                "loaded": true,
+                "colorSpace": ""
+              },
+              {
+                "id": "groundForestV2Roughness",
+                "url": "assets/racing/terrain-v2/forest-ground-roughness.webp",
+                "refs": 1,
+                "kind": "texture",
+                "loaded": true,
+                "colorSpace": ""
+              },
+              {
+                "id": "mudColor",
+                "url": "assets/sprites/brown_mud/diff.jpg",
+                "refs": 1,
+                "kind": "texture",
+                "loaded": true,
+                "colorSpace": "srgb"
+              },
+              {
+                "id": "mudNormal",
+                "url": "assets/sprites/brown_mud/nor_gl.jpg",
+                "refs": 1,
+                "kind": "texture",
+                "loaded": true,
+                "colorSpace": ""
+              },
+              {
+                "id": "mudRoughness",
+                "url": "assets/sprites/brown_mud/rough.jpg",
+                "refs": 1,
+                "kind": "texture",
+                "loaded": true,
+                "colorSpace": ""
+              }
+            ]
+          },
+          "performance": {
+            "fps": 2,
+            "drawCalls": 278,
+            "triangles": 1464069
+          },
+          "environment": {
+            "authoredReady": true,
+            "grass": {
+              "schema": "kaki-rally-terra-grass@1",
+              "courseId": "forest",
+              "quality": "high",
+              "counts": {
+                "carpet": 4200,
+                "emergent": 820,
+                "total": 5020
+              },
+              "roadClearance": 7.35,
+              "drawCalls": 6,
+              "submittedTriangles": 412044,
+              "geometryBytes": 31080,
+              "instanceBytes": 381520,
+              "wind": "tsl-tip-weighted"
+            }
+          },
+          "monster": null
+        },
+        "restart": {
+          "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
+          "appMode": "racing",
+          "activeMode": "circuit",
+          "activePhase": "countdown",
+          "paused": false,
+          "backend": "webgl",
+          "renderer": {
+            "backend": "webgl",
+            "deviceDescription": "WebGL 2",
+            "threeRevision": "185",
+            "initialized": true,
+            "resolution": {
+              "width": 1280,
+              "height": 720,
+              "cssWidth": 1280,
+              "cssHeight": 720
+            },
+            "dpr": 1,
+            "fps": 2.3520080952836766,
+            "cpuFrameTimeMs": 24.29425287794793,
+            "cpuFrameTimeP99Ms": 633.1000000238419,
+            "renderSubmissionTimeMs": 22.621839079363593,
+            "renderSubmissionTimeP99Ms": 632.5,
+            "drawCalls": 303,
+            "renderCalls": 1269,
+            "frameRenderCalls": 15,
+            "triangles": 685287,
+            "points": 0,
+            "lines": 0,
+            "gpuFrameTimeMs": null,
+            "textures": 31,
+            "renderTargets": 13,
+            "geometries": 145,
+            "gpuMemoryBytes": 152776371,
+            "programs": 80,
+            "compilationEventCount": 0,
+            "recentCompilationEvents": [],
+            "deviceLossCount": 0,
+            "rendererState": "ready",
+            "requestedBackend": "webgl",
+            "quality": "high",
+            "dynamicResolutionScale": 1,
+            "activeMode": "circuit",
+            "sessionPhase": "countdown",
+            "transitionCount": 2
+          },
+          "racing": {
+            "mode": "racing",
+            "raceMode": "circuit",
+            "courseId": "forest",
+            "customTrackId": null,
+            "courseName": "Borrowed Post Switchback",
+            "arenaId": null,
+            "phase": "countdown",
+            "raceTime": 0,
+            "lap": 0,
+            "speed": 0,
+            "telemetry": {
+              "profile": "off-road-gp-balanced",
+              "forwardSpeed": 0,
+              "lateralSpeed": 0,
+              "acceleration": 0,
+              "steeringInput": 0,
+              "appliedSteering": 0,
+              "yawRate": 0,
+              "slipAngle": 0,
+              "surfaceGrip": 0.9472512073657022,
+              "surfaceDrag": 0.0725295898721593,
+              "surface": "mud",
+              "grounded": true,
+              "jumpState": "grounded",
+              "driftState": "grip",
+              "collisionIntensity": 0,
+              "engineAcceleration": 0,
+              "braking": 0,
+              "rollingResistance": 0.5,
+              "aerodynamicDrag": 0,
+              "offroadResistance": 0,
+              "engineBraking": 0,
+              "engineRpm": 0,
+              "engineTorque": 0,
+              "wheelTorque": 0,
+              "gear": 0
+            },
+            "drifting": false,
+            "boostTime": 0,
+            "boostHeat": 0,
+            "overheated": false,
+            "integrity": 100,
+            "engineDamage": 0,
+            "driftScore": 0,
+            "driftCombo": 1,
+            "styleScore": 0,
+            "styleCombo": 1,
+            "perfectDriftChain": 0,
+            "drafting": 0,
+            "airborne": false,
+            "cars": 6,
+            "drivers": [
+              {
+                "id": "player",
+                "avatarId": "kitty",
+                "name": "YOU",
+                "renderTier": "showcase",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-1",
+                "avatarId": "sote",
+                "name": "Sote",
+                "renderTier": "showcase",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-2",
+                "avatarId": "cowboy",
+                "name": "CowboyKaki",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-3",
+                "avatarId": "pipes",
+                "name": "Pipes",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-4",
+                "avatarId": "bomdia",
+                "name": "Bom Dia",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-5",
+                "avatarId": "mothman",
+                "name": "Mothman",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              }
+            ],
+            "ramps": 2,
+            "boostPads": 2,
+            "checkpoints": 0,
+            "overpasses": 0,
+            "workshop": {
+              "bridges": null,
+              "features": null
+            },
+            "camera": {
+              "mode": "chase",
+              "available": [
+                "isometric",
+                "chase",
+                "driver_fpv"
+              ],
+              "transitioning": false,
+              "cinematic": false,
+              "cinematicProgress": 1,
+              "cinematicLabel": "",
+              "transitionProgress": 1,
+              "projection": "perspective",
+              "fov": 72,
+              "visionStage": null,
+              "lookAheadMeters": null,
+              "collision": {
+                "blocked": true,
+                "distance": 2.168987934890885,
+                "hit": "rival-2-camera-collision-proxy",
+                "lifted": false,
+                "lowerFrustumBlocked": true,
+                "foregroundBlocked": true,
+                "foregroundObject": "rival-1-camera-collision-proxy",
+                "contained": false,
+                "containingObject": "",
+                "candidates": 38,
+                "activeCandidates": 38,
+                "boomCandidates": 14,
+                "foregroundCandidates": 7,
+                "raycasts": 52
+              },
+              "zoom": 1
+            },
+            "assets": {
+              "ids": [
+                "decalAtlas",
+                "environmentKitV2",
+                "courseWorkshopKit",
+                "skyGolden",
+                "groundForest",
+                "groundForestV2Color",
+                "groundForestV2Normal",
+                "groundForestV2Roughness",
+                "mudColor",
+                "mudNormal",
+                "mudRoughness"
+              ],
+              "error": "",
+              "cache": [
+                {
+                  "id": "decalAtlas",
+                  "url": "assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "environmentKitV2",
+                  "url": "assets/racing/models/kaki-rally-environment-kit-v2.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "courseWorkshopKit",
+                  "url": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": false,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "skyGolden",
+                  "url": "assets/textures/sky_golden.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "groundForest",
+                  "url": "assets/textures/ground_detail_forest_512.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "groundForestV2Color",
+                  "url": "assets/racing/terrain-v2/forest-ground-color.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "groundForestV2Normal",
+                  "url": "assets/racing/terrain-v2/forest-ground-normal.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "groundForestV2Roughness",
+                  "url": "assets/racing/terrain-v2/forest-ground-roughness.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "mudColor",
+                  "url": "assets/sprites/brown_mud/diff.jpg",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "mudNormal",
+                  "url": "assets/sprites/brown_mud/nor_gl.jpg",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "mudRoughness",
+                  "url": "assets/sprites/brown_mud/rough.jpg",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                }
+              ]
+            },
+            "performance": {
+              "fps": 8,
+              "drawCalls": 303,
+              "triangles": 685287
+            },
+            "environment": {
+              "authoredReady": false,
+              "grass": {
+                "schema": "kaki-rally-terra-grass@1",
+                "courseId": "forest",
+                "quality": "high",
+                "counts": {
+                  "carpet": 4200,
+                  "emergent": 820,
+                  "total": 5020
+                },
+                "roadClearance": 7.35,
+                "drawCalls": 6,
+                "submittedTriangles": 412044,
+                "geometryBytes": 31080,
+                "instanceBytes": 381520,
+                "wind": "tsl-tip-weighted"
+              }
+            },
+            "monster": null
+          },
+          "sceneObjects": 409,
+          "sceneRenderables": {
+            "visible": 368,
+            "instanced": 15,
+            "instances": 5727
+          },
+          "estimatedGpuMemoryBytes": 108536693,
+          "domNodes": 254,
+          "modeOwnedDomNodes": 95,
           "hudRoots": 1,
           "sessionRoots": 1,
           "assets": [
@@ -2610,6 +1806,7 @@
             "contextState": "running",
             "menuPlaying": false,
             "racingActive": true,
+            "activeNodes": 15,
             "cleanupTimers": 0,
             "volumes": {
               "master": 1,
@@ -2618,10 +1815,10 @@
               "ambient": 0.5
             },
             "counters": {
-              "menu": 3,
-              "racing": 4,
+              "menu": 2,
+              "racing": 3,
               "impact": 0,
-              "sfx": 4
+              "sfx": 3
             }
           },
           "touch": {
@@ -2630,12 +1827,16 @@
             "mode": "circuit",
             "activeControls": []
           },
+          "poolUsage": {
+            "active": 0,
+            "capacity": 321
+          },
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 382.5,
+              "at": 297.7000000476837,
               "mode": "menu",
-              "domNodes": 148,
+              "domNodes": 158,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -2683,6 +1884,7 @@
                 "contextState": "running",
                 "menuPlaying": true,
                 "racingActive": false,
+                "activeNodes": 6,
                 "cleanupTimers": 0,
                 "volumes": {
                   "master": 1,
@@ -2700,11 +1902,11 @@
             },
             {
               "label": "enter:circuit",
-              "at": 6701.100000023842,
+              "at": 11857.800000071526,
               "mode": "circuit",
-              "domNodes": 250,
+              "domNodes": 261,
               "hudRoots": 1,
-              "sceneObjects": 406,
+              "sceneObjects": 418,
               "sessionRoots": 1,
               "renderer": {
                 "backend": "webgl",
@@ -2718,23 +1920,23 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 5.9888208677848604,
-                "cpuFrameTimeMs": 3.7621621698946566,
-                "cpuFrameTimeP99Ms": 69.39999997615814,
-                "renderSubmissionTimeMs": 3.4216216190441235,
-                "renderSubmissionTimeP99Ms": 68.79999995231628,
-                "drawCalls": 13,
-                "renderCalls": 518,
-                "frameRenderCalls": 14,
-                "triangles": 13,
+                "fps": 4.278018840708581,
+                "cpuFrameTimeMs": 22.34199999809265,
+                "cpuFrameTimeP99Ms": 564.1000000238419,
+                "renderSubmissionTimeMs": 21.256000003814698,
+                "renderSubmissionTimeP99Ms": 551.1999999284744,
+                "drawCalls": 315,
+                "renderCalls": 714,
+                "frameRenderCalls": 16,
+                "triangles": 1505992,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
-                "textures": 14,
-                "renderTargets": 12,
-                "geometries": 1,
-                "gpuMemoryBytes": 33662205,
-                "programs": 12,
+                "textures": 35,
+                "renderTargets": 13,
+                "geometries": 210,
+                "gpuMemoryBytes": 154977225,
+                "programs": 137,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
                 "deviceLossCount": 0,
@@ -2743,14 +1945,15 @@
                 "quality": "high",
                 "dynamicResolutionScale": 1,
                 "activeMode": "circuit",
-                "sessionPhase": "countdown",
+                "sessionPhase": "racing",
                 "transitionCount": 1
               },
               "audio": {
                 "contextState": "running",
                 "menuPlaying": false,
-                "racingActive": false,
-                "cleanupTimers": 1,
+                "racingActive": true,
+                "activeNodes": 15,
+                "cleanupTimers": 0,
                 "volumes": {
                   "master": 1,
                   "music": 0.55,
@@ -2759,19 +1962,19 @@
                 },
                 "counters": {
                   "menu": 2,
-                  "racing": 0,
+                  "racing": 1,
                   "impact": 0,
-                  "sfx": 2
+                  "sfx": 3
                 }
               }
             },
             {
               "label": "restart:circuit",
-              "at": 33688.90000009537,
+              "at": 33853.800000071526,
               "mode": "circuit",
-              "domNodes": 250,
+              "domNodes": 261,
               "hudRoots": 1,
-              "sceneObjects": 406,
+              "sceneObjects": 409,
               "sessionRoots": 1,
               "renderer": {
                 "backend": "webgl",
@@ -2785,23 +1988,23 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.441950263583338,
-                "cpuFrameTimeMs": 15.356790123162446,
-                "cpuFrameTimeP99Ms": 600.0999999046326,
-                "renderSubmissionTimeMs": 14.067901228681023,
-                "renderSubmissionTimeP99Ms": 597.6999999284744,
-                "drawCalls": 272,
-                "renderCalls": 1178,
+                "fps": 2.515570776947673,
+                "cpuFrameTimeMs": 16.145238097224915,
+                "cpuFrameTimeP99Ms": 564.1000000238419,
+                "renderSubmissionTimeMs": 14.69285714058649,
+                "renderSubmissionTimeP99Ms": 551.1999999284744,
+                "drawCalls": 278,
+                "renderCalls": 1224,
                 "frameRenderCalls": 15,
-                "triangles": 1477733,
+                "triangles": 1464069,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 19,
                 "renderTargets": 12,
                 "geometries": 2,
-                "gpuMemoryBytes": 112606446,
-                "programs": 16,
+                "gpuMemoryBytes": 113989365,
+                "programs": 18,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
                 "deviceLossCount": 0,
@@ -2817,6 +2020,341 @@
                 "contextState": "running",
                 "menuPlaying": false,
                 "racingActive": false,
+                "activeNodes": 8,
+                "cleanupTimers": 1,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 2,
+                  "racing": 2,
+                  "impact": 0,
+                  "sfx": 3
+                }
+              }
+            }
+          ],
+          "frameCount": 87,
+          "stateDiagnostics": {
+            "bootedAt": 1785301561538,
+            "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
+            "rendererFallback": null,
+            "modeTransitions": 2,
+            "lastError": ""
+          }
+        },
+        "exit": {
+          "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
+          "appMode": "menu",
+          "activeMode": null,
+          "activePhase": null,
+          "paused": false,
+          "backend": "webgl",
+          "renderer": {
+            "backend": "webgl",
+            "deviceDescription": "WebGL 2",
+            "threeRevision": "185",
+            "initialized": true,
+            "resolution": {
+              "width": 1280,
+              "height": 720,
+              "cssWidth": 1280,
+              "cssHeight": 720
+            },
+            "dpr": 1,
+            "fps": 2.352602893701559,
+            "cpuFrameTimeMs": 23.329670334910297,
+            "cpuFrameTimeP99Ms": 633.1000000238419,
+            "renderSubmissionTimeMs": 21.70659340606941,
+            "renderSubmissionTimeP99Ms": 632.5,
+            "drawCalls": 13,
+            "renderCalls": 1326,
+            "frameRenderCalls": 14,
+            "triangles": 13,
+            "points": 0,
+            "lines": 0,
+            "gpuFrameTimeMs": null,
+            "textures": 19,
+            "renderTargets": 12,
+            "geometries": 2,
+            "gpuMemoryBytes": 114105315,
+            "programs": 20,
+            "compilationEventCount": 0,
+            "recentCompilationEvents": [],
+            "deviceLossCount": 0,
+            "rendererState": "ready",
+            "requestedBackend": "webgl",
+            "quality": "high",
+            "dynamicResolutionScale": 1,
+            "activeMode": "menu",
+            "sessionPhase": null,
+            "transitionCount": 3
+          },
+          "racing": null,
+          "sceneObjects": 4,
+          "sceneRenderables": {
+            "visible": 1,
+            "instanced": 0,
+            "instances": 0
+          },
+          "estimatedGpuMemoryBytes": 68935776,
+          "domNodes": 158,
+          "modeOwnedDomNodes": 0,
+          "hudRoots": 0,
+          "sessionRoots": 0,
+          "assets": [
+            {
+              "key": "hero",
+              "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
+              "refs": 1,
+              "status": "ready",
+              "error": "",
+              "roots": 1
+            }
+          ],
+          "input": {
+            "initialized": true,
+            "pressedKeys": [],
+            "jumpQueued": false,
+            "lastDevice": "gamepad",
+            "moveVec": {
+              "x": 0,
+              "y": 0
+            },
+            "touch": {
+              "left": false,
+              "right": false,
+              "throttle": false,
+              "brake": false
+            },
+            "gamepad": {
+              "connected": true,
+              "name": "Kaki Rally QA Gamepad",
+              "index": 0
+            }
+          },
+          "audio": {
+            "contextState": "running",
+            "menuPlaying": true,
+            "racingActive": false,
+            "activeNodes": 6,
+            "cleanupTimers": 0,
+            "volumes": {
+              "master": 1,
+              "music": 0.55,
+              "sfx": 0.72,
+              "ambient": 0.5
+            },
+            "counters": {
+              "menu": 3,
+              "racing": 3,
+              "impact": 0,
+              "sfx": 3
+            }
+          },
+          "touch": {
+            "mounted": true,
+            "visible": false,
+            "mode": null,
+            "activeControls": []
+          },
+          "poolUsage": {
+            "active": 0,
+            "capacity": 0
+          },
+          "transitions": [
+            {
+              "label": "boot-menu",
+              "at": 297.7000000476837,
+              "mode": "menu",
+              "domNodes": 158,
+              "hudRoots": 0,
+              "sceneObjects": 4,
+              "sessionRoots": 0,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 0,
+                "cpuFrameTimeMs": null,
+                "cpuFrameTimeP99Ms": null,
+                "renderSubmissionTimeMs": null,
+                "renderSubmissionTimeP99Ms": null,
+                "drawCalls": 0,
+                "renderCalls": 0,
+                "frameRenderCalls": 0,
+                "triangles": 0,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 0,
+                "renderTargets": 0,
+                "geometries": 0,
+                "gpuMemoryBytes": 0,
+                "programs": 0,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "menu",
+                "sessionPhase": null,
+                "transitionCount": 0
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": true,
+                "racingActive": false,
+                "activeNodes": 6,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 1,
+                  "racing": 0,
+                  "impact": 0,
+                  "sfx": 0
+                }
+              }
+            },
+            {
+              "label": "enter:circuit",
+              "at": 11857.800000071526,
+              "mode": "circuit",
+              "domNodes": 261,
+              "hudRoots": 1,
+              "sceneObjects": 418,
+              "sessionRoots": 1,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 4.278018840708581,
+                "cpuFrameTimeMs": 22.34199999809265,
+                "cpuFrameTimeP99Ms": 564.1000000238419,
+                "renderSubmissionTimeMs": 21.256000003814698,
+                "renderSubmissionTimeP99Ms": 551.1999999284744,
+                "drawCalls": 315,
+                "renderCalls": 714,
+                "frameRenderCalls": 16,
+                "triangles": 1505992,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 35,
+                "renderTargets": 13,
+                "geometries": 210,
+                "gpuMemoryBytes": 154977225,
+                "programs": 137,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "circuit",
+                "sessionPhase": "racing",
+                "transitionCount": 1
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": false,
+                "racingActive": true,
+                "activeNodes": 15,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 2,
+                  "racing": 1,
+                  "impact": 0,
+                  "sfx": 3
+                }
+              }
+            },
+            {
+              "label": "restart:circuit",
+              "at": 33853.800000071526,
+              "mode": "circuit",
+              "domNodes": 261,
+              "hudRoots": 1,
+              "sceneObjects": 409,
+              "sessionRoots": 1,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 2.515570776947673,
+                "cpuFrameTimeMs": 16.145238097224915,
+                "cpuFrameTimeP99Ms": 564.1000000238419,
+                "renderSubmissionTimeMs": 14.69285714058649,
+                "renderSubmissionTimeP99Ms": 551.1999999284744,
+                "drawCalls": 278,
+                "renderCalls": 1224,
+                "frameRenderCalls": 15,
+                "triangles": 1464069,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 19,
+                "renderTargets": 12,
+                "geometries": 2,
+                "gpuMemoryBytes": 113989365,
+                "programs": 18,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "circuit",
+                "sessionPhase": "countdown",
+                "transitionCount": 2
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": false,
+                "racingActive": false,
+                "activeNodes": 8,
                 "cleanupTimers": 1,
                 "volumes": {
                   "master": 1,
@@ -2834,9 +2372,9 @@
             },
             {
               "label": "exit:circuit",
-              "at": 37087,
+              "at": 38239.200000047684,
               "mode": "menu",
-              "domNodes": 148,
+              "domNodes": 158,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -2852,23 +2390,23 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.3208202441819155,
-                "cpuFrameTimeMs": 21.802352940334995,
-                "cpuFrameTimeP99Ms": 600.0999999046326,
-                "renderSubmissionTimeMs": 20.4788235243629,
-                "renderSubmissionTimeP99Ms": 597.6999999284744,
-                "drawCalls": 297,
-                "renderCalls": 1238,
+                "fps": 2.327005838910868,
+                "cpuFrameTimeMs": 24.097727277062155,
+                "cpuFrameTimeP99Ms": 633.1000000238419,
+                "renderSubmissionTimeMs": 22.422727271914482,
+                "renderSubmissionTimeP99Ms": 632.5,
+                "drawCalls": 303,
+                "renderCalls": 1284,
                 "frameRenderCalls": 15,
-                "triangles": 698951,
+                "triangles": 685287,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 19,
                 "renderTargets": 12,
                 "geometries": 2,
-                "gpuMemoryBytes": 112697946,
-                "programs": 16,
+                "gpuMemoryBytes": 114105315,
+                "programs": 20,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
                 "deviceLossCount": 0,
@@ -2884,6 +2422,691 @@
                 "contextState": "running",
                 "menuPlaying": true,
                 "racingActive": false,
+                "activeNodes": 8,
+                "cleanupTimers": 1,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 3,
+                  "racing": 3,
+                  "impact": 0,
+                  "sfx": 3
+                }
+              }
+            }
+          ],
+          "frameCount": 91,
+          "stateDiagnostics": {
+            "bootedAt": 1785301561538,
+            "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
+            "rendererFallback": null,
+            "modeTransitions": 3,
+            "lastError": "",
+            "lastExitReason": "qa"
+          }
+        },
+        "reentry": {
+          "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
+          "appMode": "racing",
+          "activeMode": "circuit",
+          "activePhase": "racing",
+          "paused": false,
+          "backend": "webgl",
+          "renderer": {
+            "backend": "webgl",
+            "deviceDescription": "WebGL 2",
+            "threeRevision": "185",
+            "initialized": true,
+            "resolution": {
+              "width": 1280,
+              "height": 720,
+              "cssWidth": 1280,
+              "cssHeight": 720
+            },
+            "dpr": 1,
+            "fps": 2.1304080893502375,
+            "cpuFrameTimeMs": 26.878378383748167,
+            "cpuFrameTimeP99Ms": 564.1000000238419,
+            "renderSubmissionTimeMs": 25.18918919241106,
+            "renderSubmissionTimeP99Ms": 551.1999999284744,
+            "drawCalls": 319,
+            "renderCalls": 1627,
+            "frameRenderCalls": 15,
+            "triangles": 1506509,
+            "points": 0,
+            "lines": 0,
+            "gpuFrameTimeMs": null,
+            "textures": 31,
+            "renderTargets": 13,
+            "geometries": 154,
+            "gpuMemoryBytes": 154581324,
+            "programs": 128,
+            "compilationEventCount": 0,
+            "recentCompilationEvents": [],
+            "deviceLossCount": 0,
+            "rendererState": "ready",
+            "requestedBackend": "webgl",
+            "quality": "high",
+            "dynamicResolutionScale": 1,
+            "activeMode": "circuit",
+            "sessionPhase": "racing",
+            "transitionCount": 4
+          },
+          "racing": {
+            "mode": "racing",
+            "raceMode": "circuit",
+            "courseId": "forest",
+            "customTrackId": null,
+            "courseName": "Borrowed Post Switchback",
+            "arenaId": null,
+            "phase": "racing",
+            "raceTime": 0.36666666666666664,
+            "lap": 0,
+            "speed": 0,
+            "telemetry": {
+              "profile": "off-road-gp-balanced",
+              "forwardSpeed": 0,
+              "lateralSpeed": 0,
+              "acceleration": 0,
+              "steeringInput": 0,
+              "appliedSteering": 0,
+              "yawRate": 0,
+              "slipAngle": 0,
+              "surfaceGrip": 0.844371795591567,
+              "surfaceDrag": 0.21398878106159558,
+              "surface": "mud",
+              "grounded": true,
+              "jumpState": "grounded",
+              "driftState": "grip",
+              "collisionIntensity": 0,
+              "engineAcceleration": 0,
+              "braking": 0,
+              "rollingResistance": 0.5,
+              "aerodynamicDrag": 0,
+              "offroadResistance": 0,
+              "engineBraking": 0,
+              "engineRpm": 0,
+              "engineTorque": 0,
+              "wheelTorque": 0,
+              "gear": 0
+            },
+            "drifting": false,
+            "boostTime": 0,
+            "boostHeat": 0,
+            "overheated": false,
+            "integrity": 100,
+            "engineDamage": 0,
+            "driftScore": 0,
+            "driftCombo": 1,
+            "styleScore": 0,
+            "styleCombo": 1,
+            "perfectDriftChain": 0,
+            "drafting": 0,
+            "airborne": false,
+            "cars": 6,
+            "drivers": [
+              {
+                "id": "player",
+                "avatarId": "kitty",
+                "name": "YOU",
+                "renderTier": "showcase",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-1",
+                "avatarId": "sote",
+                "name": "Sote",
+                "renderTier": "showcase",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-2",
+                "avatarId": "cowboy",
+                "name": "CowboyKaki",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-3",
+                "avatarId": "pipes",
+                "name": "Pipes",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-4",
+                "avatarId": "bomdia",
+                "name": "Bom Dia",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              },
+              {
+                "id": "rival-5",
+                "avatarId": "mothman",
+                "name": "Mothman",
+                "renderTier": "pack",
+                "integrity": 100,
+                "wrecked": false,
+                "repairing": false
+              }
+            ],
+            "ramps": 2,
+            "boostPads": 2,
+            "checkpoints": 0,
+            "overpasses": 0,
+            "workshop": {
+              "bridges": null,
+              "features": null
+            },
+            "camera": {
+              "mode": "chase",
+              "available": [
+                "isometric",
+                "chase",
+                "driver_fpv"
+              ],
+              "transitioning": false,
+              "cinematic": false,
+              "cinematicProgress": 1,
+              "cinematicLabel": "",
+              "transitionProgress": 1,
+              "projection": "perspective",
+              "fov": 72,
+              "visionStage": null,
+              "lookAheadMeters": null,
+              "collision": {
+                "blocked": true,
+                "distance": 2.0001334021710777,
+                "hit": "rival-2-camera-collision-proxy",
+                "lifted": false,
+                "lowerFrustumBlocked": true,
+                "foregroundBlocked": true,
+                "foregroundObject": "rival-2-camera-collision-proxy",
+                "contained": true,
+                "containingObject": "rival-2-camera-collision-proxy",
+                "candidates": 38,
+                "activeCandidates": 38,
+                "boomCandidates": 14,
+                "foregroundCandidates": 8,
+                "raycasts": 41
+              },
+              "zoom": 1
+            },
+            "assets": {
+              "ids": [
+                "decalAtlas",
+                "environmentKitV2",
+                "courseWorkshopKit",
+                "skyGolden",
+                "groundForest",
+                "groundForestV2Color",
+                "groundForestV2Normal",
+                "groundForestV2Roughness",
+                "mudColor",
+                "mudNormal",
+                "mudRoughness"
+              ],
+              "error": "",
+              "cache": [
+                {
+                  "id": "decalAtlas",
+                  "url": "assets/racing/kaki-rally-decal-atlas-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "environmentKitV2",
+                  "url": "assets/racing/models/kaki-rally-environment-kit-v2.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "courseWorkshopKit",
+                  "url": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "skyGolden",
+                  "url": "assets/textures/sky_golden.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "groundForest",
+                  "url": "assets/textures/ground_detail_forest_512.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "groundForestV2Color",
+                  "url": "assets/racing/terrain-v2/forest-ground-color.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "groundForestV2Normal",
+                  "url": "assets/racing/terrain-v2/forest-ground-normal.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "groundForestV2Roughness",
+                  "url": "assets/racing/terrain-v2/forest-ground-roughness.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "mudColor",
+                  "url": "assets/sprites/brown_mud/diff.jpg",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "mudNormal",
+                  "url": "assets/sprites/brown_mud/nor_gl.jpg",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "mudRoughness",
+                  "url": "assets/sprites/brown_mud/rough.jpg",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": ""
+                }
+              ]
+            },
+            "performance": {
+              "fps": 2,
+              "drawCalls": 319,
+              "triangles": 1506509
+            },
+            "environment": {
+              "authoredReady": true,
+              "grass": {
+                "schema": "kaki-rally-terra-grass@1",
+                "courseId": "forest",
+                "quality": "high",
+                "counts": {
+                  "carpet": 4200,
+                  "emergent": 820,
+                  "total": 5020
+                },
+                "roadClearance": 7.35,
+                "drawCalls": 6,
+                "submittedTriangles": 412044,
+                "geometryBytes": 31080,
+                "instanceBytes": 381520,
+                "wind": "tsl-tip-weighted"
+              }
+            },
+            "monster": null
+          },
+          "sceneObjects": 418,
+          "sceneRenderables": {
+            "visible": 372,
+            "instanced": 19,
+            "instances": 5864
+          },
+          "estimatedGpuMemoryBytes": 108804709,
+          "domNodes": 254,
+          "modeOwnedDomNodes": 95,
+          "hudRoots": 1,
+          "sessionRoots": 1,
+          "assets": [
+            {
+              "key": "hero",
+              "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
+              "refs": 1,
+              "status": "ready",
+              "error": "",
+              "roots": 1
+            }
+          ],
+          "input": {
+            "initialized": true,
+            "pressedKeys": [],
+            "jumpQueued": false,
+            "lastDevice": "gamepad",
+            "moveVec": {
+              "x": 0,
+              "y": 0
+            },
+            "touch": {
+              "left": false,
+              "right": false,
+              "throttle": false,
+              "brake": false
+            },
+            "gamepad": {
+              "connected": true,
+              "name": "Kaki Rally QA Gamepad",
+              "index": 0
+            }
+          },
+          "audio": {
+            "contextState": "running",
+            "menuPlaying": false,
+            "racingActive": true,
+            "activeNodes": 15,
+            "cleanupTimers": 0,
+            "volumes": {
+              "master": 1,
+              "music": 0.55,
+              "sfx": 0.72,
+              "ambient": 0.5
+            },
+            "counters": {
+              "menu": 3,
+              "racing": 4,
+              "impact": 0,
+              "sfx": 4
+            }
+          },
+          "touch": {
+            "mounted": true,
+            "visible": true,
+            "mode": "circuit",
+            "activeControls": []
+          },
+          "poolUsage": {
+            "active": 0,
+            "capacity": 321
+          },
+          "transitions": [
+            {
+              "label": "boot-menu",
+              "at": 297.7000000476837,
+              "mode": "menu",
+              "domNodes": 158,
+              "hudRoots": 0,
+              "sceneObjects": 4,
+              "sessionRoots": 0,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 0,
+                "cpuFrameTimeMs": null,
+                "cpuFrameTimeP99Ms": null,
+                "renderSubmissionTimeMs": null,
+                "renderSubmissionTimeP99Ms": null,
+                "drawCalls": 0,
+                "renderCalls": 0,
+                "frameRenderCalls": 0,
+                "triangles": 0,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 0,
+                "renderTargets": 0,
+                "geometries": 0,
+                "gpuMemoryBytes": 0,
+                "programs": 0,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "menu",
+                "sessionPhase": null,
+                "transitionCount": 0
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": true,
+                "racingActive": false,
+                "activeNodes": 6,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 1,
+                  "racing": 0,
+                  "impact": 0,
+                  "sfx": 0
+                }
+              }
+            },
+            {
+              "label": "enter:circuit",
+              "at": 11857.800000071526,
+              "mode": "circuit",
+              "domNodes": 261,
+              "hudRoots": 1,
+              "sceneObjects": 418,
+              "sessionRoots": 1,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 4.278018840708581,
+                "cpuFrameTimeMs": 22.34199999809265,
+                "cpuFrameTimeP99Ms": 564.1000000238419,
+                "renderSubmissionTimeMs": 21.256000003814698,
+                "renderSubmissionTimeP99Ms": 551.1999999284744,
+                "drawCalls": 315,
+                "renderCalls": 714,
+                "frameRenderCalls": 16,
+                "triangles": 1505992,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 35,
+                "renderTargets": 13,
+                "geometries": 210,
+                "gpuMemoryBytes": 154977225,
+                "programs": 137,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "circuit",
+                "sessionPhase": "racing",
+                "transitionCount": 1
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": false,
+                "racingActive": true,
+                "activeNodes": 15,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 2,
+                  "racing": 1,
+                  "impact": 0,
+                  "sfx": 3
+                }
+              }
+            },
+            {
+              "label": "restart:circuit",
+              "at": 33853.800000071526,
+              "mode": "circuit",
+              "domNodes": 261,
+              "hudRoots": 1,
+              "sceneObjects": 409,
+              "sessionRoots": 1,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 2.515570776947673,
+                "cpuFrameTimeMs": 16.145238097224915,
+                "cpuFrameTimeP99Ms": 564.1000000238419,
+                "renderSubmissionTimeMs": 14.69285714058649,
+                "renderSubmissionTimeP99Ms": 551.1999999284744,
+                "drawCalls": 278,
+                "renderCalls": 1224,
+                "frameRenderCalls": 15,
+                "triangles": 1464069,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 19,
+                "renderTargets": 12,
+                "geometries": 2,
+                "gpuMemoryBytes": 113989365,
+                "programs": 18,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "circuit",
+                "sessionPhase": "countdown",
+                "transitionCount": 2
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": false,
+                "racingActive": false,
+                "activeNodes": 8,
+                "cleanupTimers": 1,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 2,
+                  "racing": 2,
+                  "impact": 0,
+                  "sfx": 3
+                }
+              }
+            },
+            {
+              "label": "exit:circuit",
+              "at": 38239.200000047684,
+              "mode": "menu",
+              "domNodes": 158,
+              "hudRoots": 0,
+              "sceneObjects": 4,
+              "sessionRoots": 0,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 2.327005838910868,
+                "cpuFrameTimeMs": 24.097727277062155,
+                "cpuFrameTimeP99Ms": 633.1000000238419,
+                "renderSubmissionTimeMs": 22.422727271914482,
+                "renderSubmissionTimeP99Ms": 632.5,
+                "drawCalls": 303,
+                "renderCalls": 1284,
+                "frameRenderCalls": 15,
+                "triangles": 685287,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 19,
+                "renderTargets": 12,
+                "geometries": 2,
+                "gpuMemoryBytes": 114105315,
+                "programs": 20,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "menu",
+                "sessionPhase": null,
+                "transitionCount": 3
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": true,
+                "racingActive": false,
+                "activeNodes": 8,
                 "cleanupTimers": 1,
                 "volumes": {
                   "master": 1,
@@ -2901,11 +3124,11 @@
             },
             {
               "label": "enter:circuit",
-              "at": 37772.10000002384,
+              "at": 45536.90000009537,
               "mode": "circuit",
-              "domNodes": 250,
+              "domNodes": 261,
               "hudRoots": 1,
-              "sceneObjects": 406,
+              "sceneObjects": 418,
               "sessionRoots": 1,
               "renderer": {
                 "backend": "webgl",
@@ -2919,23 +3142,23 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.369291824060064,
-                "cpuFrameTimeMs": 20.864044940873477,
-                "cpuFrameTimeP99Ms": 600.0999999046326,
-                "renderSubmissionTimeMs": 19.595505612619807,
-                "renderSubmissionTimeP99Ms": 597.6999999284744,
-                "drawCalls": 13,
-                "renderCalls": 1294,
-                "frameRenderCalls": 14,
-                "triangles": 13,
+                "fps": 2.260282623965336,
+                "cpuFrameTimeMs": 28.41262136385279,
+                "cpuFrameTimeP99Ms": 564.1000000238419,
+                "renderSubmissionTimeMs": 26.720388351134883,
+                "renderSubmissionTimeP99Ms": 551.1999999284744,
+                "drawCalls": 313,
+                "renderCalls": 1507,
+                "frameRenderCalls": 16,
+                "triangles": 1505488,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
-                "textures": 19,
-                "renderTargets": 12,
-                "geometries": 2,
-                "gpuMemoryBytes": 112697946,
-                "programs": 16,
+                "textures": 31,
+                "renderTargets": 13,
+                "geometries": 153,
+                "gpuMemoryBytes": 154555772,
+                "programs": 128,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
                 "deviceLossCount": 0,
@@ -2944,13 +3167,14 @@
                 "quality": "high",
                 "dynamicResolutionScale": 1,
                 "activeMode": "circuit",
-                "sessionPhase": "countdown",
+                "sessionPhase": "racing",
                 "transitionCount": 4
               },
               "audio": {
                 "contextState": "running",
                 "menuPlaying": false,
-                "racingActive": false,
+                "racingActive": true,
+                "activeNodes": 15,
                 "cleanupTimers": 0,
                 "volumes": {
                   "master": 1,
@@ -2960,16 +3184,16 @@
                 },
                 "counters": {
                   "menu": 3,
-                  "racing": 3,
+                  "racing": 4,
                   "impact": 0,
-                  "sfx": 3
+                  "sfx": 4
                 }
               }
             }
           ],
-          "frameCount": 103,
+          "frameCount": 111,
           "stateDiagnostics": {
-            "bootedAt": 1785298605378,
+            "bootedAt": 1785301561538,
             "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
             "rendererFallback": null,
             "modeTransitions": 4,
@@ -3005,10 +3229,10 @@
         },
         "dpr": 1,
         "fps": 0,
-        "cpuFrameTimeMs": 69.39999997615814,
-        "cpuFrameTimeP99Ms": 69.39999997615814,
-        "renderSubmissionTimeMs": 68.79999995231628,
-        "renderSubmissionTimeP99Ms": 68.79999995231628,
+        "cpuFrameTimeMs": 60.800000071525574,
+        "cpuFrameTimeP99Ms": 60.800000071525574,
+        "renderSubmissionTimeMs": 60.10000002384186,
+        "renderSubmissionTimeP99Ms": 60.10000002384186,
         "drawCalls": 13,
         "renderCalls": 14,
         "frameRenderCalls": 14,
@@ -3034,7 +3258,14 @@
       },
       "racing": null,
       "sceneObjects": 4,
-      "domNodes": 148,
+      "sceneRenderables": {
+        "visible": 1,
+        "instanced": 0,
+        "instances": 0
+      },
+      "estimatedGpuMemoryBytes": 68935776,
+      "domNodes": 158,
+      "modeOwnedDomNodes": 0,
       "hudRoots": 0,
       "sessionRoots": 0,
       "assets": [
@@ -3072,6 +3303,7 @@
         "contextState": "running",
         "menuPlaying": true,
         "racingActive": false,
+        "activeNodes": 6,
         "cleanupTimers": 0,
         "volumes": {
           "master": 1,
@@ -3092,12 +3324,16 @@
         "mode": null,
         "activeControls": []
       },
+      "poolUsage": {
+        "active": 0,
+        "capacity": 0
+      },
       "transitions": [
         {
           "label": "boot-menu",
-          "at": 382.5,
+          "at": 297.7000000476837,
           "mode": "menu",
-          "domNodes": 148,
+          "domNodes": 158,
           "hudRoots": 0,
           "sceneObjects": 4,
           "sessionRoots": 0,
@@ -3145,6 +3381,7 @@
             "contextState": "running",
             "menuPlaying": true,
             "racingActive": false,
+            "activeNodes": 6,
             "cleanupTimers": 0,
             "volumes": {
               "master": 1,
@@ -3163,7 +3400,7 @@
       ],
       "frameCount": 1,
       "stateDiagnostics": {
-        "bootedAt": 1785298605378,
+        "bootedAt": 1785301561538,
         "sourceCommit": "3711e8fc0c2c86b27911171c5394723ceb9e45aa",
         "rendererFallback": null,
         "modeTransitions": 0,

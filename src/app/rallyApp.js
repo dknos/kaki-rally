@@ -71,7 +71,7 @@ import { readRallySettings } from './rallySave.js';
 import { RallyTouchControls } from './rallyTouchControls.js';
 import { DeveloperOverlay } from './developerOverlay.js';
 
-const SOURCE_COMMIT = '3711e8fc0c2c86b27911171c5394723ceb9e45aa';
+const SOURCE_COMMIT = 'fc84c36518651c8d80fc708f7398db2536046fd4';
 const MAX_FRAME_SECONDS = 0.05;
 const MAX_LOGIC_SECONDS = 1 / 30;
 let catastropheDevelopmentPromise = null;

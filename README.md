@@ -21,10 +21,13 @@ combat runtime from the production dependency graph.
 | **Off-Road GP** | Circuit racing, six venues, AI grids, laps, checkpoints, damage, repairs, ramps, shortcuts, surface handling, and three camera rigs |
 | **Drift Attack** | Charged drifting, independent drift handling, mini-turbo release, 90-second scoring, combos, and per-course records |
 | **Kaki Stock Cup** | Oval configurations, up to 16 cars, drafting, pack impacts, visible damage, smoke, and repairs |
-| **Draw Your Track** | Mouse/touch/controller editor, four sizes and widths, repair tools, overpasses, AI paths, checkpoints, respawns, jumps, reverse, mirror, night, themes, gallery, and KDT1/KDT2 codes |
+| **Draw Your Track** | Mouse/touch/controller editor, Pocket through Colossal sizes, road widths, elevation, banking, expert overlays, exact multi-overpasses, AI paths, checkpoints, respawns, features, reverse, mirror, themes, gallery, and KDT1/KDT2/KDT3 codes |
 | **Monster Smash** | Smashdown, Freestyle, Free Ride, five-round progression, crush/collapse systems, stunts, wreck chains, Zoomies, route ghosts, and Mighty Meowster, Cyber Kaki, and Tipsy Tumbler |
 | **Kaki Trials** | Three point-to-point courses, real gaps, pitch control, turbo heat, checkpoints, destruction, medals, unlocks, and validated personal-best ghosts |
-| **Kaki Catastrophe · Beta** | WebGL beta with Rapier physics, Pawprint Interchange traffic, chain reactions, Kaki Boom, damage, debris, replay cameras, slow motion, records, and quality budgets |
+
+Kaki Catastrophe is a frozen experiment, not a production mode. Its source and
+assets remain for a future extraction decision, but it is hidden from normal
+navigation and does not load Rapier or Catastrophe assets during ordinary play.
 
 The six rally venues are **Borrowed Post Switchback**, **Nobody’s Turn**,
 **Kiln-Shift Circuit**, **Quiet Toll Run**, **Glass Mile**, and
@@ -46,14 +49,13 @@ layer; touch controls appear automatically on coarse-pointer devices.
 | Rally / Drift / Stock | `W`/`S` throttle and brake, `A`/`D` steer, `Shift` drift, `Space` handbrake, on-screen camera selector |
 | Monster Smash | `W`/`S` drive and air trim, `A`/`D` steer and air trim, hold `Shift` for Zoomies/flips, `Space` handbrake, `R` recover, `F` refill in Free Ride |
 | Kaki Trials | `W` throttle, `S` brake/reverse, `A` nose up, `D` nose down, `Shift` turbo, `Space` restart from checkpoint |
-| Kaki Catastrophe | `W`/`S` gas/brake, `A`/`D` steer, `Space` handbrake, `B` look back, `V` recenter |
 | Draw Your Track | Draw with pointer/touch, use the labeled workshop tools, hold `Space` to pan; controller moves the workshop cursor and activates with the primary button |
-| Everywhere | `Escape` / gamepad B pauses, backs out, or returns to the Kaki Rally menu |
+| Everywhere | `Escape` / gamepad B pauses, backs out, or returns to the Kaki Rally menu; `F3` toggles the developer diagnostics overlay |
 
 ## Renderer support
 
 WebGL 2 is the stable default. WebGPU remains selectable and is exercised by
-the browser matrix for every production mode except Catastrophe.
+the browser matrix for all six production modes.
 
 - Force WebGL: `?renderer=webgl`
 - Request WebGPU: `?renderer=webgpu`
@@ -61,9 +63,9 @@ the browser matrix for every production mode except Catastrophe.
 - Deep link and launch immediately: add `&play=1`
 
 If WebGPU initialization fails, Kaki Rally rebuilds the canvas with WebGL and
-shows the fallback in renderer diagnostics. Kaki Catastrophe is intentionally
-WebGL-only today: its WebGPU card explains the restriction and offers
-**Restart in WebGL**, preserving the selected mode through reload.
+shows the fallback in renderer diagnostics. The frozen Catastrophe experiment
+can be reached only during local development with `?dev=catastrophe`; it
+remains WebGL-only and dynamically loads only after that explicit request.
 
 ## Saves and portability
 
@@ -78,7 +80,8 @@ kks_kaki_catastrophe_records_v1
 ```
 
 Nothing is silently deleted or converted. Existing Draw Track libraries and
-KDT1/KDT2 codes remain readable. The Records screen can export all rally data
+KDT1/KDT2 codes remain readable; bounded elevation/banking is an optional KDT3
+extension. The Records screen can export all rally data
 as a single JSON file, import it with an automatic backup, or separately reset
 records, Draw Track creations, or all progress. Every destructive reset
 requires confirmation.
@@ -99,8 +102,10 @@ same relative files run locally and under `/kaki-rally/` on GitHub Pages.
 
 ```bash
 npm test                    # deterministic renderer, racing, boundary, save, and asset suites
+npm run test:catastrophe    # optional frozen-experiment suite
 npm run test:browser        # full WebGL/WebGPU interaction matrix
-npm run qa:performance      # warmed ten-session lifecycle/leak benchmark
+npm run qa:performance      # warmed 25-session lifecycle/leak benchmark
+npm run qa:performance:hardware # native physical-adapter benchmark gate
 npm run assets:inventory    # regenerate path/size/SHA-256 inventory
 npm run vendor:check        # verify the focused Three.js runtime closure
 npm run test:production-assets -- https://dknos.github.io/kaki-rally/

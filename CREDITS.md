@@ -51,6 +51,16 @@ raster is copied into the runtime GLB or thumbnail atlas; final geometry,
 materials, LOD-ready modules, origins, collisions, theme variants, and
 thumbnails were authored through the Blender pipeline and inspected in-engine.
 
+### Definitive browser rebuild
+
+The 2026-07-29 handling, terrain, HUD, Workshop elevation/banking, Trials
+layering, Stock pack LOD, telemetry, VFX integration, and performance pass adds
+no new third-party production model, texture, or audio dependency. Its new
+visual structures are procedural or code-authored from the already credited
+and inventoried Kaki Rally sources. No raw image-generation output is used as
+an entire 3D environment. `docs/ASSET_INVENTORY.json` is the authoritative
+path, byte-size, SHA-256, source, and licence record for the release candidate.
+
 ## Audio
 
 - **Kenney** — CC0 menu/audio source material used by the original project.
@@ -62,7 +72,9 @@ thumbnails were authored through the Blender pipeline and inspected in-engine.
 - [Three.js](https://threejs.org/) r185 — MIT License.
 - [Rapier](https://github.com/dimforge/rapier.js) 0.19.3 — Apache License 2.0.
   The vendored notice is at
-  `src/racing/crash/vendor/LICENSE-APACHE-2.0.txt`.
+  `src/racing/crash/vendor/LICENSE-APACHE-2.0.txt`. Rapier is retained only by
+  the frozen Kaki Catastrophe experiment and is not imported or requested
+  during ordinary Kaki Rally startup or production-mode play.
 - [Draco](https://github.com/google/draco) decoder — Apache License 2.0.
 - [meshoptimizer](https://github.com/zeux/meshoptimizer) / Meshopt decoder —
   MIT License.

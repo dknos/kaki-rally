@@ -1,38 +1,56 @@
-# Performance and lifecycle evidence
+# Kaki Rally performance and lifecycle evidence
 
-Measurements were made at 1280×720, DPR 1, high quality, WebGL 2, using
-headless Chromium’s SwiftShader software renderer. These values are useful for
-relative regression and leak detection only; they do not predict physical GPU
-FPS, thermal behavior, or mobile frame pacing.
+Release candidate: `fc84c36518651c8d80fc708f7398db2536046fd4`
 
-## Source parity sample
+Validation date: 2026-07-29
 
-The clean source snapshot and standalone build were both measured on Pileup
-Pyramid Yard with the Cyber Kaki, chase camera, and 24 frames. Geometry parity
-is effectively exact:
+WebGL 2 remains the stable default. The authoritative desktop measurements
+below ran in native Windows Chrome against the physical NVIDIA GeForce RTX
+5080 through ANGLE/D3D11. The browser was started by Windows Node rather than
+through WSL, and the WebGL renderer string was recorded in every report.
+SwiftShader remains useful for relative rendering regressions but is not used
+for the release FPS claims.
 
-| Build | Frame interval | Draw calls | Triangles | Estimated GPU bytes |
-| --- | ---: | ---: | ---: | ---: |
-| Source `3711e8f` | 305.75 ms | 256 | 212,917 | 173,173,475 |
-| Standalone | 305.45 ms | 256 | 212,793 | 134,601,855 |
+## Physical desktop results
 
-The source page also emitted repeated preload warnings for unrelated Bullet
-Hell, weapon, pickup, and ambient assets. The standalone browser diagnostics
-contain no equivalent Survivors preloads. On this software-rendered sample,
-frame interval and draw submissions are effectively unchanged while the
-standalone renderer reports about 22% fewer estimated GPU bytes. The 124
-triangle difference is transient pooled effect state, not missing arena
-geometry.
+| Viewport / quality | Sessions | Average frame | Worst p95 | Worst p99 | Minimum 1% low | Warm spikes |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1280×720 High | 1 | 16.622 ms | 16.8 ms | 16.8 ms | 59.52 FPS | 0 |
+| 1920×1080 High | 25 | 16.610 ms | 16.8 ms | 16.9 ms | 59.17 FPS | 0 |
+| 5120×1440 Ultra | 10 | 16.620 ms | 16.8 ms | 16.9 ms | 59.17 FPS | 0 |
 
-## Ten-session lifecycle benchmark
+Chrome's native headless compositor was synchronized at approximately 60 Hz,
+so these runs prove the 60 FPS floor and clean 60 Hz pacing, not the requested
+120 FPS ceiling. A visible 120 Hz browser session remains a human hardware
+gate.
 
-After one unmeasured renderer warmup, the benchmark enters and exits circuit,
-drift, stock, two Monster arenas/events, and two Trials configurations ten
-times in one page:
+The 25-session 1920×1080 run covered five rotations of Off-Road GP, Drift,
+Stock, Monster, and Trials. Each sample contains 120 warmed animation frames.
 
-| Counter | Warm baseline | After 10 exits |
+| Mode | Runs | Average frame | Minimum 1% low | Peak draws | Peak triangles | Worst JS p99 | Peak render submit |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Off-Road GP | 5 | 16.621 ms | 59.17 FPS | 181 | 1,447,497 | 6.3 ms | 3.05 ms |
+| Drift Attack | 5 | 16.633 ms | 59.52 FPS | 188 | 1,245,069 | 4.7 ms | 2.00 ms |
+| Kaki Stock Cup | 5 | 16.612 ms | 59.52 FPS | 457 | 857,523 | 8.7 ms | 4.97 ms |
+| Monster Smash | 5 | 16.612 ms | 59.52 FPS | 252 | 212,601 | 11.3 ms | 3.36 ms |
+| Kaki Trials | 5 | 16.571 ms | 59.52 FPS | 186 | 172,508 | 18.3 ms | 1.22 ms |
+
+At 5120×1440 Ultra, the same modes remained at or above 59.17 FPS for ten
+sessions. The largest sample submitted 305 draws and 1,675,071 triangles.
+Stock's production pack LOD reduced its measured worst view from roughly 870
+draws during the first audit to 457 at 1080p and 305 at the ultrawide sampled
+view. It retains unique paints, numbers, badges, cockpits, driver colors,
+animated wheels, smoke, sparks, and damage states while removing sub-pixel
+pack-car trim and per-part shadow submissions.
+
+## Lifecycle stability
+
+The 25-session run performed 55 enter, restart, and exit transitions in one
+page. Every exit returned the concrete warmed counters exactly:
+
+| Counter | Warm baseline | Final |
 | --- | ---: | ---: |
-| DOM nodes | 153 | 153 |
+| DOM nodes | 158 | 158 |
 | Scene objects | 4 | 4 |
 | Session roots | 0 | 0 |
 | HUD roots | 0 | 0 |
@@ -41,94 +59,70 @@ times in one page:
 | Render targets | 12 | 12 |
 | Racing audio active | false | false |
 
-The pre-Workshop checked run recorded 413 peak draw calls and 1,528,821 peak
-triangles. The final Workshop candidate records 385 peak draw calls, 1,528,665
-peak triangles, 253 DOM nodes, and 721 scene objects. Its average SwiftShader
-frame interval across the ten
-configurations was 392.983 ms, with a worst per-mode p95 of 600 ms. Each mode
-retained fixed-step
-physics and capped frame-time input from the source implementation. Draw Track
-validation remains outside the racing hot path.
+Peak active counts were 259 DOM nodes, 494 scene objects, 41 renderer textures,
+262 renderer geometries, 13 render targets, and an estimated 112,401,477 GPU
+bytes. Resource equality, rather than JavaScript heap position, is the
+lifecycle gate because V8 and Three.js retain reusable allocator capacity.
 
-The complete per-transition report, renderer diagnostics, and environment
-description are in `qa/performance-transitions.json`; the matching immutable
-source sample is in `qa/source-monster-baseline.json`.
+The recorded entry p95 was 9,493 ms and restart p95 was 2,300 ms. Entry time is
+conservatively inflated by Windows Chrome loading development files through
+the `\\wsl.localhost` bridge. It does not describe the static GitHub Pages
+delivery path and is not presented as a production network timing.
 
-## Terra grass budget
+## Frame-cost controls
 
-At high quality, the forest circuit builds 5,020 carpet/emergent clumps in six
-instanced draws. Its merged blade templates submit 412,044 triangles and use
-31,080 bytes of unique geometry data plus 381,520 bytes of instance matrix and
-color data. Twilight drift submits 336,336 grass triangles; the Stock Cup
-safeguard and sparse cinder biome submit 113,340. Low quality was browser
-validated at 1,420 clumps, two draws, and 134,280 triangles.
+The rebuild removes transient arrays and vectors from contact, AI, nearest
+road, rank, feature, input, and collision hot paths; reuses typed candidate
+buffers and event objects; pools effects; and throttles HUD text/minimap
+updates. Pack cars share authored geometry/material families and use
+distance-aware presentation tiers. Course bridges use material-compatible
+instancing rather than one draw per module, and generated terrain/vegetation
+remain quality-budgeted.
 
-The optimized final grass templates reduced the initial integration from
-612,472 to 412,044 forest triangles without reducing clump count. Compared
-with the pre-Workshop checked run, the final ten-mode average moved from
-412.646 to 392.983 ms (-4.8%), while the worst p95 moved from 633.3 to 600 ms
-(-5.3%). These software-rendered runs are noisy comparative evidence, not a
-physical-GPU FPS claim or causal attribution.
+The F3 developer overlay exposes live backend, mode, FPS, frame graph, median,
+p95, 1% low, JS/physics/render time, draw/triangle/object/resource counts,
+estimated GPU memory, audio/DOM/pool counts, and mode-specific vehicle
+telemetry. It is hidden in ordinary play.
 
-## Course Workshop bridge budget
+## Workshop and five-overpass cost
 
-The browser fixture used for the bridge gate is a 1,633.836 m Colossal course
-with five simultaneously selected overpasses. The initial correct-but-naive
-module-clone integration submitted 5,747 draws. The final runtime merges
-material-compatible templates and instances repeated deck, rail, support, and
-portal modules:
+The Colossal fixture remains a deliberately abusive validation course with
+five simultaneously selected overpasses. The exact crossing solver, stable
+IDs, material-compatible bridge instancing, height-aware road query, and
+distance-aware LOD remain unchanged. The fresh browser capture verifies the
+five structures in an ordinary chase view; the physical benchmark's peak
+triangle count is now 1.68 million rather than the earlier multi-million
+full-detail view.
 
-| Five-overpass WebGL sample | Visible | Bridges hidden | Marginal bridge cost |
-| --- | ---: | ---: | ---: |
-| Draw calls | 228 | 180 | 48 |
-| Triangles | 6,919,733 | 5,166,829 | 1,752,904 |
+Generated route terrain uses bounded segments, instanced dressing, vegetation
+exclusion, and theme-aware distance layers. Elevation and banking are sampled
+from a sparse bounded profile, so legacy flat tracks do not allocate or render
+extra structures.
 
-The 251 visible module instances are represented by 23 instanced material
-groups. There is no per-frame geometry or texture creation, and the groups
-share the existing leased Workshop asset. Distance culling and catalog LOD
-profiles remain quality-level controlled. The high triangle count is a
-deliberately abusive fixture and still requires physical-GPU and phone
-profiling before public release.
+## Loading and release footprint
 
-Crossing detection no longer performs a full all-pairs segment scan during
-editing. It inserts sampled segments into a deterministic spatial hash,
-deduplicates adjacent hits, and runs the exact conflict solver only on the
-small crossing graph. An invalid scribble above 32 crossings or 128% of its
-size limit uses a bounded deterministic preview until repaired.
+The menu does not import production mode sessions or their asset sets. Critical
+mode assets, materials, effects, and audio are prewarmed behind the branded
+transition before interactivity. Catastrophe assets and Rapier are absent from
+the normal manifest and request log.
 
-## Interpretation
+The focused inventory contains 119 hashed files totaling 60.96 MiB. The
+machine-generated record includes path, byte size, SHA-256, source/licence
+metadata, and runtime grouping. No runtime CDN request is permitted.
 
-The warmed resource counters demonstrate that enter/restart/exit/re-entry does
-not accumulate cloned model textures, geometries, render targets, HUDs, scene
-roots, or racing audio. Aggregate estimated GPU bytes may vary slightly as
-Three.js/SwiftShader allocators retain internal pools; the concrete resource
-counts are the lifecycle gate.
+## Evidence files
 
-Physical desktop and phone profiling remains the correct gate for release
-quality or a future decision to make WebGPU the default.
+- `docs/qa/performance-hardware-1920x1080.json` — authoritative 25-session
+  native Windows/RTX 5080 run.
+- `docs/qa/performance-hardware-5120x1440.json` — 32:9 Ultra physical-GPU run.
+- `docs/qa/performance-hardware-1280x720.json` — native physical-adapter probe.
+- `docs/qa/browser-matrix.json` — WebGL/WebGPU mode, input, Workshop, request,
+  resource, and responsive-browser evidence.
 
-## Release footprint
+## Remaining hardware gates
 
-The immutable clean source tree was 310,738,119 bytes (296.34 MiB), including
-203,941,028 bytes (194.49 MiB) under `assets/`. The pre-Workshop standalone
-tree was approximately 72.48 MiB, with 52,284,905 bytes (49.86 MiB) under
-`assets/`. The current working tree is 88,971,088 bytes (84.85 MiB), excluding
-`.git/` and `node_modules/`, with 53,572,819 bytes (51.09 MiB) under `assets/`.
-Most non-runtime growth is the required screenshot and concept evidence. The
-focused hashed inventory is 63,917,381 bytes (60.96 MiB).
-
-The final Workshop runtime adds:
-
-| Asset | Encoded bytes | Notes |
-| --- | ---: | --- |
-| `kaki-course-workshop-kit-v1.glb` | 1,044,496 | 42 feature nodes + 8 bridge roots; Meshopt, quantized attributes, WebP texture, reusable theme materials |
-| `kaki-course-feature-thumbnails-v1.webp` | 239,322 | 1792×1152 final-asset palette atlas |
-
-The concept sheet is documentation-only (2,249,623 bytes) and is not requested
-by the runtime. The Workshop GLB reports 423,663 rendered vertices from 79,634
-uploaded vertices, 32 shared materials, and one embedded reused 1024-pixel
-decal texture.
-
-The final vendor pass removed 423 unused Three.js example files (7.06 MiB) and
-retains 15 audited runtime/license files. This is a 75.5% repository-tree
-reduction from the exact source snapshot without recompressing authored art.
+The benchmark does not establish physical-phone thermals, battery use,
+safe-area behavior, touch feel, or sustained mobile frame pacing. The mobile
+layouts and input paths passed Chromium emulation at 844×390 and 390×844, but
+a landscape phone remains required. A visible 120 Hz Chrome run is also needed
+to prove the aspirational 120 FPS reference target.

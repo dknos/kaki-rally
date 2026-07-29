@@ -46,11 +46,11 @@ second editor runtime, renderer, input layer, or physics engine.
 ```text
 Draw UI ──> drawTrackGeometry ──> drawTrackCrossings ──> generated circuit
    │               │                       │                    │
-   │               └─ spatial hash         └─ exact conflict    ├─ road/AI/checkpoints
-   │                                             graph solver    ├─ bridge height query
-   └─ feature catalog ─> placement/validation ──────────────────└─ runtime adapter
+   │               ├─ spatial hash         └─ exact conflict    ├─ road/AI/checkpoints
+   │               └─ elevation/banking         graph solver    ├─ bridge height query
+   └─ feature catalog ─> placement/validation ──────────────────└─ terrain/runtime
                               │
-                              └─ KDT3 extension / legacy-safe KDT2
+                              └─ bounded KDT3 extensions / legacy-safe KDT1/KDT2
 
 Trials UI ──> normalized custom course ──> sampleTrialsGround ──> Trials runtime
    │                  │                          ▲
@@ -102,6 +102,16 @@ same selected-overpass data. Height-aware queries disambiguate upper and lower
 roads at the same X/Z coordinate. Overlapping elevated envelopes are rejected
 with a precise explanation rather than summed into unstable height spikes.
 
+`drawTrackElevation.js` owns a sparse additive elevation/banking profile. The
+editor exposes raise, lower, smooth, hill, valley, bank-left, bank-right,
+flatten, and reset operations plus curvature, height, grade, bank, clearance,
+AI-risk, and cost overlays. The storage boundary limits profiles to 32 finite
+stamps, -4…12 m elevation, ±0.24 rad banking, and bounded route radii.
+TrackMeshBuilder samples that same sanitized profile for visible geometry,
+surface queries, AI, start grid, checkpoints, respawns, camera clearance,
+bridges, and generated route-aware terrain. Legacy tracks with no profile stay
+flat.
+
 ## Feature surfaces and runtime
 
 `courseFeaturePlacement.js` owns stable anchors and transformations;
@@ -146,7 +156,9 @@ being collapsed to an official string ID.
 - `input.js` and `gamepad.js` expose racing actions, pointer/touch attribution,
   Trials pitch, pause, camera switching, and Draw Track controller input.
 - `audio.js` owns menu/racing engines, impacts and bus volumes. Exit cancels
-  racing audio and cleanup timers.
+  racing audio and cleanup timers. Circuit/Monster/Trials telemetry drives
+  engine load/RPM layers, throttle lift, surfaces, suspension, impact, boost,
+  and venue ambience rather than one global pitch control.
 - `assets.js` owns cached GLTF/texture loading, DRACO, Meshopt, safe cloning,
   leases, disposal, and cache diagnostics. Racing models dispose cloned
   material textures as well as materials and geometries.
@@ -182,9 +194,16 @@ stable automatic default because it is the proven Monster Smash path. Explicit
 device-loss recovery, diagnostics, quality/DPR caps, resize, 16:9 desktop
 staging, ultrawide letterboxing, and landscape-mobile handling remain intact.
 
-Kaki Catastrophe uses vendored Rapier and is enabled as a WebGL beta only. Its
-source, assets, and tests remain present under WebGPU, but the availability
-matrix prevents launch and supplies a renderer-restart action.
+The F3 developer overlay reads diagnostics without taking ownership of the
+renderer or simulation. It includes frame distribution, update/render cost,
+resource/pool/audio counts, and active vehicle telemetry.
+
+Kaki Catastrophe and vendored Rapier are frozen outside the production graph.
+The source and assets remain for later extraction, but the production menu,
+normal manifest, default tests, and six production modes cannot import or
+request them. A localhost-only `?dev=catastrophe` flag dynamically imports the
+frozen entry when explicitly requested. Extraction boundaries are documented
+in `docs/CATASTROPHE_EXTRACTION_NOTES.md`.
 
 ## Persistence
 
@@ -195,16 +214,19 @@ recognized strings verbatim into a versioned document. Import validates JSON,
 writes a pre-import backup, and never deletes keys absent from the incoming
 file.
 
-Draw Track continues decoding KDT1 and KDT2. Tracks without crossings or
-placements still encode as KDT2, byte-compatible with the old payload layout.
-KDT3 appends a bounded, checksummed extension for crossing overrides and
-feature placements; decode never silently rewrites an old stored course.
-Only explicit Save replaces a library entry.
+Draw Track continues decoding KDT1 and KDT2. Tracks without KDT3-only data
+still encode as KDT2, byte-compatible with the old payload layout. KDT3
+appends bounded, checksummed extensions for crossing overrides, feature
+placements, and optional elevation/banking. An absent elevation extension
+decodes flat, and decode never silently rewrites old stored courses. Only
+explicit Save replaces a library entry.
 
 ## Boundaries
 
 `tools/smoke-standalone-boundaries.mjs` walks production modules and import
 edges. It rejects imports of Bullet Hell, weapons, enemies, spawn directors,
-XP, towns, catacombs, Survivors stage gameplay, and combat UI. Asset checks
-likewise reject absolute/out-of-repository paths and stale or case-mismatched
-references.
+XP, towns, catacombs, Survivors stage gameplay, combat UI, and the frozen
+Catastrophe tree. `tools/smoke-catastrophe-isolation.mjs` independently checks
+production racing imports, normal navigation, manifests, and request paths for
+Catastrophe/Rapier leakage. Asset checks likewise reject absolute or
+out-of-repository paths and stale or case-mismatched references.

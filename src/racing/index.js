@@ -3379,7 +3379,11 @@ export function getRacingSnapshot() {
 }
 
 function _warpMonsterTarget(session, targetIndex = 0) {
-  const target = session?.monsterArena?.targets?.[targetIndex];
+  const roundTargetIds = new Set(currentMonsterRound(session?.monsterRounds)?.targetIds || []);
+  const activeTargets = session?.monsterArena?.targets?.filter((target) => (
+    roundTargetIds.has(target.id) && !target.destroyed
+  )) || [];
+  const target = activeTargets[targetIndex] || session?.monsterArena?.targets?.[targetIndex];
   const kart = session?.cars?.[0]?.physics;
   if (!target || !kart) return false;
   kart.x = target.x;
