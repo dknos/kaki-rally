@@ -224,7 +224,7 @@ async function bootPage(browser, origin, backend, diagnostics, {
     text: node.textContent.trim(),
     visible: !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length),
   }));
-  assert.equal(menuVersion.text, 'V1.1.0', 'main menu version does not match the release');
+  assert.equal(menuVersion.text, 'V1.1.1', 'main menu version does not match the release');
   assert(menuVersion.visible, `main menu version is hidden at ${viewport.width}x${viewport.height}`);
   return { context, page, boot };
 }
@@ -1136,6 +1136,78 @@ async function runDunes(page, backend, evidence) {
   }, null, { timeout: 20_000 });
   const bigJumpChaseRecovery = await page.evaluate(() => window.__kkRacing.snapshot().camera);
 
+  // Reproduce the player's exact failure path: complete the whole camera
+  // cycle, return from FPV to ISO, and then take another large jump. A stale
+  // perspective/ISO handoff used to leave the orthographic view aimed at sky.
+  await page.click('.kkd-hud .kkr-camera-cycle');
+  await page.waitForFunction(() => {
+    const camera = window.__kakiRally?.state?.racing?.cameraManager;
+    return camera?.mode === 'driver_fpv'
+      && camera?.activeCamera?.isPerspectiveCamera
+      && !camera?.transition;
+  }, null, { timeout: 20_000 });
+  await page.click('.kkd-hud .kkr-camera-cycle');
+  await page.waitForFunction(() => {
+    const camera = window.__kakiRally?.state?.racing?.cameraManager;
+    return camera?.mode === 'isometric'
+      && camera?.activeCamera?.isOrthographicCamera
+      && !camera?.transition;
+  }, null, { timeout: 20_000 });
+  assert(
+    await page.evaluate(() => window.__kkRacing.launchDuneJump(38)),
+    'Dune Run post-cycle jump fixture failed',
+  );
+  const postCycleJumpFrames = [];
+  for (let index = 0; index < 26; index += 1) {
+    await page.waitForTimeout(50);
+    postCycleJumpFrames.push(await page.evaluate(() => {
+      const session = window.__kakiRally.state.racing;
+      const manager = session.cameraManager;
+      const camera = manager.activeCamera;
+      const vehicle = manager._vehicleState();
+      const playerNdc = vehicle.position.clone().project(camera);
+      const forward = camera.getWorldDirection(camera.position.clone());
+      return {
+        altitude: vehicle.position.y - vehicle.groundHeight,
+        cameraY: camera.position.y,
+        focusY: manager.lastFrame?.focus?.y,
+        playerNdc: playerNdc.toArray(),
+        forwardY: forward.y,
+        projection: camera.isOrthographicCamera ? 'orthographic' : 'perspective',
+        mode: manager.mode,
+        transitioning: !!manager.transition,
+        guardRecoveries: manager.rigs.isometric.guardRecoveries,
+      };
+    }));
+  }
+  const invalidPostCycleFrame = postCycleJumpFrames.find((frame) => (
+    frame.projection !== 'orthographic'
+    || frame.mode !== 'isometric'
+    || frame.transitioning
+    || !(frame.cameraY > frame.focusY + 8)
+    || !(frame.forwardY < -0.15)
+    || Math.abs(frame.playerNdc[0]) >= 0.92
+    || Math.abs(frame.playerNdc[1]) >= 0.92
+    || frame.playerNdc[2] < -1
+    || frame.playerNdc[2] > 1
+  ));
+  assert(
+    Math.max(...postCycleJumpFrames.map((frame) => frame.altitude)) > 18,
+    'post-cycle ISO fixture did not produce a large jump',
+  );
+  assert(
+    !invalidPostCycleFrame,
+    `Dune ISO re-entry lost its terrain-facing jump frame: ${JSON.stringify(invalidPostCycleFrame)}`,
+  );
+  const postCycleIsoRecovery = {
+    maximumAltitude: Math.max(...postCycleJumpFrames.map((frame) => frame.altitude)),
+    apex: postCycleJumpFrames.reduce((best, frame) => (
+      frame.altitude > best.altitude ? frame : best
+    ), postCycleJumpFrames[0]),
+    sampledFrames: postCycleJumpFrames.length,
+  };
+  await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-camera-cycle-isometric.png`) });
+
   assert(await page.evaluate(() => !!window.__kkRacing.finish()), 'Dune result could not be banked');
   await page.waitForFunction(() => (
     window.__kkRacing?.snapshot?.()?.phase === 'finished'
@@ -1163,6 +1235,7 @@ async function runDunes(page, backend, evidence) {
   evidence.wheelspin = wheelspin;
   evidence.bigJumpIsometric = bigJumpIsometric;
   evidence.bigJumpChaseRecovery = bigJumpChaseRecovery;
+  evidence.postCycleIsoRecovery = postCycleIsoRecovery;
   evidence.result = result.snapshot;
   await assertPauseRestartExitReentry(page, spec, evidence);
 
@@ -2222,6 +2295,69 @@ async function runWebGpu(browser, origin, report) {
         assert(Math.abs(jump.playerNdc[0]) < 0.92 && Math.abs(jump.playerNdc[1]) < 0.92,
           `Dune WebGPU jump left the ISO frame: ${JSON.stringify(jump)}`);
         await page.screenshot({ path: path.join(QA_DIR, 'webgpu-dunes.png') });
+
+        for (const expectedMode of ['chase', 'driver_fpv', 'isometric']) {
+          await page.click('.kkd-hud .kkr-camera-cycle');
+          await page.waitForFunction((cameraMode) => {
+            const camera = window.__kakiRally?.state?.racing?.cameraManager;
+            const correctProjection = cameraMode === 'isometric'
+              ? camera?.activeCamera?.isOrthographicCamera
+              : camera?.activeCamera?.isPerspectiveCamera;
+            return camera?.mode === cameraMode && correctProjection && !camera?.transition;
+          }, expectedMode, { timeout: 20_000 });
+        }
+        await page.evaluate(() => window.__kkRacing.launchDuneJump(38));
+        const postCycleFrames = [];
+        for (let index = 0; index < 10; index += 1) {
+          await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(resolve)));
+          postCycleFrames.push(await page.evaluate(() => {
+            const session = window.__kakiRally.state.racing;
+            const manager = session.cameraManager;
+            const camera = manager.activeCamera;
+            const vehicle = manager._vehicleState();
+            const player = vehicle.position.clone().project(camera);
+            return {
+              altitude: vehicle.position.y - vehicle.groundHeight,
+              cameraY: camera.position.y,
+              focusY: manager.lastFrame.focus.y,
+              forwardY: camera.getWorldDirection(camera.position.clone()).y,
+              playerNdc: player.toArray(),
+              mode: manager.mode,
+              projection: camera.isOrthographicCamera ? 'orthographic' : 'perspective',
+              transitioning: !!manager.transition,
+              guardRecoveries: manager.rigs.isometric.guardRecoveries,
+            };
+          }));
+        }
+        const invalidPostCycleFrame = postCycleFrames.find((frame) => (
+          frame.mode !== 'isometric'
+          || frame.projection !== 'orthographic'
+          || frame.transitioning
+          || !(frame.cameraY > frame.focusY + 8)
+          || !(frame.forwardY < -0.15)
+          || Math.abs(frame.playerNdc[0]) >= 0.92
+          || Math.abs(frame.playerNdc[1]) >= 0.92
+          || frame.playerNdc[2] < -1
+          || frame.playerNdc[2] > 1
+        ));
+        assert(
+          Math.max(...postCycleFrames.map((frame) => frame.altitude)) > 18,
+          'Dune WebGPU post-cycle ISO fixture did not produce a large jump',
+        );
+        assert(
+          !invalidPostCycleFrame,
+          `Dune WebGPU ISO re-entry lost its terrain-facing frame: ${JSON.stringify(invalidPostCycleFrame)}`,
+        );
+        diagnosticsNow.postCycleIsoRecovery = {
+          maximumAltitude: Math.max(...postCycleFrames.map((frame) => frame.altitude)),
+          apex: postCycleFrames.reduce((best, frame) => (
+            frame.altitude > best.altitude ? frame : best
+          ), postCycleFrames[0]),
+          sampledFrames: postCycleFrames.length,
+        };
+        await page.screenshot({
+          path: path.join(QA_DIR, 'webgpu-dunes-camera-cycle-isometric.png'),
+        });
       }
       report.webgpu.modes[mode] = diagnosticsNow;
       await page.evaluate(() => window.__kakiRally.menu());

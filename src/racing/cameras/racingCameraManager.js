@@ -469,6 +469,7 @@ export class RacingCameraManager {
       lookAheadMeters: this.lastEffects?.lookAheadMeters || null,
       collision: this.lastEffects?.collision || null,
       zoom: this.zoom,
+      isometricGuardRecoveries: this.rigs[RacingCameraMode.ISOMETRIC].guardRecoveries,
     };
   }
 

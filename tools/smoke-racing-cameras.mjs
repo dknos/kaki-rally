@@ -8,6 +8,7 @@ import {
   availableCameraModes,
   cycleCameraMode,
 } from '../src/racing/cameras/cameraModes.js';
+import { guardIsometricTerrainFrame } from '../src/racing/cameras/isometricFrameGuard.js';
 import {
   RACING_CAMERA_PROFILES,
   cameraProfileForSession,
@@ -102,6 +103,26 @@ assert.deepEqual(
 );
 assert.equal(cameraProfileForSession({ raceMode: 'monster', monsterVehicleId: 'cyber' }).id, 'cyber');
 assert.equal(cameraProfileForSession({ raceMode: 'trials', vehicle: { id: 'buggy' } }).id, 'pocket_pouncer');
+
+const guardedPosition = { x: 592, y: -20, z: -571 };
+const guardedFocus = { x: 565, y: 1.2, z: -598 };
+const guardedFrame = guardIsometricTerrainFrame(
+  guardedPosition,
+  guardedFocus,
+  { monster: true, trials: false },
+);
+assert(
+  guardedPosition.y >= guardedFocus.y + 12,
+  'isometric terrain-facing guard did not recover an upward stale frame',
+);
+assert.equal(guardedFrame, true, 'isometric guard recovery was not reported');
+const stablePosition = { x: 592, y: 41.2, z: -571 };
+assert.equal(
+  guardIsometricTerrainFrame(stablePosition, guardedFocus, { monster: true }),
+  false,
+  'isometric terrain-facing guard changed an already valid frame',
+);
+
 for (const profile of Object.values(RACING_CAMERA_PROFILES)) {
   for (const field of [
     'fpvEyePosition', 'fpvBaseFov', 'fpvSeatHeightRange', 'fpvMaxYawDegrees',
@@ -145,6 +166,7 @@ assert.match(managerSource, /MAX_ZOOM\s*=\s*1\.42/, 'camera zoom-out bound is mi
 assert.match(isoSource, /const height = vehicle\.position\.y[\s\S]*\+\s*base\.height/, 'isometric camera height does not carry full vehicle altitude');
 assert.match(isoSource, /this\.focus\.lerp\(this\.desiredFocus,\s*alpha\)/, 'isometric position and focus are not damped as one frame');
 assert.match(isoSource, /this\.focus\.copy\(this\.desiredFocus\)/, 'isometric snap does not initialize its focus');
+assert.match(isoSource, /guardIsometricTerrainFrame\(this\.position, this\.focus, vehicle\)/, 'isometric re-entry has no terrain-facing guard');
 assert.match(managerSource, /const projectionChange = previous === RacingCameraMode\.ISOMETRIC[\s\S]*next === RacingCameraMode\.ISOMETRIC/, 'orthographic projection switches can still blend a stale ISO frame');
 assert.match(managerSource, /\|\| projectionChange;/, 'projection boundary does not force an immediate camera handoff');
 assert.match(managerSource, /trackBinding\.mode === 'monster' \? null/, 'Monster Smash still binds the full arena to chase collision');
