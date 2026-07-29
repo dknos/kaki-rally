@@ -5,11 +5,12 @@ const missing = (name) => () => {
 let contract = Object.freeze({
   menu: missing('menu'),
   startRacing: missing('startRacing'),
+  restartRacing: missing('restartRacing'),
   openDrawEditor: missing('openDrawEditor'),
 });
 
 export function configureRallyNavigation(next = {}) {
-  for (const name of ['menu', 'startRacing', 'openDrawEditor']) {
+  for (const name of ['menu', 'startRacing', 'restartRacing', 'openDrawEditor']) {
     if (typeof next[name] !== 'function') {
       throw new TypeError(`Kaki Rally navigation requires a ${name}() handler`);
     }
@@ -24,6 +25,10 @@ export function navigateToMenu(reason = 'mode-exit') {
 
 export function startRallySession(courseId, options = {}) {
   return contract.startRacing(courseId, options);
+}
+
+export function restartRallySession() {
+  return contract.restartRacing();
 }
 
 export function openRallyDrawEditor(initialTrack = null) {

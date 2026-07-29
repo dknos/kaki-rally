@@ -3,5 +3,6 @@ export {
   getRallyNavigationContract,
   navigateToMenu,
   openRallyDrawEditor,
+  restartRallySession,
   startRallySession,
 } from './core/navigation.js';

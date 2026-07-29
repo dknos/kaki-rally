@@ -29,6 +29,7 @@ assert.deepEqual(LEGACY_SAVE_KEYS, [
   'kks_rally_best_v1',
   'kks_draw_tracks_v1',
   'kks_monster_records_v1',
+  'kks_dune_records_v1',
   'kks_rally_trials_v1',
   'kks_kaki_catastrophe_records_v1',
 ]);
@@ -48,6 +49,8 @@ const settings = writeRallySettings({
 }, source);
 assert.equal(settings.lastMode, 'monster');
 assert.equal(settings.renderer, 'webgpu');
+assert.equal(settings.duneEvent, 'whiskerwind');
+assert.equal(settings.duneVehicle, 'meowster');
 
 const serialized = exportRallySave(source);
 const payload = JSON.parse(serialized);

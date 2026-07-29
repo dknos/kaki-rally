@@ -2,7 +2,7 @@
  * Frozen Kaki Catastrophe working set.
  *
  * This manifest deliberately lives inside the frozen experiment. Nothing in
- * the six production modes imports it, and the files are requested only after
+ * the seven production modes imports it, and the files are requested only after
  * the localhost development gate has been enabled explicitly.
  */
 export const CATASTROPHE_ASSET_MANIFEST = Object.freeze({

@@ -113,10 +113,11 @@ for (const profile of Object.values(RACING_CAMERA_PROFILES)) {
   ]) assert.ok(field in profile, `${profile.id} camera profile is missing ${field}`);
 }
 
-const [managerSource, collisionSource, inputSource, fpvSource, rallySource, trialsSource, mainSource, cssSource, gamepadSource] = await Promise.all([
+const [managerSource, collisionSource, inputSource, isoSource, fpvSource, rallySource, trialsSource, mainSource, cssSource, gamepadSource] = await Promise.all([
   source('src/racing/cameras/racingCameraManager.js'),
   source('src/racing/cameras/chaseCameraCollision.js'),
   source('src/racing/cameras/cameraInput.js'),
+  source('src/racing/cameras/isometricCameraRig.js'),
   source('src/racing/cameras/driverFpvCameraRig.js'),
   source('src/racing/index.js'),
   source('src/racing/trialsMode.js'),
@@ -141,6 +142,9 @@ assert.match(inputSource, /passive:\s*false/, 'camera wheel zoom must be able to
 assert.doesNotMatch(inputSource, /justPressed\?\.rs/, 'right-stick click still changes the on-screen-only camera');
 assert.match(managerSource, /MIN_ZOOM\s*=\s*0\.72/, 'camera zoom-in bound is missing');
 assert.match(managerSource, /MAX_ZOOM\s*=\s*1\.42/, 'camera zoom-out bound is missing');
+assert.match(isoSource, /groundHeight\s*\+\s*base\.height/, 'isometric camera height is not terrain-relative');
+assert.match(isoSource, /airborneMeters\s*\*\s*\(vehicle\.monster/, 'isometric camera does not carry large-jump altitude');
+assert.match(managerSource, /airborneProjectionChange/, 'airborne projection switches can still trap the camera');
 assert.match(managerSource, /trackBinding\.mode === 'monster' \? null/, 'Monster Smash still binds the full arena to chase collision');
 assert.match(collisionSource, /object\.isInstancedMesh && object\.userData\?\.cameraBlocker !== true/, 'chase collision still raycasts bulk instanced dressing');
 assert.match(collisionSource, /intersectObjects\(this\._boomCandidates, false, this\._hits\)/, 'chase boom allocates a hit array for every ray');

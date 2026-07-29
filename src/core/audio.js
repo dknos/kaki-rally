@@ -17,6 +17,9 @@ const SURFACE_AUDIO = Object.freeze({
   road: Object.freeze({ frequency: 920, q: 0.82, gain: 0.72 }),
   asphalt: Object.freeze({ frequency: 1040, q: 0.92, gain: 0.7 }),
   dirt: Object.freeze({ frequency: 610, q: 0.58, gain: 1.05 }),
+  sand: Object.freeze({ frequency: 760, q: 0.42, gain: 0.96 }),
+  packedSand: Object.freeze({ frequency: 980, q: 0.72, gain: 0.86 }),
+  deepSand: Object.freeze({ frequency: 430, q: 0.36, gain: 1.18 }),
   gravel: Object.freeze({ frequency: 1450, q: 1.15, gain: 1.2 }),
   mud: Object.freeze({ frequency: 390, q: 0.48, gain: 0.9 }),
   snow: Object.freeze({ frequency: 720, q: 0.7, gain: 0.78 }),
@@ -34,6 +37,7 @@ const AMBIENT_AUDIO = Object.freeze({
   kakiland: Object.freeze({ frequency: 540, gain: 0.009 }),
   monster: Object.freeze({ frequency: 820, gain: 0.015 }),
   trials: Object.freeze({ frequency: 470, gain: 0.009 }),
+  dunes: Object.freeze({ frequency: 355, gain: 0.013 }),
 });
 
 function audioContextClass() {
@@ -320,7 +324,10 @@ export function updateRacingAudio({
   else if (surfaceName.includes('water')) surfaceProfile = SURFACE_AUDIO.water;
   else if (surfaceName.includes('metal')) surfaceProfile = SURFACE_AUDIO.metal;
   else if (surfaceName.includes('wood')) surfaceProfile = SURFACE_AUDIO.wood;
-  else if (surfaceName.includes('dirt') || surfaceName.includes('sand')) surfaceProfile = SURFACE_AUDIO.dirt;
+  else if (surfaceName.includes('packed-sand')) surfaceProfile = SURFACE_AUDIO.packedSand;
+  else if (surfaceName.includes('deep-loose-sand')) surfaceProfile = SURFACE_AUDIO.deepSand;
+  else if (surfaceName.includes('sand')) surfaceProfile = SURFACE_AUDIO.sand;
+  else if (surfaceName.includes('dirt')) surfaceProfile = SURFACE_AUDIO.dirt;
   else if (surfaceName.includes('off')) surfaceProfile = SURFACE_AUDIO.offroad;
   else if (surfaceName.includes('asphalt') || surfaceName.includes('concrete')) surfaceProfile = SURFACE_AUDIO.asphalt;
   const tireAmount = airborne ? 0 : Math.min(1, safeSlip * 1.35 + speedRatio * 0.07);

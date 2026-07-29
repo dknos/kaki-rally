@@ -1,0 +1,685 @@
+{
+  "schema": 1,
+  "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
+  "generatedAt": "2026-07-29T09:07:39.477Z",
+  "chromium": "/home/nemoclaw/bin/chromium",
+  "requestedBackend": "webgl",
+  "webgl": {
+    "diagnostics": {
+      "pageErrors": [],
+      "consoleErrors": [],
+      "badResponses": [],
+      "failedRequests": [],
+      "expectedAborts": [],
+      "frozenModeRequests": []
+    },
+    "modes": {
+      "circuit": {},
+      "drift": {},
+      "stock": {},
+      "draw": {},
+      "monster": {},
+      "dunes": {},
+      "trials": {},
+      "crash": {}
+    },
+    "boot": {
+      "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
+      "appMode": "menu",
+      "activeMode": null,
+      "activePhase": null,
+      "paused": false,
+      "backend": "webgl",
+      "renderer": {
+        "backend": "webgl",
+        "deviceDescription": "WebGL 2",
+        "threeRevision": "185",
+        "initialized": true,
+        "resolution": {
+          "width": 1280,
+          "height": 720,
+          "cssWidth": 1280,
+          "cssHeight": 720
+        },
+        "dpr": 1,
+        "fps": 0,
+        "cpuFrameTimeMs": 55.5,
+        "cpuFrameTimeP99Ms": 55.5,
+        "renderSubmissionTimeMs": 55,
+        "renderSubmissionTimeP99Ms": 55,
+        "drawCalls": 13,
+        "renderCalls": 14,
+        "frameRenderCalls": 14,
+        "triangles": 13,
+        "points": 0,
+        "lines": 0,
+        "gpuFrameTimeMs": null,
+        "textures": 14,
+        "renderTargets": 12,
+        "geometries": 1,
+        "gpuMemoryBytes": 33662205,
+        "programs": 12,
+        "compilationEventCount": 0,
+        "recentCompilationEvents": [],
+        "deviceLossCount": 0,
+        "rendererState": "ready",
+        "requestedBackend": "webgl",
+        "quality": "high",
+        "dynamicResolutionScale": 1,
+        "activeMode": "menu",
+        "sessionPhase": null,
+        "transitionCount": 0
+      },
+      "racing": null,
+      "sceneObjects": 4,
+      "sceneRenderables": {
+        "visible": 1,
+        "instanced": 0,
+        "instances": 0
+      },
+      "estimatedGpuMemoryBytes": 68935776,
+      "domNodes": 162,
+      "modeOwnedDomNodes": 0,
+      "hudRoots": 0,
+      "sessionRoots": 0,
+      "assets": [
+        {
+          "key": "hero",
+          "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
+          "refs": 1,
+          "status": "ready",
+          "error": "",
+          "roots": 1
+        }
+      ],
+      "input": {
+        "initialized": true,
+        "pressedKeys": [],
+        "jumpQueued": false,
+        "lastDevice": "keyboard",
+        "moveVec": {
+          "x": 0,
+          "y": 0
+        },
+        "touch": {
+          "left": false,
+          "right": false,
+          "throttle": false,
+          "brake": false
+        },
+        "gamepad": {
+          "connected": true,
+          "name": "Kaki Rally QA Gamepad",
+          "index": 0
+        }
+      },
+      "audio": {
+        "contextState": "running",
+        "menuPlaying": true,
+        "racingActive": false,
+        "activeNodes": 6,
+        "cleanupTimers": 0,
+        "volumes": {
+          "master": 1,
+          "music": 0.55,
+          "sfx": 0.72,
+          "ambient": 0.5
+        },
+        "counters": {
+          "menu": 1,
+          "racing": 0,
+          "impact": 0,
+          "sfx": 0
+        }
+      },
+      "touch": {
+        "mounted": true,
+        "visible": false,
+        "mode": null,
+        "activeControls": []
+      },
+      "poolUsage": {
+        "active": 0,
+        "capacity": 0
+      },
+      "transitions": [
+        {
+          "label": "boot-menu",
+          "at": 295.6999999284744,
+          "mode": "menu",
+          "domNodes": 162,
+          "hudRoots": 0,
+          "sceneObjects": 4,
+          "sessionRoots": 0,
+          "renderer": {
+            "backend": "webgl",
+            "deviceDescription": "WebGL 2",
+            "threeRevision": "185",
+            "initialized": true,
+            "resolution": {
+              "width": 1280,
+              "height": 720,
+              "cssWidth": 1280,
+              "cssHeight": 720
+            },
+            "dpr": 1,
+            "fps": 0,
+            "cpuFrameTimeMs": null,
+            "cpuFrameTimeP99Ms": null,
+            "renderSubmissionTimeMs": null,
+            "renderSubmissionTimeP99Ms": null,
+            "drawCalls": 0,
+            "renderCalls": 0,
+            "frameRenderCalls": 0,
+            "triangles": 0,
+            "points": 0,
+            "lines": 0,
+            "gpuFrameTimeMs": null,
+            "textures": 0,
+            "renderTargets": 0,
+            "geometries": 0,
+            "gpuMemoryBytes": 0,
+            "programs": 0,
+            "compilationEventCount": 0,
+            "recentCompilationEvents": [],
+            "deviceLossCount": 0,
+            "rendererState": "ready",
+            "requestedBackend": "webgl",
+            "quality": "high",
+            "dynamicResolutionScale": 1,
+            "activeMode": "menu",
+            "sessionPhase": null,
+            "transitionCount": 0
+          },
+          "audio": {
+            "contextState": "running",
+            "menuPlaying": true,
+            "racingActive": false,
+            "activeNodes": 6,
+            "cleanupTimers": 0,
+            "volumes": {
+              "master": 1,
+              "music": 0.55,
+              "sfx": 0.72,
+              "ambient": 0.5
+            },
+            "counters": {
+              "menu": 1,
+              "racing": 0,
+              "impact": 0,
+              "sfx": 0
+            }
+          }
+        }
+      ],
+      "frameCount": 1,
+      "stateDiagnostics": {
+        "bootedAt": 1785316059807,
+        "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
+        "rendererFallback": null,
+        "modeTransitions": 0,
+        "lastError": ""
+      }
+    },
+    "ultrawide": {
+      "viewport": [
+        2560,
+        720
+      ],
+      "stage": [
+        1280,
+        720
+      ],
+      "left": 640,
+      "right": 640,
+      "editor": {
+        "x": 640,
+        "y": 0,
+        "width": 1280,
+        "height": 720,
+        "top": 0,
+        "right": 1920,
+        "bottom": 720,
+        "left": 640
+      },
+      "canvas": {
+        "x": 722,
+        "y": 92,
+        "width": 884,
+        "height": 536,
+        "top": 92,
+        "right": 1606,
+        "bottom": 628,
+        "left": 722
+      },
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "badResponses": [],
+        "failedRequests": [],
+        "expectedAborts": [
+          "net::ERR_ABORTED http://127.0.0.1:33953/vendor/three/examples/jsm/libs/draco/draco_decoder.wasm",
+          "net::ERR_ABORTED http://127.0.0.1:33953/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js"
+        ],
+        "frozenModeRequests": []
+      }
+    },
+    "responsiveWorkshop": {
+      "landscape": {
+        "orientationGate": false,
+        "overflowX": 0,
+        "editor": {
+          "x": 0,
+          "y": 0,
+          "width": 844,
+          "height": 390,
+          "top": 0,
+          "right": 844,
+          "bottom": 390,
+          "left": 0
+        },
+        "canvas": {
+          "x": 59,
+          "y": 67,
+          "width": 780,
+          "height": 248,
+          "top": 67,
+          "right": 839,
+          "bottom": 315,
+          "left": 59
+        },
+        "minTouchTarget": null,
+        "coarse": true
+      },
+      "autoDressCount": 14,
+      "collapsedHeight": 58,
+      "portrait": {
+        "orientationGate": true,
+        "overflowX": 0
+      },
+      "accessibility": {
+        "reducedMotion": true,
+        "highContrast": true,
+        "borderWidth": 2,
+        "transitionSeconds": [
+          0.000001
+        ]
+      },
+      "trialsLandscape": {
+        "overflowX": 0,
+        "canvas": {
+          "x": 6,
+          "y": 92,
+          "width": 832,
+          "height": 144,
+          "top": 92,
+          "right": 838,
+          "bottom": 236,
+          "left": 6
+        },
+        "minTouchTarget": 44,
+        "terrainTools": 12,
+        "visibleTerrainTools": 12
+      },
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "badResponses": [],
+        "failedRequests": [],
+        "expectedAborts": [
+          "net::ERR_ABORTED http://127.0.0.1:33953/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js",
+          "net::ERR_ABORTED http://127.0.0.1:33953/vendor/three/examples/jsm/libs/draco/draco_decoder.wasm"
+        ],
+        "frozenModeRequests": []
+      }
+    },
+    "responsiveDunes": {
+      "viewport": [
+        844,
+        390
+      ],
+      "overflowX": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "width": 844,
+        "height": 390,
+        "top": 0,
+        "right": 844,
+        "bottom": 390,
+        "left": 0
+      },
+      "hud": {
+        "x": 0,
+        "y": 0,
+        "width": 844,
+        "height": 390,
+        "top": 0,
+        "right": 844,
+        "bottom": 390,
+        "left": 0
+      },
+      "coarse": true,
+      "orientationGate": false,
+      "duneTouchButtons": 3,
+      "visibleDuneTouchButtons": 3,
+      "minTouchTarget": 44,
+      "routeCameraOverlap": false,
+      "snapshot": {
+        "mode": "racing",
+        "raceMode": "dunes",
+        "phase": "racing",
+        "eventId": "whiskerwind",
+        "event": {
+          "id": "whiskerwind",
+          "name": "Whiskerwind Circuit",
+          "routeType": "circuit",
+          "weather": "clear",
+          "timeOfDay": "sunset",
+          "isDrawTrack": false,
+          "customTrackId": null
+        },
+        "vehicleId": "meowster",
+        "vehicle": {
+          "id": "meowster",
+          "name": "Mighty Meowster"
+        },
+        "speed": 16.20232400342132,
+        "x": 61.87738907571509,
+        "y": 0.8000217056955311,
+        "z": -144.37068689524722,
+        "grounded": true,
+        "telemetry": {
+          "speed": 16.20232400342132,
+          "forwardVelocity": 15.449241564292018,
+          "engineRpm": 5782.474597097033,
+          "requestedDriveForce": 36541.24521862081,
+          "deliveredWheelForce": 36541.24521862081,
+          "normalLoad": 0,
+          "chassisPitchVelocity": -0.4898920275239016,
+          "chassisRoll": 0.03551001565207984,
+          "steeringInput": 0.72,
+          "wheelAngle": 0.21589248423695645,
+          "groundedWheels": 4,
+          "sandResistance": 0.8101162001710661,
+          "brushStrength": 0,
+          "sinkage": 0.008,
+          "wheelSlip": 0.017998648870224745
+        },
+        "race": {
+          "elapsed": 0.16666666666666666,
+          "progress": 0.24054982817869403,
+          "lap": 0,
+          "targetLaps": 2,
+          "checkpoint": 1,
+          "checkpoints": 19,
+          "score": 0,
+          "recoveries": 0,
+          "finished": false
+        },
+        "terrain": {
+          "heightfield": {
+            "schema": 1,
+            "eventId": "whiskerwind",
+            "seed": 1262570313,
+            "resolution": [
+              257,
+              257
+            ],
+            "worldSize": 704,
+            "heightRange": [
+              -8.878320693969727,
+              13.8679780960083
+            ],
+            "checksum": "3c66a808"
+          },
+          "clipmap": {
+            "quality": "low",
+            "levels": 6,
+            "cells": 48,
+            "baseSpacing": 0.52,
+            "triangles": 28032,
+            "staticTopology": true,
+            "shaderTrimmedUnderlays": true,
+            "snappedOrigins": [
+              [
+                61.36,
+                -144.56,
+                0.52
+              ],
+              [
+                60.32,
+                -145.6,
+                1.04
+              ],
+              [
+                58.24,
+                -145.6,
+                2.08
+              ],
+              [
+                58.24,
+                -149.76,
+                4.16
+              ],
+              [
+                49.92,
+                -149.76,
+                8.32
+              ],
+              [
+                49.92,
+                -149.76,
+                16.64
+              ]
+            ],
+            "heightTexture": [
+              257,
+              257
+            ],
+            "recentDeformation": [
+              128,
+              128
+            ],
+            "coarseDeformation": [
+              64,
+              64
+            ]
+          },
+          "rendererPhysicsDelta": 0,
+          "authorityShared": true
+        },
+        "deformation": {
+          "quality": "low",
+          "recentResolution": 128,
+          "recentWorldSize": 72,
+          "coarseResolution": 64,
+          "origin": [
+            23.811023622047244,
+            -180.8503937007874
+          ],
+          "focus": [
+            61.74239239163683,
+            -144.37316170243994
+          ],
+          "scrollCount": 1,
+          "appliedBrushes": 0,
+          "droppedBrushes": 0,
+          "maximumDepression": 0,
+          "maximumBerm": 0,
+          "physicalBounds": [
+            -0.15,
+            0.08
+          ],
+          "version": 2
+        },
+        "environment": {
+          "eventId": "whiskerwind",
+          "kitAttached": true,
+          "authoredScatter": 22,
+          "flags": 38,
+          "lods": 15,
+          "checkpointGates": 19,
+          "drawPlacements": 0,
+          "weather": "clear",
+          "timeOfDay": "sunset"
+        },
+        "vfx": {
+          "roosterTail": {
+            "quality": "low",
+            "fixedLattice": true,
+            "segmentsPerWheel": 12,
+            "activeCurtains": 4,
+            "emittedSamples": 4,
+            "vertexCapacity": 96
+          },
+          "dust": {
+            "quality": "low",
+            "capacity": 72,
+            "active": 1,
+            "spawned": 1,
+            "pooled": true
+          }
+        },
+        "records": {
+          "key": "whiskerwind:meowster",
+          "previous": null,
+          "result": null,
+          "samples": 1,
+          "ghostVisible": false
+        },
+        "visual": {
+          "authoredBody": true,
+          "wheels": 4,
+          "suspension": 4
+        },
+        "quality": {
+          "terrain": "low",
+          "deformation": "low",
+          "particles": "low",
+          "shadow": "low",
+          "dustEnabled": true,
+          "dustScale": 0.5,
+          "heatHaze": true
+        },
+        "assists": {
+          "difficulty": "standard",
+          "steering": true,
+          "recovery": true,
+          "cameraShake": 0.72
+        },
+        "camera": {
+          "mode": "chase",
+          "available": [
+            "isometric",
+            "chase",
+            "driver_fpv"
+          ],
+          "transitioning": false,
+          "cinematic": false,
+          "cinematicProgress": 1,
+          "cinematicLabel": "",
+          "transitionProgress": 1,
+          "projection": "perspective",
+          "fov": 74.53665072095797,
+          "visionStage": null,
+          "lookAheadMeters": null,
+          "collision": {
+            "blocked": false,
+            "distance": 15.416253270625903,
+            "hit": "",
+            "lifted": false,
+            "lowerFrustumBlocked": false,
+            "foregroundBlocked": false,
+            "foregroundObject": "",
+            "contained": false,
+            "containingObject": "",
+            "candidates": 0,
+            "activeCandidates": 0,
+            "boomCandidates": 0,
+            "foregroundCandidates": 0,
+            "raycasts": 0
+          },
+          "zoom": 1
+        },
+        "assets": {
+          "ids": [
+            "monsterDecal",
+            "mightyMeowsterBody",
+            "duneEnvironmentKit",
+            "duneKeyArt",
+            "duneSandDetail"
+          ],
+          "error": "",
+          "cache": [
+            {
+              "id": "monsterDecal",
+              "url": "assets/racing/kitty-monster-truck-decal-oekaki-v2.webp",
+              "refs": 1,
+              "kind": "texture",
+              "loaded": true,
+              "colorSpace": "srgb"
+            },
+            {
+              "id": "mightyMeowsterBody",
+              "url": "assets/racing/models/mighty-meowster-body-v1.glb",
+              "refs": 1,
+              "kind": "model",
+              "loaded": true,
+              "colorSpace": ""
+            },
+            {
+              "id": "duneEnvironmentKit",
+              "url": "assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
+              "refs": 1,
+              "kind": "model",
+              "loaded": true,
+              "colorSpace": ""
+            },
+            {
+              "id": "duneKeyArt",
+              "url": "assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp",
+              "refs": 1,
+              "kind": "texture",
+              "loaded": true,
+              "colorSpace": "srgb"
+            },
+            {
+              "id": "duneSandDetail",
+              "url": "assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp",
+              "refs": 1,
+              "kind": "texture",
+              "loaded": true,
+              "colorSpace": "srgb"
+            }
+          ]
+        },
+        "performance": {
+          "fps": 17,
+          "physicsMs": 0.6000000238418579,
+          "drawCalls": 360,
+          "triangles": 135981
+        }
+      },
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "badResponses": [],
+        "failedRequests": [],
+        "expectedAborts": [],
+        "frozenModeRequests": []
+      }
+    }
+  },
+  "webgpu": {
+    "diagnostics": {
+      "pageErrors": [],
+      "consoleErrors": [],
+      "badResponses": [],
+      "failedRequests": [],
+      "expectedAborts": [],
+      "frozenModeRequests": []
+    },
+    "modes": {}
+  }
+}

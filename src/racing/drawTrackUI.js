@@ -601,9 +601,10 @@ export class DrawTrackUI {
         <section class="kdt-tuning">
           <label><span><b>SMOOTHING</b><output data-role="smoothing">55%</output></span><input type="range" min="0" max="100" value="55" data-setting="smoothing"></label>
           <div class="kdt-switches">
-            <label><input type="checkbox" data-modifier="randomJumps"><span>Auto-fill jumps</span></label>
+            <label><input type="checkbox" data-modifier="randomJumps"><span data-role="jump-modifier-label">Auto-fill jumps</span></label>
             <label><input type="checkbox" data-setting="reverse"><span>Reverse direction</span></label>
-            <label><input type="checkbox" data-modifier="nightRace"><span>Night race</span></label>
+            <label><input type="checkbox" data-modifier="nightRace"><span data-role="lighting-modifier-label">Night race</span></label>
+            <label><input type="checkbox" data-modifier="rain"><span data-role="weather-modifier-label">Wet weather</span></label>
             <label><input type="checkbox" data-modifier="mirror"><span>Mirror layout</span></label>
           </div>
           <p class="kdt-crossing-orphans" data-role="crossing-orphans" hidden></p>
@@ -2110,6 +2111,7 @@ export class DrawTrackUI {
       coastal: ['rally-flags', 'direction-signs', 'crowd-section', 'grandstand', 'theme-landmark'],
       industrial: ['construction-equipment', 'floodlights', 'billboard', 'direction-signs', 'theme-landmark'],
       arena: ['crowd-section', 'grandstand', 'floodlights', 'billboard', 'rally-flags'],
+      dune: ['rally-flags', 'direction-signs', 'rock-pile', 'foliage-group', 'theme-landmark', 'wooden-crates'],
     };
     const pool = (themePools[this.draft.themeId] || listCourseFeatures({
       mode: 'circuit',
@@ -2374,6 +2376,16 @@ export class DrawTrackUI {
     this.root.querySelectorAll('[data-modifier]').forEach((input) => { input.checked = !!this.draft.modifiers[input.dataset.modifier]; });
     const size = TRACK_SIZE_PRESETS[this.draft.sizeId];
     const theme = DRAW_TRACK_THEMES[this.draft.themeId] || DRAW_TRACK_THEMES.countryside;
+    const isDune = theme.id === 'dune';
+    this.root.querySelector('[data-role="jump-modifier-label"]').textContent = isDune
+      ? 'Seed dune jumps'
+      : 'Auto-fill jumps';
+    this.root.querySelector('[data-role="lighting-modifier-label"]').textContent = isDune
+      ? 'Golden sunset'
+      : 'Night race';
+    this.root.querySelector('[data-role="weather-modifier-label"]').textContent = isDune
+      ? 'Sandstorm'
+      : 'Wet weather';
     const worldPreview = this.root.querySelector('[data-role="world-preview"]');
     if (worldPreview) {
       worldPreview.dataset.mapKind = theme.mapKind || 'hills';

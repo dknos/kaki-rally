@@ -137,6 +137,7 @@ export class DeveloperOverlay {
     ].join('\n');
 
     const monster = racing.monster?.vehicleContact;
+    const dunes = racing.raceMode === 'dunes' ? racing : null;
     const wheelLines = monster
       ? Object.entries(monster.wheels || {}).map(([id, wheel]) => (
           `${id.padEnd(11)} ${wheel.grounded ? 'LOAD' : 'AIR '} `
@@ -146,17 +147,17 @@ export class DeveloperOverlay {
     this.vehicle.textContent = [
       `PROFILE     ${telemetry.profile || racing.vehicleId || '—'}`,
       `SPEED       ${finite(racing.speed).toFixed(2)}`,
-      `FORWARD     ${signed(telemetry.forwardSpeed ?? racing.vx)}`,
+      `FORWARD     ${signed(telemetry.forwardSpeed ?? telemetry.forwardVelocity ?? racing.vx)}`,
       `LATERAL     ${signed(telemetry.lateralSpeed)}`,
       `ACCEL       ${signed(telemetry.acceleration)}`,
       `STEER       ${signed(telemetry.steeringInput)} > ${signed(telemetry.appliedSteering)}`,
       `YAW RATE    ${signed(telemetry.yawRate)}`,
       `SLIP ANGLE  ${signed(telemetry.slipAngle, 3)}`,
-      `SURFACE     ${telemetry.surface || '—'}`,
+      `SURFACE     ${telemetry.surface || (dunes ? racing.telemetry?.groundedWheels ? 'dune sand' : 'airborne' : '—')}`,
       `GRIP / DRAG ${finite(telemetry.surfaceGrip, 1).toFixed(2)} / ${finite(telemetry.surfaceDrag).toFixed(2)}`,
       `DAMAGE      ${Math.max(0, 100 - finite(racing.integrity, 100)).toFixed(0)}%`,
       `BOOST       ${finite(racing.boostHeat ?? racing.turboHeat).toFixed(2)}`,
-      `GROUNDED    ${boolLabel(telemetry.grounded ?? racing.grounded)}`,
+      `GROUNDED    ${boolLabel(telemetry.grounded ?? (dunes ? telemetry.groundedWheels > 0 : racing.grounded))}`,
       `JUMP        ${telemetry.jumpState || (racing.grounded ? 'grounded' : 'airborne')}`,
       `DRIFT       ${telemetry.driftState || (racing.drifting ? 'drifting' : 'grip')}`,
       `COLLISION   ${finite(telemetry.collisionIntensity).toFixed(2)}`,
@@ -166,6 +167,15 @@ export class DeveloperOverlay {
         `ROLL        ${signed(monster.roll)}`,
         `SNAG        ${boolLabel(monster.obstacleContact)}  ASSIST ${finite(monster.antiBackflipTorque).toFixed(2)}`,
         ...wheelLines,
+      ] : []),
+      ...(dunes ? [
+        `CONTACTS    ${finite(telemetry.groundedWheels).toFixed(0)} / 4`,
+        `LOAD        ${finite(telemetry.normalLoad).toFixed(2)}`,
+        `WHEEL SLIP  ${(finite(telemetry.wheelSlip) * 100).toFixed(1)}%`,
+        `SINKAGE     ${(finite(telemetry.sinkage) * 100).toFixed(1)} cm`,
+        `RUT / BERM  ${(finite(racing.deformation?.maximumDepression) * 100).toFixed(1)} / ${(finite(racing.deformation?.maximumBerm) * 100).toFixed(1)} cm`,
+        `BRUSHES     ${finite(racing.deformation?.appliedBrushes).toFixed(0)}`,
+        `HEIGHT Δ    ${finite(racing.terrain?.rendererPhysicsDelta).toExponential(1)}`,
       ] : []),
     ].join('\n');
     this.drawGraph(frames, median, p95);

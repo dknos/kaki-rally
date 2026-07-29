@@ -97,6 +97,7 @@ function validateSamples(value) {
 function createUniforms() {
   return {
     chromatic: uniform(0.0008),
+    heatHaze: uniform(0),
     vignette: uniform(0.45),
     time: uniform(0),
     fogTint: uniform(new Color(0x3a4a44)),
@@ -211,6 +212,8 @@ export function createPostPipeline({
       sceneColorNode,
       bloomTextureNode: selectiveBloom?.bloomTextureNode || null,
       amount: uniforms.chromatic,
+      heatHaze: uniforms.heatHaze,
+      time: uniforms.time,
       reduceMotion: uniforms.uReduceMotion,
       enabled: uniforms.chromaticEnabled,
     })

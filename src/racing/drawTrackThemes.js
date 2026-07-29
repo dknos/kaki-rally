@@ -58,6 +58,14 @@ export const DRAW_TRACK_THEMES = Object.freeze({
     venue: 'CROWN CHAOS COLISEUM', skyName: 'SHOWTIME FLOODLIGHTS', mapKind: 'stadium', skyTop: '#26334a', skyHorizon: '#e27a54', mapGround: '#704228', mapAccent: '#ffe066',
     detail: 'Chunky dirt, tire stacks, launch paint and demolition-show energy.',
   }),
+  // Keep Dune last: KDT share codes store the theme by numeric index, so
+  // appending preserves every existing KDT1/KDT2/KDT3 theme mapping.
+  dune: Object.freeze({
+    id: 'dune', name: 'Kaki Dune Run', short: 'DUNE RUN', courseId: 'cinder',
+    icon: '≋', road: 0x9b6844, shoulder: 0xc98b50, ground: 0xd9a15e, curb: 0xffe08a, accent: 0x69e8d9,
+    venue: 'WHISKERWIND EXPEDITION', skyName: 'GOLDEN DUNE SKY', mapKind: 'dunes', skyTop: '#659fc0', skyHorizon: '#f3ba72', mapGround: '#c9884c', mapAccent: '#6ee7d8',
+    detail: 'Condition a route through deformable dunes, then race it with a full-size monster truck.',
+  }),
 });
 
 export const DRAW_TRACK_THEME_ORDER = Object.freeze(Object.keys(DRAW_TRACK_THEMES));
@@ -285,6 +293,16 @@ export function compileDrawTrackCourse(draft, validation) {
       personality: validation.stats.personality,
       overtakingPotential: validation.stats.overtakingPotential,
     },
+    drawDiscipline: theme.id === 'dune' ? 'dunes' : 'circuit',
+    duneConfig: theme.id === 'dune' ? {
+      schema: 1,
+      seed,
+      sandVariant: ['golden', 'rose', 'pale'][seed % 3],
+      lighting: modifiers.nightRace ? 'sunset' : 'afternoon',
+      weather: modifiers.rain ? 'sandstorm' : 'clear',
+      routeConditioning: 0.38,
+      monsterTruck: true,
+    } : null,
     drawDraft: {
       ...draft,
       id,

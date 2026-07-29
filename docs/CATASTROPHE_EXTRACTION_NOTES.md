@@ -4,7 +4,7 @@ Status: frozen experiment, excluded from the Kaki Rally production menu and
 default acceptance suites.
 
 These notes preserve an extraction path without treating Catastrophe as one of
-Kaki Rally's six production pillars. Do not delete the files until a standalone
+Kaki Rally's seven production pillars. Do not delete the files until a standalone
 repository decision has been made.
 
 ## Entry modules
@@ -110,4 +110,3 @@ that the production modes should import Catastrophe.
    test in the new repository.
 8. Only after the standalone build passes should Kaki Rally remove the frozen
    source/assets and legacy save-key compatibility.
-

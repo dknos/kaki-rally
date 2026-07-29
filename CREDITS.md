@@ -51,6 +51,32 @@ raster is copied into the runtime GLB or thumbnail atlas; final geometry,
 materials, LOD-ready modules, origins, collisions, theme variants, and
 thumbnails were authored through the Blender pipeline and inspected in-engine.
 
+### Kaki Dune Run
+
+The Dune environment kit is original project-bound artwork generated through
+`tools/blender/build-kaki-dune-environment-kit.py`. The reproducible
+`kaki-dune-environment-kit-v1.blend`, runtime GLB, and Blender preview are
+retained in the repository.
+
+Two raster assets were generated with the built-in OpenAI image-generation
+workflow after the preferred Vertex-backed route was unavailable:
+
+- the key-art prompt requested a wide, text-free neo-chibi Kaki motorsport
+  scene with a cat-driven monster truck cresting warm sculpted dunes, a strong
+  low three-quarter silhouette, coral/amber sand, turquoise rally accents,
+  readable dust, and clear dark space for menu typography;
+- the material prompt requested a square, seamless, evenly lit stylized desert
+  sand surface with fine wind ripples, granular color breakup, no objects,
+  horizon, text, shadows, or baked directional lighting.
+
+The source tool outputs were
+`/home/nemoclaw/.codex/generated_images/019facbc-fb32-7f33-a5e0-2538302555c8/call_aMUxLSTnJDBMf0QJjXsaCare.png`
+and
+`/home/nemoclaw/.codex/generated_images/019facbc-fb32-7f33-a5e0-2538302555c8/call_a9t2ynkKLOD76JHxOdPgYooZ.png`.
+The optimized runtime derivatives are
+`assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp` and
+`assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp`.
+
 ### Definitive browser rebuild
 
 The 2026-07-29 handling, terrain, HUD, Workshop elevation/banking, Trials
@@ -88,6 +114,14 @@ Three.js r185 documentation and examples, including
 implementation patterns only; no example code or assets were copied into the
 project. The existing renderer abstraction, asset leases, DRACO/Meshopt loader,
 instancing, and TSL post-processing remain the owners.
+
+Kaki Dune Run’s nested terrain, deformation-channel, displaced-berm, and
+fixed-lattice wake decisions were also researched against
+[Noniv’s Snowflow demo](https://github.com/Noniv/snowflow_demo) at commit
+`545039733b74eec742862f161990142c7ca7c7ec`. Snowflow is copyright © 2026
+Maksymilian Dendura and MIT licensed. No Snowflow source, WGSL, dependency, or
+asset ships in Kaki Rally; the full research boundary and preserved notice are
+in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 Thanks to the authors and communities whose work makes an open browser game
 like this possible. No ownership of third-party work is claimed.

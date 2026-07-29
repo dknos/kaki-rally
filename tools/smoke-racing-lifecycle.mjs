@@ -14,6 +14,9 @@ const sources = {
   rally: await source('src/racing/index.js'),
   rallyEnvironment: await source('src/racing/racingEnvironment.js'),
   monsterArena: await source('src/racing/monsterArena.js'),
+  dunes: await source('src/racing/dunes/duneMode.js'),
+  duneEnvironment: await source('src/racing/dunes/duneEnvironment.js'),
+  duneClipmap: await source('src/racing/dunes/duneClipmap.js'),
   trials: await source('src/racing/trialsMode.js'),
   trialsEnvironment: await source('src/racing/trialsEnvironment.js'),
 };
@@ -102,6 +105,32 @@ check('isometric exit disposes every owned WebGL resource class', () => {
     );
   }
   matches(sources.rallyEnvironment, /external\?\.delete\(resources\[i\]\)/, 'environment disposal does not remove disposed resources from caller ownership sets');
+});
+
+check('Dune Run owns one complete enter, restart, input, and disposal lifecycle', () => {
+  matches(sources.dunes, /session\.assetLease\s*=\s*createRallyAssetLease\s*\(/, 'Dune enter does not acquire an asset lease');
+  matches(sources.dunes, /await Promise\.all\(\[[\s\S]*generateDuneHeightfield[\s\S]*session\.assetLease\.ready/, 'Dune enter does not finish terrain and assets behind one transition');
+  matches(sources.dunes, /globalThis\.addEventListener\?\.\(['"]keydown['"],\s*session\.keyHandler\)/, 'Dune recovery key listener is not installed');
+  matches(sources.dunes, /globalThis\.removeEventListener\?\.\(['"]keydown['"],\s*session\.keyHandler\)/, 'Dune recovery key listener is not removed');
+  matches(sources.dunes, /session\.assetLease\?\.release\(\)/, 'Dune exit does not release its asset lease');
+  matches(sources.dunes, /session\.clipmap\?\.dispose\(\)/, 'Dune exit does not dispose its terrain clipmap');
+  matches(sources.dunes, /disposeDuneEnvironment\(session\.duneEnvironment\)/, 'Dune exit does not dispose its environment');
+  matches(sources.dunes, /disposeDuneRoosterTail\(session\.roosterTail\)/, 'Dune exit does not dispose its swept wake');
+  matches(sources.dunes, /disposeDuneDust\(session\.dust\)/, 'Dune exit does not dispose its dust pool');
+  matches(sources.dunes, /ownerScene\.background\s*=\s*session\.savedBackground/, 'Dune exit does not restore the prior background');
+  matches(sources.dunes, /ownerScene\.fog\s*=\s*session\.savedFog/, 'Dune exit does not restore the prior fog');
+  matches(sources.dunes, /state\.envGroup\.visible\s*=\s*session\.savedEnvVisible/, 'Dune exit does not restore the base environment');
+  matches(sources.dunes, /customCourse:\s*options\.customCourse\s*\|\|\s*current\?\.customCourse\s*\|\|\s*null/, 'Dune restart loses its custom Workshop course');
+  matches(sources.dunes, /if\s*\(current\)\s*exitDuneMode\(ownerScene,\s*current\);[\s\S]*return enterDuneMode\(ownerScene,\s*next\);/, 'Dune restart does not exit before re-entering');
+  for (const [type, singular] of [['textures', 'texture'], ['materials', 'material'], ['geometries', 'geometry']]) {
+    matches(
+      sources.dunes,
+      new RegExp(`for \\(const ${singular} of session\\.owned\\?\\.${type} \\|\\| \\[\\]\\) \\{ try \\{ ${singular}\\.dispose\\(\\);`),
+      `Dune exit does not dispose owned ${type}`,
+    );
+  }
+  matches(sources.duneEnvironment, /if\s*\(!environment\s*\|\|\s*environment\.disposed\)\s*return;[\s\S]*environment\.disposed\s*=\s*true/, 'Dune environment disposal is not idempotent');
+  matches(sources.duneClipmap, /if\s*\(clipmap\.disposed\)\s*return;[\s\S]*clipmap\.disposed\s*=\s*true/, 'Dune clipmap disposal is not idempotent');
 });
 
 check('Trials acquires the shared lease and integrates its authored environment', () => {

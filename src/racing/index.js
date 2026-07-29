@@ -100,6 +100,15 @@ import {
   getTrialsCameraConfig,
   getTrialsSnapshot,
 } from './trialsMode.js';
+import {
+  enterDuneMode,
+  tickDuneMode,
+  restartDuneMode,
+  exitDuneMode,
+  getDuneCameraTarget,
+  getDuneCameraConfig,
+  getDuneSnapshot,
+} from './dunes/duneMode.js';
 import { createRallyAssetLease, getRallyAssetCacheSnapshot } from './racingAssets.js';
 import { attachCyberTruckModel, attachMightyMeowsterModel, attachTipsyTumblerModel, buildRallyCar, updateVehicleAnimation } from './racingVehicles.js';
 import {
@@ -2533,6 +2542,14 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
       vehicle: options.trialsVehicle || options.vehicle || 'monster',
     });
   }
+  if (options.mode === 'dunes') {
+    if (state.racing && state.racing.raceMode !== 'dunes') exitRacing(scene);
+    return enterDuneMode(scene, {
+      ...options,
+      duneEvent: options.duneEvent || options.eventId || courseId || 'whiskerwind',
+      duneVehicle: options.duneVehicle || options.monsterVehicle || 'meowster',
+    });
+  }
   if (!scene || !state.hero?.mesh) throw new Error('Kaki Rally needs a scene and loaded hero');
   if (state.racing) exitRacing(scene);
   const raceMode = RACE_MODES[options.mode] ? options.mode : 'circuit';
@@ -2922,6 +2939,7 @@ export function tickRacing(dt, elapsedDt = dt) {
   if (!session || !(dt > 0)) return;
   if (session.raceMode === 'crash') return _crashModeApi?.tickCrashMode(dt);
   if (session.raceMode === 'trials') return tickTrialsMode(dt);
+  if (session.raceMode === 'dunes') return tickDuneMode(dt, elapsedDt);
   const wallDt = Math.min(1, Math.max(0, Number(elapsedDt) || dt));
   session.frameTimeEma += (wallDt - session.frameTimeEma) * 0.06;
   dt = Math.min(dt, 1 / 30);
@@ -3307,6 +3325,7 @@ export function getRacingCameraTarget() {
     return _cameraTarget;
   }
   if (state.racing?.raceMode === 'trials') return getTrialsCameraTarget();
+  if (state.racing?.raceMode === 'dunes') return getDuneCameraTarget();
   return _cameraTarget;
 }
 
@@ -3347,6 +3366,7 @@ export function getRacingCameraConfig() {
     };
   }
   if (session?.raceMode === 'trials') return getTrialsCameraConfig();
+  if (session?.raceMode === 'dunes') return getDuneCameraConfig();
   const monster = session?.raceMode === 'monster';
   const base = monster ? MONSTER_CAMERA : STANDARD_CAMERA;
   const player = session?.cars?.[0]?.physics;
@@ -3375,6 +3395,7 @@ export function getRacingCameraConfig() {
 export function getRacingSnapshot() {
   if (state.racing?.raceMode === 'crash') return _crashModeApi?.getCrashSnapshot() || null;
   if (state.racing?.raceMode === 'trials') return getTrialsSnapshot();
+  if (state.racing?.raceMode === 'dunes') return getDuneSnapshot();
   return _snapshot(state.racing);
 }
 
@@ -3696,6 +3717,14 @@ export function restartRacing(scene, courseId = null) {
       playerAvatarId: state.racing.playerAvatarId,
     });
   }
+  if (state.racing?.raceMode === 'dunes') {
+    return restartDuneMode(scene, {
+      duneEvent: courseId || state.racing.event?.id || 'whiskerwind',
+      duneVehicle: state.racing.vehicleId || 'meowster',
+      playerAvatarId: state.racing.playerAvatarId,
+      cameraHost: state.racing.cameraHost,
+    });
+  }
   const id = courseId || state.racing?.course?.id || 'forest';
   const current = state.racing;
   const options = current ? {
@@ -3720,6 +3749,7 @@ export function exitRacing(scene, explicitSession = null) {
   if (!session) return;
   if (session.raceMode === 'crash') return _crashModeApi?.exitCrashMode(scene, session);
   if (session.raceMode === 'trials') return exitTrialsMode(scene, session);
+  if (session.raceMode === 'dunes') return exitDuneMode(scene, session);
   _finishMonsterRecords(session);
   session.disposed = true;
   if (session.flyover?.keyHandler) window.removeEventListener('keydown', session.flyover.keyHandler);
