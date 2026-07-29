@@ -31,6 +31,7 @@ const MAIN_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'app', 'rallyApp.
 const RACING_ENVIRONMENT_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'racing', 'racingEnvironment.js'), 'utf8');
 const MONSTER_ARENA_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'racing', 'monsterArena.js'), 'utf8');
 const BACKDROP_MATERIAL_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'rendering', 'materials', 'racingBackdropMaterials.js'), 'utf8');
+const DUNE_MODE_SOURCE = await readFile(path.join(REPO_ROOT, 'src', 'racing', 'dunes', 'duneMode.js'), 'utf8');
 
 const failures = [];
 let assertions = 0;
@@ -223,6 +224,19 @@ check('wheel hierarchy preserves semantic order and steering metadata', () => {
   ]) {
     expect(VEHICLE_SOURCE.includes(semantic), `wheel hierarchy is missing semantic metadata: ${semantic}`);
   }
+});
+
+check('wheel steering and spin compose without Euler axle wobble', () => {
+  const start = VEHICLE_SOURCE.indexOf('export function updateVehicleWheelPresentation');
+  const end = VEHICLE_SOURCE.indexOf('/**', start + 20);
+  expect(start >= 0, 'shared wheel presentation helper is missing');
+  const wheelPose = VEHICLE_SOURCE.slice(start, end > start ? end : undefined);
+  expect(wheelPose.includes('.multiply(WHEEL_STEER_QUATERNION)'), 'wheel pose does not compose steering yaw');
+  expect(wheelPose.includes('.multiply(WHEEL_SPIN_QUATERNION)'), 'wheel pose does not compose rolling spin after steering');
+  expect(wheelPose.includes('presentationBaseQuaternion'), 'wheel pose does not preserve its authored base orientation');
+  expect(!/wheel\.rotation\.[xy]\s*[+]?=/.test(DUNE_MODE_SOURCE), 'Dune Run still mixes wheel steering and spin through Euler angles');
+  expect(DUNE_MODE_SOURCE.includes('updateVehicleWheelPresentation(wheel'), 'Dune Run does not use the stable shared wheel pose');
+  expect(!/wheel\.rotation\.[xy]\s*[+]?=/.test(RACING_INDEX_SOURCE), 'shared racing still mixes wheel steering and spin through Euler angles');
 });
 
 check('builders return the animation and damage API expected by gameplay', () => {

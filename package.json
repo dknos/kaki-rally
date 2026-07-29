@@ -1,6 +1,6 @@
 {
   "name": "kaki-rally",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A standalone Kaki racing game with rally, drift, stock, deformable dunes, track drawing, Monster Smash, and Trials.",
   "type": "module",
   "private": false,

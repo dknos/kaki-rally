@@ -27,6 +27,7 @@ import {
   attachTipsyTumblerModel,
   buildGhostVehicle,
   updateVehicleAnimation,
+  updateVehicleWheelPresentation,
 } from '../racingVehicles.js';
 import {
   buildCyberTruck,
@@ -409,9 +410,13 @@ function updatePlayerVisual(session, dt) {
       const targetY = base.y + (contact?.visualOffset || 0);
       wheel.position.y += (targetY - wheel.position.y) * Math.min(1, dt * 20);
     }
-    wheel.rotation.x += signedSpeed / Math.max(0.2, visual.wheelRadius || 1.05) * dt;
     const targetSteer = wheel.userData.steerable ? (contact?.steerAngle || 0) : 0;
-    wheel.rotation.y += (targetSteer - wheel.rotation.y) * Math.min(1, dt * 16);
+    updateVehicleWheelPresentation(wheel, {
+      spinDelta: signedSpeed / Math.max(0.2, visual.wheelRadius || 1.05) * dt,
+      targetSteer,
+      dt,
+      steeringResponse: 16,
+    });
   }
   for (const spring of visual.suspension || []) {
     const contactId = `${spring.userData.side}${spring.userData.axle === 'front' ? 'Front' : 'Rear'}`;
@@ -671,6 +676,29 @@ function installQaHooks(session) {
     }
     return true;
   };
+  const launchJump = (verticalSpeed = 38) => {
+    // Preserve the current camera and horizontal driving state. This produces
+    // a continuous ballistic launch instead of the old QA teleport, which
+    // accidentally reset ISO and hid the real takeoff handoff.
+    session.phase = 'racing';
+    session.countdown = 0;
+    session.kart.groundHeight = session.surfaceField.heightAt(session.kart.x, session.kart.z);
+    session.kart.y = Math.max(session.kart.y, session.kart.groundHeight + 1.35);
+    session.kart.vy = clamp(Number(verticalSpeed) || 38, 12, 44);
+    session.kart.grounded = false;
+    session.kart.groundedWheelCount = 0;
+    session.kart.airTime = Math.max(0.01, session.kart.airTime || 0);
+    session.qaControls = {
+      throttle: 0.45,
+      steer: 0,
+      drift: false,
+      handbrake: false,
+      boost: false,
+      hop: false,
+    };
+    session.qaControlsTime = 3.5;
+    return true;
+  };
   window.__kkRacing = {
     _duneSession: session,
     snapshot: () => getDuneSnapshot(),
@@ -684,6 +712,7 @@ function installQaHooks(session) {
     cycleCamera: (direction = 1) => session.cameraManager?.cycleCamera(direction) || false,
     warpDuneProgress: warp,
     showDuneState: showState,
+    launchDuneJump: launchJump,
     recover: () => recover(session),
     finish: () => finishRun(session),
   };

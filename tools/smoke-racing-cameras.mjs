@@ -142,9 +142,11 @@ assert.match(inputSource, /passive:\s*false/, 'camera wheel zoom must be able to
 assert.doesNotMatch(inputSource, /justPressed\?\.rs/, 'right-stick click still changes the on-screen-only camera');
 assert.match(managerSource, /MIN_ZOOM\s*=\s*0\.72/, 'camera zoom-in bound is missing');
 assert.match(managerSource, /MAX_ZOOM\s*=\s*1\.42/, 'camera zoom-out bound is missing');
-assert.match(isoSource, /groundHeight\s*\+\s*base\.height/, 'isometric camera height is not terrain-relative');
-assert.match(isoSource, /airborneMeters\s*\*\s*\(vehicle\.monster/, 'isometric camera does not carry large-jump altitude');
-assert.match(managerSource, /airborneProjectionChange/, 'airborne projection switches can still trap the camera');
+assert.match(isoSource, /const height = vehicle\.position\.y[\s\S]*\+\s*base\.height/, 'isometric camera height does not carry full vehicle altitude');
+assert.match(isoSource, /this\.focus\.lerp\(this\.desiredFocus,\s*alpha\)/, 'isometric position and focus are not damped as one frame');
+assert.match(isoSource, /this\.focus\.copy\(this\.desiredFocus\)/, 'isometric snap does not initialize its focus');
+assert.match(managerSource, /const projectionChange = previous === RacingCameraMode\.ISOMETRIC[\s\S]*next === RacingCameraMode\.ISOMETRIC/, 'orthographic projection switches can still blend a stale ISO frame');
+assert.match(managerSource, /\|\| projectionChange;/, 'projection boundary does not force an immediate camera handoff');
 assert.match(managerSource, /trackBinding\.mode === 'monster' \? null/, 'Monster Smash still binds the full arena to chase collision');
 assert.match(collisionSource, /object\.isInstancedMesh && object\.userData\?\.cameraBlocker !== true/, 'chase collision still raycasts bulk instanced dressing');
 assert.match(collisionSource, /intersectObjects\(this\._boomCandidates, false, this\._hits\)/, 'chase boom allocates a hit array for every ray');

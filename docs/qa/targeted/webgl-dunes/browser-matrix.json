@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
-  "generatedAt": "2026-07-29T09:03:32.364Z",
+  "generatedAt": "2026-07-29T15:41:29.399Z",
   "chromium": "/home/nemoclaw/bin/chromium",
   "requestedBackend": "webgl",
   "webgl": {
@@ -11,9 +11,9 @@
       "badResponses": [],
       "failedRequests": [],
       "expectedAborts": [
-        "net::ERR_ABORTED http://127.0.0.1:42367/assets/racing/monster-arena/models/tipsy-tumbler-monster-truck-v2.glb",
-        "net::ERR_ABORTED http://127.0.0.1:42367/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js"
+        "net::ERR_ABORTED http://127.0.0.1:37781/assets/racing/monster-arena/models/tipsy-tumbler-monster-truck-v2.glb"
       ],
+      "expectedAudioDeviceErrors": [],
       "frozenModeRequests": []
     },
     "modes": {
@@ -42,22 +42,22 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 5.9451138595466855,
-            "cpuFrameTimeMs": 9.35087720134802,
-            "cpuFrameTimeP99Ms": 342.10000002384186,
-            "renderSubmissionTimeMs": 9.040350888904772,
-            "renderSubmissionTimeP99Ms": 339,
+            "fps": 6.789514443631251,
+            "cpuFrameTimeMs": 8.603076923122773,
+            "cpuFrameTimeP99Ms": 358.90000000037253,
+            "renderSubmissionTimeMs": 8.31692307696033,
+            "renderSubmissionTimeP99Ms": 355.90000000037253,
             "drawCalls": 496,
-            "renderCalls": 802,
+            "renderCalls": 914,
             "frameRenderCalls": 15,
-            "triangles": 246993,
+            "triangles": 252529,
             "points": 0,
             "lines": 0,
             "gpuFrameTimeMs": null,
             "textures": 27,
             "renderTargets": 13,
             "geometries": 121,
-            "gpuMemoryBytes": 159184792,
+            "gpuMemoryBytes": 159220290,
             "programs": 51,
             "compilationEventCount": 0,
             "recentCompilationEvents": [],
@@ -91,7 +91,7 @@
             },
             "speed": 0,
             "x": -155,
-            "y": -0.5723359791700514,
+            "y": -0.41773169863322535,
             "z": -78,
             "grounded": true,
             "telemetry": {
@@ -136,7 +136,7 @@
                   -8.878320693969727,
                   13.8679780960083
                 ],
-                "checksum": "ce661010"
+                "checksum": "8bb06adc"
               },
               "clipmap": {
                 "quality": "high",
@@ -146,6 +146,8 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
                 "snappedOrigins": [
                   [
                     -155,
@@ -238,14 +240,18 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
                 "activeCurtains": 0,
                 "emittedSamples": 0,
-                "vertexCapacity": 192
+                "vertexCapacity": 480,
+                "peakHeight": 0
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
+                "capacity": 300,
                 "active": 0,
                 "spawned": 0,
                 "pooled": true
@@ -368,17 +374,17 @@
               "fps": 38,
               "physicsMs": 0,
               "drawCalls": 496,
-              "triangles": 246993
+              "triangles": 252529
             }
           },
           "sceneObjects": 1486,
           "sceneRenderables": {
             "visible": 1269,
             "instanced": 1,
-            "instances": 196
+            "instances": 300
           },
-          "estimatedGpuMemoryBytes": 84085968,
-          "domNodes": 220,
+          "estimatedGpuMemoryBytes": 84098912,
+          "domNodes": 222,
           "modeOwnedDomNodes": 54,
           "hudRoots": 1,
           "sessionRoots": 1,
@@ -445,9 +451,9 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 321.5,
+              "at": 302.69999999925494,
               "mode": "menu",
-              "domNodes": 162,
+              "domNodes": 164,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -513,9 +519,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 8239.900000095367,
+              "at": 9627.399999999441,
               "mode": "dunes",
-              "domNodes": 227,
+              "domNodes": 229,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -531,22 +537,22 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 7.262261791042365,
-                "cpuFrameTimeMs": 9.26181819005446,
-                "cpuFrameTimeP99Ms": 342.10000002384186,
-                "renderSubmissionTimeMs": 8.952727285298435,
-                "renderSubmissionTimeP99Ms": 339,
+                "fps": 6.81560015145778,
+                "cpuFrameTimeMs": 8.460937500043656,
+                "cpuFrameTimeP99Ms": 358.90000000037253,
+                "renderSubmissionTimeMs": 8.175000000032014,
+                "renderSubmissionTimeP99Ms": 355.90000000037253,
                 "drawCalls": 497,
-                "renderCalls": 772,
+                "renderCalls": 899,
                 "frameRenderCalls": 16,
-                "triangles": 246994,
+                "triangles": 252530,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 27,
                 "renderTargets": 13,
                 "geometries": 121,
-                "gpuMemoryBytes": 159184792,
+                "gpuMemoryBytes": 159220290,
                 "programs": 51,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -580,20 +586,66 @@
               }
             }
           ],
-          "frameCount": 57,
+          "frameCount": 65,
           "stateDiagnostics": {
-            "bootedAt": 1785315812691,
+            "bootedAt": 1785339689748,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
             "modeTransitions": 1,
             "lastError": ""
           }
         },
-        "keyboard": {
-          "before": {
+        "resultRetry": {
+          "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
+          "appMode": "racing",
+          "activeMode": "dunes",
+          "activePhase": "countdown",
+          "paused": false,
+          "backend": "webgl",
+          "renderer": {
+            "backend": "webgl",
+            "deviceDescription": "WebGL 2",
+            "threeRevision": "185",
+            "initialized": true,
+            "resolution": {
+              "width": 1280,
+              "height": 720,
+              "cssWidth": 1280,
+              "cssHeight": 720
+            },
+            "dpr": 1,
+            "fps": 2.547457001048713,
+            "cpuFrameTimeMs": 9.34583333330229,
+            "cpuFrameTimeP99Ms": 20.700000000186265,
+            "renderSubmissionTimeMs": 8.3875,
+            "renderSubmissionTimeP99Ms": 18.899999999441206,
+            "drawCalls": 496,
+            "renderCalls": 2902,
+            "frameRenderCalls": 15,
+            "triangles": 252529,
+            "points": 0,
+            "lines": 0,
+            "gpuFrameTimeMs": null,
+            "textures": 27,
+            "renderTargets": 13,
+            "geometries": 121,
+            "gpuMemoryBytes": 159892803,
+            "programs": 48,
+            "compilationEventCount": 0,
+            "recentCompilationEvents": [],
+            "deviceLossCount": 0,
+            "rendererState": "ready",
+            "requestedBackend": "webgl",
+            "quality": "high",
+            "dynamicResolutionScale": 1,
+            "activeMode": "dunes",
+            "sessionPhase": "countdown",
+            "transitionCount": 2
+          },
+          "racing": {
             "mode": "racing",
             "raceMode": "dunes",
-            "phase": "racing",
+            "phase": "countdown",
             "eventId": "whiskerwind",
             "event": {
               "id": "whiskerwind",
@@ -611,7 +663,7 @@
             },
             "speed": 0,
             "x": -155,
-            "y": -0.5538244838273138,
+            "y": -0.41773169863322535,
             "z": -78,
             "grounded": true,
             "telemetry": {
@@ -621,18 +673,18 @@
               "requestedDriveForce": 0,
               "deliveredWheelForce": 0,
               "normalLoad": 0,
-              "chassisPitchVelocity": 1.1106321270816442,
-              "chassisRoll": 0.02269404442029152,
+              "chassisPitchVelocity": 0,
+              "chassisRoll": 0,
               "steeringInput": 0,
               "wheelAngle": 0,
               "groundedWheels": 4,
               "sandResistance": 0,
               "brushStrength": 0,
-              "sinkage": 0.008,
+              "sinkage": 0,
               "wheelSlip": 0
             },
             "race": {
-              "elapsed": 0.03333333333333333,
+              "elapsed": 0,
               "progress": 0,
               "lap": 0,
               "targetLaps": 2,
@@ -656,7 +708,7 @@
                   -8.878320693969727,
                   13.8679780960083
                 ],
-                "checksum": "ce661010"
+                "checksum": "8bb06adc"
               },
               "clipmap": {
                 "quality": "high",
@@ -666,6 +718,8 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
                 "snappedOrigins": [
                   [
                     -155,
@@ -758,14 +812,936 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
                 "activeCurtains": 0,
                 "emittedSamples": 0,
-                "vertexCapacity": 192
+                "vertexCapacity": 480,
+                "peakHeight": 0
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
+                "capacity": 300,
+                "active": 0,
+                "spawned": 0,
+                "pooled": true
+              }
+            },
+            "records": {
+              "key": "whiskerwind:meowster",
+              "previous": {
+                "eventId": "whiskerwind",
+                "vehicleId": "meowster",
+                "time": 3.533,
+                "score": 0,
+                "medal": "S",
+                "ghost": [
+                  {
+                    "t": 0.108,
+                    "x": -154.989,
+                    "y": -0.391,
+                    "z": -78.015,
+                    "yaw": 2.5073,
+                    "pitch": 0.1011,
+                    "roll": 0.0098
+                  },
+                  {
+                    "t": 0.208,
+                    "x": -154.889,
+                    "y": -0.402,
+                    "z": -78.146,
+                    "yaw": 2.4806,
+                    "pitch": 0.0177,
+                    "roll": 0.0122
+                  },
+                  {
+                    "t": 0.308,
+                    "x": -154.748,
+                    "y": -0.418,
+                    "z": -78.325,
+                    "yaw": 2.4679,
+                    "pitch": 0.0422,
+                    "roll": 0.0125
+                  },
+                  {
+                    "t": 0.408,
+                    "x": -154.573,
+                    "y": -0.443,
+                    "z": -78.543,
+                    "yaw": 2.4642,
+                    "pitch": 0.0324,
+                    "roll": 0.0123
+                  },
+                  {
+                    "t": 0.508,
+                    "x": -154.257,
+                    "y": -0.48,
+                    "z": -78.931,
+                    "yaw": 2.4494,
+                    "pitch": 0.0133,
+                    "roll": 0.0124
+                  },
+                  {
+                    "t": 0.608,
+                    "x": -153.643,
+                    "y": -0.518,
+                    "z": -79.636,
+                    "yaw": 2.408,
+                    "pitch": -0.0234,
+                    "roll": 0.0138
+                  },
+                  {
+                    "t": 0.708,
+                    "x": -152.889,
+                    "y": -0.563,
+                    "z": -80.871,
+                    "yaw": 2.4972,
+                    "pitch": 0.029,
+                    "roll": 0.016
+                  },
+                  {
+                    "t": 0.808,
+                    "x": -152.827,
+                    "y": -0.574,
+                    "z": -80.954,
+                    "yaw": 2.4944,
+                    "pitch": -0.0237,
+                    "roll": 0.0174
+                  },
+                  {
+                    "t": 0.908,
+                    "x": -0.841,
+                    "y": -1.238,
+                    "z": -157.07,
+                    "yaw": 1.5439,
+                    "pitch": -0.0343,
+                    "roll": 0.0231
+                  },
+                  {
+                    "t": 1.008,
+                    "x": 0.029,
+                    "y": -1.226,
+                    "z": -157.054,
+                    "yaw": 1.5603,
+                    "pitch": -0.0557,
+                    "roll": 0.0246
+                  },
+                  {
+                    "t": 1.108,
+                    "x": 1.299,
+                    "y": -1.209,
+                    "z": -157.058,
+                    "yaw": 1.5852,
+                    "pitch": -0.0773,
+                    "roll": 0.0216
+                  },
+                  {
+                    "t": 1.208,
+                    "x": 2.919,
+                    "y": -1.206,
+                    "z": -157.106,
+                    "yaw": 1.6118,
+                    "pitch": -0.0837,
+                    "roll": 0.0136
+                  },
+                  {
+                    "t": 1.308,
+                    "x": 4.854,
+                    "y": -1.197,
+                    "z": -157.213,
+                    "yaw": 1.6378,
+                    "pitch": -0.0743,
+                    "roll": 0.0002
+                  },
+                  {
+                    "t": 1.408,
+                    "x": 7.085,
+                    "y": -1.21,
+                    "z": -157.394,
+                    "yaw": 1.6628,
+                    "pitch": -0.0641,
+                    "roll": -0.0166
+                  },
+                  {
+                    "t": 1.508,
+                    "x": 9.586,
+                    "y": -1.248,
+                    "z": -157.658,
+                    "yaw": 1.6867,
+                    "pitch": -0.0523,
+                    "roll": -0.0333
+                  },
+                  {
+                    "t": 1.608,
+                    "x": 12.348,
+                    "y": -1.302,
+                    "z": -158.015,
+                    "yaw": 1.7095,
+                    "pitch": -0.0505,
+                    "roll": -0.0464
+                  },
+                  {
+                    "t": 1.708,
+                    "x": 15.352,
+                    "y": -1.359,
+                    "z": -158.471,
+                    "yaw": 1.7312,
+                    "pitch": -0.0479,
+                    "roll": -0.0561
+                  },
+                  {
+                    "t": 1.808,
+                    "x": 18.581,
+                    "y": 1.537,
+                    "z": -159.027,
+                    "yaw": 1.7457,
+                    "pitch": -0.0061,
+                    "roll": -0.0576
+                  },
+                  {
+                    "t": 1.908,
+                    "x": 21.877,
+                    "y": 5.172,
+                    "z": -159.614,
+                    "yaw": 1.748,
+                    "pitch": 0.0446,
+                    "roll": -0.0497
+                  },
+                  {
+                    "t": 2.008,
+                    "x": 24.932,
+                    "y": 8.635,
+                    "z": -160.163,
+                    "yaw": 1.7487,
+                    "pitch": -0.0365,
+                    "roll": -0.0338
+                  },
+                  {
+                    "t": 2.108,
+                    "x": 27.931,
+                    "y": 11.926,
+                    "z": -160.702,
+                    "yaw": 1.7489,
+                    "pitch": -0.0498,
+                    "roll": -0.0162
+                  },
+                  {
+                    "t": 2.208,
+                    "x": 30.874,
+                    "y": 15.046,
+                    "z": -161.232,
+                    "yaw": 1.7489,
+                    "pitch": -0.0522,
+                    "roll": -0.0102
+                  },
+                  {
+                    "t": 2.308,
+                    "x": 33.765,
+                    "y": 17.993,
+                    "z": -161.753,
+                    "yaw": 1.7489,
+                    "pitch": -0.0375,
+                    "roll": -0.0206
+                  },
+                  {
+                    "t": 2.408,
+                    "x": 36.603,
+                    "y": 20.768,
+                    "z": -162.264,
+                    "yaw": 1.749,
+                    "pitch": -0.028,
+                    "roll": -0.0376
+                  },
+                  {
+                    "t": 2.508,
+                    "x": 39.388,
+                    "y": 23.371,
+                    "z": -162.765,
+                    "yaw": 1.749,
+                    "pitch": -0.0397,
+                    "roll": -0.045
+                  },
+                  {
+                    "t": 2.608,
+                    "x": 42.122,
+                    "y": 25.802,
+                    "z": -163.258,
+                    "yaw": 1.749,
+                    "pitch": -0.0586,
+                    "roll": -0.0354
+                  },
+                  {
+                    "t": 2.708,
+                    "x": 44.805,
+                    "y": 28.061,
+                    "z": -163.741,
+                    "yaw": 1.749,
+                    "pitch": -0.0516,
+                    "roll": -0.012
+                  },
+                  {
+                    "t": 2.808,
+                    "x": 47.437,
+                    "y": 30.149,
+                    "z": -164.215,
+                    "yaw": 1.749,
+                    "pitch": -0.0718,
+                    "roll": 0.0174
+                  },
+                  {
+                    "t": 2.908,
+                    "x": 50.02,
+                    "y": 32.064,
+                    "z": -164.68,
+                    "yaw": 1.749,
+                    "pitch": -0.0816,
+                    "roll": 0.0457
+                  },
+                  {
+                    "t": 3.008,
+                    "x": 52.529,
+                    "y": 33.807,
+                    "z": -165.132,
+                    "yaw": 1.749,
+                    "pitch": -0.0717,
+                    "roll": 0.0649
+                  },
+                  {
+                    "t": 3.108,
+                    "x": 54.953,
+                    "y": 35.378,
+                    "z": -165.568,
+                    "yaw": 1.749,
+                    "pitch": -0.0576,
+                    "roll": 0.0679
+                  },
+                  {
+                    "t": 3.208,
+                    "x": 57.295,
+                    "y": 36.777,
+                    "z": -165.99,
+                    "yaw": 1.749,
+                    "pitch": -0.0406,
+                    "roll": 0.0578
+                  },
+                  {
+                    "t": 3.308,
+                    "x": 59.558,
+                    "y": 38.004,
+                    "z": -166.397,
+                    "yaw": 1.749,
+                    "pitch": -0.0463,
+                    "roll": 0.0453
+                  },
+                  {
+                    "t": 3.408,
+                    "x": 61.744,
+                    "y": 39.06,
+                    "z": -166.791,
+                    "yaw": 1.749,
+                    "pitch": -0.0534,
+                    "roll": 0.0356
+                  },
+                  {
+                    "t": 3.508,
+                    "x": 63.857,
+                    "y": 39.943,
+                    "z": -167.171,
+                    "yaw": 1.749,
+                    "pitch": -0.0315,
+                    "roll": 0.0258
+                  }
+                ],
+                "setAt": "2026-07-29T15:42:24.393Z"
+              },
+              "result": null,
+              "samples": 0,
+              "ghostVisible": true
+            },
+            "visual": {
+              "authoredBody": true,
+              "wheels": 4,
+              "suspension": 4
+            },
+            "quality": {
+              "terrain": "high",
+              "deformation": "high",
+              "particles": "high",
+              "shadow": "high",
+              "dustEnabled": true,
+              "dustScale": 1.08,
+              "heatHaze": true
+            },
+            "assists": {
+              "difficulty": "standard",
+              "steering": true,
+              "recovery": true,
+              "cameraShake": 0.72
+            },
+            "camera": {
+              "mode": "chase",
+              "available": [
+                "isometric",
+                "chase",
+                "driver_fpv"
+              ],
+              "transitioning": false,
+              "cinematic": false,
+              "cinematicProgress": 1,
+              "cinematicLabel": "",
+              "transitionProgress": 1,
+              "projection": "perspective",
+              "fov": 70,
+              "visionStage": null,
+              "lookAheadMeters": null,
+              "collision": {
+                "blocked": false,
+                "distance": 11.036756769993586,
+                "hit": "",
+                "lifted": false,
+                "lowerFrustumBlocked": false,
+                "foregroundBlocked": false,
+                "foregroundObject": "",
+                "contained": false,
+                "containingObject": "",
+                "candidates": 0,
+                "activeCandidates": 0,
+                "boomCandidates": 0,
+                "foregroundCandidates": 0,
+                "raycasts": 0
+              },
+              "zoom": 1
+            },
+            "assets": {
+              "ids": [
+                "monsterDecal",
+                "mightyMeowsterBody",
+                "duneEnvironmentKit",
+                "duneKeyArt",
+                "duneSandDetail"
+              ],
+              "error": "",
+              "cache": [
+                {
+                  "id": "monsterDecal",
+                  "url": "assets/racing/kitty-monster-truck-decal-oekaki-v2.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "mightyMeowsterBody",
+                  "url": "assets/racing/models/mighty-meowster-body-v1.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "duneEnvironmentKit",
+                  "url": "assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "duneKeyArt",
+                  "url": "assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "duneSandDetail",
+                  "url": "assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                }
+              ]
+            },
+            "performance": {
+              "fps": 60,
+              "physicsMs": 0,
+              "drawCalls": 496,
+              "triangles": 252529
+            }
+          },
+          "sceneObjects": 1486,
+          "sceneRenderables": {
+            "visible": 1297,
+            "instanced": 1,
+            "instances": 300
+          },
+          "estimatedGpuMemoryBytes": 84098912,
+          "domNodes": 222,
+          "modeOwnedDomNodes": 54,
+          "hudRoots": 1,
+          "sessionRoots": 1,
+          "assets": [
+            {
+              "key": "hero",
+              "path": "assets/breakroom/runtime-avatars/tower-castle-plain.glb",
+              "refs": 1,
+              "status": "ready",
+              "error": "",
+              "roots": 1
+            }
+          ],
+          "input": {
+            "initialized": true,
+            "pressedKeys": [],
+            "jumpQueued": false,
+            "lastDevice": "pointer",
+            "moveVec": {
+              "x": 0,
+              "y": 0
+            },
+            "touch": {
+              "left": false,
+              "right": false,
+              "throttle": false,
+              "brake": false
+            },
+            "gamepad": {
+              "connected": true,
+              "name": "Kaki Rally QA Gamepad",
+              "index": 0
+            }
+          },
+          "audio": {
+            "contextState": "running",
+            "menuPlaying": false,
+            "racingActive": false,
+            "activeNodes": 6,
+            "cleanupTimers": 0,
+            "volumes": {
+              "master": 1,
+              "music": 0.55,
+              "sfx": 0.72,
+              "ambient": 0.5
+            },
+            "counters": {
+              "menu": 2,
+              "racing": 1,
+              "impact": 1,
+              "sfx": 7
+            }
+          },
+          "touch": {
+            "mounted": true,
+            "visible": true,
+            "mode": "dunes",
+            "activeControls": []
+          },
+          "poolUsage": {
+            "active": 0,
+            "capacity": 0
+          },
+          "transitions": [
+            {
+              "label": "boot-menu",
+              "at": 302.69999999925494,
+              "mode": "menu",
+              "domNodes": 164,
+              "hudRoots": 0,
+              "sceneObjects": 4,
+              "sessionRoots": 0,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 0,
+                "cpuFrameTimeMs": null,
+                "cpuFrameTimeP99Ms": null,
+                "renderSubmissionTimeMs": null,
+                "renderSubmissionTimeP99Ms": null,
+                "drawCalls": 0,
+                "renderCalls": 0,
+                "frameRenderCalls": 0,
+                "triangles": 0,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 0,
+                "renderTargets": 0,
+                "geometries": 0,
+                "gpuMemoryBytes": 0,
+                "programs": 0,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "menu",
+                "sessionPhase": null,
+                "transitionCount": 0
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": true,
+                "racingActive": false,
+                "activeNodes": 6,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 1,
+                  "racing": 0,
+                  "impact": 0,
+                  "sfx": 0
+                }
+              }
+            },
+            {
+              "label": "enter:dunes",
+              "at": 9627.399999999441,
+              "mode": "dunes",
+              "domNodes": 229,
+              "hudRoots": 1,
+              "sceneObjects": 1486,
+              "sessionRoots": 1,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 6.81560015145778,
+                "cpuFrameTimeMs": 8.460937500043656,
+                "cpuFrameTimeP99Ms": 358.90000000037253,
+                "renderSubmissionTimeMs": 8.175000000032014,
+                "renderSubmissionTimeP99Ms": 355.90000000037253,
+                "drawCalls": 497,
+                "renderCalls": 899,
+                "frameRenderCalls": 16,
+                "triangles": 252530,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 27,
+                "renderTargets": 13,
+                "geometries": 121,
+                "gpuMemoryBytes": 159220290,
+                "programs": 51,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "dunes",
+                "sessionPhase": "countdown",
+                "transitionCount": 1
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": false,
+                "racingActive": true,
+                "activeNodes": 18,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 2,
+                  "racing": 1,
+                  "impact": 0,
+                  "sfx": 2
+                }
+              }
+            },
+            {
+              "label": "restart:dunes",
+              "at": 63797.199999999255,
+              "mode": "dunes",
+              "domNodes": 229,
+              "hudRoots": 1,
+              "sceneObjects": 1486,
+              "sessionRoots": 1,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 2.5343724260280047,
+                "cpuFrameTimeMs": 6.762499999968956,
+                "cpuFrameTimeP99Ms": 19.59999999962747,
+                "renderSubmissionTimeMs": 5.799166666669771,
+                "renderSubmissionTimeP99Ms": 16.5,
+                "drawCalls": 14,
+                "renderCalls": 2887,
+                "frameRenderCalls": 14,
+                "triangles": 36013,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 18,
+                "renderTargets": 12,
+                "geometries": 2,
+                "gpuMemoryBytes": 103403986,
+                "programs": 16,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "dunes",
+                "sessionPhase": "countdown",
+                "transitionCount": 2
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": false,
+                "racingActive": false,
+                "activeNodes": 6,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 2,
+                  "racing": 1,
+                  "impact": 1,
+                  "sfx": 7
+                }
+              }
+            }
+          ],
+          "frameCount": 198,
+          "stateDiagnostics": {
+            "bootedAt": 1785339689748,
+            "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
+            "rendererFallback": null,
+            "modeTransitions": 2,
+            "lastError": ""
+          }
+        },
+        "keyboard": {
+          "before": {
+            "mode": "racing",
+            "raceMode": "dunes",
+            "phase": "racing",
+            "eventId": "whiskerwind",
+            "event": {
+              "id": "whiskerwind",
+              "name": "Whiskerwind Circuit",
+              "routeType": "circuit",
+              "weather": "clear",
+              "timeOfDay": "sunset",
+              "isDrawTrack": false,
+              "customTrackId": null
+            },
+            "vehicleId": "meowster",
+            "vehicle": {
+              "id": "meowster",
+              "name": "Mighty Meowster"
+            },
+            "speed": 0,
+            "x": -155,
+            "y": -0.3897513154006966,
+            "z": -78,
+            "grounded": true,
+            "telemetry": {
+              "speed": 0,
+              "forwardVelocity": 0,
+              "engineRpm": 0,
+              "requestedDriveForce": 0,
+              "deliveredWheelForce": 0,
+              "normalLoad": 0,
+              "chassisPitchVelocity": 1.417497169350174,
+              "chassisRoll": 0.004265919980000647,
+              "steeringInput": 0,
+              "wheelAngle": 0,
+              "groundedWheels": 4,
+              "sandResistance": 0,
+              "brushStrength": 0,
+              "sinkage": 0.008,
+              "wheelSlip": 0
+            },
+            "race": {
+              "elapsed": 0.03333333333333333,
+              "progress": 0,
+              "lap": 0,
+              "targetLaps": 2,
+              "checkpoint": 1,
+              "checkpoints": 19,
+              "score": 0,
+              "recoveries": 0,
+              "finished": false
+            },
+            "terrain": {
+              "heightfield": {
+                "schema": 1,
+                "eventId": "whiskerwind",
+                "seed": 1262570313,
+                "resolution": [
+                  513,
+                  513
+                ],
+                "worldSize": 704,
+                "heightRange": [
+                  -8.878320693969727,
+                  13.8679780960083
+                ],
+                "checksum": "8bb06adc"
+              },
+              "clipmap": {
+                "quality": "high",
+                "levels": 7,
+                "cells": 80,
+                "baseSpacing": 0.31,
+                "triangles": 90240,
+                "staticTopology": true,
+                "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
+                "snappedOrigins": [
+                  [
+                    -155,
+                    -78.12,
+                    0.31
+                  ],
+                  [
+                    -155,
+                    -78.12,
+                    0.62
+                  ],
+                  [
+                    -156.24,
+                    -79.36,
+                    1.24
+                  ],
+                  [
+                    -158.72,
+                    -79.36,
+                    2.48
+                  ],
+                  [
+                    -158.72,
+                    -79.36,
+                    4.96
+                  ],
+                  [
+                    -158.72,
+                    -79.36,
+                    9.92
+                  ],
+                  [
+                    -158.72,
+                    -79.36,
+                    19.84
+                  ]
+                ],
+                "heightTexture": [
+                  513,
+                  513
+                ],
+                "recentDeformation": [
+                  512,
+                  512
+                ],
+                "coarseDeformation": [
+                  128,
+                  128
+                ]
+              },
+              "rendererPhysicsDelta": 0,
+              "authorityShared": true
+            },
+            "deformation": {
+              "quality": "high",
+              "recentResolution": 512,
+              "recentWorldSize": 96,
+              "coarseResolution": 128,
+              "origin": [
+                -203.08414872798434,
+                -126.0587084148728
+              ],
+              "focus": [
+                -155,
+                -78
+              ],
+              "scrollCount": 0,
+              "appliedBrushes": 0,
+              "droppedBrushes": 0,
+              "maximumDepression": 0,
+              "maximumBerm": 0,
+              "physicalBounds": [
+                -0.15,
+                0.08
+              ],
+              "version": 1
+            },
+            "environment": {
+              "eventId": "whiskerwind",
+              "kitAttached": true,
+              "authoredScatter": 58,
+              "flags": 38,
+              "lods": 25,
+              "checkpointGates": 19,
+              "drawPlacements": 0,
+              "weather": "clear",
+              "timeOfDay": "sunset"
+            },
+            "vfx": {
+              "roosterTail": {
+                "quality": "high",
+                "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
+                "segmentsPerWheel": 24,
+                "activeCurtains": 0,
+                "emittedSamples": 0,
+                "vertexCapacity": 480,
+                "peakHeight": 0
+              },
+              "dust": {
+                "quality": "high",
+                "capacity": 300,
                 "active": 0,
                 "spawned": 0,
                 "pooled": true
@@ -886,9 +1862,9 @@
             },
             "performance": {
               "fps": 29,
-              "physicsMs": 3.700000047683716,
+              "physicsMs": 3.7000000001862645,
               "drawCalls": 496,
-              "triangles": 246993
+              "triangles": 252529
             }
           },
           "after": {
@@ -910,24 +1886,24 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
-            "speed": 2.2958863534518836,
-            "x": -154.8535997100893,
-            "y": -0.5611693744207191,
-            "z": -78.19166815589888,
+            "speed": 2.2971351323042724,
+            "x": -154.85355591780953,
+            "y": -0.4059322030647725,
+            "z": -78.19172472749528,
             "grounded": true,
             "telemetry": {
-              "speed": 2.2958863534518836,
-              "forwardVelocity": 2.2958863534518836,
-              "engineRpm": 1218.2286969227914,
+              "speed": 2.2971351323042724,
+              "forwardVelocity": 2.2971351323042724,
+              "engineRpm": 1218.6140420296001,
               "requestedDriveForce": 0,
               "deliveredWheelForce": 0,
-              "normalLoad": 0.007928002391520013,
-              "chassisPitchVelocity": 0.26545134423870254,
-              "chassisRoll": 0.07003308033478058,
+              "normalLoad": 0.007926707119954548,
+              "chassisPitchVelocity": 0.5381610651463543,
+              "chassisRoll": 0.01233976081856027,
               "steeringInput": 0,
               "wheelAngle": -0.09940217250935741,
               "groundedWheels": 4,
-              "sandResistance": 0.1545409697332766,
+              "sandResistance": 0.11485675661521362,
               "brushStrength": 0,
               "sinkage": 0.008,
               "wheelSlip": 0
@@ -957,7 +1933,7 @@
                   -8.878320693969727,
                   13.8679780960083
                 ],
-                "checksum": "ce661010"
+                "checksum": "8bb06adc"
               },
               "clipmap": {
                 "quality": "high",
@@ -967,6 +1943,8 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
                 "snappedOrigins": [
                   [
                     -155,
@@ -1030,8 +2008,8 @@
                 -126.0587084148728
               ],
               "focus": [
-                -154.86541750032225,
-                -78.17662195907943
+                -154.86538015215132,
+                -78.17667035945026
               ],
               "scrollCount": 0,
               "appliedBrushes": 0,
@@ -1059,16 +2037,20 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
                 "activeCurtains": 0,
                 "emittedSamples": 0,
-                "vertexCapacity": 192
+                "vertexCapacity": 480,
+                "peakHeight": 0
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
-                "active": 1,
-                "spawned": 1,
+                "capacity": 300,
+                "active": 3,
+                "spawned": 3,
                 "pooled": true
               }
             },
@@ -1112,12 +2094,12 @@
               "cinematicLabel": "",
               "transitionProgress": 1,
               "projection": "perspective",
-              "fov": 70.64284817896653,
+              "fov": 70.6431978370452,
               "visionStage": null,
               "lookAheadMeters": null,
               "collision": {
                 "blocked": false,
-                "distance": 11.356313954527446,
+                "distance": 11.356431643582416,
                 "hit": "",
                 "lifted": false,
                 "lowerFrustumBlocked": false,
@@ -1187,9 +2169,9 @@
             },
             "performance": {
               "fps": 18,
-              "physicsMs": 0.2999999523162842,
+              "physicsMs": 0.40000000037252903,
               "drawCalls": 497,
-              "triangles": 247073
+              "triangles": 252609
             }
           }
         },
@@ -1233,26 +2215,26 @@
             "id": "meowster",
             "name": "Mighty Meowster"
           },
-          "speed": 1.0318441959122102,
-          "x": -152.85231181780136,
-          "y": -0.5820387196660666,
-          "z": -80.92000630928462,
+          "speed": 1.0328648929990323,
+          "x": -152.85227240755833,
+          "y": -0.5694034848352267,
+          "z": -80.9200586626925,
           "grounded": true,
           "telemetry": {
-            "speed": 1.0318441959122102,
-            "forwardVelocity": 1.0318441959122104,
-            "engineRpm": 5253.221926401867,
+            "speed": 1.0328648929990323,
+            "forwardVelocity": 1.0328648929990323,
+            "engineRpm": 5259.542799686588,
             "requestedDriveForce": 0,
             "deliveredWheelForce": 0,
-            "normalLoad": 0.5772377369912114,
-            "chassisPitchVelocity": -0.5621786193461284,
-            "chassisRoll": 0.08116234718503905,
-            "steeringInput": -2.7755575615628914e-17,
-            "wheelAngle": -0.015688792479814997,
+            "normalLoad": 0.5772380699830748,
+            "chassisPitchVelocity": -0.8496925061443374,
+            "chassisRoll": 0.017051148936913993,
+            "steeringInput": 1.850371707708594e-17,
+            "wheelAngle": -0.015688792479814948,
             "groundedWheels": 4,
-            "sandResistance": 0.07440994461548649,
+            "sandResistance": 0.05164324464995162,
             "brushStrength": 4,
-            "sinkage": 0.013528160706156648,
+            "sinkage": 0.009403689738227526,
             "wheelSlip": 0
           },
           "race": {
@@ -1280,7 +2262,7 @@
                 -8.878320693969727,
                 13.8679780960083
               ],
-              "checksum": "ce661010"
+              "checksum": "8bb06adc"
             },
             "clipmap": {
               "quality": "high",
@@ -1290,6 +2272,8 @@
               "triangles": 90240,
               "staticTopology": true,
               "shaderTrimmedUnderlays": true,
+              "signedTrackContrast": true,
+              "trackColor": "#4a3043",
               "snappedOrigins": [
                 [
                   -153.14,
@@ -1353,14 +2337,14 @@
               -126.0587084148728
             ],
             "focus": [
-              -152.8574913954273,
-              -80.91314266263117
+              -152.85745711004978,
+              -80.91318822747928
             ],
             "scrollCount": 0,
-            "appliedBrushes": 251,
+            "appliedBrushes": 252,
             "droppedBrushes": 0,
-            "maximumDepression": 0.029963139444589615,
-            "maximumBerm": 0.014128667302429676,
+            "maximumDepression": 0.03229043260216713,
+            "maximumBerm": 0.014945846050977707,
             "physicalBounds": [
               -0.15,
               0.08
@@ -1382,16 +2366,20 @@
             "roosterTail": {
               "quality": "high",
               "fixedLattice": true,
+              "curvedSurface": true,
+              "bufferAuthorityShared": true,
+              "crossSectionRows": 5,
               "segmentsPerWheel": 24,
-              "activeCurtains": 4,
-              "emittedSamples": 20,
-              "vertexCapacity": 192
+              "activeCurtains": 2,
+              "emittedSamples": 10,
+              "vertexCapacity": 480,
+              "peakHeight": 0.6483053767883825
             },
             "dust": {
               "quality": "high",
-              "capacity": 196,
-              "active": 4,
-              "spawned": 19,
+              "capacity": 300,
+              "active": 13,
+              "spawned": 54,
               "pooled": true
             }
           },
@@ -1435,12 +2423,12 @@
             "cinematicLabel": "",
             "transitionProgress": 1,
             "projection": "perspective",
-            "fov": 70.28891637485542,
+            "fov": 70.28920217003973,
             "visionStage": null,
             "lookAheadMeters": null,
             "collision": {
               "blocked": false,
-              "distance": 11.29322650757426,
+              "distance": 11.29334703798136,
               "hit": "",
               "lifted": false,
               "lowerFrustumBlocked": false,
@@ -1510,9 +2498,9 @@
           },
           "performance": {
             "fps": 12,
-            "physicsMs": 0.20000004768371582,
+            "physicsMs": 0.2999999998137355,
             "drawCalls": 512,
-            "triangles": 249709
+            "triangles": 255245
           }
         },
         "wheelspin": {
@@ -1534,27 +2522,27 @@
             "id": "meowster",
             "name": "Mighty Meowster"
           },
-          "speed": 8.913670957313009,
-          "x": -0.38753265874785753,
-          "y": -0.0895868752220894,
-          "z": -157.05987060070404,
+          "speed": 8.91822191683528,
+          "x": -0.387234454392825,
+          "y": -1.2354497800474848,
+          "z": -157.0598639626448,
           "grounded": true,
           "telemetry": {
-            "speed": 8.913670957313009,
-            "forwardVelocity": 8.913670957313009,
-            "engineRpm": 4788.45066995915,
-            "requestedDriveForce": 84587.50473427879,
-            "deliveredWheelForce": 84587.50473427879,
-            "normalLoad": 0.5718557447287046,
-            "chassisPitchVelocity": -0.6320156269323156,
-            "chassisRoll": 0.1538043577039532,
+            "speed": 8.91822191683528,
+            "forwardVelocity": 8.91822191683528,
+            "engineRpm": 4790.820184324209,
+            "requestedDriveForce": 84561.07575943545,
+            "deliveredWheelForce": 84561.07575943545,
+            "normalLoad": 0.571853121199954,
+            "chassisPitchVelocity": -0.05397240479690324,
+            "chassisRoll": 0.024556711429506054,
             "steeringInput": 0.2,
-            "wheelAngle": 0.06817719050983624,
+            "wheelAngle": 0.06817719050983626,
             "groundedWheels": 4,
-            "sandResistance": 0.47783829189753746,
+            "sandResistance": 0.445911095841764,
             "brushStrength": 4,
-            "sinkage": 0.010980576191206778,
-            "wheelSlip": 0.47900016700897496
+            "sinkage": 0.00824011249968622,
+            "wheelSlip": 0.3960859835212269
           },
           "race": {
             "elapsed": 0.9666666666666657,
@@ -1581,7 +2569,7 @@
                 -8.878320693969727,
                 13.8679780960083
               ],
-              "checksum": "ce661010"
+              "checksum": "8bb06adc"
             },
             "clipmap": {
               "quality": "high",
@@ -1591,6 +2579,8 @@
               "triangles": 90240,
               "staticTopology": true,
               "shaderTrimmedUnderlays": true,
+              "signedTrackContrast": true,
+              "trackColor": "#4a3043",
               "snappedOrigins": [
                 [
                   -0.62,
@@ -1654,14 +2644,14 @@
               -205.15068493150685
             ],
             "focus": [
-              -0.4618003992773471,
-              -157.0612522526673
+              -0.46154011543562945,
+              -157.0612461903808
             ],
             "scrollCount": 1,
-            "appliedBrushes": 347,
+            "appliedBrushes": 348,
             "droppedBrushes": 0,
-            "maximumDepression": 0.03508899733424187,
-            "maximumBerm": 0.016144834458827972,
+            "maximumDepression": 0.03703802078962326,
+            "maximumBerm": 0.017006995156407356,
             "physicalBounds": [
               -0.15,
               0.08
@@ -1683,16 +2673,20 @@
             "roosterTail": {
               "quality": "high",
               "fixedLattice": true,
+              "curvedSurface": true,
+              "bufferAuthorityShared": true,
+              "crossSectionRows": 5,
               "segmentsPerWheel": 24,
-              "activeCurtains": 4,
-              "emittedSamples": 32,
-              "vertexCapacity": 192
+              "activeCurtains": 2,
+              "emittedSamples": 16,
+              "vertexCapacity": 480,
+              "peakHeight": 0.5699874706719645
             },
             "dust": {
               "quality": "high",
-              "capacity": 196,
-              "active": 10,
-              "spawned": 29,
+              "capacity": 300,
+              "active": 28,
+              "spawned": 82,
               "pooled": true
             }
           },
@@ -1736,12 +2730,12 @@
             "cinematicLabel": "",
             "transitionProgress": 1,
             "projection": "perspective",
-            "fov": 74.69582786804764,
+            "fov": 74.69710213671388,
             "visionStage": null,
             "lookAheadMeters": null,
             "collision": {
               "blocked": false,
-              "distance": 12.595917086517524,
+              "distance": 12.596486899854908,
               "hit": "",
               "lifted": false,
               "lowerFrustumBlocked": false,
@@ -1811,10 +2805,90 @@
           },
           "performance": {
             "fps": 11,
-            "physicsMs": 0.2999999523162842,
+            "physicsMs": 0.40000000037252903,
             "drawCalls": 519,
-            "triangles": 249799
+            "triangles": 255335
           }
+        },
+        "bigJumpIsometric": {
+          "maximumAltitude": 31.942643602062248,
+          "first": {
+            "altitude": 2.6283575200870724,
+            "cameraY": 43.810720595976484,
+            "focusY": 0.6321854890837991,
+            "playerNdc": [
+              -0.06728302979450326,
+              0.07921961414678787,
+              -0.8462799680917066
+            ],
+            "forwardY": -0.7120930025407958,
+            "projection": "orthographic",
+            "mode": "isometric",
+            "transitioning": false
+          },
+          "apex": {
+            "altitude": 31.942643602062248,
+            "cameraY": 73.38181508279737,
+            "focusY": 30.793794388138302,
+            "playerNdc": [
+              -0.03779440217027683,
+              0.06588025339297687,
+              -0.8510663992703623
+            ],
+            "forwardY": -0.7136388233504241,
+            "projection": "orthographic",
+            "mode": "isometric",
+            "transitioning": false
+          },
+          "last": {
+            "altitude": 31.942643602062248,
+            "cameraY": 73.38181508279737,
+            "focusY": 30.793794388138302,
+            "playerNdc": [
+              -0.03779440217027683,
+              0.06588025339297687,
+              -0.8510663992703623
+            ],
+            "forwardY": -0.7136388233504241,
+            "projection": "orthographic",
+            "mode": "isometric",
+            "transitioning": false
+          },
+          "sampledFrames": 34
+        },
+        "bigJumpChaseRecovery": {
+          "mode": "chase",
+          "available": [
+            "isometric",
+            "chase",
+            "driver_fpv"
+          ],
+          "transitioning": false,
+          "cinematic": false,
+          "cinematicProgress": 1,
+          "cinematicLabel": "",
+          "transitionProgress": 1,
+          "projection": "perspective",
+          "fov": 75.9322239364647,
+          "visionStage": null,
+          "lookAheadMeters": null,
+          "collision": {
+            "blocked": false,
+            "distance": 17.365926789495667,
+            "hit": "",
+            "lifted": false,
+            "lowerFrustumBlocked": false,
+            "foregroundBlocked": false,
+            "foregroundObject": "",
+            "contained": false,
+            "containingObject": "",
+            "candidates": 0,
+            "activeCandidates": 0,
+            "boomCandidates": 0,
+            "foregroundCandidates": 0,
+            "raycasts": 0
+          },
+          "zoom": 1
         },
         "result": {
           "mode": "racing",
@@ -1835,31 +2909,31 @@
             "id": "meowster",
             "name": "Mighty Meowster"
           },
-          "speed": 17.41949259492674,
-          "x": 2.7697337440692302,
-          "y": -0.0007016495653150365,
-          "z": -157.09948759274275,
-          "grounded": true,
+          "speed": 20.943896191748482,
+          "x": 64.37361603734028,
+          "y": 40.13672248942971,
+          "z": -167.26439216331497,
+          "grounded": false,
           "telemetry": {
-            "speed": 17.41949259492674,
-            "forwardVelocity": 17.41949259492674,
-            "engineRpm": 6374.938484898087,
-            "requestedDriveForce": 34020.06684914051,
-            "deliveredWheelForce": 34020.06684914051,
-            "normalLoad": 0.5602322337235924,
-            "chassisPitchVelocity": 0.05600199424994401,
-            "chassisRoll": 0.15066547828364618,
-            "steeringInput": 0.2,
-            "wheelAngle": 0.09317307512889533,
-            "groundedWheels": 4,
-            "sandResistance": 0.9105219614719187,
-            "brushStrength": 4,
-            "sinkage": 0.01086038437801651,
-            "wheelSlip": 0.30029559347431
+            "speed": 20.943896191748482,
+            "forwardVelocity": 20.943896191748482,
+            "engineRpm": 5241.27195447955,
+            "requestedDriveForce": 0,
+            "deliveredWheelForce": 0,
+            "normalLoad": 0,
+            "chassisPitchVelocity": 0.32466077034795804,
+            "chassisRoll": 0.02330576761976971,
+            "steeringInput": 0,
+            "wheelAngle": 2.0645552654200847e-11,
+            "groundedWheels": 0,
+            "sandResistance": 7.3810775433584475,
+            "brushStrength": 0,
+            "sinkage": 0.010353073245891159,
+            "wheelSlip": 0
           },
           "race": {
-            "elapsed": 1.1999999999999982,
-            "progress": 0.18213058419243974,
+            "elapsed": 3.5333333333333234,
+            "progress": 0.23711340206185555,
             "lap": 0,
             "targetLaps": 2,
             "checkpoint": 1,
@@ -1882,7 +2956,7 @@
                 -8.878320693969727,
                 13.8679780960083
               ],
-              "checksum": "ce661010"
+              "checksum": "8bb06adc"
             },
             "clipmap": {
               "quality": "high",
@@ -1892,40 +2966,42 @@
               "triangles": 90240,
               "staticTopology": true,
               "shaderTrimmedUnderlays": true,
+              "signedTrackContrast": true,
+              "trackColor": "#4a3043",
               "snappedOrigins": [
                 [
-                  2.48,
-                  -157.48,
+                  63.86,
+                  -167.4,
                   0.31
                 ],
                 [
-                  2.48,
-                  -157.48,
+                  63.24,
+                  -167.4,
                   0.62
                 ],
                 [
-                  2.48,
-                  -158.72,
+                  62,
+                  -168.64,
                   1.24
                 ],
                 [
-                  0,
-                  -158.72,
+                  59.519999999999996,
+                  -168.64,
                   2.48
                 ],
                 [
-                  0,
-                  -158.72,
+                  59.519999999999996,
+                  -168.64,
                   4.96
                 ],
                 [
-                  0,
-                  -158.72,
+                  59.519999999999996,
+                  -178.56,
                   9.92
                 ],
                 [
-                  0,
-                  -158.72,
+                  59.519999999999996,
+                  -178.56,
                   19.84
                 ]
               ],
@@ -1951,23 +3027,23 @@
             "recentWorldSize": 96,
             "coarseResolution": 128,
             "origin": [
-              -49.2211350293542,
-              -205.15068493150685
+              0.5636007827788649,
+              -212.47749510763208
             ],
             "focus": [
-              2.6246804056694346,
-              -157.0938606477742
+              64.20184607149314,
+              -167.2334622213268
             ],
-            "scrollCount": 1,
-            "appliedBrushes": 459,
+            "scrollCount": 3,
+            "appliedBrushes": 732,
             "droppedBrushes": 0,
-            "maximumDepression": 0.036093179136514664,
-            "maximumBerm": 0.017137998715043068,
+            "maximumDepression": 0.04049678519368172,
+            "maximumBerm": 0.018598146736621857,
             "physicalBounds": [
               -0.15,
               0.08
             ],
-            "version": 120
+            "version": 196
           },
           "environment": {
             "eventId": "whiskerwind",
@@ -1984,16 +3060,20 @@
             "roosterTail": {
               "quality": "high",
               "fixedLattice": true,
+              "curvedSurface": true,
+              "bufferAuthorityShared": true,
+              "crossSectionRows": 5,
               "segmentsPerWheel": 24,
-              "activeCurtains": 4,
-              "emittedSamples": 56,
-              "vertexCapacity": 192
+              "activeCurtains": 0,
+              "emittedSamples": 58,
+              "vertexCapacity": 480,
+              "peakHeight": 0
             },
             "dust": {
               "quality": "high",
-              "capacity": 196,
-              "active": 7,
-              "spawned": 46,
+              "capacity": 300,
+              "active": 0,
+              "spawned": 291,
               "pooled": true
             }
           },
@@ -2002,121 +3082,337 @@
             "previous": null,
             "result": {
               "improved": true,
-              "time": 1.2,
+              "time": 3.533,
               "score": 0,
               "medal": "S",
               "previous": null,
               "record": {
                 "eventId": "whiskerwind",
                 "vehicleId": "meowster",
-                "time": 1.2,
+                "time": 3.533,
                 "score": 0,
                 "medal": "S",
                 "ghost": [
                   {
                     "t": 0.108,
                     "x": -154.989,
-                    "y": -0.554,
+                    "y": -0.391,
                     "z": -78.015,
                     "yaw": 2.5073,
-                    "pitch": 0.0522,
-                    "roll": 0.0522
+                    "pitch": 0.1011,
+                    "roll": 0.0098
                   },
                   {
                     "t": 0.208,
                     "x": -154.889,
-                    "y": -0.559,
+                    "y": -0.402,
                     "z": -78.146,
                     "yaw": 2.4806,
-                    "pitch": 0.001,
-                    "roll": 0.068
+                    "pitch": 0.0177,
+                    "roll": 0.0122
                   },
                   {
                     "t": 0.308,
                     "x": -154.748,
-                    "y": -0.566,
-                    "z": -78.324,
+                    "y": -0.418,
+                    "z": -78.325,
                     "yaw": 2.4679,
-                    "pitch": 0.0087,
-                    "roll": 0.0737
+                    "pitch": 0.0422,
+                    "roll": 0.0125
                   },
                   {
                     "t": 0.408,
                     "x": -154.573,
-                    "y": -0.58,
+                    "y": -0.443,
                     "z": -78.543,
                     "yaw": 2.4642,
-                    "pitch": 0.0068,
-                    "roll": 0.0756
+                    "pitch": 0.0324,
+                    "roll": 0.0123
                   },
                   {
                     "t": 0.508,
-                    "x": -154.258,
-                    "y": -0.597,
-                    "z": -78.93,
+                    "x": -154.257,
+                    "y": -0.48,
+                    "z": -78.931,
                     "yaw": 2.4494,
-                    "pitch": -0.0177,
-                    "roll": 0.0767
+                    "pitch": 0.0133,
+                    "roll": 0.0124
                   },
                   {
                     "t": 0.608,
-                    "x": -153.645,
-                    "y": -0.601,
-                    "z": -79.634,
+                    "x": -153.643,
+                    "y": -0.518,
+                    "z": -79.636,
                     "yaw": 2.408,
-                    "pitch": -0.0581,
-                    "roll": 0.0797
+                    "pitch": -0.0234,
+                    "roll": 0.0138
                   },
                   {
                     "t": 0.708,
                     "x": -152.889,
-                    "y": -0.579,
+                    "y": -0.563,
                     "z": -80.871,
                     "yaw": 2.4972,
-                    "pitch": -0.0342,
-                    "roll": 0.0808
+                    "pitch": 0.029,
+                    "roll": 0.016
                   },
                   {
                     "t": 0.808,
                     "x": -152.827,
-                    "y": -0.584,
+                    "y": -0.574,
                     "z": -80.954,
                     "yaw": 2.4944,
-                    "pitch": -0.0736,
-                    "roll": 0.0812
+                    "pitch": -0.0237,
+                    "roll": 0.0174
                   },
                   {
                     "t": 0.908,
                     "x": -0.841,
-                    "y": -0.101,
+                    "y": -1.238,
                     "z": -157.07,
                     "yaw": 1.5439,
-                    "pitch": -0.0354,
-                    "roll": 0.1345
+                    "pitch": -0.0343,
+                    "roll": 0.0231
                   },
                   {
                     "t": 1.008,
                     "x": 0.029,
-                    "y": -0.073,
+                    "y": -1.226,
                     "z": -157.054,
                     "yaw": 1.5603,
-                    "pitch": -0.088,
-                    "roll": 0.1609
+                    "pitch": -0.0557,
+                    "roll": 0.0246
                   },
                   {
                     "t": 1.108,
-                    "x": 1.297,
-                    "y": -0.031,
+                    "x": 1.299,
+                    "y": -1.209,
                     "z": -157.058,
                     "yaw": 1.5852,
-                    "pitch": -0.0916,
-                    "roll": 0.1628
+                    "pitch": -0.0773,
+                    "roll": 0.0216
+                  },
+                  {
+                    "t": 1.208,
+                    "x": 2.919,
+                    "y": -1.206,
+                    "z": -157.106,
+                    "yaw": 1.6118,
+                    "pitch": -0.0837,
+                    "roll": 0.0136
+                  },
+                  {
+                    "t": 1.308,
+                    "x": 4.854,
+                    "y": -1.197,
+                    "z": -157.213,
+                    "yaw": 1.6378,
+                    "pitch": -0.0743,
+                    "roll": 0.0002
+                  },
+                  {
+                    "t": 1.408,
+                    "x": 7.085,
+                    "y": -1.21,
+                    "z": -157.394,
+                    "yaw": 1.6628,
+                    "pitch": -0.0641,
+                    "roll": -0.0166
+                  },
+                  {
+                    "t": 1.508,
+                    "x": 9.586,
+                    "y": -1.248,
+                    "z": -157.658,
+                    "yaw": 1.6867,
+                    "pitch": -0.0523,
+                    "roll": -0.0333
+                  },
+                  {
+                    "t": 1.608,
+                    "x": 12.348,
+                    "y": -1.302,
+                    "z": -158.015,
+                    "yaw": 1.7095,
+                    "pitch": -0.0505,
+                    "roll": -0.0464
+                  },
+                  {
+                    "t": 1.708,
+                    "x": 15.352,
+                    "y": -1.359,
+                    "z": -158.471,
+                    "yaw": 1.7312,
+                    "pitch": -0.0479,
+                    "roll": -0.0561
+                  },
+                  {
+                    "t": 1.808,
+                    "x": 18.581,
+                    "y": 1.537,
+                    "z": -159.027,
+                    "yaw": 1.7457,
+                    "pitch": -0.0061,
+                    "roll": -0.0576
+                  },
+                  {
+                    "t": 1.908,
+                    "x": 21.877,
+                    "y": 5.172,
+                    "z": -159.614,
+                    "yaw": 1.748,
+                    "pitch": 0.0446,
+                    "roll": -0.0497
+                  },
+                  {
+                    "t": 2.008,
+                    "x": 24.932,
+                    "y": 8.635,
+                    "z": -160.163,
+                    "yaw": 1.7487,
+                    "pitch": -0.0365,
+                    "roll": -0.0338
+                  },
+                  {
+                    "t": 2.108,
+                    "x": 27.931,
+                    "y": 11.926,
+                    "z": -160.702,
+                    "yaw": 1.7489,
+                    "pitch": -0.0498,
+                    "roll": -0.0162
+                  },
+                  {
+                    "t": 2.208,
+                    "x": 30.874,
+                    "y": 15.046,
+                    "z": -161.232,
+                    "yaw": 1.7489,
+                    "pitch": -0.0522,
+                    "roll": -0.0102
+                  },
+                  {
+                    "t": 2.308,
+                    "x": 33.765,
+                    "y": 17.993,
+                    "z": -161.753,
+                    "yaw": 1.7489,
+                    "pitch": -0.0375,
+                    "roll": -0.0206
+                  },
+                  {
+                    "t": 2.408,
+                    "x": 36.603,
+                    "y": 20.768,
+                    "z": -162.264,
+                    "yaw": 1.749,
+                    "pitch": -0.028,
+                    "roll": -0.0376
+                  },
+                  {
+                    "t": 2.508,
+                    "x": 39.388,
+                    "y": 23.371,
+                    "z": -162.765,
+                    "yaw": 1.749,
+                    "pitch": -0.0397,
+                    "roll": -0.045
+                  },
+                  {
+                    "t": 2.608,
+                    "x": 42.122,
+                    "y": 25.802,
+                    "z": -163.258,
+                    "yaw": 1.749,
+                    "pitch": -0.0586,
+                    "roll": -0.0354
+                  },
+                  {
+                    "t": 2.708,
+                    "x": 44.805,
+                    "y": 28.061,
+                    "z": -163.741,
+                    "yaw": 1.749,
+                    "pitch": -0.0516,
+                    "roll": -0.012
+                  },
+                  {
+                    "t": 2.808,
+                    "x": 47.437,
+                    "y": 30.149,
+                    "z": -164.215,
+                    "yaw": 1.749,
+                    "pitch": -0.0718,
+                    "roll": 0.0174
+                  },
+                  {
+                    "t": 2.908,
+                    "x": 50.02,
+                    "y": 32.064,
+                    "z": -164.68,
+                    "yaw": 1.749,
+                    "pitch": -0.0816,
+                    "roll": 0.0457
+                  },
+                  {
+                    "t": 3.008,
+                    "x": 52.529,
+                    "y": 33.807,
+                    "z": -165.132,
+                    "yaw": 1.749,
+                    "pitch": -0.0717,
+                    "roll": 0.0649
+                  },
+                  {
+                    "t": 3.108,
+                    "x": 54.953,
+                    "y": 35.378,
+                    "z": -165.568,
+                    "yaw": 1.749,
+                    "pitch": -0.0576,
+                    "roll": 0.0679
+                  },
+                  {
+                    "t": 3.208,
+                    "x": 57.295,
+                    "y": 36.777,
+                    "z": -165.99,
+                    "yaw": 1.749,
+                    "pitch": -0.0406,
+                    "roll": 0.0578
+                  },
+                  {
+                    "t": 3.308,
+                    "x": 59.558,
+                    "y": 38.004,
+                    "z": -166.397,
+                    "yaw": 1.749,
+                    "pitch": -0.0463,
+                    "roll": 0.0453
+                  },
+                  {
+                    "t": 3.408,
+                    "x": 61.744,
+                    "y": 39.06,
+                    "z": -166.791,
+                    "yaw": 1.749,
+                    "pitch": -0.0534,
+                    "roll": 0.0356
+                  },
+                  {
+                    "t": 3.508,
+                    "x": 63.857,
+                    "y": 39.943,
+                    "z": -167.171,
+                    "yaw": 1.749,
+                    "pitch": -0.0315,
+                    "roll": 0.0258
                   }
                 ],
-                "setAt": "2026-07-29T09:03:57.750Z"
+                "setAt": "2026-07-29T15:42:24.393Z"
               }
             },
-            "samples": 11,
+            "samples": 35,
             "ghostVisible": false
           },
           "visual": {
@@ -2152,12 +3448,12 @@
             "cinematicLabel": "",
             "transitionProgress": 1,
             "projection": "perspective",
-            "fov": 74.87745792657948,
+            "fov": 75.86429093368957,
             "visionStage": null,
             "lookAheadMeters": null,
             "collision": {
               "blocked": false,
-              "distance": 15.114972499074677,
+              "distance": 17.477540463583086,
               "hit": "",
               "lifted": false,
               "lowerFrustumBlocked": false,
@@ -2226,10 +3522,10 @@
             ]
           },
           "performance": {
-            "fps": 11,
-            "physicsMs": 0.30000007152557373,
-            "drawCalls": 500,
-            "triangles": 247207
+            "fps": 10,
+            "physicsMs": 0.09999999962747097,
+            "drawCalls": 343,
+            "triangles": 226009
           }
         },
         "restart": {
@@ -2251,22 +3547,22 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 3.25281244227684,
-            "cpuFrameTimeMs": 10.982352943981395,
-            "cpuFrameTimeP99Ms": 323.09999990463257,
-            "renderSubmissionTimeMs": 10.333613454794683,
-            "renderSubmissionTimeP99Ms": 323,
+            "fps": 2.5509607555945455,
+            "cpuFrameTimeMs": 11.368333333311602,
+            "cpuFrameTimeP99Ms": 316.70000000018626,
+            "renderSubmissionTimeMs": 10.625833333369034,
+            "renderSubmissionTimeP99Ms": 316.5,
             "drawCalls": 496,
-            "renderCalls": 1727,
+            "renderCalls": 3151,
             "frameRenderCalls": 15,
-            "triangles": 246993,
+            "triangles": 252529,
             "points": 0,
             "lines": 0,
             "gpuFrameTimeMs": null,
             "textures": 27,
             "renderTargets": 13,
             "geometries": 121,
-            "gpuMemoryBytes": 159865403,
+            "gpuMemoryBytes": 160971195,
             "programs": 48,
             "compilationEventCount": 0,
             "recentCompilationEvents": [],
@@ -2277,7 +3573,7 @@
             "dynamicResolutionScale": 1,
             "activeMode": "dunes",
             "sessionPhase": "countdown",
-            "transitionCount": 2
+            "transitionCount": 3
           },
           "racing": {
             "mode": "racing",
@@ -2300,7 +3596,7 @@
             },
             "speed": 0,
             "x": -155,
-            "y": -0.5723359791700514,
+            "y": -0.41773169863322535,
             "z": -78,
             "grounded": true,
             "telemetry": {
@@ -2345,7 +3641,7 @@
                   -8.878320693969727,
                   13.8679780960083
                 ],
-                "checksum": "ce661010"
+                "checksum": "8bb06adc"
               },
               "clipmap": {
                 "quality": "high",
@@ -2355,6 +3651,8 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
                 "snappedOrigins": [
                   [
                     -155,
@@ -2447,14 +3745,18 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
                 "activeCurtains": 0,
                 "emittedSamples": 0,
-                "vertexCapacity": 192
+                "vertexCapacity": 480,
+                "peakHeight": 0
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
+                "capacity": 300,
                 "active": 0,
                 "spawned": 0,
                 "pooled": true
@@ -2465,111 +3767,327 @@
               "previous": {
                 "eventId": "whiskerwind",
                 "vehicleId": "meowster",
-                "time": 1.2,
+                "time": 3.533,
                 "score": 0,
                 "medal": "S",
                 "ghost": [
                   {
                     "t": 0.108,
                     "x": -154.989,
-                    "y": -0.554,
+                    "y": -0.391,
                     "z": -78.015,
                     "yaw": 2.5073,
-                    "pitch": 0.0522,
-                    "roll": 0.0522
+                    "pitch": 0.1011,
+                    "roll": 0.0098
                   },
                   {
                     "t": 0.208,
                     "x": -154.889,
-                    "y": -0.559,
+                    "y": -0.402,
                     "z": -78.146,
                     "yaw": 2.4806,
-                    "pitch": 0.001,
-                    "roll": 0.068
+                    "pitch": 0.0177,
+                    "roll": 0.0122
                   },
                   {
                     "t": 0.308,
                     "x": -154.748,
-                    "y": -0.566,
-                    "z": -78.324,
+                    "y": -0.418,
+                    "z": -78.325,
                     "yaw": 2.4679,
-                    "pitch": 0.0087,
-                    "roll": 0.0737
+                    "pitch": 0.0422,
+                    "roll": 0.0125
                   },
                   {
                     "t": 0.408,
                     "x": -154.573,
-                    "y": -0.58,
+                    "y": -0.443,
                     "z": -78.543,
                     "yaw": 2.4642,
-                    "pitch": 0.0068,
-                    "roll": 0.0756
+                    "pitch": 0.0324,
+                    "roll": 0.0123
                   },
                   {
                     "t": 0.508,
-                    "x": -154.258,
-                    "y": -0.597,
-                    "z": -78.93,
+                    "x": -154.257,
+                    "y": -0.48,
+                    "z": -78.931,
                     "yaw": 2.4494,
-                    "pitch": -0.0177,
-                    "roll": 0.0767
+                    "pitch": 0.0133,
+                    "roll": 0.0124
                   },
                   {
                     "t": 0.608,
-                    "x": -153.645,
-                    "y": -0.601,
-                    "z": -79.634,
+                    "x": -153.643,
+                    "y": -0.518,
+                    "z": -79.636,
                     "yaw": 2.408,
-                    "pitch": -0.0581,
-                    "roll": 0.0797
+                    "pitch": -0.0234,
+                    "roll": 0.0138
                   },
                   {
                     "t": 0.708,
                     "x": -152.889,
-                    "y": -0.579,
+                    "y": -0.563,
                     "z": -80.871,
                     "yaw": 2.4972,
-                    "pitch": -0.0342,
-                    "roll": 0.0808
+                    "pitch": 0.029,
+                    "roll": 0.016
                   },
                   {
                     "t": 0.808,
                     "x": -152.827,
-                    "y": -0.584,
+                    "y": -0.574,
                     "z": -80.954,
                     "yaw": 2.4944,
-                    "pitch": -0.0736,
-                    "roll": 0.0812
+                    "pitch": -0.0237,
+                    "roll": 0.0174
                   },
                   {
                     "t": 0.908,
                     "x": -0.841,
-                    "y": -0.101,
+                    "y": -1.238,
                     "z": -157.07,
                     "yaw": 1.5439,
-                    "pitch": -0.0354,
-                    "roll": 0.1345
+                    "pitch": -0.0343,
+                    "roll": 0.0231
                   },
                   {
                     "t": 1.008,
                     "x": 0.029,
-                    "y": -0.073,
+                    "y": -1.226,
                     "z": -157.054,
                     "yaw": 1.5603,
-                    "pitch": -0.088,
-                    "roll": 0.1609
+                    "pitch": -0.0557,
+                    "roll": 0.0246
                   },
                   {
                     "t": 1.108,
-                    "x": 1.297,
-                    "y": -0.031,
+                    "x": 1.299,
+                    "y": -1.209,
                     "z": -157.058,
                     "yaw": 1.5852,
-                    "pitch": -0.0916,
-                    "roll": 0.1628
+                    "pitch": -0.0773,
+                    "roll": 0.0216
+                  },
+                  {
+                    "t": 1.208,
+                    "x": 2.919,
+                    "y": -1.206,
+                    "z": -157.106,
+                    "yaw": 1.6118,
+                    "pitch": -0.0837,
+                    "roll": 0.0136
+                  },
+                  {
+                    "t": 1.308,
+                    "x": 4.854,
+                    "y": -1.197,
+                    "z": -157.213,
+                    "yaw": 1.6378,
+                    "pitch": -0.0743,
+                    "roll": 0.0002
+                  },
+                  {
+                    "t": 1.408,
+                    "x": 7.085,
+                    "y": -1.21,
+                    "z": -157.394,
+                    "yaw": 1.6628,
+                    "pitch": -0.0641,
+                    "roll": -0.0166
+                  },
+                  {
+                    "t": 1.508,
+                    "x": 9.586,
+                    "y": -1.248,
+                    "z": -157.658,
+                    "yaw": 1.6867,
+                    "pitch": -0.0523,
+                    "roll": -0.0333
+                  },
+                  {
+                    "t": 1.608,
+                    "x": 12.348,
+                    "y": -1.302,
+                    "z": -158.015,
+                    "yaw": 1.7095,
+                    "pitch": -0.0505,
+                    "roll": -0.0464
+                  },
+                  {
+                    "t": 1.708,
+                    "x": 15.352,
+                    "y": -1.359,
+                    "z": -158.471,
+                    "yaw": 1.7312,
+                    "pitch": -0.0479,
+                    "roll": -0.0561
+                  },
+                  {
+                    "t": 1.808,
+                    "x": 18.581,
+                    "y": 1.537,
+                    "z": -159.027,
+                    "yaw": 1.7457,
+                    "pitch": -0.0061,
+                    "roll": -0.0576
+                  },
+                  {
+                    "t": 1.908,
+                    "x": 21.877,
+                    "y": 5.172,
+                    "z": -159.614,
+                    "yaw": 1.748,
+                    "pitch": 0.0446,
+                    "roll": -0.0497
+                  },
+                  {
+                    "t": 2.008,
+                    "x": 24.932,
+                    "y": 8.635,
+                    "z": -160.163,
+                    "yaw": 1.7487,
+                    "pitch": -0.0365,
+                    "roll": -0.0338
+                  },
+                  {
+                    "t": 2.108,
+                    "x": 27.931,
+                    "y": 11.926,
+                    "z": -160.702,
+                    "yaw": 1.7489,
+                    "pitch": -0.0498,
+                    "roll": -0.0162
+                  },
+                  {
+                    "t": 2.208,
+                    "x": 30.874,
+                    "y": 15.046,
+                    "z": -161.232,
+                    "yaw": 1.7489,
+                    "pitch": -0.0522,
+                    "roll": -0.0102
+                  },
+                  {
+                    "t": 2.308,
+                    "x": 33.765,
+                    "y": 17.993,
+                    "z": -161.753,
+                    "yaw": 1.7489,
+                    "pitch": -0.0375,
+                    "roll": -0.0206
+                  },
+                  {
+                    "t": 2.408,
+                    "x": 36.603,
+                    "y": 20.768,
+                    "z": -162.264,
+                    "yaw": 1.749,
+                    "pitch": -0.028,
+                    "roll": -0.0376
+                  },
+                  {
+                    "t": 2.508,
+                    "x": 39.388,
+                    "y": 23.371,
+                    "z": -162.765,
+                    "yaw": 1.749,
+                    "pitch": -0.0397,
+                    "roll": -0.045
+                  },
+                  {
+                    "t": 2.608,
+                    "x": 42.122,
+                    "y": 25.802,
+                    "z": -163.258,
+                    "yaw": 1.749,
+                    "pitch": -0.0586,
+                    "roll": -0.0354
+                  },
+                  {
+                    "t": 2.708,
+                    "x": 44.805,
+                    "y": 28.061,
+                    "z": -163.741,
+                    "yaw": 1.749,
+                    "pitch": -0.0516,
+                    "roll": -0.012
+                  },
+                  {
+                    "t": 2.808,
+                    "x": 47.437,
+                    "y": 30.149,
+                    "z": -164.215,
+                    "yaw": 1.749,
+                    "pitch": -0.0718,
+                    "roll": 0.0174
+                  },
+                  {
+                    "t": 2.908,
+                    "x": 50.02,
+                    "y": 32.064,
+                    "z": -164.68,
+                    "yaw": 1.749,
+                    "pitch": -0.0816,
+                    "roll": 0.0457
+                  },
+                  {
+                    "t": 3.008,
+                    "x": 52.529,
+                    "y": 33.807,
+                    "z": -165.132,
+                    "yaw": 1.749,
+                    "pitch": -0.0717,
+                    "roll": 0.0649
+                  },
+                  {
+                    "t": 3.108,
+                    "x": 54.953,
+                    "y": 35.378,
+                    "z": -165.568,
+                    "yaw": 1.749,
+                    "pitch": -0.0576,
+                    "roll": 0.0679
+                  },
+                  {
+                    "t": 3.208,
+                    "x": 57.295,
+                    "y": 36.777,
+                    "z": -165.99,
+                    "yaw": 1.749,
+                    "pitch": -0.0406,
+                    "roll": 0.0578
+                  },
+                  {
+                    "t": 3.308,
+                    "x": 59.558,
+                    "y": 38.004,
+                    "z": -166.397,
+                    "yaw": 1.749,
+                    "pitch": -0.0463,
+                    "roll": 0.0453
+                  },
+                  {
+                    "t": 3.408,
+                    "x": 61.744,
+                    "y": 39.06,
+                    "z": -166.791,
+                    "yaw": 1.749,
+                    "pitch": -0.0534,
+                    "roll": 0.0356
+                  },
+                  {
+                    "t": 3.508,
+                    "x": 63.857,
+                    "y": 39.943,
+                    "z": -167.171,
+                    "yaw": 1.749,
+                    "pitch": -0.0315,
+                    "roll": 0.0258
                   }
                 ],
-                "setAt": "2026-07-29T09:03:57.750Z"
+                "setAt": "2026-07-29T15:42:24.393Z"
               },
               "result": null,
               "samples": 0,
@@ -2685,17 +4203,17 @@
               "fps": 38,
               "physicsMs": 0,
               "drawCalls": 496,
-              "triangles": 246993
+              "triangles": 252529
             }
           },
           "sceneObjects": 1486,
           "sceneRenderables": {
             "visible": 1297,
             "instanced": 1,
-            "instances": 196
+            "instances": 300
           },
-          "estimatedGpuMemoryBytes": 84085968,
-          "domNodes": 220,
+          "estimatedGpuMemoryBytes": 84098912,
+          "domNodes": 222,
           "modeOwnedDomNodes": 54,
           "hudRoots": 1,
           "sessionRoots": 1,
@@ -2713,7 +4231,7 @@
             "initialized": true,
             "pressedKeys": [],
             "jumpQueued": false,
-            "lastDevice": "keyboard",
+            "lastDevice": "pointer",
             "moveVec": {
               "x": 0,
               "y": 0
@@ -2744,7 +4262,7 @@
             },
             "counters": {
               "menu": 2,
-              "racing": 2,
+              "racing": 4,
               "impact": 1,
               "sfx": 7
             }
@@ -2762,9 +4280,9 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 321.5,
+              "at": 302.69999999925494,
               "mode": "menu",
-              "domNodes": 162,
+              "domNodes": 164,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -2830,9 +4348,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 8239.900000095367,
+              "at": 9627.399999999441,
               "mode": "dunes",
-              "domNodes": 227,
+              "domNodes": 229,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -2848,22 +4366,22 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 7.262261791042365,
-                "cpuFrameTimeMs": 9.26181819005446,
-                "cpuFrameTimeP99Ms": 342.10000002384186,
-                "renderSubmissionTimeMs": 8.952727285298435,
-                "renderSubmissionTimeP99Ms": 339,
+                "fps": 6.81560015145778,
+                "cpuFrameTimeMs": 8.460937500043656,
+                "cpuFrameTimeP99Ms": 358.90000000037253,
+                "renderSubmissionTimeMs": 8.175000000032014,
+                "renderSubmissionTimeP99Ms": 355.90000000037253,
                 "drawCalls": 497,
-                "renderCalls": 772,
+                "renderCalls": 899,
                 "frameRenderCalls": 16,
-                "triangles": 246994,
+                "triangles": 252530,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 27,
                 "renderTargets": 13,
                 "geometries": 121,
-                "gpuMemoryBytes": 159184792,
+                "gpuMemoryBytes": 159220290,
                 "programs": 51,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -2898,9 +4416,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 34957.10000002384,
+              "at": 63797.199999999255,
               "mode": "dunes",
-              "domNodes": 227,
+              "domNodes": 229,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -2916,13 +4434,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 3.342012879829345,
-                "cpuFrameTimeMs": 8.363793107970007,
-                "cpuFrameTimeP99Ms": 55.39999997615814,
-                "renderSubmissionTimeMs": 7.707758630144185,
-                "renderSubmissionTimeP99Ms": 54.90000009536743,
+                "fps": 2.5343724260280047,
+                "cpuFrameTimeMs": 6.762499999968956,
+                "cpuFrameTimeP99Ms": 19.59999999962747,
+                "renderSubmissionTimeMs": 5.799166666669771,
+                "renderSubmissionTimeP99Ms": 16.5,
                 "drawCalls": 14,
-                "renderCalls": 1682,
+                "renderCalls": 2887,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -2931,7 +4449,7 @@
                 "textures": 18,
                 "renderTargets": 12,
                 "geometries": 2,
-                "gpuMemoryBytes": 103403403,
+                "gpuMemoryBytes": 103403986,
                 "programs": 16,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -2963,14 +4481,82 @@
                   "sfx": 7
                 }
               }
+            },
+            {
+              "label": "restart:dunes",
+              "at": 69742.69999999925,
+              "mode": "dunes",
+              "domNodes": 229,
+              "hudRoots": 1,
+              "sceneObjects": 1486,
+              "sessionRoots": 1,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 2.587416960086948,
+                "cpuFrameTimeMs": 8.758333333317811,
+                "cpuFrameTimeP99Ms": 19.59999999962747,
+                "renderSubmissionTimeMs": 8.007500000026388,
+                "renderSubmissionTimeP99Ms": 18.899999999441206,
+                "drawCalls": 14,
+                "renderCalls": 3106,
+                "frameRenderCalls": 14,
+                "triangles": 36013,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 18,
+                "renderTargets": 12,
+                "geometries": 2,
+                "gpuMemoryBytes": 104482378,
+                "programs": 16,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "dunes",
+                "sessionPhase": "countdown",
+                "transitionCount": 3
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": false,
+                "racingActive": false,
+                "activeNodes": 6,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 2,
+                  "racing": 3,
+                  "impact": 1,
+                  "sfx": 7
+                }
+              }
             }
           ],
-          "frameCount": 119,
+          "frameCount": 215,
           "stateDiagnostics": {
-            "bootedAt": 1785315812691,
+            "bootedAt": 1785339689748,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
-            "modeTransitions": 2,
+            "modeTransitions": 3,
             "lastError": ""
           }
         },
@@ -2993,13 +4579,13 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 3.240983314341744,
-            "cpuFrameTimeMs": 10.453333336114884,
-            "cpuFrameTimeP99Ms": 323.09999990463257,
-            "renderSubmissionTimeMs": 9.81000000735124,
-            "renderSubmissionTimeP99Ms": 323,
+            "fps": 2.574344936478049,
+            "cpuFrameTimeMs": 11.184166666632517,
+            "cpuFrameTimeP99Ms": 316.70000000018626,
+            "renderSubmissionTimeMs": 10.460000000024836,
+            "renderSubmissionTimeP99Ms": 316.5,
             "drawCalls": 13,
-            "renderCalls": 1784,
+            "renderCalls": 3208,
             "frameRenderCalls": 14,
             "triangles": 13,
             "points": 0,
@@ -3008,7 +4594,7 @@
             "textures": 18,
             "renderTargets": 12,
             "geometries": 2,
-            "gpuMemoryBytes": 104476033,
+            "gpuMemoryBytes": 105555008,
             "programs": 14,
             "compilationEventCount": 0,
             "recentCompilationEvents": [],
@@ -3019,7 +4605,7 @@
             "dynamicResolutionScale": 1,
             "activeMode": "menu",
             "sessionPhase": null,
-            "transitionCount": 3
+            "transitionCount": 4
           },
           "racing": null,
           "sceneObjects": 4,
@@ -3029,7 +4615,7 @@
             "instances": 0
           },
           "estimatedGpuMemoryBytes": 68935776,
-          "domNodes": 165,
+          "domNodes": 167,
           "modeOwnedDomNodes": 0,
           "hudRoots": 0,
           "sessionRoots": 0,
@@ -3047,7 +4633,7 @@
             "initialized": true,
             "pressedKeys": [],
             "jumpQueued": false,
-            "lastDevice": "keyboard",
+            "lastDevice": "pointer",
             "moveVec": {
               "x": 0,
               "y": 0
@@ -3078,7 +4664,7 @@
             },
             "counters": {
               "menu": 3,
-              "racing": 2,
+              "racing": 4,
               "impact": 1,
               "sfx": 7
             }
@@ -3096,9 +4682,9 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 321.5,
+              "at": 302.69999999925494,
               "mode": "menu",
-              "domNodes": 162,
+              "domNodes": 164,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -3164,9 +4750,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 8239.900000095367,
+              "at": 9627.399999999441,
               "mode": "dunes",
-              "domNodes": 227,
+              "domNodes": 229,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -3182,22 +4768,22 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 7.262261791042365,
-                "cpuFrameTimeMs": 9.26181819005446,
-                "cpuFrameTimeP99Ms": 342.10000002384186,
-                "renderSubmissionTimeMs": 8.952727285298435,
-                "renderSubmissionTimeP99Ms": 339,
+                "fps": 6.81560015145778,
+                "cpuFrameTimeMs": 8.460937500043656,
+                "cpuFrameTimeP99Ms": 358.90000000037253,
+                "renderSubmissionTimeMs": 8.175000000032014,
+                "renderSubmissionTimeP99Ms": 355.90000000037253,
                 "drawCalls": 497,
-                "renderCalls": 772,
+                "renderCalls": 899,
                 "frameRenderCalls": 16,
-                "triangles": 246994,
+                "triangles": 252530,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 27,
                 "renderTargets": 13,
                 "geometries": 121,
-                "gpuMemoryBytes": 159184792,
+                "gpuMemoryBytes": 159220290,
                 "programs": 51,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -3232,9 +4818,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 34957.10000002384,
+              "at": 63797.199999999255,
               "mode": "dunes",
-              "domNodes": 227,
+              "domNodes": 229,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -3250,13 +4836,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 3.342012879829345,
-                "cpuFrameTimeMs": 8.363793107970007,
-                "cpuFrameTimeP99Ms": 55.39999997615814,
-                "renderSubmissionTimeMs": 7.707758630144185,
-                "renderSubmissionTimeP99Ms": 54.90000009536743,
+                "fps": 2.5343724260280047,
+                "cpuFrameTimeMs": 6.762499999968956,
+                "cpuFrameTimeP99Ms": 19.59999999962747,
+                "renderSubmissionTimeMs": 5.799166666669771,
+                "renderSubmissionTimeP99Ms": 16.5,
                 "drawCalls": 14,
-                "renderCalls": 1682,
+                "renderCalls": 2887,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -3265,7 +4851,7 @@
                 "textures": 18,
                 "renderTargets": 12,
                 "geometries": 2,
-                "gpuMemoryBytes": 103403403,
+                "gpuMemoryBytes": 103403986,
                 "programs": 16,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -3299,10 +4885,78 @@
               }
             },
             {
+              "label": "restart:dunes",
+              "at": 69742.69999999925,
+              "mode": "dunes",
+              "domNodes": 229,
+              "hudRoots": 1,
+              "sceneObjects": 1486,
+              "sessionRoots": 1,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 2.587416960086948,
+                "cpuFrameTimeMs": 8.758333333317811,
+                "cpuFrameTimeP99Ms": 19.59999999962747,
+                "renderSubmissionTimeMs": 8.007500000026388,
+                "renderSubmissionTimeP99Ms": 18.899999999441206,
+                "drawCalls": 14,
+                "renderCalls": 3106,
+                "frameRenderCalls": 14,
+                "triangles": 36013,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 18,
+                "renderTargets": 12,
+                "geometries": 2,
+                "gpuMemoryBytes": 104482378,
+                "programs": 16,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "dunes",
+                "sessionPhase": "countdown",
+                "transitionCount": 3
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": false,
+                "racingActive": false,
+                "activeNodes": 6,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 2,
+                  "racing": 3,
+                  "impact": 1,
+                  "sfx": 7
+                }
+              }
+            },
+            {
               "label": "exit:dunes",
-              "at": 37535.90000009537,
+              "at": 72471.29999999981,
               "mode": "menu",
-              "domNodes": 165,
+              "domNodes": 167,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -3318,22 +4972,22 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 3.238571109766409,
-                "cpuFrameTimeMs": 10.942500003178914,
-                "cpuFrameTimeP99Ms": 323.09999990463257,
-                "renderSubmissionTimeMs": 10.295000009735425,
-                "renderSubmissionTimeP99Ms": 323,
+                "fps": 2.547559756198511,
+                "cpuFrameTimeMs": 11.353333333305393,
+                "cpuFrameTimeP99Ms": 316.70000000018626,
+                "renderSubmissionTimeMs": 10.611666666693054,
+                "renderSubmissionTimeP99Ms": 316.5,
                 "drawCalls": 496,
-                "renderCalls": 1742,
+                "renderCalls": 3166,
                 "frameRenderCalls": 15,
-                "triangles": 246993,
+                "triangles": 252529,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 18,
                 "renderTargets": 12,
                 "geometries": 2,
-                "gpuMemoryBytes": 104476033,
+                "gpuMemoryBytes": 105555008,
                 "programs": 14,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -3344,7 +4998,7 @@
                 "dynamicResolutionScale": 1,
                 "activeMode": "menu",
                 "sessionPhase": null,
-                "transitionCount": 3
+                "transitionCount": 4
               },
               "audio": {
                 "contextState": "running",
@@ -3360,19 +5014,19 @@
                 },
                 "counters": {
                   "menu": 3,
-                  "racing": 2,
+                  "racing": 4,
                   "impact": 1,
                   "sfx": 7
                 }
               }
             }
           ],
-          "frameCount": 123,
+          "frameCount": 219,
           "stateDiagnostics": {
-            "bootedAt": 1785315812691,
+            "bootedAt": 1785339689748,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
-            "modeTransitions": 3,
+            "modeTransitions": 4,
             "lastError": "",
             "lastExitReason": "qa"
           }
@@ -3396,22 +5050,22 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 2.9689081098216623,
-            "cpuFrameTimeMs": 12.980000001192092,
-            "cpuFrameTimeP99Ms": 323.09999990463257,
-            "renderSubmissionTimeMs": 12.310833338896433,
-            "renderSubmissionTimeP99Ms": 323,
+            "fps": 2.63228897268341,
+            "cpuFrameTimeMs": 12.829999999989134,
+            "cpuFrameTimeP99Ms": 316.70000000018626,
+            "renderSubmissionTimeMs": 12.170000000057431,
+            "renderSubmissionTimeP99Ms": 316.5,
             "drawCalls": 438,
-            "renderCalls": 1989,
+            "renderCalls": 3441,
             "frameRenderCalls": 15,
-            "triangles": 236807,
+            "triangles": 242343,
             "points": 0,
             "lines": 0,
             "gpuFrameTimeMs": null,
             "textures": 27,
             "renderTargets": 13,
             "geometries": 128,
-            "gpuMemoryBytes": 161095419,
+            "gpuMemoryBytes": 162209321,
             "programs": 52,
             "compilationEventCount": 0,
             "recentCompilationEvents": [],
@@ -3422,7 +5076,7 @@
             "dynamicResolutionScale": 1,
             "activeMode": "dunes",
             "sessionPhase": "racing",
-            "transitionCount": 4
+            "transitionCount": 5
           },
           "racing": {
             "mode": "racing",
@@ -3445,7 +5099,7 @@
             },
             "speed": 0,
             "x": -155,
-            "y": -0.5538244838273138,
+            "y": -0.3897513154006966,
             "z": -78,
             "grounded": true,
             "telemetry": {
@@ -3455,8 +5109,8 @@
               "requestedDriveForce": 0,
               "deliveredWheelForce": 0,
               "normalLoad": 0,
-              "chassisPitchVelocity": 0.6833037541880278,
-              "chassisRoll": 0.03868436049127673,
+              "chassisPitchVelocity": 1.5147136321859698,
+              "chassisRoll": 0.007271615289695888,
               "steeringInput": 0,
               "wheelAngle": 0,
               "groundedWheels": 4,
@@ -3490,7 +5144,7 @@
                   -8.878320693969727,
                   13.8679780960083
                 ],
-                "checksum": "ce661010"
+                "checksum": "8bb06adc"
               },
               "clipmap": {
                 "quality": "high",
@@ -3500,6 +5154,8 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
                 "snappedOrigins": [
                   [
                     -155,
@@ -3592,14 +5248,18 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
                 "activeCurtains": 0,
                 "emittedSamples": 0,
-                "vertexCapacity": 192
+                "vertexCapacity": 480,
+                "peakHeight": 0
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
+                "capacity": 300,
                 "active": 0,
                 "spawned": 0,
                 "pooled": true
@@ -3610,111 +5270,327 @@
               "previous": {
                 "eventId": "whiskerwind",
                 "vehicleId": "meowster",
-                "time": 1.2,
+                "time": 3.533,
                 "score": 0,
                 "medal": "S",
                 "ghost": [
                   {
                     "t": 0.108,
                     "x": -154.989,
-                    "y": -0.554,
+                    "y": -0.391,
                     "z": -78.015,
                     "yaw": 2.5073,
-                    "pitch": 0.0522,
-                    "roll": 0.0522
+                    "pitch": 0.1011,
+                    "roll": 0.0098
                   },
                   {
                     "t": 0.208,
                     "x": -154.889,
-                    "y": -0.559,
+                    "y": -0.402,
                     "z": -78.146,
                     "yaw": 2.4806,
-                    "pitch": 0.001,
-                    "roll": 0.068
+                    "pitch": 0.0177,
+                    "roll": 0.0122
                   },
                   {
                     "t": 0.308,
                     "x": -154.748,
-                    "y": -0.566,
-                    "z": -78.324,
+                    "y": -0.418,
+                    "z": -78.325,
                     "yaw": 2.4679,
-                    "pitch": 0.0087,
-                    "roll": 0.0737
+                    "pitch": 0.0422,
+                    "roll": 0.0125
                   },
                   {
                     "t": 0.408,
                     "x": -154.573,
-                    "y": -0.58,
+                    "y": -0.443,
                     "z": -78.543,
                     "yaw": 2.4642,
-                    "pitch": 0.0068,
-                    "roll": 0.0756
+                    "pitch": 0.0324,
+                    "roll": 0.0123
                   },
                   {
                     "t": 0.508,
-                    "x": -154.258,
-                    "y": -0.597,
-                    "z": -78.93,
+                    "x": -154.257,
+                    "y": -0.48,
+                    "z": -78.931,
                     "yaw": 2.4494,
-                    "pitch": -0.0177,
-                    "roll": 0.0767
+                    "pitch": 0.0133,
+                    "roll": 0.0124
                   },
                   {
                     "t": 0.608,
-                    "x": -153.645,
-                    "y": -0.601,
-                    "z": -79.634,
+                    "x": -153.643,
+                    "y": -0.518,
+                    "z": -79.636,
                     "yaw": 2.408,
-                    "pitch": -0.0581,
-                    "roll": 0.0797
+                    "pitch": -0.0234,
+                    "roll": 0.0138
                   },
                   {
                     "t": 0.708,
                     "x": -152.889,
-                    "y": -0.579,
+                    "y": -0.563,
                     "z": -80.871,
                     "yaw": 2.4972,
-                    "pitch": -0.0342,
-                    "roll": 0.0808
+                    "pitch": 0.029,
+                    "roll": 0.016
                   },
                   {
                     "t": 0.808,
                     "x": -152.827,
-                    "y": -0.584,
+                    "y": -0.574,
                     "z": -80.954,
                     "yaw": 2.4944,
-                    "pitch": -0.0736,
-                    "roll": 0.0812
+                    "pitch": -0.0237,
+                    "roll": 0.0174
                   },
                   {
                     "t": 0.908,
                     "x": -0.841,
-                    "y": -0.101,
+                    "y": -1.238,
                     "z": -157.07,
                     "yaw": 1.5439,
-                    "pitch": -0.0354,
-                    "roll": 0.1345
+                    "pitch": -0.0343,
+                    "roll": 0.0231
                   },
                   {
                     "t": 1.008,
                     "x": 0.029,
-                    "y": -0.073,
+                    "y": -1.226,
                     "z": -157.054,
                     "yaw": 1.5603,
-                    "pitch": -0.088,
-                    "roll": 0.1609
+                    "pitch": -0.0557,
+                    "roll": 0.0246
                   },
                   {
                     "t": 1.108,
-                    "x": 1.297,
-                    "y": -0.031,
+                    "x": 1.299,
+                    "y": -1.209,
                     "z": -157.058,
                     "yaw": 1.5852,
-                    "pitch": -0.0916,
-                    "roll": 0.1628
+                    "pitch": -0.0773,
+                    "roll": 0.0216
+                  },
+                  {
+                    "t": 1.208,
+                    "x": 2.919,
+                    "y": -1.206,
+                    "z": -157.106,
+                    "yaw": 1.6118,
+                    "pitch": -0.0837,
+                    "roll": 0.0136
+                  },
+                  {
+                    "t": 1.308,
+                    "x": 4.854,
+                    "y": -1.197,
+                    "z": -157.213,
+                    "yaw": 1.6378,
+                    "pitch": -0.0743,
+                    "roll": 0.0002
+                  },
+                  {
+                    "t": 1.408,
+                    "x": 7.085,
+                    "y": -1.21,
+                    "z": -157.394,
+                    "yaw": 1.6628,
+                    "pitch": -0.0641,
+                    "roll": -0.0166
+                  },
+                  {
+                    "t": 1.508,
+                    "x": 9.586,
+                    "y": -1.248,
+                    "z": -157.658,
+                    "yaw": 1.6867,
+                    "pitch": -0.0523,
+                    "roll": -0.0333
+                  },
+                  {
+                    "t": 1.608,
+                    "x": 12.348,
+                    "y": -1.302,
+                    "z": -158.015,
+                    "yaw": 1.7095,
+                    "pitch": -0.0505,
+                    "roll": -0.0464
+                  },
+                  {
+                    "t": 1.708,
+                    "x": 15.352,
+                    "y": -1.359,
+                    "z": -158.471,
+                    "yaw": 1.7312,
+                    "pitch": -0.0479,
+                    "roll": -0.0561
+                  },
+                  {
+                    "t": 1.808,
+                    "x": 18.581,
+                    "y": 1.537,
+                    "z": -159.027,
+                    "yaw": 1.7457,
+                    "pitch": -0.0061,
+                    "roll": -0.0576
+                  },
+                  {
+                    "t": 1.908,
+                    "x": 21.877,
+                    "y": 5.172,
+                    "z": -159.614,
+                    "yaw": 1.748,
+                    "pitch": 0.0446,
+                    "roll": -0.0497
+                  },
+                  {
+                    "t": 2.008,
+                    "x": 24.932,
+                    "y": 8.635,
+                    "z": -160.163,
+                    "yaw": 1.7487,
+                    "pitch": -0.0365,
+                    "roll": -0.0338
+                  },
+                  {
+                    "t": 2.108,
+                    "x": 27.931,
+                    "y": 11.926,
+                    "z": -160.702,
+                    "yaw": 1.7489,
+                    "pitch": -0.0498,
+                    "roll": -0.0162
+                  },
+                  {
+                    "t": 2.208,
+                    "x": 30.874,
+                    "y": 15.046,
+                    "z": -161.232,
+                    "yaw": 1.7489,
+                    "pitch": -0.0522,
+                    "roll": -0.0102
+                  },
+                  {
+                    "t": 2.308,
+                    "x": 33.765,
+                    "y": 17.993,
+                    "z": -161.753,
+                    "yaw": 1.7489,
+                    "pitch": -0.0375,
+                    "roll": -0.0206
+                  },
+                  {
+                    "t": 2.408,
+                    "x": 36.603,
+                    "y": 20.768,
+                    "z": -162.264,
+                    "yaw": 1.749,
+                    "pitch": -0.028,
+                    "roll": -0.0376
+                  },
+                  {
+                    "t": 2.508,
+                    "x": 39.388,
+                    "y": 23.371,
+                    "z": -162.765,
+                    "yaw": 1.749,
+                    "pitch": -0.0397,
+                    "roll": -0.045
+                  },
+                  {
+                    "t": 2.608,
+                    "x": 42.122,
+                    "y": 25.802,
+                    "z": -163.258,
+                    "yaw": 1.749,
+                    "pitch": -0.0586,
+                    "roll": -0.0354
+                  },
+                  {
+                    "t": 2.708,
+                    "x": 44.805,
+                    "y": 28.061,
+                    "z": -163.741,
+                    "yaw": 1.749,
+                    "pitch": -0.0516,
+                    "roll": -0.012
+                  },
+                  {
+                    "t": 2.808,
+                    "x": 47.437,
+                    "y": 30.149,
+                    "z": -164.215,
+                    "yaw": 1.749,
+                    "pitch": -0.0718,
+                    "roll": 0.0174
+                  },
+                  {
+                    "t": 2.908,
+                    "x": 50.02,
+                    "y": 32.064,
+                    "z": -164.68,
+                    "yaw": 1.749,
+                    "pitch": -0.0816,
+                    "roll": 0.0457
+                  },
+                  {
+                    "t": 3.008,
+                    "x": 52.529,
+                    "y": 33.807,
+                    "z": -165.132,
+                    "yaw": 1.749,
+                    "pitch": -0.0717,
+                    "roll": 0.0649
+                  },
+                  {
+                    "t": 3.108,
+                    "x": 54.953,
+                    "y": 35.378,
+                    "z": -165.568,
+                    "yaw": 1.749,
+                    "pitch": -0.0576,
+                    "roll": 0.0679
+                  },
+                  {
+                    "t": 3.208,
+                    "x": 57.295,
+                    "y": 36.777,
+                    "z": -165.99,
+                    "yaw": 1.749,
+                    "pitch": -0.0406,
+                    "roll": 0.0578
+                  },
+                  {
+                    "t": 3.308,
+                    "x": 59.558,
+                    "y": 38.004,
+                    "z": -166.397,
+                    "yaw": 1.749,
+                    "pitch": -0.0463,
+                    "roll": 0.0453
+                  },
+                  {
+                    "t": 3.408,
+                    "x": 61.744,
+                    "y": 39.06,
+                    "z": -166.791,
+                    "yaw": 1.749,
+                    "pitch": -0.0534,
+                    "roll": 0.0356
+                  },
+                  {
+                    "t": 3.508,
+                    "x": 63.857,
+                    "y": 39.943,
+                    "z": -167.171,
+                    "yaw": 1.749,
+                    "pitch": -0.0315,
+                    "roll": 0.0258
                   }
                 ],
-                "setAt": "2026-07-29T09:03:57.750Z"
+                "setAt": "2026-07-29T15:42:24.393Z"
               },
               "result": null,
               "samples": 0,
@@ -3828,19 +5704,19 @@
             },
             "performance": {
               "fps": 22,
-              "physicsMs": 0.20000004768371582,
+              "physicsMs": 0.19999999925494194,
               "drawCalls": 438,
-              "triangles": 236807
+              "triangles": 242343
             }
           },
           "sceneObjects": 1254,
           "sceneRenderables": {
             "visible": 1098,
             "instanced": 1,
-            "instances": 196
+            "instances": 300
           },
-          "estimatedGpuMemoryBytes": 84085968,
-          "domNodes": 220,
+          "estimatedGpuMemoryBytes": 84098912,
+          "domNodes": 222,
           "modeOwnedDomNodes": 54,
           "hudRoots": 1,
           "sessionRoots": 1,
@@ -3858,7 +5734,7 @@
             "initialized": true,
             "pressedKeys": [],
             "jumpQueued": false,
-            "lastDevice": "keyboard",
+            "lastDevice": "pointer",
             "moveVec": {
               "x": 0,
               "y": 0
@@ -3889,7 +5765,7 @@
             },
             "counters": {
               "menu": 3,
-              "racing": 3,
+              "racing": 5,
               "impact": 1,
               "sfx": 7
             }
@@ -3907,9 +5783,9 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 321.5,
+              "at": 302.69999999925494,
               "mode": "menu",
-              "domNodes": 162,
+              "domNodes": 164,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -3975,9 +5851,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 8239.900000095367,
+              "at": 9627.399999999441,
               "mode": "dunes",
-              "domNodes": 227,
+              "domNodes": 229,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -3993,22 +5869,22 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 7.262261791042365,
-                "cpuFrameTimeMs": 9.26181819005446,
-                "cpuFrameTimeP99Ms": 342.10000002384186,
-                "renderSubmissionTimeMs": 8.952727285298435,
-                "renderSubmissionTimeP99Ms": 339,
+                "fps": 6.81560015145778,
+                "cpuFrameTimeMs": 8.460937500043656,
+                "cpuFrameTimeP99Ms": 358.90000000037253,
+                "renderSubmissionTimeMs": 8.175000000032014,
+                "renderSubmissionTimeP99Ms": 355.90000000037253,
                 "drawCalls": 497,
-                "renderCalls": 772,
+                "renderCalls": 899,
                 "frameRenderCalls": 16,
-                "triangles": 246994,
+                "triangles": 252530,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 27,
                 "renderTargets": 13,
                 "geometries": 121,
-                "gpuMemoryBytes": 159184792,
+                "gpuMemoryBytes": 159220290,
                 "programs": 51,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -4043,9 +5919,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 34957.10000002384,
+              "at": 63797.199999999255,
               "mode": "dunes",
-              "domNodes": 227,
+              "domNodes": 229,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -4061,13 +5937,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 3.342012879829345,
-                "cpuFrameTimeMs": 8.363793107970007,
-                "cpuFrameTimeP99Ms": 55.39999997615814,
-                "renderSubmissionTimeMs": 7.707758630144185,
-                "renderSubmissionTimeP99Ms": 54.90000009536743,
+                "fps": 2.5343724260280047,
+                "cpuFrameTimeMs": 6.762499999968956,
+                "cpuFrameTimeP99Ms": 19.59999999962747,
+                "renderSubmissionTimeMs": 5.799166666669771,
+                "renderSubmissionTimeP99Ms": 16.5,
                 "drawCalls": 14,
-                "renderCalls": 1682,
+                "renderCalls": 2887,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -4076,7 +5952,7 @@
                 "textures": 18,
                 "renderTargets": 12,
                 "geometries": 2,
-                "gpuMemoryBytes": 103403403,
+                "gpuMemoryBytes": 103403986,
                 "programs": 16,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -4110,10 +5986,78 @@
               }
             },
             {
+              "label": "restart:dunes",
+              "at": 69742.69999999925,
+              "mode": "dunes",
+              "domNodes": 229,
+              "hudRoots": 1,
+              "sceneObjects": 1486,
+              "sessionRoots": 1,
+              "renderer": {
+                "backend": "webgl",
+                "deviceDescription": "WebGL 2",
+                "threeRevision": "185",
+                "initialized": true,
+                "resolution": {
+                  "width": 1280,
+                  "height": 720,
+                  "cssWidth": 1280,
+                  "cssHeight": 720
+                },
+                "dpr": 1,
+                "fps": 2.587416960086948,
+                "cpuFrameTimeMs": 8.758333333317811,
+                "cpuFrameTimeP99Ms": 19.59999999962747,
+                "renderSubmissionTimeMs": 8.007500000026388,
+                "renderSubmissionTimeP99Ms": 18.899999999441206,
+                "drawCalls": 14,
+                "renderCalls": 3106,
+                "frameRenderCalls": 14,
+                "triangles": 36013,
+                "points": 0,
+                "lines": 0,
+                "gpuFrameTimeMs": null,
+                "textures": 18,
+                "renderTargets": 12,
+                "geometries": 2,
+                "gpuMemoryBytes": 104482378,
+                "programs": 16,
+                "compilationEventCount": 0,
+                "recentCompilationEvents": [],
+                "deviceLossCount": 0,
+                "rendererState": "ready",
+                "requestedBackend": "webgl",
+                "quality": "high",
+                "dynamicResolutionScale": 1,
+                "activeMode": "dunes",
+                "sessionPhase": "countdown",
+                "transitionCount": 3
+              },
+              "audio": {
+                "contextState": "running",
+                "menuPlaying": false,
+                "racingActive": false,
+                "activeNodes": 6,
+                "cleanupTimers": 0,
+                "volumes": {
+                  "master": 1,
+                  "music": 0.55,
+                  "sfx": 0.72,
+                  "ambient": 0.5
+                },
+                "counters": {
+                  "menu": 2,
+                  "racing": 3,
+                  "impact": 1,
+                  "sfx": 7
+                }
+              }
+            },
+            {
               "label": "exit:dunes",
-              "at": 37535.90000009537,
+              "at": 72471.29999999981,
               "mode": "menu",
-              "domNodes": 165,
+              "domNodes": 167,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -4129,22 +6073,22 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 3.238571109766409,
-                "cpuFrameTimeMs": 10.942500003178914,
-                "cpuFrameTimeP99Ms": 323.09999990463257,
-                "renderSubmissionTimeMs": 10.295000009735425,
-                "renderSubmissionTimeP99Ms": 323,
+                "fps": 2.547559756198511,
+                "cpuFrameTimeMs": 11.353333333305393,
+                "cpuFrameTimeP99Ms": 316.70000000018626,
+                "renderSubmissionTimeMs": 10.611666666693054,
+                "renderSubmissionTimeP99Ms": 316.5,
                 "drawCalls": 496,
-                "renderCalls": 1742,
+                "renderCalls": 3166,
                 "frameRenderCalls": 15,
-                "triangles": 246993,
+                "triangles": 252529,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 18,
                 "renderTargets": 12,
                 "geometries": 2,
-                "gpuMemoryBytes": 104476033,
+                "gpuMemoryBytes": 105555008,
                 "programs": 14,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -4155,7 +6099,7 @@
                 "dynamicResolutionScale": 1,
                 "activeMode": "menu",
                 "sessionPhase": null,
-                "transitionCount": 3
+                "transitionCount": 4
               },
               "audio": {
                 "contextState": "running",
@@ -4171,7 +6115,7 @@
                 },
                 "counters": {
                   "menu": 3,
-                  "racing": 2,
+                  "racing": 4,
                   "impact": 1,
                   "sfx": 7
                 }
@@ -4179,9 +6123,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 39287.200000047684,
+              "at": 74544.39999999944,
               "mode": "dunes",
-              "domNodes": 227,
+              "domNodes": 229,
               "hudRoots": 1,
               "sceneObjects": 1254,
               "sessionRoots": 1,
@@ -4197,22 +6141,22 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 3.2185992119837423,
-                "cpuFrameTimeMs": 12.63583333492279,
-                "cpuFrameTimeP99Ms": 323.09999990463257,
-                "renderSubmissionTimeMs": 11.985833337903022,
-                "renderSubmissionTimeP99Ms": 323,
+                "fps": 2.704627617854126,
+                "cpuFrameTimeMs": 12.932499999979822,
+                "cpuFrameTimeP99Ms": 316.70000000018626,
+                "renderSubmissionTimeMs": 12.25583333337369,
+                "renderSubmissionTimeP99Ms": 316.5,
                 "drawCalls": 417,
-                "renderCalls": 1884,
+                "renderCalls": 3336,
                 "frameRenderCalls": 16,
-                "triangles": 233178,
+                "triangles": 238714,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 27,
                 "renderTargets": 13,
                 "geometries": 121,
-                "gpuMemoryBytes": 161033616,
+                "gpuMemoryBytes": 162147518,
                 "programs": 51,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -4223,7 +6167,7 @@
                 "dynamicResolutionScale": 1,
                 "activeMode": "dunes",
                 "sessionPhase": "countdown",
-                "transitionCount": 4
+                "transitionCount": 5
               },
               "audio": {
                 "contextState": "running",
@@ -4239,19 +6183,19 @@
                 },
                 "counters": {
                   "menu": 3,
-                  "racing": 3,
+                  "racing": 5,
                   "impact": 1,
                   "sfx": 7
                 }
               }
             }
           ],
-          "frameCount": 137,
+          "frameCount": 235,
           "stateDiagnostics": {
-            "bootedAt": 1785315812691,
+            "bootedAt": 1785339689748,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
-            "modeTransitions": 4,
+            "modeTransitions": 5,
             "lastError": "",
             "lastExitReason": "qa"
           }
@@ -4276,31 +6220,31 @@
               "id": "cyber",
               "name": "Cyber Kaki"
             },
-            "speed": 19.27171680467218,
-            "x": -12.397224506473416,
-            "y": 20.903268295966384,
-            "z": 59.73204714035532,
+            "speed": 19.279273443763184,
+            "x": -8.346010969715092,
+            "y": 25.76910144867022,
+            "z": 61.30473632657243,
             "grounded": true,
             "telemetry": {
-              "speed": 19.27171680467218,
-              "forwardVelocity": 19.27171680467218,
-              "engineRpm": 5366.044822760623,
-              "requestedDriveForce": 43317.258603462724,
-              "deliveredWheelForce": 43317.258603462724,
+              "speed": 19.279273443763184,
+              "forwardVelocity": 19.279273443763184,
+              "engineRpm": 5367.801685969361,
+              "requestedDriveForce": 43306.3964037774,
+              "deliveredWheelForce": 43306.3964037774,
               "normalLoad": 0,
-              "chassisPitchVelocity": -0.5620788656752037,
-              "chassisRoll": 0.031807445168774894,
+              "chassisPitchVelocity": -0.18391780800888058,
+              "chassisRoll": 0.014776639380376832,
               "steeringInput": 0,
               "wheelAngle": 0,
               "groundedWheels": 4,
-              "sandResistance": 3.6577365743010546,
+              "sandResistance": 2.0192306706934615,
               "brushStrength": 0,
               "sinkage": 0.008,
-              "wheelSlip": 0.061891319202687346
+              "wheelSlip": 0.048988446374381954
             },
             "race": {
               "elapsed": 0.09999999999999999,
-              "progress": 0.4981464359205887,
+              "progress": 0.5000994018488113,
               "lap": 0,
               "targetLaps": 1,
               "checkpoint": 1,
@@ -4320,10 +6264,10 @@
                 ],
                 "worldSize": 896,
                 "heightRange": [
-                  -14.121211051940918,
+                  -12.89847469329834,
                   27.770601272583008
                 ],
-                "checksum": "d1ca3f3c"
+                "checksum": "e60d5581"
               },
               "clipmap": {
                 "quality": "high",
@@ -4333,29 +6277,31 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
                 "snappedOrigins": [
                   [
-                    -12.4,
-                    59.519999999999996,
+                    -8.68,
+                    60.76,
                     0.31
                   ],
                   [
-                    -12.4,
-                    59.519999999999996,
+                    -8.68,
+                    60.76,
                     0.62
                   ],
                   [
-                    -12.4,
+                    -9.92,
                     59.519999999999996,
                     1.24
                   ],
                   [
-                    -14.879999999999999,
+                    -9.92,
                     59.519999999999996,
                     2.48
                   ],
                   [
-                    -19.84,
+                    -9.92,
                     59.519999999999996,
                     4.96
                   ],
@@ -4392,12 +6338,12 @@
               "recentWorldSize": 96,
               "coarseResolution": 128,
               "origin": [
-                -61.43248532289628,
-                10.896281800391389
+                -57.48727984344423,
+                12.399217221135029
               ],
               "focus": [
-                -12.525018128914798,
-                59.63478259363153
+                -8.472954198501588,
+                61.206261716019505
               ],
               "scrollCount": 1,
               "appliedBrushes": 0,
@@ -4415,7 +6361,7 @@
               "kitAttached": true,
               "authoredScatter": 38,
               "flags": 32,
-              "lods": 21,
+              "lods": 18,
               "checkpointGates": 16,
               "drawPlacements": 0,
               "weather": "clear",
@@ -4425,16 +6371,20 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
-                "activeCurtains": 4,
-                "emittedSamples": 4,
-                "vertexCapacity": 192
+                "activeCurtains": 2,
+                "emittedSamples": 2,
+                "vertexCapacity": 480,
+                "peakHeight": 0.42610822946231597
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
-                "active": 3,
-                "spawned": 3,
+                "capacity": 300,
+                "active": 8,
+                "spawned": 8,
                 "pooled": true
               }
             },
@@ -4478,12 +6428,12 @@
               "cinematicLabel": "",
               "transitionProgress": 1,
               "projection": "perspective",
-              "fov": 74.39608070530821,
+              "fov": 74.3981965642537,
               "visionStage": null,
               "lookAheadMeters": null,
               "collision": {
                 "blocked": false,
-                "distance": 16.671822496972617,
+                "distance": 16.6728134100281,
                 "hit": "",
                 "lifted": false,
                 "lowerFrustumBlocked": false,
@@ -4553,9 +6503,9 @@
             },
             "performance": {
               "fps": 20,
-              "physicsMs": 0.30000007152557373,
-              "drawCalls": 547,
-              "triangles": 253617
+              "physicsMs": 0.20000000018626451,
+              "drawCalls": 592,
+              "triangles": 267309
             }
           },
           "mirage": {
@@ -4577,31 +6527,31 @@
               "id": "tipsy",
               "name": "Tipsy Tumbler"
             },
-            "speed": 18.274299092792525,
-            "x": -207.7611623268983,
-            "y": -2.9190734406108914,
-            "z": -88.47211537155425,
+            "speed": 18.273724982280537,
+            "x": -220.42123030991542,
+            "y": -4.179728858305905,
+            "z": -112.74454216376917,
             "grounded": true,
             "telemetry": {
-              "speed": 18.274299092792525,
-              "forwardVelocity": 17.59553277748286,
-              "engineRpm": 6510.897920690888,
-              "requestedDriveForce": 25912.636308791713,
-              "deliveredWheelForce": 25912.636308791713,
+              "speed": 18.273724982280537,
+              "forwardVelocity": 17.596749291078318,
+              "engineRpm": 6511.275457976179,
+              "requestedDriveForce": 25907.127566794767,
+              "deliveredWheelForce": 25907.127566794767,
               "normalLoad": 0,
-              "chassisPitchVelocity": -1.2092172532710161,
-              "chassisRoll": 0.029140716401829053,
+              "chassisPitchVelocity": -0.668647221236881,
+              "chassisRoll": -0.014554176436567832,
               "steeringInput": 0.72,
               "wheelAngle": 0.1657813750711005,
               "groundedWheels": 4,
-              "sandResistance": 0.9384770019497001,
+              "sandResistance": 0.913686249114027,
               "brushStrength": 0,
               "sinkage": 0.008,
-              "wheelSlip": 0.30352610743994485
+              "wheelSlip": 0.2789656612022232
             },
             "race": {
               "elapsed": 0.09999999999999999,
-              "progress": 0.24018858396523143,
+              "progress": 0.2418543018376932,
               "lap": 0,
               "targetLaps": 1,
               "checkpoint": 1,
@@ -4624,7 +6574,7 @@
                   -10.452086448669434,
                   12.95020580291748
                 ],
-                "checksum": "a8e9c127"
+                "checksum": "a14e8671"
               },
               "clipmap": {
                 "quality": "high",
@@ -4634,40 +6584,42 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
                 "snappedOrigins": [
                   [
-                    -208.32,
-                    -88.66,
+                    -220.72,
+                    -112.84,
                     0.31
                   ],
                   [
-                    -208.32,
-                    -89.28,
+                    -220.72,
+                    -112.84,
                     0.62
                   ],
                   [
-                    -208.32,
-                    -89.28,
+                    -220.72,
+                    -114.08,
                     1.24
                   ],
                   [
-                    -208.32,
-                    -89.28,
+                    -223.2,
+                    -114.08,
                     2.48
                   ],
                   [
-                    -208.32,
-                    -89.28,
+                    -228.16,
+                    -119.03999999999999,
                     4.96
                   ],
                   [
-                    -218.24,
-                    -99.2,
+                    -238.07999999999998,
+                    -119.03999999999999,
                     9.92
                   ],
                   [
-                    -218.24,
-                    -99.2,
+                    -238.07999999999998,
+                    -119.03999999999999,
                     19.84
                   ]
                 ],
@@ -4693,12 +6645,12 @@
               "recentWorldSize": 96,
               "coarseResolution": 128,
               "origin": [
-                -257.0019569471624,
-                -136.9549902152642
+                -269.5890410958904,
+                -160.43835616438355
               ],
               "focus": [
-                -207.90551617904867,
-                -88.52062246485819
+                -220.56489035606262,
+                -112.69403170201026
               ],
               "scrollCount": 1,
               "appliedBrushes": 0,
@@ -4726,16 +6678,20 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
-                "activeCurtains": 4,
-                "emittedSamples": 4,
-                "vertexCapacity": 192
+                "activeCurtains": 2,
+                "emittedSamples": 2,
+                "vertexCapacity": 480,
+                "peakHeight": 0.5370646812240959
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
-                "active": 7,
-                "spawned": 7,
+                "capacity": 300,
+                "active": 21,
+                "spawned": 21,
                 "pooled": true
               }
             },
@@ -4779,12 +6735,12 @@
               "cinematicLabel": "",
               "transitionProgress": 1,
               "projection": "perspective",
-              "fov": 77.31680374598191,
+              "fov": 77.31664299503855,
               "visionStage": null,
               "lookAheadMeters": null,
               "collision": {
                 "blocked": false,
-                "distance": 15.927743886301432,
+                "distance": 15.92750864649171,
                 "hit": "",
                 "lifted": false,
                 "lowerFrustumBlocked": false,
@@ -4854,9 +6810,9 @@
             },
             "performance": {
               "fps": 19,
-              "physicsMs": 0.19999992847442627,
-              "drawCalls": 592,
-              "triangles": 290275
+              "physicsMs": 0.20000000018626451,
+              "drawCalls": 624,
+              "triangles": 300651
             }
           },
           "litterbox": {
@@ -4878,31 +6834,31 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
-            "speed": 16.66651115673422,
-            "x": 49.80513073204192,
-            "y": -3.1146738751955523,
-            "z": -118.14546783761261,
+            "speed": 16.669196396140745,
+            "x": 52.21661668596917,
+            "y": -4.20858135525302,
+            "z": -120.59371280475592,
             "grounded": true,
             "telemetry": {
-              "speed": 16.66651115673422,
-              "forwardVelocity": 15.918495143455754,
-              "engineRpm": 5960.806994134827,
-              "requestedDriveForce": 33939.15211880692,
-              "deliveredWheelForce": 33939.15211880692,
+              "speed": 16.669196396140745,
+              "forwardVelocity": 15.923979056975854,
+              "engineRpm": 5962.513416470104,
+              "requestedDriveForce": 33914.25327901252,
+              "deliveredWheelForce": 33914.25327901252,
               "normalLoad": 0,
-              "chassisPitchVelocity": -1.3837383653874986,
-              "chassisRoll": 0.017623735037175188,
+              "chassisPitchVelocity": -1.4927842784268306,
+              "chassisRoll": 0.0021230326978810346,
               "steeringInput": 0.72,
               "wheelAngle": 0.1657813750711005,
               "groundedWheels": 4,
-              "sandResistance": 3.4077496486977807,
+              "sandResistance": 1.9902927745799557,
               "brushStrength": 0,
               "sinkage": 0.008,
-              "wheelSlip": 0.05120151373881326
+              "wheelSlip": 0.03995311627655707
             },
             "race": {
               "elapsed": 0.09999999999999999,
-              "progress": 0.2393162393162394,
+              "progress": 0.24096385542168666,
               "lap": 0,
               "targetLaps": 0,
               "checkpoint": 0,
@@ -4925,7 +6881,7 @@
                   -19.297311782836914,
                   21.837453842163086
                 ],
-                "checksum": "c4da243c"
+                "checksum": "47764619"
               },
               "clipmap": {
                 "quality": "high",
@@ -4935,40 +6891,42 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
                 "snappedOrigins": [
                   [
-                    49.6,
-                    -118.42,
+                    52.08,
+                    -120.9,
                     0.31
                   ],
                   [
-                    49.6,
-                    -119.03999999999999,
+                    52.08,
+                    -121.52,
                     0.62
                   ],
                   [
-                    49.6,
-                    -119.03999999999999,
+                    52.08,
+                    -121.52,
                     1.24
                   ],
                   [
                     49.6,
-                    -119.03999999999999,
+                    -124,
                     2.48
                   ],
                   [
                     49.6,
-                    -119.03999999999999,
+                    -128.96,
                     4.96
                   ],
                   [
                     39.68,
-                    -119.03999999999999,
+                    -138.88,
                     9.92
                   ],
                   [
                     39.68,
-                    -119.03999999999999,
+                    -138.88,
                     19.84
                   ]
                 ],
@@ -4994,12 +6952,12 @@
               "recentWorldSize": 96,
               "coarseResolution": 128,
               "origin": [
-                0.5636007827788649,
-                -166.0743639921722
+                3.0058708414872797,
+                -168.70450097847356
               ],
               "focus": [
-                49.66855365573823,
-                -118.12023956557289
+                52.078089617593086,
+                -120.5834059583132
               ],
               "scrollCount": 1,
               "appliedBrushes": 0,
@@ -5017,7 +6975,7 @@
               "kitAttached": true,
               "authoredScatter": 38,
               "flags": 0,
-              "lods": 23,
+              "lods": 20,
               "checkpointGates": 0,
               "drawPlacements": 0,
               "weather": "sandstorm",
@@ -5027,16 +6985,20 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
-                "activeCurtains": 4,
-                "emittedSamples": 4,
-                "vertexCapacity": 192
+                "activeCurtains": 2,
+                "emittedSamples": 2,
+                "vertexCapacity": 480,
+                "peakHeight": 0.4665131905969725
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
-                "active": 10,
-                "spawned": 10,
+                "capacity": 300,
+                "active": 19,
+                "spawned": 19,
                 "pooled": true
               }
             },
@@ -5080,12 +7042,12 @@
               "cinematicLabel": "",
               "transitionProgress": 1,
               "projection": "perspective",
-              "fov": 74.66662312388559,
+              "fov": 74.66737499091941,
               "visionStage": null,
               "lookAheadMeters": null,
               "collision": {
                 "blocked": false,
-                "distance": 15.54305172680002,
+                "distance": 15.543785385650667,
                 "hit": "",
                 "lifted": false,
                 "lowerFrustumBlocked": false,
@@ -5155,9 +7117,9 @@
             },
             "performance": {
               "fps": 20,
-              "physicsMs": 0.2999999523162842,
-              "drawCalls": 197,
-              "triangles": 198273
+              "physicsMs": 0.2999999998137355,
+              "drawCalls": 220,
+              "triangles": 207941
             }
           }
         },
@@ -5172,46 +7134,46 @@
             "mode": "racing",
             "raceMode": "dunes",
             "phase": "racing",
-            "eventId": "draw-kdt-1c18im1-15ue",
+            "eventId": "draw-kdt-1cfh2j7-1huu",
             "event": {
-              "id": "draw-kdt-1c18im1-15ue",
-              "name": "Kaki Thunder Ring",
+              "id": "draw-kdt-1cfh2j7-1huu",
+              "name": "Kaki Thunder Circuit",
               "routeType": "circuit",
               "weather": "sandstorm",
               "timeOfDay": "noon",
               "isDrawTrack": true,
-              "customTrackId": "kdt-1c18im1-15ue"
+              "customTrackId": "kdt-1cfh2j7-1huu"
             },
             "vehicleId": "meowster",
             "vehicle": {
               "id": "meowster",
               "name": "Mighty Meowster"
             },
-            "speed": 19.297383580454397,
-            "x": 160.57731585469122,
-            "y": 13.75001489027203,
-            "z": -34.27100300872997,
+            "speed": 19.308831140832616,
+            "x": 35.88382366931155,
+            "y": 9.919239635773199,
+            "z": 160.1013771440457,
             "grounded": true,
             "telemetry": {
-              "speed": 19.297383580454397,
-              "forwardVelocity": 19.297383580454397,
-              "engineRpm": 5189.446798531217,
-              "requestedDriveForce": 38502.978662020825,
-              "deliveredWheelForce": 38502.978662020825,
+              "speed": 19.308831140832616,
+              "forwardVelocity": 19.30883114083262,
+              "engineRpm": 5192.05325570498,
+              "requestedDriveForce": 38489.00685321084,
+              "deliveredWheelForce": 38489.00685321084,
               "normalLoad": 0,
-              "chassisPitchVelocity": 1.7164052470096025,
-              "chassisRoll": 0.008427084524321303,
+              "chassisPitchVelocity": 1.2050199546111822,
+              "chassisRoll": -0.020725621860273043,
               "steeringInput": 0,
               "wheelAngle": 0,
               "groundedWheels": 4,
-              "sandResistance": 4.069033006967254,
+              "sandResistance": 1.9662888955475757,
               "brushStrength": 0,
               "sinkage": 0.008,
-              "wheelSlip": 0.0683683181170396
+              "wheelSlip": 0.050269437689478
             },
             "race": {
               "elapsed": 0.09999999999999999,
-              "progress": 0.0067796610169491515,
+              "progress": 0.7593220338983045,
               "lap": 0,
               "targetLaps": 2,
               "checkpoint": 1,
@@ -5223,18 +7185,18 @@
             "terrain": {
               "heightfield": {
                 "schema": 1,
-                "eventId": "draw-kdt-1c18im1-15ue",
-                "seed": 585971200,
+                "eventId": "draw-kdt-1cfh2j7-1huu",
+                "seed": 561516842,
                 "resolution": [
                   513,
                   513
                 ],
                 "worldSize": 640,
                 "heightRange": [
-                  -7.89998722076416,
-                  14.297999382019043
+                  -10.969531059265137,
+                  16.470916748046875
                 ],
-                "checksum": "e8892282"
+                "checksum": "2a9bd412"
               },
               "clipmap": {
                 "quality": "high",
@@ -5244,40 +7206,42 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#55423d",
                 "snappedOrigins": [
                   [
+                    35.339999999999996,
                     159.96,
-                    -34.72,
                     0.31
                   ],
                   [
+                    34.72,
                     159.96,
-                    -34.72,
                     0.62
                   ],
                   [
+                    34.72,
                     158.72,
-                    -34.72,
                     1.24
                   ],
                   [
+                    34.72,
                     158.72,
-                    -34.72,
                     2.48
                   ],
                   [
+                    29.759999999999998,
                     158.72,
-                    -39.68,
                     4.96
                   ],
                   [
+                    19.84,
                     158.72,
-                    -39.68,
                     9.92
                   ],
                   [
+                    19.84,
                     158.72,
-                    -39.68,
                     19.84
                   ]
                 ],
@@ -5303,14 +7267,14 @@
               "recentWorldSize": 96,
               "coarseResolution": 128,
               "origin": [
-                113.84735812133071,
-                -74.20743639921722
+                -13.526418786692759,
+                112.34442270058707
               ],
               "focus": [
-                160.6049526987898,
-                -34.11258409263461
+                35.72646894483319,
+                160.13500049270365
               ],
-              "scrollCount": 0,
+              "scrollCount": 1,
               "appliedBrushes": 0,
               "droppedBrushes": 0,
               "maximumDepression": 0,
@@ -5319,14 +7283,14 @@
                 -0.15,
                 0.08
               ],
-              "version": 1
+              "version": 2
             },
             "environment": {
-              "eventId": "draw-kdt-1c18im1-15ue",
+              "eventId": "draw-kdt-1cfh2j7-1huu",
               "kitAttached": true,
               "authoredScatter": 58,
               "flags": 32,
-              "lods": 19,
+              "lods": 28,
               "checkpointGates": 16,
               "drawPlacements": 5,
               "weather": "sandstorm",
@@ -5336,21 +7300,25 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
-                "activeCurtains": 4,
-                "emittedSamples": 4,
-                "vertexCapacity": 192
+                "activeCurtains": 2,
+                "emittedSamples": 2,
+                "vertexCapacity": 480,
+                "peakHeight": 0.42083276598143826
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
-                "active": 6,
-                "spawned": 6,
+                "capacity": 300,
+                "active": 11,
+                "spawned": 11,
                 "pooled": true
               }
             },
             "records": {
-              "key": "draw-kdt-1c18im1-15ue:meowster",
+              "key": "draw-kdt-1cfh2j7-1huu:meowster",
               "previous": null,
               "result": null,
               "samples": 0,
@@ -5389,12 +7357,12 @@
               "cinematicLabel": "",
               "transitionProgress": 1,
               "projection": "perspective",
-              "fov": 75.40326740252723,
+              "fov": 75.40647271943314,
               "visionStage": null,
               "lookAheadMeters": null,
               "collision": {
                 "blocked": false,
-                "distance": 16.230660480984724,
+                "distance": 16.23235348875353,
                 "hit": "",
                 "lifted": false,
                 "lowerFrustumBlocked": false,
@@ -5464,9 +7432,9 @@
             },
             "performance": {
               "fps": 29,
-              "physicsMs": 0.20000004768371582,
-              "drawCalls": 502,
-              "triangles": 247829
+              "physicsMs": 0.40000000037252903,
+              "drawCalls": 567,
+              "triangles": 263803
             }
           }
         },
@@ -5489,22 +7457,22 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 2.9015784586012314,
-            "cpuFrameTimeMs": 83.69999996821086,
-            "cpuFrameTimeP99Ms": 364.1999999284744,
-            "renderSubmissionTimeMs": 82.96666663885117,
-            "renderSubmissionTimeP99Ms": 361.89999997615814,
-            "drawCalls": 496,
-            "renderCalls": 87,
-            "frameRenderCalls": 15,
-            "triangles": 246993,
+            "fps": 3.1431714600029133,
+            "cpuFrameTimeMs": 68.4111111111318,
+            "cpuFrameTimeP99Ms": 437.70000000018626,
+            "renderSubmissionTimeMs": 67.65555555570043,
+            "renderSubmissionTimeP99Ms": 434.40000000037253,
+            "drawCalls": 497,
+            "renderCalls": 129,
+            "frameRenderCalls": 16,
+            "triangles": 252530,
             "points": 0,
             "lines": 0,
             "gpuFrameTimeMs": null,
             "textures": 27,
             "renderTargets": 13,
             "geometries": 121,
-            "gpuMemoryBytes": 159184792,
+            "gpuMemoryBytes": 159220290,
             "programs": 51,
             "compilationEventCount": 0,
             "recentCompilationEvents": [],
@@ -5538,7 +7506,7 @@
             },
             "speed": 0,
             "x": -155,
-            "y": -0.5723359791700514,
+            "y": -0.41773169863322535,
             "z": -78,
             "grounded": true,
             "telemetry": {
@@ -5583,7 +7551,7 @@
                   -8.878320693969727,
                   13.8679780960083
                 ],
-                "checksum": "ce661010"
+                "checksum": "8bb06adc"
               },
               "clipmap": {
                 "quality": "high",
@@ -5593,6 +7561,8 @@
                 "triangles": 90240,
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#4a3043",
                 "snappedOrigins": [
                   [
                     -155,
@@ -5685,14 +7655,18 @@
               "roosterTail": {
                 "quality": "high",
                 "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
                 "segmentsPerWheel": 24,
                 "activeCurtains": 0,
                 "emittedSamples": 0,
-                "vertexCapacity": 192
+                "vertexCapacity": 480,
+                "peakHeight": 0
               },
               "dust": {
                 "quality": "high",
-                "capacity": 196,
+                "capacity": 300,
                 "active": 0,
                 "spawned": 0,
                 "pooled": true
@@ -5703,111 +7677,327 @@
               "previous": {
                 "eventId": "whiskerwind",
                 "vehicleId": "meowster",
-                "time": 1.2,
+                "time": 3.533,
                 "score": 0,
                 "medal": "S",
                 "ghost": [
                   {
                     "t": 0.108,
                     "x": -154.989,
-                    "y": -0.554,
+                    "y": -0.391,
                     "z": -78.015,
                     "yaw": 2.5073,
-                    "pitch": 0.0522,
-                    "roll": 0.0522
+                    "pitch": 0.1011,
+                    "roll": 0.0098
                   },
                   {
                     "t": 0.208,
                     "x": -154.889,
-                    "y": -0.559,
+                    "y": -0.402,
                     "z": -78.146,
                     "yaw": 2.4806,
-                    "pitch": 0.001,
-                    "roll": 0.068
+                    "pitch": 0.0177,
+                    "roll": 0.0122
                   },
                   {
                     "t": 0.308,
                     "x": -154.748,
-                    "y": -0.566,
-                    "z": -78.324,
+                    "y": -0.418,
+                    "z": -78.325,
                     "yaw": 2.4679,
-                    "pitch": 0.0087,
-                    "roll": 0.0737
+                    "pitch": 0.0422,
+                    "roll": 0.0125
                   },
                   {
                     "t": 0.408,
                     "x": -154.573,
-                    "y": -0.58,
+                    "y": -0.443,
                     "z": -78.543,
                     "yaw": 2.4642,
-                    "pitch": 0.0068,
-                    "roll": 0.0756
+                    "pitch": 0.0324,
+                    "roll": 0.0123
                   },
                   {
                     "t": 0.508,
-                    "x": -154.258,
-                    "y": -0.597,
-                    "z": -78.93,
+                    "x": -154.257,
+                    "y": -0.48,
+                    "z": -78.931,
                     "yaw": 2.4494,
-                    "pitch": -0.0177,
-                    "roll": 0.0767
+                    "pitch": 0.0133,
+                    "roll": 0.0124
                   },
                   {
                     "t": 0.608,
-                    "x": -153.645,
-                    "y": -0.601,
-                    "z": -79.634,
+                    "x": -153.643,
+                    "y": -0.518,
+                    "z": -79.636,
                     "yaw": 2.408,
-                    "pitch": -0.0581,
-                    "roll": 0.0797
+                    "pitch": -0.0234,
+                    "roll": 0.0138
                   },
                   {
                     "t": 0.708,
                     "x": -152.889,
-                    "y": -0.579,
+                    "y": -0.563,
                     "z": -80.871,
                     "yaw": 2.4972,
-                    "pitch": -0.0342,
-                    "roll": 0.0808
+                    "pitch": 0.029,
+                    "roll": 0.016
                   },
                   {
                     "t": 0.808,
                     "x": -152.827,
-                    "y": -0.584,
+                    "y": -0.574,
                     "z": -80.954,
                     "yaw": 2.4944,
-                    "pitch": -0.0736,
-                    "roll": 0.0812
+                    "pitch": -0.0237,
+                    "roll": 0.0174
                   },
                   {
                     "t": 0.908,
                     "x": -0.841,
-                    "y": -0.101,
+                    "y": -1.238,
                     "z": -157.07,
                     "yaw": 1.5439,
-                    "pitch": -0.0354,
-                    "roll": 0.1345
+                    "pitch": -0.0343,
+                    "roll": 0.0231
                   },
                   {
                     "t": 1.008,
                     "x": 0.029,
-                    "y": -0.073,
+                    "y": -1.226,
                     "z": -157.054,
                     "yaw": 1.5603,
-                    "pitch": -0.088,
-                    "roll": 0.1609
+                    "pitch": -0.0557,
+                    "roll": 0.0246
                   },
                   {
                     "t": 1.108,
-                    "x": 1.297,
-                    "y": -0.031,
+                    "x": 1.299,
+                    "y": -1.209,
                     "z": -157.058,
                     "yaw": 1.5852,
-                    "pitch": -0.0916,
-                    "roll": 0.1628
+                    "pitch": -0.0773,
+                    "roll": 0.0216
+                  },
+                  {
+                    "t": 1.208,
+                    "x": 2.919,
+                    "y": -1.206,
+                    "z": -157.106,
+                    "yaw": 1.6118,
+                    "pitch": -0.0837,
+                    "roll": 0.0136
+                  },
+                  {
+                    "t": 1.308,
+                    "x": 4.854,
+                    "y": -1.197,
+                    "z": -157.213,
+                    "yaw": 1.6378,
+                    "pitch": -0.0743,
+                    "roll": 0.0002
+                  },
+                  {
+                    "t": 1.408,
+                    "x": 7.085,
+                    "y": -1.21,
+                    "z": -157.394,
+                    "yaw": 1.6628,
+                    "pitch": -0.0641,
+                    "roll": -0.0166
+                  },
+                  {
+                    "t": 1.508,
+                    "x": 9.586,
+                    "y": -1.248,
+                    "z": -157.658,
+                    "yaw": 1.6867,
+                    "pitch": -0.0523,
+                    "roll": -0.0333
+                  },
+                  {
+                    "t": 1.608,
+                    "x": 12.348,
+                    "y": -1.302,
+                    "z": -158.015,
+                    "yaw": 1.7095,
+                    "pitch": -0.0505,
+                    "roll": -0.0464
+                  },
+                  {
+                    "t": 1.708,
+                    "x": 15.352,
+                    "y": -1.359,
+                    "z": -158.471,
+                    "yaw": 1.7312,
+                    "pitch": -0.0479,
+                    "roll": -0.0561
+                  },
+                  {
+                    "t": 1.808,
+                    "x": 18.581,
+                    "y": 1.537,
+                    "z": -159.027,
+                    "yaw": 1.7457,
+                    "pitch": -0.0061,
+                    "roll": -0.0576
+                  },
+                  {
+                    "t": 1.908,
+                    "x": 21.877,
+                    "y": 5.172,
+                    "z": -159.614,
+                    "yaw": 1.748,
+                    "pitch": 0.0446,
+                    "roll": -0.0497
+                  },
+                  {
+                    "t": 2.008,
+                    "x": 24.932,
+                    "y": 8.635,
+                    "z": -160.163,
+                    "yaw": 1.7487,
+                    "pitch": -0.0365,
+                    "roll": -0.0338
+                  },
+                  {
+                    "t": 2.108,
+                    "x": 27.931,
+                    "y": 11.926,
+                    "z": -160.702,
+                    "yaw": 1.7489,
+                    "pitch": -0.0498,
+                    "roll": -0.0162
+                  },
+                  {
+                    "t": 2.208,
+                    "x": 30.874,
+                    "y": 15.046,
+                    "z": -161.232,
+                    "yaw": 1.7489,
+                    "pitch": -0.0522,
+                    "roll": -0.0102
+                  },
+                  {
+                    "t": 2.308,
+                    "x": 33.765,
+                    "y": 17.993,
+                    "z": -161.753,
+                    "yaw": 1.7489,
+                    "pitch": -0.0375,
+                    "roll": -0.0206
+                  },
+                  {
+                    "t": 2.408,
+                    "x": 36.603,
+                    "y": 20.768,
+                    "z": -162.264,
+                    "yaw": 1.749,
+                    "pitch": -0.028,
+                    "roll": -0.0376
+                  },
+                  {
+                    "t": 2.508,
+                    "x": 39.388,
+                    "y": 23.371,
+                    "z": -162.765,
+                    "yaw": 1.749,
+                    "pitch": -0.0397,
+                    "roll": -0.045
+                  },
+                  {
+                    "t": 2.608,
+                    "x": 42.122,
+                    "y": 25.802,
+                    "z": -163.258,
+                    "yaw": 1.749,
+                    "pitch": -0.0586,
+                    "roll": -0.0354
+                  },
+                  {
+                    "t": 2.708,
+                    "x": 44.805,
+                    "y": 28.061,
+                    "z": -163.741,
+                    "yaw": 1.749,
+                    "pitch": -0.0516,
+                    "roll": -0.012
+                  },
+                  {
+                    "t": 2.808,
+                    "x": 47.437,
+                    "y": 30.149,
+                    "z": -164.215,
+                    "yaw": 1.749,
+                    "pitch": -0.0718,
+                    "roll": 0.0174
+                  },
+                  {
+                    "t": 2.908,
+                    "x": 50.02,
+                    "y": 32.064,
+                    "z": -164.68,
+                    "yaw": 1.749,
+                    "pitch": -0.0816,
+                    "roll": 0.0457
+                  },
+                  {
+                    "t": 3.008,
+                    "x": 52.529,
+                    "y": 33.807,
+                    "z": -165.132,
+                    "yaw": 1.749,
+                    "pitch": -0.0717,
+                    "roll": 0.0649
+                  },
+                  {
+                    "t": 3.108,
+                    "x": 54.953,
+                    "y": 35.378,
+                    "z": -165.568,
+                    "yaw": 1.749,
+                    "pitch": -0.0576,
+                    "roll": 0.0679
+                  },
+                  {
+                    "t": 3.208,
+                    "x": 57.295,
+                    "y": 36.777,
+                    "z": -165.99,
+                    "yaw": 1.749,
+                    "pitch": -0.0406,
+                    "roll": 0.0578
+                  },
+                  {
+                    "t": 3.308,
+                    "x": 59.558,
+                    "y": 38.004,
+                    "z": -166.397,
+                    "yaw": 1.749,
+                    "pitch": -0.0463,
+                    "roll": 0.0453
+                  },
+                  {
+                    "t": 3.408,
+                    "x": 61.744,
+                    "y": 39.06,
+                    "z": -166.791,
+                    "yaw": 1.749,
+                    "pitch": -0.0534,
+                    "roll": 0.0356
+                  },
+                  {
+                    "t": 3.508,
+                    "x": 63.857,
+                    "y": 39.943,
+                    "z": -167.171,
+                    "yaw": 1.749,
+                    "pitch": -0.0315,
+                    "roll": 0.0258
                   }
                 ],
-                "setAt": "2026-07-29T09:03:57.750Z"
+                "setAt": "2026-07-29T15:42:24.393Z"
               },
               "result": null,
               "samples": 0,
@@ -5920,20 +8110,20 @@
               ]
             },
             "performance": {
-              "fps": 46,
+              "fps": 38,
               "physicsMs": 0,
-              "drawCalls": 496,
-              "triangles": 246993
+              "drawCalls": 497,
+              "triangles": 252530
             }
           },
           "sceneObjects": 1486,
           "sceneRenderables": {
             "visible": 1297,
             "instanced": 1,
-            "instances": 196
+            "instances": 300
           },
-          "estimatedGpuMemoryBytes": 84085968,
-          "domNodes": 220,
+          "estimatedGpuMemoryBytes": 84098912,
+          "domNodes": 222,
           "modeOwnedDomNodes": 54,
           "hudRoots": 1,
           "sessionRoots": 1,
@@ -6000,9 +8190,9 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 20500,
+              "at": 19656.199999999255,
               "mode": "menu",
-              "domNodes": 165,
+              "domNodes": 167,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -6068,9 +8258,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 22235.700000047684,
+              "at": 22235.5,
               "mode": "dunes",
-              "domNodes": 227,
+              "domNodes": 229,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -6086,22 +8276,22 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 3.180408682395123,
-                "cpuFrameTimeMs": 98.39999997615814,
-                "cpuFrameTimeP99Ms": 364.1999999284744,
-                "renderSubmissionTimeMs": 97.5599999666214,
-                "renderSubmissionTimeP99Ms": 361.89999997615814,
+                "fps": 3.1431714600029133,
+                "cpuFrameTimeMs": 68.4111111111318,
+                "cpuFrameTimeP99Ms": 437.70000000018626,
+                "renderSubmissionTimeMs": 67.65555555570043,
+                "renderSubmissionTimeP99Ms": 434.40000000037253,
                 "drawCalls": 497,
-                "renderCalls": 72,
+                "renderCalls": 129,
                 "frameRenderCalls": 16,
-                "triangles": 246994,
+                "triangles": 252530,
                 "points": 0,
                 "lines": 0,
                 "gpuFrameTimeMs": null,
                 "textures": 27,
                 "renderTargets": 13,
                 "geometries": 121,
-                "gpuMemoryBytes": 159184792,
+                "gpuMemoryBytes": 159220290,
                 "programs": 51,
                 "compilationEventCount": 0,
                 "recentCompilationEvents": [],
@@ -6135,9 +8325,9 @@
               }
             }
           ],
-          "frameCount": 6,
+          "frameCount": 9,
           "stateDiagnostics": {
-            "bootedAt": 1785315889689,
+            "bootedAt": 1785339805115,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
             "modeTransitions": 1,
@@ -6168,10 +8358,10 @@
         },
         "dpr": 1,
         "fps": 0,
-        "cpuFrameTimeMs": 55.39999997615814,
-        "cpuFrameTimeP99Ms": 55.39999997615814,
-        "renderSubmissionTimeMs": 54.90000009536743,
-        "renderSubmissionTimeP99Ms": 54.90000009536743,
+        "cpuFrameTimeMs": 57.40000000037253,
+        "cpuFrameTimeP99Ms": 57.40000000037253,
+        "renderSubmissionTimeMs": 56.799999999813735,
+        "renderSubmissionTimeP99Ms": 56.799999999813735,
         "drawCalls": 13,
         "renderCalls": 14,
         "frameRenderCalls": 14,
@@ -6182,7 +8372,7 @@
         "textures": 14,
         "renderTargets": 12,
         "geometries": 1,
-        "gpuMemoryBytes": 33662205,
+        "gpuMemoryBytes": 33662788,
         "programs": 12,
         "compilationEventCount": 0,
         "recentCompilationEvents": [],
@@ -6203,7 +8393,7 @@
         "instances": 0
       },
       "estimatedGpuMemoryBytes": 68935776,
-      "domNodes": 162,
+      "domNodes": 164,
       "modeOwnedDomNodes": 0,
       "hudRoots": 0,
       "sessionRoots": 0,
@@ -6270,9 +8460,9 @@
       "transitions": [
         {
           "label": "boot-menu",
-          "at": 321.5,
+          "at": 302.69999999925494,
           "mode": "menu",
-          "domNodes": 162,
+          "domNodes": 164,
           "hudRoots": 0,
           "sceneObjects": 4,
           "sessionRoots": 0,
@@ -6339,11 +8529,355 @@
       ],
       "frameCount": 1,
       "stateDiagnostics": {
-        "bootedAt": 1785315812691,
+        "bootedAt": 1785339689748,
         "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
         "rendererFallback": null,
         "modeTransitions": 0,
         "lastError": ""
+      }
+    },
+    "responsiveDunes": {
+      "viewport": [
+        844,
+        390
+      ],
+      "overflowX": 0,
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "width": 844,
+        "height": 390,
+        "top": 0,
+        "right": 844,
+        "bottom": 390,
+        "left": 0
+      },
+      "hud": {
+        "x": 0,
+        "y": 0,
+        "width": 844,
+        "height": 390,
+        "top": 0,
+        "right": 844,
+        "bottom": 390,
+        "left": 0
+      },
+      "coarse": true,
+      "orientationGate": false,
+      "duneTouchButtons": 3,
+      "visibleDuneTouchButtons": 3,
+      "minTouchTarget": 44,
+      "routeCameraOverlap": false,
+      "snapshot": {
+        "mode": "racing",
+        "raceMode": "dunes",
+        "phase": "racing",
+        "eventId": "whiskerwind",
+        "event": {
+          "id": "whiskerwind",
+          "name": "Whiskerwind Circuit",
+          "routeType": "circuit",
+          "weather": "clear",
+          "timeOfDay": "sunset",
+          "isDrawTrack": false,
+          "customTrackId": null
+        },
+        "vehicleId": "meowster",
+        "vehicle": {
+          "id": "meowster",
+          "name": "Mighty Meowster"
+        },
+        "speed": 16.673439689276986,
+        "x": 61.33186580388581,
+        "y": 0.5350875111460964,
+        "z": -144.38690813073424,
+        "grounded": true,
+        "telemetry": {
+          "speed": 16.673439689276986,
+          "forwardVelocity": 15.931257084896318,
+          "engineRpm": 5964.8180972191985,
+          "requestedDriveForce": 33880.62509942146,
+          "deliveredWheelForce": 33880.62509942146,
+          "normalLoad": 0,
+          "chassisPitchVelocity": -1.6853892279124805,
+          "chassisRoll": 0.003858477645065127,
+          "steeringInput": 0.72,
+          "wheelAngle": 0.1657813750711005,
+          "groundedWheels": 4,
+          "sandResistance": 0.8336719844638494,
+          "brushStrength": 0,
+          "sinkage": 0.008,
+          "wheelSlip": 0.01152859309486467
+        },
+        "race": {
+          "elapsed": 0.09999999999999999,
+          "progress": 0.24054982817869403,
+          "lap": 0,
+          "targetLaps": 2,
+          "checkpoint": 1,
+          "checkpoints": 19,
+          "score": 0,
+          "recoveries": 0,
+          "finished": false
+        },
+        "terrain": {
+          "heightfield": {
+            "schema": 1,
+            "eventId": "whiskerwind",
+            "seed": 1262570313,
+            "resolution": [
+              257,
+              257
+            ],
+            "worldSize": 704,
+            "heightRange": [
+              -8.878320693969727,
+              13.8679780960083
+            ],
+            "checksum": "f7668039"
+          },
+          "clipmap": {
+            "quality": "low",
+            "levels": 6,
+            "cells": 48,
+            "baseSpacing": 0.52,
+            "triangles": 28032,
+            "staticTopology": true,
+            "shaderTrimmedUnderlays": true,
+            "signedTrackContrast": true,
+            "trackColor": "#4a3043",
+            "snappedOrigins": [
+              [
+                60.32,
+                -144.56,
+                0.52
+              ],
+              [
+                60.32,
+                -145.6,
+                1.04
+              ],
+              [
+                58.24,
+                -145.6,
+                2.08
+              ],
+              [
+                58.24,
+                -149.76,
+                4.16
+              ],
+              [
+                49.92,
+                -149.76,
+                8.32
+              ],
+              [
+                49.92,
+                -149.76,
+                16.64
+              ]
+            ],
+            "heightTexture": [
+              257,
+              257
+            ],
+            "recentDeformation": [
+              128,
+              128
+            ],
+            "coarseDeformation": [
+              64,
+              64
+            ]
+          },
+          "rendererPhysicsDelta": 0,
+          "authorityShared": true
+        },
+        "deformation": {
+          "quality": "low",
+          "recentResolution": 128,
+          "recentWorldSize": 72,
+          "coarseResolution": 64,
+          "origin": [
+            23.811023622047244,
+            -180.8503937007874
+          ],
+          "focus": [
+            61.19308750693812,
+            -144.39371909482546
+          ],
+          "scrollCount": 1,
+          "appliedBrushes": 0,
+          "droppedBrushes": 0,
+          "maximumDepression": 0,
+          "maximumBerm": 0,
+          "physicalBounds": [
+            -0.15,
+            0.08
+          ],
+          "version": 2
+        },
+        "environment": {
+          "eventId": "whiskerwind",
+          "kitAttached": true,
+          "authoredScatter": 22,
+          "flags": 38,
+          "lods": 15,
+          "checkpointGates": 19,
+          "drawPlacements": 0,
+          "weather": "clear",
+          "timeOfDay": "sunset"
+        },
+        "vfx": {
+          "roosterTail": {
+            "quality": "low",
+            "fixedLattice": true,
+            "curvedSurface": true,
+            "bufferAuthorityShared": true,
+            "crossSectionRows": 5,
+            "segmentsPerWheel": 12,
+            "activeCurtains": 2,
+            "emittedSamples": 2,
+            "vertexCapacity": 240,
+            "peakHeight": 0.42899007221507207
+          },
+          "dust": {
+            "quality": "low",
+            "capacity": 96,
+            "active": 0,
+            "spawned": 0,
+            "pooled": true
+          }
+        },
+        "records": {
+          "key": "whiskerwind:meowster",
+          "previous": null,
+          "result": null,
+          "samples": 0,
+          "ghostVisible": false
+        },
+        "visual": {
+          "authoredBody": true,
+          "wheels": 4,
+          "suspension": 4
+        },
+        "quality": {
+          "terrain": "low",
+          "deformation": "low",
+          "particles": "low",
+          "shadow": "low",
+          "dustEnabled": true,
+          "dustScale": 0.5,
+          "heatHaze": true
+        },
+        "assists": {
+          "difficulty": "standard",
+          "steering": true,
+          "recovery": true,
+          "cameraShake": 0.72
+        },
+        "camera": {
+          "mode": "chase",
+          "available": [
+            "isometric",
+            "chase",
+            "driver_fpv"
+          ],
+          "transitioning": false,
+          "cinematic": false,
+          "cinematicProgress": 1,
+          "cinematicLabel": "",
+          "transitionProgress": 1,
+          "projection": "perspective",
+          "fov": 74.66856311299756,
+          "visionStage": null,
+          "lookAheadMeters": null,
+          "collision": {
+            "blocked": false,
+            "distance": 15.544944738177422,
+            "hit": "",
+            "lifted": false,
+            "lowerFrustumBlocked": false,
+            "foregroundBlocked": false,
+            "foregroundObject": "",
+            "contained": false,
+            "containingObject": "",
+            "candidates": 0,
+            "activeCandidates": 0,
+            "boomCandidates": 0,
+            "foregroundCandidates": 0,
+            "raycasts": 0
+          },
+          "zoom": 1
+        },
+        "assets": {
+          "ids": [
+            "monsterDecal",
+            "mightyMeowsterBody",
+            "duneEnvironmentKit",
+            "duneKeyArt",
+            "duneSandDetail"
+          ],
+          "error": "",
+          "cache": [
+            {
+              "id": "monsterDecal",
+              "url": "assets/racing/kitty-monster-truck-decal-oekaki-v2.webp",
+              "refs": 1,
+              "kind": "texture",
+              "loaded": true,
+              "colorSpace": "srgb"
+            },
+            {
+              "id": "mightyMeowsterBody",
+              "url": "assets/racing/models/mighty-meowster-body-v1.glb",
+              "refs": 1,
+              "kind": "model",
+              "loaded": true,
+              "colorSpace": ""
+            },
+            {
+              "id": "duneEnvironmentKit",
+              "url": "assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
+              "refs": 1,
+              "kind": "model",
+              "loaded": true,
+              "colorSpace": ""
+            },
+            {
+              "id": "duneKeyArt",
+              "url": "assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp",
+              "refs": 1,
+              "kind": "texture",
+              "loaded": true,
+              "colorSpace": "srgb"
+            },
+            {
+              "id": "duneSandDetail",
+              "url": "assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp",
+              "refs": 1,
+              "kind": "texture",
+              "loaded": true,
+              "colorSpace": "srgb"
+            }
+          ]
+        },
+        "performance": {
+          "fps": 21,
+          "physicsMs": 1,
+          "drawCalls": 359,
+          "triangles": 137745
+        }
+      },
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "badResponses": [],
+        "failedRequests": [],
+        "expectedAborts": [],
+        "expectedAudioDeviceErrors": [],
+        "frozenModeRequests": []
       }
     }
   },
@@ -6354,6 +8888,7 @@
       "badResponses": [],
       "failedRequests": [],
       "expectedAborts": [],
+      "expectedAudioDeviceErrors": [],
       "frozenModeRequests": []
     },
     "modes": {}

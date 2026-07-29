@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { RALLY_VERSION } from '../src/app/rallyVersion.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENTRY = path.join(ROOT, 'src', 'main.js');
@@ -88,6 +89,19 @@ assert.match(html, /<title>Kaki Rally<\/title>/);
 assert.match(html, /https:\/\/dknos\.github\.io\/kaki-rally\//);
 assert.doesNotMatch(html, /Kaki Survivors|Kaki-Survivors-2|Survive the night/i);
 assert.doesNotMatch(html, /https?:\/\/[^'"]+\/vendor\/three/, 'Three.js must be served from this repository');
+
+const packageData = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+const menuSource = fs.readFileSync(path.join(ROOT, 'src', 'app', 'rallyMenu.js'), 'utf8');
+const shellCss = fs.readFileSync(path.join(ROOT, 'src', 'app', 'rallyShell.css'), 'utf8');
+assert.equal(RALLY_VERSION, packageData.version, 'menu version and package version diverged');
+assert.match(menuSource, /class="rally-version"/, 'main menu has no persistent version label');
+assert.match(menuSource, /RALLY_VERSION_LABEL/, 'main menu version is not sourced from the canonical version module');
+assert.match(shellCss, /\.rally-version\s*\{/, 'main menu version label is not styled');
+assert.doesNotMatch(
+  shellCss,
+  /@media\s*\(max-width:[^)]+\)[\s\S]{0,600}\.rally-version[^{]*\{[^}]*display:\s*none/,
+  'main menu version is hidden at a narrow breakpoint',
+);
 
 const runtimeState = fs.readFileSync(path.join(ROOT, 'src', 'core', 'runtimeState.js'), 'utf8');
 const config = fs.readFileSync(path.join(ROOT, 'src', 'config.js'), 'utf8');
