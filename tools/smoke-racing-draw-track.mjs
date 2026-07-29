@@ -29,6 +29,12 @@ import {
   queryCircuitFeatureContact,
   sampleCourseFeatureSurface,
 } from '../src/racing/courseFeatureSurfaces.js';
+import {
+  editElevationProfile,
+  sampleElevationProfile,
+  sanitizeElevationProfile,
+  validateElevationProfile,
+} from '../src/racing/drawTrackElevation.js';
 
 function closedStroke(controls, steps = 10) {
   const points = [];
@@ -410,6 +416,13 @@ const kdt3Draft = {
       scaleZ: 1.2,
     },
   }],
+  elevationProfile: {
+    version: 1,
+    stamps: [
+      { id: 'hill-one', fraction: 0.22, radius: 0.18, elevation: 2.35, bank: 0 },
+      { id: 'bank-one', fraction: 0.58, radius: 0.12, elevation: 0, bank: 0.075 },
+    ],
+  },
 };
 const kdt3Code = TrackCodeCodec.encode(kdt3Draft);
 const kdt3Decoded = TrackCodeCodec.decode(kdt3Code);
@@ -420,6 +433,9 @@ assert.equal(kdt3Decoded.crossingOverrides[0].preset, 'tall');
 assert.equal(kdt3Decoded.featurePlacements[0].featureId, 'large-launch-ramp');
 assert.equal(kdt3Decoded.featurePlacements[0].anchor.facing, 'backward');
 assert.ok(Math.abs(kdt3Decoded.featurePlacements[0].anchor.fraction - 0.42) < 0.00002);
+assert.equal(kdt3Decoded.elevationProfile.stamps.length, 2);
+assert.ok(Math.abs(kdt3Decoded.elevationProfile.stamps[0].elevation - 2.35) < 0.002);
+assert.ok(Math.abs(kdt3Decoded.elevationProfile.stamps[1].bank - 0.075) < 0.00002);
 assert.throws(() => TrackCodeCodec.decode(`${kdt3Code.slice(0, -2)}aa`), /corrupt|invalid|incomplete/i);
 assert.throws(
   () => TrackCodeCodec.encode({
@@ -442,6 +458,22 @@ const unknownFeatureSave = TrackSerializer.deserialize({
 });
 assert.equal(unknownFeatureSave.featurePlacements.length, 1, 'unknown feature id was not ignored safely');
 assert.match(unknownFeatureSave.dataWarnings.join(' '), /unknown course feature/i);
+
+let editedProfile = sanitizeElevationProfile();
+editedProfile = editElevationProfile(editedProfile, 'hill', 0.25, 1);
+editedProfile = editElevationProfile(editedProfile, 'bank-left', 0.62, 2);
+const elevationAtHill = sampleElevationProfile(editedProfile, 0.25, {});
+const elevationAtBank = sampleElevationProfile(editedProfile, 0.62, {});
+assert.ok(elevationAtHill.elevation > 2.3 && Math.abs(elevationAtHill.bank) < 0.01);
+assert.ok(elevationAtBank.bank > 0.07);
+const elevationValidation = validateElevationProfile(editedProfile, 410, 448);
+assert.equal(elevationValidation.valid, true);
+const sanitizedExtreme = sanitizeElevationProfile({
+  stamps: [{ fraction: 2.2, radius: 8, elevation: 80, bank: -4 }],
+});
+assert.ok(Math.abs(sanitizedExtreme.stamps[0].fraction - 0.2) < 1e-9);
+assert.equal(sanitizedExtreme.stamps[0].elevation, 12);
+assert.equal(sanitizedExtreme.stamps[0].bank, -0.24);
 
 const rampSamples = Array.from({ length: 100 }, (_, index) => ({
   x: 0,
@@ -516,6 +548,12 @@ assert.ok(
   'Auto-fill jumps did not compile through the shared Workshop catalog',
 );
 assert.equal(course.shortcutFractions.length, 0, 'arbitrary geometry must not inherit chapter shortcuts');
+const elevatedCourse = compileDrawTrackCourse({
+  ...normalizedDraft,
+  elevationProfile: editedProfile,
+}, courseValidation);
+assert.equal(elevatedCourse.elevationProfile.stamps.length, 2);
+assert.ok(elevatedCourse.elevationMetrics.maximumElevation > 2.3);
 
 const storage = new FakeStorage();
 const gallery = new TrackGallery(storage);
@@ -542,5 +580,7 @@ assert.match(runtimeSource, /rampDirection:\s*ramp\?\.runtime\?\.forward/, 'auth
 for (const bridgePart of ['bridge-decks', 'bridge-fascias', 'bridge-portal-posts', 'bridge-portal-beams', 'bridge-marker-lights']) {
   assert.match(generationSource, new RegExp(`draw-track-${bridgePart}`), `procedural ${bridgePart} kit is missing`);
 }
+assert.match(generationSource, /sampleElevationProfile/, 'runtime road generation does not sample Workshop elevation');
+assert.match(generationSource, /sample\.groundRoll = elevationSample\.bank/, 'runtime road generation does not apply Workshop banking');
 
 console.log('Kaki Rally Draw Your Track smoke passed');

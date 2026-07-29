@@ -403,6 +403,8 @@ function _makeTerrainMaterials(session, profile, track) {
     roughnessMap: roughness,
     roughness: 1,
     metalness: 0,
+    emissive: profile.trail,
+    emissiveIntensity: 0.16,
     polygonOffset: true,
     polygonOffsetFactor: -2,
     polygonOffsetUnits: -2,
@@ -416,7 +418,16 @@ function _makeTerrainMaterials(session, profile, track) {
     polygonOffsetFactor: -3,
     polygonOffsetUnits: -3,
   });
-  const cutaway = _basic(session, { color: 0xffffff, map: cutawayMap, side: THREE.DoubleSide });
+  // The illustrated cutaway is supporting texture, not a wall-sized poster.
+  // Let the sculpted earth mass remain dominant so the course reads as terrain.
+  const cutaway = _basic(session, {
+    color: themeId === 'quarry' ? 0xabb8b6 : themeId === 'crown' ? 0xc7a9cf : 0xb99272,
+    map: cutawayMap,
+    transparent: true,
+    opacity: 0.34,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
   const bandPalettes = {
     meadow: [0xd6a46a, 0x725044, 0xb97b53],
     quarry: [0x9cb4ba, 0x547c7c, 0xb19982],
@@ -480,7 +491,9 @@ function _buildTerrain(session, world, profile) {
   const { track, root } = session;
   const themeId = _themeId(track);
   const minimum = Math.min(...track.heightPoints.map((point) => point.y));
-  const baseline = minimum - (themeId === 'crown' ? 28 : 23);
+  // Keep a readable earth bank beneath the road without filling half of a
+  // landscape viewport with geological cross-section art.
+  const baseline = minimum - (themeId === 'crown' ? 17 : themeId === 'quarry' ? 15 : 13);
   const materials = _makeTerrainMaterials(session, profile, track);
 
   for (const [rangeIndex, [start, end]] of _terrainRanges(track).entries()) {
@@ -539,9 +552,9 @@ function _buildTerrain(session, world, profile) {
       root.add(shoulder);
     }
 
-    const bandCount = themeId === 'crown' ? 9 : 8;
+    const bandCount = themeId === 'crown' ? 6 : 5;
     for (let band = 0; band < bandCount; band++) {
-      const drop = 1.25 + band * 2.8;
+      const drop = 1.4 + band * 2.45;
       const thickness = 0.12 + (band % 3) * 0.055;
       const fascia = _mesh(
         session,
@@ -721,21 +734,36 @@ function _addSky(session, world, profile) {
 function _fitBackdropToCamera(session, world) {
   const backdrop = world?.backdrop;
   const camera = state.camera;
-  if (!backdrop || !camera?.isOrthographicCamera || !session?.root) return;
+  if (
+    !backdrop
+    || (!camera?.isOrthographicCamera && !camera?.isPerspectiveCamera)
+    || !session?.root
+  ) return;
 
   camera.updateMatrixWorld?.();
   session.root.updateWorldMatrix?.(true, false);
   camera.getWorldDirection(TEMP_DIRECTION);
-  TEMP_POSITION.copy(camera.position).addScaledVector(TEMP_DIRECTION, BACKDROP_CAMERA_DISTANCE);
+  const distance = camera.isPerspectiveCamera
+    ? Math.min(BACKDROP_CAMERA_DISTANCE, Math.max(40, camera.far * 0.62))
+    : BACKDROP_CAMERA_DISTANCE;
+  TEMP_POSITION.copy(camera.position).addScaledVector(TEMP_DIRECTION, distance);
   session.root.worldToLocal(TEMP_POSITION);
   backdrop.position.copy(TEMP_POSITION);
   camera.getWorldQuaternion(TEMP_QUATERNION);
   backdrop.quaternion.copy(TEMP_QUATERNION);
 
-  const viewWidth = Math.abs(camera.right - camera.left);
-  const viewHeight = Math.abs(camera.top - camera.bottom);
-  const coverHeight = Math.max(viewHeight, viewWidth / BACKDROP_ASPECT) * BACKDROP_OVERSCAN;
-  backdrop.scale.setScalar(coverHeight / 9);
+  if (camera.isPerspectiveCamera) {
+    const coverHeight = 2 * distance * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5))
+      * BACKDROP_OVERSCAN;
+    const coverWidth = coverHeight * Math.max(0.5, camera.aspect || BACKDROP_ASPECT);
+    backdrop.scale.set(coverWidth / 16, coverHeight / 9, 1);
+  } else {
+    const viewWidth = Math.abs(camera.right - camera.left);
+    const viewHeight = Math.abs(camera.top - camera.bottom);
+    const coverWidth = Math.max(viewWidth, viewHeight * BACKDROP_ASPECT) * BACKDROP_OVERSCAN;
+    const coverHeight = Math.max(viewHeight, viewWidth / BACKDROP_ASPECT) * BACKDROP_OVERSCAN;
+    backdrop.scale.set(coverWidth / 16, coverHeight / 9, 1);
+  }
 }
 
 function _setInstance(mesh, index, x, y, z, sx, sy, sz, rotationZ = 0, rotationY = 0) {
@@ -876,8 +904,8 @@ function _addMeadowStory(session, world, profile) {
     const canopies = _instanced(session, new THREE.IcosahedronGeometry(1, 2), canopyMaterial, grove.length * 3, 'trials-meadow-mochi-canopies');
     const leafColors = [new THREE.Color(0x69b978), new THREE.Color(0x89c96f), new THREE.Color(0x4d9869)];
     grove.forEach((item, index) => {
-      const z = -8.4 - (index % 3) * 1.25;
-      const height = 3.65 * item.scale;
+      const z = -10.6 - (index % 3) * 1.5;
+      const height = 3.25 * item.scale;
       _setInstance(trunks, index, item.x, item.y + height * 0.43, z, item.scale, item.scale, item.scale, (_hash(index + 4) - 0.5) * 0.1);
       const lobes = [
         [-0.82, 0.05, 1.08],
@@ -1126,8 +1154,8 @@ function _addAuthoredTrialsStory(session, world) {
       const mesh = _instancedFromModel(source, selected.length, `trials-${storyId}-authored-${name}-part-${partIndex}`);
       if (!mesh) return;
       selected.forEach((item, index) => {
-        const scale = (storyId === 'quarry' ? 1.22 : 1.05) * (0.82 + _hash(item.index + 21) * 0.38);
-        _setInstance(mesh, index, item.x, item.y - 0.05, -6.6 - (item.index % 2) * 0.75, scale, scale, scale, 0, (_hash(item.index + 8) - 0.5) * 0.55);
+        const scale = (storyId === 'quarry' ? 1.02 : 0.82) * (0.82 + _hash(item.index + 21) * 0.32);
+        _setInstance(mesh, index, item.x, item.y - 0.05, -9.4 - (item.index % 2) * 1.05, scale, scale, scale, 0, (_hash(item.index + 8) - 0.5) * 0.55);
       });
       mesh.instanceMatrix.needsUpdate = true;
       mesh.computeBoundingSphere();

@@ -821,6 +821,7 @@ function _contactFor(session, car) {
     shortcut,
     groundHeight: ground.height,
     groundPitch: ground.pitch,
+    groundRoll: session.samples[nearest.index]?.groundRoll || 0,
     surface: materialContact?.surface
       || (shortcut ? 'shortcut-dirt' : onRoad ? surface.id : 'loose-dirt'),
     surfaceGrip: Number.isFinite(materialContact?.grip)
@@ -1661,11 +1662,11 @@ function _buildDrawFlyoverKeyframes(session) {
     label: `${session.course.drawSizeId.toUpperCase()} COURSE OVERVIEW`,
     focus: center,
     position: new THREE.Vector3(
-      center.x + span * 0.42,
-      Math.min(150, Math.max(55, span * 0.46)),
-      center.z + span * 0.42,
+      center.x + span * 0.14,
+      Math.min(360, Math.max(58, span * 0.78)),
+      center.z + span * 0.12,
     ),
-    fov: span > 260 ? 63 : 56,
+    fov: span > 260 ? 61 : 56,
     index: -1,
   };
   const candidates = [];
@@ -3206,8 +3207,13 @@ export function tickRacing(dt, elapsedDt = dt) {
     wheelRpm: player.wheelRpm || 0,
     gear: player.gear || 1,
     engineLoad: player.engineLoad || 0,
+    engineBraking: player.engineBrake || 0,
+    acceleration: player.acceleration || 0,
     vehicleId: session.monsterVehicleId || '',
     groundedWheels: player.groundedWheelCount ?? (player.grounded ? 4 : 0),
+    surface: player.currentSurface || session.course.surface || 'road',
+    environment: session.course.id,
+    raceMode: session.raceMode,
   });
   _updateHud(session);
 }

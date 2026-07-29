@@ -45,11 +45,18 @@ import {
   sanitizeCourseFeaturePlacements,
 } from './courseFeaturePlacement.js';
 import { validateCircuitFeaturePlacement } from './courseFeatureValidation.js';
+import {
+  editElevationProfile,
+  sampleElevationProfile,
+  sanitizeElevationProfile,
+  validateElevationProfile,
+} from './drawTrackElevation.js';
 
 const STYLE_ID = 'kdt-editor-style';
-const STYLE_URL = new URL('./drawTrack.css?v=20260727workshop1', import.meta.url).href;
+const STYLE_URL = new URL('./drawTrack.css?v=20260728elevation1', import.meta.url).href;
 const FEATURE_ATLAS_URL = new URL(`../../${COURSE_FEATURE_THUMBNAIL_ATLAS}`, import.meta.url).href;
 const WIDTH_ORDER = Object.keys(TRACK_WIDTH_PRESETS);
+const RAD_TO_DEG = 180 / Math.PI;
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -103,6 +110,7 @@ function defaultDraft(initial = {}) {
     layoutTransform = migrated.layoutTransform;
   }
   const features = sanitizeCourseFeaturePlacements(initial.featurePlacements, { mode: 'spline' });
+  const elevation = sanitizeElevationProfile(initial.elevationProfile);
   return {
     id: initial.id || createDrawTrackId(seed),
     name: initial.name || '',
@@ -117,7 +125,8 @@ function defaultDraft(initial = {}) {
     modifiers: { boostPads: true, ...(initial.modifiers || {}) },
     crossingOverrides: sanitizeCrossingOverrides(initial.crossingOverrides),
     featurePlacements: features.placements,
-    dataWarnings: features.warnings,
+    elevationProfile: elevation,
+    dataWarnings: [...features.warnings, ...elevation.warnings],
     laps: Number(initial.laps) || null,
     rawStroke: raw,
     controlPoints: controls,
@@ -245,6 +254,11 @@ export class TrackDrawingInput {
       return;
     }
     const local = this.ui.eventPoint(event);
+    if (this.ui.editorStage === 'elevation' && this.ui.closed) {
+      this.mode = 'elevation';
+      this.ui.selectElevationPoint(local);
+      return;
+    }
     if (this.ui.editorStage === 'place' && this.ui.closed) {
       if (event.button === 2) {
         this.mode = '';
@@ -401,6 +415,9 @@ export class DrawTrackUI {
     this.featureStampArmed = false;
     this.placementGhost = null;
     this.placementGesture = null;
+    this.selectedElevationFraction = this.draft.startFraction;
+    this.elevationOverlay = 'off';
+    this._elevationOrdinal = this.draft.elevationProfile.stamps.length;
     this._placementOrdinal = this.draft.featurePlacements.length;
     this.featureThumbnail = typeof Image === 'function' ? new Image() : null;
     if (this.featureThumbnail) {
@@ -459,6 +476,7 @@ export class DrawTrackUI {
         <button type="button" data-action="undo" title="Undo · Ctrl+Z"><span>↶</span><b>UNDO</b></button>
         <button type="button" data-action="redo" title="Redo · Ctrl+Y"><span>↷</span><b>REDO</b></button>
         <button type="button" data-action="smooth" title="Smooth track"><span>∿</span><b>SMOOTH</b></button>
+        <button type="button" data-action="elevation" title="Elevation and banking workbench"><span>↕</span><b>HEIGHT</b></button>
         <button type="button" data-action="repair" title="Preview automatic repair"><span>✦</span><b>FIX</b></button>
         <button type="button" data-action="start" title="Move the start line"><span>⚑</span><b>START</b></button>
         <button type="button" data-action="clear" title="Clear drawing"><span>×</span><b>CLEAR</b></button>
@@ -531,6 +549,41 @@ export class DrawTrackUI {
               </article>
             </div>
           </aside>
+          <aside class="kdt-elevation-workbench" aria-label="Elevation and banking workbench" hidden>
+            <header>
+              <div><span>EXPERT PROFILE</span><b>ELEVATION + BANKING</b></div>
+              <button type="button" data-action="close-elevation" aria-label="Close elevation workbench">×</button>
+            </header>
+            <p>Tap the racing line, then shape a broad race-safe section. Profiles remain optional and legacy tracks stay flat.</p>
+            <div class="kdt-elevation-tools" role="group" aria-label="Elevation tools">
+              <button type="button" data-elevation-tool="raise">↑ <span>RAISE</span></button>
+              <button type="button" data-elevation-tool="lower">↓ <span>LOWER</span></button>
+              <button type="button" data-elevation-tool="smooth">∿ <span>SMOOTH</span></button>
+              <button type="button" data-elevation-tool="hill">⌃ <span>HILL</span></button>
+              <button type="button" data-elevation-tool="valley">⌄ <span>VALLEY</span></button>
+              <button type="button" data-elevation-tool="bank-left">↙ <span>BANK L</span></button>
+              <button type="button" data-elevation-tool="bank-right">↘ <span>BANK R</span></button>
+              <button type="button" data-elevation-tool="flatten">— <span>FLATTEN</span></button>
+              <button type="button" data-elevation-tool="reset">× <span>RESET</span></button>
+            </div>
+            <dl class="kdt-elevation-metrics">
+              <div><dt>SELECTED</dt><dd data-role="elevation-selected">0%</dd></div>
+              <div><dt>RANGE</dt><dd data-role="elevation-range">FLAT</dd></div>
+              <div><dt>MAX GRADE</dt><dd data-role="elevation-grade">0.0%</dd></div>
+              <div><dt>MAX BANK</dt><dd data-role="elevation-bank">0.0°</dd></div>
+            </dl>
+            <p data-role="elevation-message" data-state="valid">Tap the road to choose a section.</p>
+            <nav class="kdt-expert-overlays" aria-label="Expert analysis overlays">
+              <button type="button" data-overlay="off">OFF</button>
+              <button type="button" data-overlay="curvature">CURVE</button>
+              <button type="button" data-overlay="elevation">HEIGHT</button>
+              <button type="button" data-overlay="grade">GRADE</button>
+              <button type="button" data-overlay="bank">BANK</button>
+              <button type="button" data-overlay="clearance">CLEAR</button>
+              <button type="button" data-overlay="ai">AI RISK</button>
+              <button type="button" data-overlay="cost">COST</button>
+            </nav>
+          </aside>
           <aside class="kdt-health" aria-label="Track validation">
             <header><b>RACEABILITY</b><span data-role="health-summary">Start drawing</span></header>
             <div class="kdt-length-budget"><span><b data-role="length-current">0 m</b><em data-role="length-message">Draw a loop</em></span><i><b></b></i><small data-role="length-range">Recommended —</small></div>
@@ -597,6 +650,14 @@ export class DrawTrackUI {
     this._bindControls();
     this._resizeObserver = new ResizeObserver(() => this.resize());
     this._resizeObserver.observe(this.canvas.parentElement);
+    if (window.matchMedia?.('(hover: none) and (pointer: coarse) and (max-height: 430px)').matches) {
+      const workbench = this.root.querySelector('.kdt-feature-workbench');
+      const collapse = this.root.querySelector('.kdt-feature-collapse');
+      workbench.classList.add('is-collapsed');
+      collapse.setAttribute('aria-expanded', 'false');
+      collapse.setAttribute('aria-label', 'Expand feature palette');
+      collapse.textContent = '⌃';
+    }
     this.resize();
     this.recalculate({ allowSuggestedStart: !this.startTouched });
     this._syncControls();
@@ -618,6 +679,8 @@ export class DrawTrackUI {
       else if (button.dataset.featureId) this.selectFeature(button.dataset.featureId);
       else if (button.dataset.crossingMode) this.setCrossingMode(button.dataset.crossingMode);
       else if (button.dataset.crossingPreset) this.setCrossingPreset(button.dataset.crossingPreset);
+      else if (button.dataset.elevationTool) this.applyElevationTool(button.dataset.elevationTool);
+      else if (button.dataset.overlay) this.setElevationOverlay(button.dataset.overlay);
       else if (button.dataset.stage) this.setEditorStage(button.dataset.stage);
       else if (button.dataset.action) this.action(button.dataset.action, button);
       else if (button.dataset.galleryAction) this.galleryAction(button);
@@ -697,6 +760,7 @@ export class DrawTrackUI {
         branchFractions: override.branchFractions ? [...override.branchFractions] : undefined,
       })),
       featurePlacements: structuredClone(this.draft.featurePlacements),
+      elevationProfile: structuredClone(this.draft.elevationProfile),
       themeId: this.draft.themeId,
       laps: this.draft.laps,
       layoutReady: this.layoutReady,
@@ -723,6 +787,7 @@ export class DrawTrackUI {
       modifiers: { ...snapshot.modifiers },
       crossingOverrides: sanitizeCrossingOverrides(snapshot.crossingOverrides),
       featurePlacements: structuredClone(snapshot.featurePlacements || []),
+      elevationProfile: sanitizeElevationProfile(snapshot.elevationProfile),
       themeId: snapshot.themeId,
       laps: snapshot.laps,
     });
@@ -736,6 +801,7 @@ export class DrawTrackUI {
     this.placementGhost = null;
     this.placementGesture = null;
     this.featureStampArmed = false;
+    this.selectedElevationFraction = this.draft.startFraction;
     this.lastInteraction = this.closed ? 'adjust' : 'draw';
     this.recalculate();
     this._syncControls();
@@ -1415,6 +1481,7 @@ export class DrawTrackUI {
       this._syncStageFlow();
       this._updateCrossingPanel();
       this._syncFeatureWorkbench();
+      this._syncElevationWorkbench();
       this.requestDraw();
       this._syncButtons();
       return;
@@ -1445,6 +1512,11 @@ export class DrawTrackUI {
       ...(this.validation.orphanedCrossingOverrides || []),
     ]);
     this.featureDiagnostics = this.draft.featurePlacements.map((placement) => this._validateFeature(placement));
+    this.elevationValidation = validateElevationProfile(
+      this.draft.elevationProfile,
+      this.validation.stats?.length,
+      this.validation.sampleCount,
+    );
     if (this.selectedPlacementId && !this.selectedPlacement()) this.selectedPlacementId = null;
     this._restoreSelectedCrossing();
     if (!this.draft.name && this.validation.stats) {
@@ -1455,16 +1527,18 @@ export class DrawTrackUI {
     const layoutSize = TRACK_SIZE_PRESETS[this.draft.sizeId];
     const activeLayout = this.repairPreview?.layoutTransform || this.draft.layoutTransform;
     this.root.querySelector('[data-role="scale-size"]').textContent = `${Math.round(layoutSize.width * activeLayout.occupancy * activeLayout.scaleX)} × ${Math.round(layoutSize.depth * activeLayout.occupancy * activeLayout.scaleY)} m layout`;
-    if (this.validation.valid) {
+    const elevationError = this.elevationValidation?.issues?.find((issue) => issue.severity === 'error');
+    if (this.validation.valid && !elevationError) {
       const bridgeText = this.validation.overpasses.length ? ` · ${this.validation.overpasses.length} OVERPASS${this.validation.overpasses.length > 1 ? 'ES' : ''}` : '';
       this._setStatus('valid', `Loop closed · race ready${bridgeText}`);
     } else {
-      this._setStatus('invalid', this.validation.errors[0]?.message || 'Track needs attention');
+      this._setStatus('invalid', this.validation.errors[0]?.message || elevationError?.message || 'Track needs attention');
     }
     this._updateHealth();
     this._syncStageFlow();
     this._updateCrossingPanel();
     this._syncFeatureWorkbench();
+    this._syncElevationWorkbench();
     this._syncButtons();
     this.requestDraw();
   }
@@ -1524,6 +1598,11 @@ export class DrawTrackUI {
           : null,
         ok: !this.featureDiagnostics?.some((item) => !item.valid),
       },
+      {
+        label: 'Elevation / banking',
+        issue: this.elevationValidation?.issues?.[0] || null,
+        ok: this.elevationValidation?.valid !== false,
+      },
       { label: 'Start grid', issue: first((item) => item.id.startsWith('grid-')), ok: !!stats && !first((item) => item.id.startsWith('grid-')) },
       { label: 'AI safety route', issue: first((item) => item.id === 'invalid-geometry' || item.id === 'tight-corner'), ok: !!stats && !first((item) => item.id === 'invalid-geometry' || item.id === 'tight-corner') },
     ];
@@ -1534,8 +1613,10 @@ export class DrawTrackUI {
       const title = check.issue?.message || (check.ok ? 'Ready' : 'Waiting');
       return `<button type="button" data-check-state="${state}" ${issueId ? `data-action="focus-issue" data-issue="${escapeHtml(issueId)}"` : ''} title="${escapeHtml(title)}"><i>${state === 'ok' ? '✓' : state === 'error' ? '!' : state === 'warning' ? '•' : '○'}</i><span>${escapeHtml(check.label)}</span></button>`;
     }).join('');
-    const errors = this.validation?.errors?.length || 0;
-    const warnings = issues.filter((item) => item.severity === 'warning').length;
+    const errors = (this.validation?.errors?.length || 0)
+      + (this.elevationValidation?.issues?.filter((item) => item.severity === 'error').length || 0);
+    const warnings = issues.filter((item) => item.severity === 'warning').length
+      + (this.elevationValidation?.issues?.filter((item) => item.severity === 'warning').length || 0);
     this.root.querySelector('[data-role="health-summary"]').textContent = !this.closed ? 'Draw one loop'
       : errors ? `${errors} fix${errors === 1 ? '' : 'es'} needed`
         : warnings ? `Raceable · ${warnings} note${warnings === 1 ? '' : 's'}` : 'Race ready';
@@ -1553,6 +1634,7 @@ export class DrawTrackUI {
       else if (this.editorStage === 'race' && gridErrors.length) active = 'start';
       else active = ['adjust', 'place', 'start', 'race'].includes(this.editorStage)
         ? this.editorStage
+        : this.editorStage === 'elevation' ? 'adjust'
         : 'adjust';
     }
     this.root.dataset.editorStage = active;
@@ -1567,7 +1649,9 @@ export class DrawTrackUI {
     if (help) {
       const copy = {
         draw: ['DRAW', 'Release inside the checkered circle'],
-        adjust: ['ADJUST', 'Select a crossing · drag the road · pull a handle'],
+        adjust: this.editorStage === 'elevation'
+          ? ['ELEVATION', 'Tap the road, then raise, lower, smooth, or bank the section']
+          : ['ADJUST', 'Select a crossing · drag the road · pull a handle'],
         place: ['PLACE', 'Choose a feature, then stamp it onto the road'],
         start: ['START / FINISH', 'Drag the checkered gate to a safe straight'],
         race: ['TEST / RACE', 'Test-drive, save, share, or build the full event'],
@@ -1586,7 +1670,7 @@ export class DrawTrackUI {
   }
 
   setEditorStage(stage) {
-    if (!['draw', 'adjust', 'place', 'start', 'race'].includes(stage)) return;
+    if (!['draw', 'adjust', 'elevation', 'place', 'start', 'race'].includes(stage)) return;
     if (!this.closed && stage !== 'draw') {
       this.toast('Close a basic loop before opening the next workbench', 'error');
       return;
@@ -1604,9 +1688,11 @@ export class DrawTrackUI {
       this.placementGesture = null;
     }
     this.root.querySelector('[data-action="start"]')?.classList.toggle('is-active', this.startMoveArmed);
+    this.root.querySelector('[data-action="elevation"]')?.classList.toggle('is-active', stage === 'elevation');
     if (stage !== 'adjust') this.closeCrossing();
     this._syncStageFlow();
     this._syncFeatureWorkbench();
+    this._syncElevationWorkbench();
     this.requestDraw();
   }
 
@@ -2138,6 +2224,89 @@ export class DrawTrackUI {
     });
   }
 
+  _nearestProfileFraction(point) {
+    const samples = this.validation?.normalizedSamples || this._baseSamples();
+    if (!samples.length) return this.draft.startFraction;
+    const target = this.normalizedToScreen(point);
+    let nearest = 0;
+    let best = Infinity;
+    for (let index = 0; index < samples.length; index += 1) {
+      const screen = this.normalizedToScreen(samples[index]);
+      const distance = Math.hypot(screen.x - target.x, screen.y - target.y);
+      if (distance < best) {
+        best = distance;
+        nearest = index;
+      }
+    }
+    return nearest / samples.length;
+  }
+
+  selectElevationPoint(point) {
+    if (!this.closed) return false;
+    this.selectedElevationFraction = this._nearestProfileFraction(point);
+    this._syncElevationWorkbench();
+    this.requestDraw();
+    return true;
+  }
+
+  applyElevationTool(tool) {
+    if (!this.closed) return false;
+    this.pushHistory();
+    this.draft.elevationProfile = editElevationProfile(
+      this.draft.elevationProfile,
+      tool,
+      this.selectedElevationFraction,
+      this._elevationOrdinal++,
+    );
+    this.recalculate();
+    const labels = {
+      raise: 'Segment raised',
+      lower: 'Segment lowered',
+      smooth: 'Grade and bank transitions smoothed',
+      hill: 'Broad hill shaped',
+      valley: 'Broad valley shaped',
+      'bank-left': 'Left banking added',
+      'bank-right': 'Right banking added',
+      flatten: 'Selected section flattened',
+      reset: 'Elevation and banking reset',
+    };
+    this.toast(labels[tool] || 'Profile updated');
+    return true;
+  }
+
+  setElevationOverlay(mode) {
+    const allowed = ['off', 'curvature', 'elevation', 'grade', 'bank', 'clearance', 'ai', 'cost'];
+    this.elevationOverlay = allowed.includes(mode) ? mode : 'off';
+    this._syncElevationWorkbench();
+    this.requestDraw();
+  }
+
+  _syncElevationWorkbench() {
+    const panel = this.root?.querySelector('.kdt-elevation-workbench');
+    if (!panel) return;
+    panel.hidden = this.editorStage !== 'elevation' || !this.closed;
+    const result = this.elevationValidation || validateElevationProfile(
+      this.draft.elevationProfile,
+      this.validation?.stats?.length,
+      this.validation?.sampleCount,
+    );
+    const selected = { elevation: 0, bank: 0 };
+    sampleElevationProfile(this.draft.elevationProfile, this.selectedElevationFraction, selected);
+    panel.querySelector('[data-role="elevation-selected"]').textContent = `${Math.round(this.selectedElevationFraction * 100)}% · ${selected.elevation.toFixed(1)} m · ${(selected.bank * RAD_TO_DEG).toFixed(1)}°`;
+    panel.querySelector('[data-role="elevation-range"]').textContent = result.profile.stamps.length
+      ? `${result.minimumElevation.toFixed(1)} → ${result.maximumElevation.toFixed(1)} m`
+      : 'FLAT';
+    panel.querySelector('[data-role="elevation-grade"]').textContent = `${(result.maximumGrade * 100).toFixed(1)}%`;
+    panel.querySelector('[data-role="elevation-bank"]').textContent = `${(result.maximumBank * RAD_TO_DEG).toFixed(1)}°`;
+    const message = panel.querySelector('[data-role="elevation-message"]');
+    const issue = result.issues[0];
+    message.dataset.state = issue?.severity || 'valid';
+    message.textContent = issue?.message || `${result.profile.stamps.length} bounded profile stamp${result.profile.stamps.length === 1 ? '' : 's'} · AI and respawn checks ready`;
+    panel.querySelectorAll('[data-overlay]').forEach((button) => {
+      button.classList.toggle('is-selected', button.dataset.overlay === this.elevationOverlay);
+    });
+  }
+
   focusIssue(id) {
     const issue = this.validation?.issues?.find((item) => item.id === id);
     if (!issue?.normalizedPoint) {
@@ -2225,7 +2394,8 @@ export class DrawTrackUI {
 
   _syncButtons() {
     const featureIssue = this.featureDiagnostics?.find((item) => !item.valid);
-    const ready = !!this.validation?.valid && !featureIssue && !this.repairPreview;
+    const elevationIssue = this.elevationValidation?.issues?.find((item) => item.severity === 'error');
+    const ready = !!this.validation?.valid && !featureIssue && !elevationIssue && !this.repairPreview;
     this.root.querySelector('[data-action="build"]').disabled = !ready;
     this.root.querySelector('[data-action="save"]').disabled = !ready;
     this.root.querySelector('[data-action="share"]').disabled = !ready;
@@ -2243,6 +2413,7 @@ export class DrawTrackUI {
       : !this.closed ? 'Close the loop to build'
         : this.validation?.errors?.length ? this.validation.errors[0].message
           : featureIssue ? featureIssue.message
+          : elevationIssue ? elevationIssue.message
           : 'Ready to race';
   }
 
@@ -2282,6 +2453,12 @@ export class DrawTrackUI {
     else if (name === 'undo') this.undo();
     else if (name === 'redo') this.redo();
     else if (name === 'smooth') this.smooth();
+    else if (name === 'elevation') {
+      this.setEditorStage(this.editorStage === 'elevation' ? 'adjust' : 'elevation');
+      this.toast(this.editorStage === 'elevation'
+        ? 'Tap a road section, then shape its height or banking'
+        : 'Elevation workbench closed');
+    }
     else if (name === 'repair') this.repair();
     else if (name === 'start') {
       this.startMoveArmed = !this.startMoveArmed;
@@ -2304,6 +2481,7 @@ export class DrawTrackUI {
     else if (name === 'cancel-repair') this.cancelRepair();
     else if (name === 'focus-issue') this.focusIssue(button.dataset.issue);
     else if (name === 'close-crossing') this.closeCrossing();
+    else if (name === 'close-elevation') this.setEditorStage('adjust');
     else if (name === 'feature-rotate-left') this.transformSelectedFeature('rotate-left');
     else if (name === 'feature-rotate-right') this.transformSelectedFeature('rotate-right');
     else if (name === 'feature-flip') this.transformSelectedFeature('flip');
@@ -2395,6 +2573,7 @@ export class DrawTrackUI {
     this.validation = null;
     this.draft.crossingOverrides = [];
     this.draft.featurePlacements = [];
+    this.draft.elevationProfile = sanitizeElevationProfile();
     this.selectedCrossingId = null;
     this.selectedCrossingReference = null;
     this.selectedPlacementId = null;
@@ -2415,6 +2594,7 @@ export class DrawTrackUI {
       controlPoints: this.draft.controlPoints.map((point) => ({ ...point })),
       crossingOverrides: sanitizeCrossingOverrides(this.draft.crossingOverrides),
       featurePlacements: structuredClone(this.draft.featurePlacements),
+      elevationProfile: structuredClone(this.draft.elevationProfile),
       stats: this.validation?.stats ? {
         length: this.validation.stats.length,
         estimatedLapTime: this.validation.stats.estimatedLapTime,
@@ -2427,8 +2607,10 @@ export class DrawTrackUI {
 
   save() {
     const featureIssue = this.featureDiagnostics?.find((item) => !item.valid);
-    if (!this.validation?.valid || featureIssue) {
+    const elevationIssue = this.elevationValidation?.issues?.find((item) => item.severity === 'error');
+    if (!this.validation?.valid || featureIssue || elevationIssue) {
       if (featureIssue) this.toast(featureIssue.message, 'error');
+      else if (elevationIssue) this.toast(elevationIssue.message, 'error');
       return;
     }
     try {
@@ -2443,8 +2625,10 @@ export class DrawTrackUI {
 
   build() {
     const featureIssue = this.featureDiagnostics?.find((item) => !item.valid);
-    if (!this.validation?.valid || featureIssue || this.root.classList.contains('is-building')) {
+    const elevationIssue = this.elevationValidation?.issues?.find((item) => item.severity === 'error');
+    if (!this.validation?.valid || featureIssue || elevationIssue || this.root.classList.contains('is-building')) {
       if (featureIssue) this.toast(featureIssue.message, 'error');
+      else if (elevationIssue) this.toast(elevationIssue.message, 'error');
       return;
     }
     const draft = this.currentDraft();
@@ -2681,6 +2865,9 @@ export class DrawTrackUI {
         if (this.editorStage === 'place' && this.closed) {
           this._controllerEditMode = 'feature';
           this.beginFeaturePointer(this.controllerCursor, { repeat: false, pointerType: 'controller' });
+        } else if (this.editorStage === 'elevation' && this.closed) {
+          this._controllerEditMode = 'elevation';
+          this.selectElevationPoint(this.controllerCursor);
         } else if (this.closed && this.hitStartMarker(this.controllerCursor)) {
           this._controllerEditMode = 'start'; this.beginMoveStart(this.controllerCursor);
         } else if (this.closed && this.hitCrossing(this.controllerCursor)) {
@@ -2714,12 +2901,16 @@ export class DrawTrackUI {
       if (this.editorStage === 'place' && edge(5)) this.cycleFeatureCategory(1);
       else if (edge(5)) this.autoPlaceStart();
       if (this.editorStage === 'place' && edge(14)) this.transformSelectedFeature('rotate-left');
+      else if (this.editorStage === 'elevation' && edge(14)) this.applyElevationTool('bank-left');
       else if (this.selectedCrossing() && edge(14)) this.cycleCrossingMode(-1);
       if (this.editorStage === 'place' && edge(15)) this.transformSelectedFeature('rotate-right');
+      else if (this.editorStage === 'elevation' && edge(15)) this.applyElevationTool('bank-right');
       else if (this.selectedCrossing() && edge(15)) this.cycleCrossingMode(1);
       if (this.editorStage === 'place' && edge(12)) this.nudgeSelectedFeature(-0.5);
+      else if (this.editorStage === 'elevation' && edge(12)) this.applyElevationTool('raise');
       else if (this.selectedCrossing() && edge(12)) this.cycleCrossingPreset(1);
       if (this.editorStage === 'place' && edge(13)) this.nudgeSelectedFeature(0.5);
+      else if (this.editorStage === 'elevation' && edge(13)) this.applyElevationTool('lower');
       else if (this.selectedCrossing() && edge(13)) this.cycleCrossingPreset(-1);
       const widthAxis = (pad.buttons[7]?.value || 0) - (pad.buttons[6]?.value || 0);
       if (Math.abs(widthAxis) > 0.6 && Math.abs(this._lastGamepad.widthAxis) <= 0.6) {
@@ -2762,6 +2953,7 @@ export class DrawTrackUI {
       this._drawPolyline(ctx, samples, { color: 'rgba(15,23,29,.60)', width: previewWidth + 8, close: this.closed });
       this._drawPolyline(ctx, samples, { color: this.repairPreview ? 'rgba(255,203,92,.48)' : 'rgba(247,241,211,.24)', width: previewWidth, close: this.closed });
       this._drawPolyline(ctx, samples, { color: this.repairPreview ? '#ffcb5c' : this.validation?.valid ? '#91f0c4' : '#f4e5bd', width: 3.2, close: this.closed, glow: true });
+      if (this.closed && this.elevationOverlay !== 'off') this._drawProfileOverlay(ctx, samples);
       if (this.closed) this._drawArrows(ctx, samples);
     }
     if (this.closed) this._drawCrossings(ctx);
@@ -2777,6 +2969,7 @@ export class DrawTrackUI {
       if (marker) this._drawStartGate(ctx, marker, this.unsafeStartPreview ? 'unsafe' : 'safe');
       this._drawSelection(ctx);
       this._drawTightestRadius(ctx);
+      if (this.editorStage === 'elevation') this._drawElevationSelection(ctx, samples);
     }
     if (this.unsafeStartPreview) this._drawUnsafeStart(ctx, this.unsafeStartPreview);
     for (const issue of this.validation?.issues || []) {
@@ -2793,6 +2986,106 @@ export class DrawTrackUI {
       ctx.strokeStyle = '#ffcb5c'; ctx.lineWidth = 2 / this.view.zoom; ctx.stroke();
       ctx.beginPath(); ctx.arc(localX, localY, 2.5 / this.view.zoom, 0, Math.PI * 2); ctx.fillStyle = '#fff8dd'; ctx.fill();
     }
+    ctx.restore();
+  }
+
+  _drawProfileOverlay(ctx, samples) {
+    if (!samples?.length || this.elevationOverlay === 'off') return;
+    const count = samples.length;
+    const routeLength = Math.max(1, this.validation?.stats?.length || 200);
+    const canvasWidth = this.canvas.width / this.pixelRatio;
+    const canvasHeight = this.canvas.height / this.pixelRatio;
+    const segmentLength = routeLength / count;
+    const current = { elevation: 0, bank: 0 };
+    const nextProfile = { elevation: 0, bank: 0 };
+    const cyclicDistance = (a, b) => {
+      const direct = Math.abs(a - b);
+      return Math.min(direct, 1 - direct);
+    };
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 8 / this.view.zoom;
+    ctx.globalAlpha = 0.92;
+    for (let index = 0; index < count; index += 1) {
+      const nextIndex = (index + 1) % count;
+      const fraction = index / count;
+      sampleElevationProfile(this.draft.elevationProfile, fraction, current);
+      sampleElevationProfile(this.draft.elevationProfile, nextIndex / count, nextProfile);
+      const before = samples[(index - 2 + count) % count];
+      const point = samples[index];
+      const after = samples[(index + 2) % count];
+      const ax = point.x - before.x;
+      const ay = point.y - before.y;
+      const bx = after.x - point.x;
+      const by = after.y - point.y;
+      const al = Math.hypot(ax, ay) || 1;
+      const bl = Math.hypot(bx, by) || 1;
+      const curvature = Math.acos(clamp((ax * bx + ay * by) / (al * bl), -1, 1));
+      const grade = Math.abs(nextProfile.elevation - current.elevation) / segmentLength;
+      const bank = Math.abs(current.bank) / 0.24;
+      let clearanceRisk = 0;
+      for (const crossing of this.validation?.overpasses || []) {
+        const reach = Math.max(0.025, (crossing.approachLength || 30) / routeLength);
+        if (cyclicDistance(fraction, crossing.fraction) <= reach) {
+          clearanceRisk = Math.max(clearanceRisk, clamp(1 - (crossing.clearance || 0) / 5.2, 0, 1));
+        }
+      }
+      let localFeatures = 0;
+      for (const placement of this.draft.featurePlacements) {
+        if (cyclicDistance(fraction, placement.anchor.fraction) < 0.035) localFeatures += 1;
+      }
+      const cost = clamp(
+        localFeatures * 0.2
+          + (this.validation?.overpasses || []).filter((entry) => cyclicDistance(fraction, entry.fraction) < 0.045).length * 0.35,
+        0,
+        1,
+      );
+      const curvatureRisk = clamp(curvature / 0.58, 0, 1);
+      const gradeRisk = clamp(grade / 0.2, 0, 1);
+      const risk = {
+        curvature: curvatureRisk,
+        elevation: clamp(Math.abs(current.elevation) / 12, 0, 1),
+        grade: gradeRisk,
+        bank,
+        clearance: clearanceRisk,
+        ai: clamp(Math.max(curvatureRisk * 0.82, gradeRisk, bank * 0.76, clearanceRisk), 0, 1),
+        cost,
+      }[this.elevationOverlay] ?? 0;
+      const a = { x: point.x * canvasWidth, y: point.y * canvasHeight };
+      const nextPoint = samples[nextIndex];
+      const b = { x: nextPoint.x * canvasWidth, y: nextPoint.y * canvasHeight };
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = `hsl(${Math.round(184 - risk * 184)} 88% ${Math.round(61 - risk * 7)}%)`;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  _drawElevationSelection(ctx, samples) {
+    if (!samples?.length) return;
+    const index = Math.round(this.selectedElevationFraction * samples.length) % samples.length;
+    const source = samples[index];
+    const point = {
+      x: source.x * this.canvas.width / this.pixelRatio,
+      y: source.y * this.canvas.height / this.pixelRatio,
+    };
+    const sample = { elevation: 0, bank: 0 };
+    sampleElevationProfile(this.draft.elevationProfile, this.selectedElevationFraction, sample);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, 13 / this.view.zoom, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(13,24,31,.9)';
+    ctx.fill();
+    ctx.lineWidth = 3 / this.view.zoom;
+    ctx.strokeStyle = '#ffcf6a';
+    ctx.stroke();
+    ctx.fillStyle = '#fff5d1';
+    ctx.font = `${Math.max(8, 9 / this.view.zoom)}px "Geist Mono", monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`${sample.elevation.toFixed(1)}m · ${(sample.bank * RAD_TO_DEG).toFixed(1)}°`, point.x, point.y - 17 / this.view.zoom);
     ctx.restore();
   }
 

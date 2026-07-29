@@ -1,5 +1,6 @@
 /** Runtime generation helpers shared by Draw Your Track and Kaki Rally. */
 import * as THREE from 'three';
+import { sampleElevationProfile } from './drawTrackElevation.js';
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -38,11 +39,16 @@ export class TrackMeshBuilder {
   /** Add gentle cosine ramps to the branch selected by the validator. */
   static applyElevation(samples, course) {
     const overpasses = Array.isArray(course?.overpasses) ? course.overpasses : [];
-    for (const sample of samples) {
-      sample.y = Number(sample.y) || 0;
+    const elevationSample = { elevation: 0, bank: 0 };
+    for (let index = 0; index < samples.length; index += 1) {
+      const sample = samples[index];
+      sampleElevationProfile(course?.elevationProfile, index / Math.max(1, samples.length), elevationSample);
+      sample.authoredElevation = elevationSample.elevation;
+      sample.y = elevationSample.elevation;
+      sample.bank = elevationSample.bank;
+      sample.groundRoll = elevationSample.bank;
       sample.overpassIds = [];
     }
-    if (!overpasses.length || samples.length < 8) return samples;
     const { distances, total } = sampleDistances(samples);
     for (const bridge of overpasses) {
       const center = (((Number(bridge.fraction) || 0) % 1) + 1) % 1 * total;
@@ -53,7 +59,8 @@ export class TrackMeshBuilder {
         if (d > approach) continue;
         const phase = d / approach;
         const elevation = height * 0.5 * (1 + Math.cos(Math.PI * phase));
-        if (elevation > samples[i].y) samples[i].y = elevation;
+        const bridgeY = samples[i].authoredElevation + elevation;
+        if (bridgeY > samples[i].y) samples[i].y = bridgeY;
         if (elevation > 0.28) samples[i].overpassIds.push(bridge.id);
       }
     }

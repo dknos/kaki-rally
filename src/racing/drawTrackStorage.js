@@ -15,6 +15,7 @@ import {
 } from './drawTrackThemes.js';
 import { sanitizeCourseFeaturePlacements } from './courseFeaturePlacement.js';
 import { sanitizeCrossingOverrides } from './drawTrackCrossings.js';
+import { sanitizeElevationProfile } from './drawTrackElevation.js';
 
 export const DRAW_TRACK_SCHEMA_VERSION = 3;
 export const DRAW_TRACK_STORAGE_KEY = 'kks_draw_tracks_v1';
@@ -76,6 +77,7 @@ function normalizeDraft(input = {}) {
   }
   const crossingOverrides = sanitizeCrossingOverrides(input.crossingOverrides);
   const features = sanitizeCourseFeaturePlacements(input.featurePlacements, { mode: 'spline' });
+  const elevation = sanitizeElevationProfile(input.elevationProfile);
   return {
     version: DRAW_TRACK_SCHEMA_VERSION,
     id,
@@ -96,9 +98,11 @@ function normalizeDraft(input = {}) {
     controlPoints,
     crossingOverrides,
     featurePlacements: features.placements,
+    elevationProfile: elevation,
     dataWarnings: [
       ...(Array.isArray(input.dataWarnings) ? input.dataWarnings.filter((value) => typeof value === 'string').slice(0, 32) : []),
       ...features.warnings,
+      ...elevation.warnings,
     ].slice(0, 48),
     favorite: !!input.favorite,
     raceCount: Math.max(0, Math.round(Number(input.raceCount) || 0)),
@@ -280,6 +284,13 @@ function encodeExtension(draft) {
       placement.source === 'auto-dress' ? 2 : placement.source === 'auto-fill' ? 1 : 0,
       Object.keys(placement.properties || {}).length ? placement.properties : null,
     ]),
+    e: draft.elevationProfile.stamps.map((stamp) => [
+      stamp.id,
+      compactNumber(stamp.fraction, 100000),
+      compactNumber(stamp.radius, 100000),
+      compactNumber(stamp.elevation, 1000),
+      compactNumber(stamp.bank, 100000),
+    ]),
   };
   const encoded = new TextEncoder().encode(JSON.stringify(payload));
   if (encoded.length > MAX_SHARE_EXTENSION_BYTES || encoded.length > 65535) {
@@ -330,14 +341,25 @@ function decodeExtension(bytes) {
       scaleZ: value?.[8],
     },
   }));
-  return { crossingOverrides, featurePlacements };
+  const elevationProfile = sanitizeElevationProfile({
+    stamps: Array.isArray(parsed.e) ? parsed.e.map((value) => ({
+      id: String(value?.[0] || ''),
+      fraction: value?.[1],
+      radius: value?.[2],
+      elevation: value?.[3],
+      bank: value?.[4],
+    })) : [],
+  });
+  return { crossingOverrides, featurePlacements, elevationProfile };
 }
 
 export class TrackCodeCodec {
   static encode(input) {
     const draft = normalizeDraft(input);
     const points = codePoints(draft);
-    const hasExtension = draft.crossingOverrides.length > 0 || draft.featurePlacements.length > 0;
+    const hasExtension = draft.crossingOverrides.length > 0
+      || draft.featurePlacements.length > 0
+      || draft.elevationProfile.stamps.length > 0;
     const version = hasExtension ? 3 : 2;
     const bytes = [
       version,
@@ -439,7 +461,11 @@ export class TrackCodeCodec {
     for (let i = 0; i < count; i++, offset += 4) {
       controlPoints.push({ x: readUint16(bytes, offset) / 4095, y: readUint16(bytes, offset + 2) / 4095 });
     }
-    let extension = { crossingOverrides: [], featurePlacements: [] };
+    let extension = {
+      crossingOverrides: [],
+      featurePlacements: [],
+      elevationProfile: sanitizeElevationProfile(),
+    };
     if (version === 3) {
       const extensionLength = readUint16(bytes, pointsEnd);
       if (
@@ -464,6 +490,7 @@ export class TrackCodeCodec {
       controlPoints,
       crossingOverrides: extension.crossingOverrides,
       featurePlacements: extension.featurePlacements,
+      elevationProfile: extension.elevationProfile,
     });
   }
 }

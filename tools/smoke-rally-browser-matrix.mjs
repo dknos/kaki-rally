@@ -324,7 +324,10 @@ async function runWorkshopResponsive(browser, origin, report) {
     assert(landscape.canvas.width >= 300 && landscape.canvas.height >= 170, 'mobile Workshop hid too much of the course');
     assert(landscape.minTouchTarget >= 43.5, `mobile Workshop target fell below 44 CSS px: ${landscape.minTouchTarget}`);
     await page.screenshot({ path: path.join(QA_DIR, 'webgl-draw-editor-mobile-landscape.png') });
-    await page.click('.kdt-feature-collapse');
+    const initiallyCollapsed = await page.locator('.kdt-feature-workbench').evaluate((node) => (
+      node.classList.contains('is-collapsed')
+    ));
+    if (!initiallyCollapsed) await page.click('.kdt-feature-collapse');
     const collapsedHeight = await page.locator('.kdt-feature-workbench').evaluate((node) => (
       node.getBoundingClientRect().height
     ));
@@ -781,6 +784,23 @@ async function runRoadMode(page, spec, backend, evidence) {
   if (spec.mode === 'stock') assert(snapshot.integrity <= 24, 'Stock Cup damage/smoke state did not trigger');
   if (spec.mode === 'circuit') assert(snapshot.raceTime > 0, 'Off-Road GP fixed-step race clock did not advance');
   await page.screenshot({ path: path.join(QA_DIR, `${backend}-${spec.mode}.png`) });
+  if (spec.mode === 'circuit') {
+    assert(
+      await page.evaluate(() => window.__kkRacing.setCameraMode('driver_fpv')),
+      'Off-Road GP rejected its driver FPV camera',
+    );
+    await page.waitForTimeout(260);
+    await page.screenshot({ path: path.join(QA_DIR, `${backend}-circuit-fpv.png`) });
+    await page.evaluate(() => window.__kkRacing.setCameraMode('chase'));
+  } else if (spec.mode === 'stock') {
+    assert(
+      await page.evaluate(() => window.__kkRacing.setCameraMode('isometric')),
+      'Stock Cup rejected its pack-reading camera',
+    );
+    await page.waitForTimeout(260);
+    await page.screenshot({ path: path.join(QA_DIR, `${backend}-stock-pack.png`) });
+    await page.evaluate(() => window.__kkRacing.setCameraMode('chase'));
+  }
   evidence.opening = opening;
   evidence.keyboard = keyboard;
   evidence.gamepad = gamepad;
@@ -804,12 +824,16 @@ async function runMonster(page, backend, evidence) {
   await exerciseKeyboard(page);
   await exerciseTouch(page, 'monster');
   evidence.gamepad = await exerciseGamepad(page);
-  const central = await page.evaluate(() => ({
-    target: window.__kkRacing.warpToMonsterTarget(0),
+  const target = await page.evaluate(() => window.__kkRacing.warpToMonsterTarget(0));
+  assert(target, 'Monster target traversal setup failed');
+  await page.waitForTimeout(260);
+  await page.screenshot({ path: path.join(QA_DIR, `${backend}-monster-crush-traversal.png`) });
+  const central = await page.evaluate((targetReady) => ({
+    target: targetReady,
     collapsed: window.__kkRacing.collapseMonsterStructure(),
     jump: window.__kkRacing.showMonsterJump(),
     chaos: window.__kkRacing.fillChaos(),
-  }));
+  }), target);
   assert(central.target && central.collapsed && central.jump && central.chaos, `Monster central mechanics failed: ${JSON.stringify(central)}`);
   const beforeRound = await page.evaluate(() => window.__kkRacing.snapshot().monster);
   await page.evaluate(() => {
@@ -1032,6 +1056,31 @@ async function runDraw(page, backend, evidence) {
   });
   const placedStamp = await addWorkshopCircuitStamp(page);
   assert(placedStamp, 'Draw Workshop could not place a validated circuit ramp');
+  const elevationProfile = await page.evaluate(() => {
+    const editor = window.__kdtEditor;
+    editor.setEditorStage('elevation');
+    editor.selectedElevationFraction = 0.24;
+    editor.applyElevationTool('hill');
+    editor.selectedElevationFraction = 0.61;
+    editor.applyElevationTool('bank-left');
+    editor.setElevationOverlay('grade');
+    return {
+      stamps: editor.draft.elevationProfile.stamps.length,
+      valid: editor.elevationValidation.valid,
+      maxGrade: editor.elevationValidation.maximumGrade,
+      maxBank: editor.elevationValidation.maximumBank,
+      panelVisible: !document.querySelector('.kdt-elevation-workbench').hidden,
+    };
+  });
+  assert(
+    elevationProfile.stamps === 2
+      && elevationProfile.valid
+      && elevationProfile.maxGrade > 0
+      && elevationProfile.maxBank > 0
+      && elevationProfile.panelVisible,
+    `Draw Workshop elevation/banking failed: ${JSON.stringify(elevationProfile)}`,
+  );
+  evidence.elevationProfile = elevationProfile;
   await page.evaluate(() => window.__kdtEditor.save());
   const compatibility = await page.evaluate(async () => {
     const { TrackCodeCodec } = await import('./src/racing/drawTrackStorage.js');
@@ -1041,6 +1090,7 @@ async function runDraw(page, backend, evidence) {
       ...draft,
       featurePlacements: [],
       crossingOverrides: [],
+      elevationProfile: { version: 1, stamps: [] },
     };
     const legacyPoints = Array.from({ length: 40 }, (_, index) => {
       const angle = index / 40 * Math.PI * 2;
@@ -1101,7 +1151,9 @@ async function runDraw(page, backend, evidence) {
       legacyPoints: legacy.controlPoints.length,
       currentPoints: current.controlPoints.length,
       workshopFeatures: workshop.featurePlacements.length,
+      workshopElevation: workshop.elevationProfile.stamps.length,
       editorFeatures: editor.draft.featurePlacements.length,
+      editorElevation: editor.draft.elevationProfile.stamps.length,
       reverse: editor.draft.reverse,
     };
   });
@@ -1117,7 +1169,9 @@ async function runDraw(page, backend, evidence) {
       && compatibility.currentValid
       && compatibility.workshopValid
       && compatibility.workshopFeatures === 1
-      && compatibility.editorFeatures === 1,
+      && compatibility.workshopElevation === 2
+      && compatibility.editorFeatures === 1
+      && compatibility.editorElevation === 2,
     `KDT code import failed browser validation: ${JSON.stringify(compatibility)}`,
   );
 

@@ -1713,6 +1713,10 @@ export function tickTrialsMode(dt) {
         boost: session.physics.turboActive,
         turboHeat: session.physics.turboHeat,
         monster: session.vehicle.id === 'monster',
+        acceleration: session.physics.acceleration || 0,
+        surface: session.track.theme || session.track.id,
+        environment: session.track.theme || session.track.id,
+        raceMode: 'trials',
       });
     } catch (_) {}
   }

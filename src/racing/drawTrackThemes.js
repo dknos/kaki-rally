@@ -3,6 +3,11 @@ import { RACE_COURSES } from './tracks.js';
 import { TRACK_SIZE_PRESETS, TRACK_WIDTH_PRESETS } from './drawTrackGeometry.js';
 import { sanitizeCourseFeaturePlacements } from './courseFeaturePlacement.js';
 import { validateCircuitFeaturePlacement } from './courseFeatureValidation.js';
+import {
+  runtimeElevationProfile,
+  sanitizeElevationProfile,
+  validateElevationProfile,
+} from './drawTrackElevation.js';
 
 export const DRAW_TRACK_THEMES = Object.freeze({
   countryside: Object.freeze({
@@ -141,6 +146,12 @@ export function compileDrawTrackCourse(draft, validation) {
     draft.featurePlacements || [],
     { mode: 'spline' },
   );
+  const elevation = validateElevationProfile(
+    sanitizeElevationProfile(draft.elevationProfile),
+    validation.stats.length,
+    validation.sampleCount || size.samples,
+  );
+  if (!elevation.valid) throw new Error(elevation.issues[0]?.message || 'Track elevation is not race safe');
   const autoPlacements = [
     ...rampFractions.map((fraction, index) => ({
       id: `auto-fill-kicker-${index.toString(36)}`,
@@ -229,6 +240,16 @@ export function compileDrawTrackCourse(draft, validation) {
     laps: Number.isFinite(draft.laps) ? Math.max(1, Math.min(9, Math.round(draft.laps))) : size.laps,
     points: (validation.racingControlPoints || validation.controlPoints).map((point) => [point.x, point.y]),
     overpasses,
+    elevationProfile: runtimeElevationProfile(elevation.profile, {
+      startFraction: draft.startFraction,
+      reverse: !!draft.reverse,
+    }),
+    elevationMetrics: {
+      maximumElevation: elevation.maximumElevation,
+      minimumElevation: elevation.minimumElevation,
+      maximumBank: elevation.maximumBank,
+      maximumGrade: elevation.maximumGrade,
+    },
     // Draw courses use authored Workshop meshes and their matching analytical
     // surfaces. The legacy fraction pads remain available to official modes
     // and old runtime course objects, but are deliberately empty here.
@@ -271,6 +292,7 @@ export function compileDrawTrackCourse(draft, validation) {
       seed,
       rawStroke: (draft.rawStroke || []).map((point) => ({ x: point.x, y: point.y })),
       controlPoints: (draft.controlPoints || []).map((point) => ({ x: point.x, y: point.y })),
+      elevationProfile: elevation.profile,
       featurePlacements: sanitizedFeatures.placements.map((placement) => ({
         ...placement,
         anchor: { ...placement.anchor },

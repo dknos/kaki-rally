@@ -32,12 +32,12 @@ const ROAD_ASSETS = Object.freeze({
 });
 
 const GROUND_ASSETS = Object.freeze({
-  forest: Object.freeze({ color: 'racing/terrain-v2/forest-ground-color.webp', normal: 'racing/terrain-v2/forest-ground-normal.webp', roughness: 'racing/terrain-v2/forest-ground-roughness.webp', repeat: 1.5 }),
-  twilight: Object.freeze({ color: 'racing/terrain-v2/twilight-ground-color.webp', normal: 'racing/terrain-v2/twilight-ground-normal.webp', roughness: 'racing/terrain-v2/twilight-ground-roughness.webp', repeat: 1.55 }),
-  cinder: Object.freeze({ color: 'racing/terrain-v2/cinder-ground-color.webp', normal: 'racing/terrain-v2/cinder-ground-normal.webp', roughness: 'racing/terrain-v2/cinder-ground-roughness.webp', repeat: 1.45 }),
-  void: Object.freeze({ color: 'racing/terrain-v2/void-ground-color.webp', normal: 'racing/terrain-v2/void-ground-normal.webp', roughness: 'racing/terrain-v2/void-ground-roughness.webp', repeat: 1.55 }),
-  cave: Object.freeze({ color: 'racing/terrain-v2/cave-ground-color.webp', normal: 'racing/terrain-v2/cave-ground-normal.webp', roughness: 'racing/terrain-v2/cave-ground-roughness.webp', repeat: 1.7 }),
-  kakiland: Object.freeze({ color: 'racing/terrain-v2/kakiland-ground-color.webp', normal: 'racing/terrain-v2/kakiland-ground-normal.webp', roughness: 'racing/terrain-v2/kakiland-ground-roughness.webp', repeat: 1.55 }),
+  forest: Object.freeze({ color: 'racing/terrain-v2/forest-ground-color.webp', normal: 'racing/terrain-v2/forest-ground-normal.webp', roughness: 'racing/terrain-v2/forest-ground-roughness.webp', repeat: 6.2 }),
+  twilight: Object.freeze({ color: 'racing/terrain-v2/twilight-ground-color.webp', normal: 'racing/terrain-v2/twilight-ground-normal.webp', roughness: 'racing/terrain-v2/twilight-ground-roughness.webp', repeat: 6.45 }),
+  cinder: Object.freeze({ color: 'racing/terrain-v2/cinder-ground-color.webp', normal: 'racing/terrain-v2/cinder-ground-normal.webp', roughness: 'racing/terrain-v2/cinder-ground-roughness.webp', repeat: 5.8 }),
+  void: Object.freeze({ color: 'racing/terrain-v2/void-ground-color.webp', normal: 'racing/terrain-v2/void-ground-normal.webp', roughness: 'racing/terrain-v2/void-ground-roughness.webp', repeat: 6.35 }),
+  cave: Object.freeze({ color: 'racing/terrain-v2/cave-ground-color.webp', normal: 'racing/terrain-v2/cave-ground-normal.webp', roughness: 'racing/terrain-v2/cave-ground-roughness.webp', repeat: 6.8 }),
+  kakiland: Object.freeze({ color: 'racing/terrain-v2/kakiland-ground-color.webp', normal: 'racing/terrain-v2/kakiland-ground-normal.webp', roughness: 'racing/terrain-v2/kakiland-ground-roughness.webp', repeat: 6.1 }),
 });
 
 const AUTHORED_BIOME_PROPS = Object.freeze({
@@ -210,12 +210,13 @@ function _ribbonGeometry(samples, centerOffset, width, y, rc, distances, uvScale
     const p = samples[i];
     const left = centerOffset + half;
     const right = centerOffset - half;
+    const bankSlope = Math.tan(Number(p.bank) || 0);
     const p6 = i * 6;
     positions[p6] = p.x + p.normal.x * left;
-    positions[p6 + 1] = (p.y || 0) + y;
+    positions[p6 + 1] = (p.y || 0) + y + bankSlope * left;
     positions[p6 + 2] = p.z + p.normal.z * left;
     positions[p6 + 3] = p.x + p.normal.x * right;
-    positions[p6 + 4] = (p.y || 0) + y;
+    positions[p6 + 4] = (p.y || 0) + y + bankSlope * right;
     positions[p6 + 5] = p.z + p.normal.z * right;
     const t4 = i * 4;
     uvs[t4] = 0;
@@ -419,6 +420,76 @@ function _buildSky(group, course, profile, bounds, rc, env, anisotropy) {
   haze.name = 'rally-horizon-haze';
   haze.position.set(bounds.centerX, 3, bounds.centerZ);
   group.add(haze);
+
+  const buildRidge = (radius, height, segments, seed, color, opacity, name) => {
+    const positions = new Float32Array((segments + 1) * 6);
+    const indices = new Uint16Array(segments * 6);
+    for (let index = 0; index <= segments; index++) {
+      const amount = index / segments;
+      const angle = amount * Math.PI * 2;
+      const radialNoise = Math.sin(angle * 3 + seed) * 5.5
+        + Math.cos(angle * 7 - seed * 0.7) * 2.8;
+      const crest = height
+        + Math.sin(angle * 5 + seed * 1.7) * height * 0.3
+        + Math.cos(angle * 11 - seed) * height * 0.12;
+      const x = Math.cos(angle) * (radius + radialNoise);
+      const z = Math.sin(angle) * (radius + radialNoise);
+      const offset = index * 6;
+      positions[offset] = x;
+      positions[offset + 1] = -4;
+      positions[offset + 2] = z;
+      positions[offset + 3] = x;
+      positions[offset + 4] = Math.max(3, crest);
+      positions[offset + 5] = z;
+      if (index < segments) {
+        const indexOffset = index * 6;
+        const lower = index * 2;
+        indices[indexOffset] = lower;
+        indices[indexOffset + 1] = lower + 1;
+        indices[indexOffset + 2] = lower + 2;
+        indices[indexOffset + 3] = lower + 1;
+        indices[indexOffset + 4] = lower + 3;
+        indices[indexOffset + 5] = lower + 2;
+      }
+    }
+    const geometry = rc.geometry(new THREE.BufferGeometry());
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+    geometry.computeVertexNormals();
+    geometry.computeBoundingSphere();
+    const material = _basicMaterial(rc, {
+      color,
+      transparent: true,
+      opacity,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      fog: true,
+    });
+    const ridge = _mesh(geometry, material);
+    ridge.name = name;
+    ridge.position.set(bounds.centerX, 0, bounds.centerZ);
+    ridge.renderOrder = -10;
+    group.add(ridge);
+  };
+  const ridgeRadius = Math.max(128, bounds.radius + 68);
+  buildRidge(
+    ridgeRadius + 24,
+    course.id === 'kakiland' ? 14 : 19,
+    72,
+    _courseSalt(course) * 0.013,
+    profile.mid,
+    course.id === 'twilight' || course.id === 'void' ? 0.38 : 0.27,
+    'rally-distant-ridge',
+  );
+  buildRidge(
+    ridgeRadius,
+    course.id === 'forest' || course.id === 'kakiland' ? 10 : 13,
+    64,
+    _courseSalt(course) * 0.021 + 4.2,
+    profile.dark,
+    0.42,
+    'rally-midground-ridge',
+  );
 }
 
 function _terrainGeometry(size, course, profile, bounds, samples, rc) {
@@ -430,18 +501,23 @@ function _terrainGeometry(size, course, profile, bounds, samples, rc) {
   const shadow = base.clone().multiplyScalar(course.id === 'kakiland' ? 0.68 : 0.5);
   const highlight = base.clone().lerp(new THREE.Color(profile.pale), course.id === 'kakiland' ? 0.3 : 0.2);
   const vertexColor = new THREE.Color();
-  const amplitude = ({ forest: 0.85, twilight: 0.5, cinder: 1.1, void: 0.72, cave: 0.92, kakiland: 0.42 })[course.id] || 0.7;
+  const amplitude = ({ forest: 2.2, twilight: 1.45, cinder: 2.7, void: 1.85, cave: 2.35, kakiland: 1.35 })[course.id] || 1.8;
   for (let index = 0; index < positions.count; index++) {
     const localX = positions.getX(index);
     const localZ = positions.getZ(index);
     const worldX = localX + bounds.centerX;
     const worldZ = localZ + bounds.centerZ;
     let distanceSq = Infinity;
+    let routeHeight = 0;
     for (let sampleIndex = 0; sampleIndex < samples.length; sampleIndex += 5) {
       const sample = samples[sampleIndex];
       const dx = worldX - sample.x;
       const dz = worldZ - sample.z;
-      distanceSq = Math.min(distanceSq, dx * dx + dz * dz);
+      const candidate = dx * dx + dz * dz;
+      if (candidate < distanceSq) {
+        distanceSq = candidate;
+        routeHeight = Number(sample.authoredElevation) || 0;
+      }
     }
     const trackClearance = course.trackWidth * 0.62 + 2.4;
     const relief = THREE.MathUtils.smoothstep(Math.sqrt(distanceSq), trackClearance, trackClearance + 18);
@@ -449,7 +525,16 @@ function _terrainGeometry(size, course, profile, bounds, samples, rc) {
       + Math.sin(worldX * 0.117 + worldZ * 0.071) * 0.23
       + Math.cos(worldZ * 0.153 - worldX * 0.043) * 0.18
       + (_seed(index * 1.37 + _courseSalt(course) * 0.019) - 0.5) * 0.16;
-    positions.setY(index, -0.22 - relief * amplitude * Math.max(0.08, macro));
+    const landform = Math.sin(worldX * 0.033 + worldZ * 0.019 + _courseSalt(course) * 0.007) * 0.58
+      + Math.cos(worldZ * 0.041 - worldX * 0.026) * 0.34
+      + Math.sin((worldX + worldZ) * 0.071) * 0.14;
+    const naturalHeight = -0.32 + relief * amplitude * landform;
+    const foundationBlend = 1 - THREE.MathUtils.smoothstep(
+      Math.sqrt(distanceSq),
+      trackClearance,
+      trackClearance + 10,
+    );
+    positions.setY(index, THREE.MathUtils.lerp(naturalHeight, routeHeight - 0.26, foundationBlend));
     const tone = THREE.MathUtils.clamp(
       0.4 + macro * 0.52 + (_seed(index * 3.17 + _courseSalt(course) * 0.041) - 0.5) * 0.2,
       0.12,
@@ -509,8 +594,12 @@ function _buildGround(group, course, profile, bounds, samples, rc, anisotropy) {
     repeatX: assets.repeat,
     repeatY: assets.repeat,
   });
-  const normalMap = _loadTexture(assets.normal, rc, { color: false, anisotropy, repeatX: assets.repeat, repeatY: assets.repeat });
-  const roughnessMap = _loadTexture(assets.roughness, rc, { color: false, anisotropy, repeatX: assets.repeat, repeatY: assets.repeat });
+  const normalMap = assets.normal
+    ? _loadTexture(assets.normal, rc, { color: false, anisotropy, repeatX: assets.repeat, repeatY: assets.repeat })
+    : null;
+  const roughnessMap = assets.roughness
+    ? _loadTexture(assets.roughness, rc, { color: false, anisotropy, repeatX: assets.repeat, repeatY: assets.repeat })
+    : null;
   const groundMaterial = _material(rc, {
     map: groundMap,
     normalMap,
@@ -535,13 +624,13 @@ function _buildGround(group, course, profile, bounds, samples, rc, anisotropy) {
     color: 0xffffff,
     transparent: true,
     opacity: ({
-      forest: 0.82,
-      twilight: 0.76,
-      cinder: 0.8,
-      void: 0.74,
-      cave: 0.7,
-      kakiland: 0.78,
-    })[course.id] || 0.76,
+      forest: 0.58,
+      twilight: 0.54,
+      cinder: 0.58,
+      void: 0.5,
+      cave: 0.52,
+      kakiland: 0.56,
+    })[course.id] || 0.55,
     depthWrite: false,
     fog: true,
     toneMapped: false,
@@ -577,20 +666,33 @@ function _buildTrackLayers(group, course, profile, samples, rc, anisotropy) {
     roughness: 0.97,
     side: THREE.DoubleSide,
   });
+  const roadColor = new THREE.Color(_hex(course.road, profile.roadTint))
+    .lerp(new THREE.Color(profile.pale), course.id === 'twilight' || course.id === 'void' ? 0.2 : 0.29);
   const roadMaterial = _material(rc, {
     map: colorMap,
     normalMap,
     roughnessMap,
-    color: _hex(course.road, profile.roadTint),
-    roughness: roughnessMap ? 0.88 : 0.94,
+    color: roadColor,
+    emissive: roadColor.clone().multiplyScalar(0.075),
+    emissiveIntensity: 0.18,
+    roughness: roughnessMap ? 0.84 : 0.91,
     metalness: 0.015,
-    normalScale: new THREE.Vector2(0.42, 0.42),
+    normalScale: new THREE.Vector2(0.58, 0.58),
     side: THREE.DoubleSide,
   });
   const grooveMaterial = _basicMaterial(rc, {
-    color: course.id === 'kakiland' ? 0x9b7f70 : 0x21191a,
+    color: course.id === 'kakiland'
+      ? 0x9b7f70
+      : roadColor.clone().multiplyScalar(0.47),
     transparent: true,
-    opacity: course.id === 'twilight' ? 0.2 : 0.14,
+    opacity: course.id === 'twilight' ? 0.24 : 0.19,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const crownWearMaterial = _basicMaterial(rc, {
+    color: new THREE.Color(roadColor).lerp(new THREE.Color(profile.pale), 0.3),
+    transparent: true,
+    opacity: course.id === 'kakiland' ? 0.11 : 0.08,
     depthWrite: false,
     side: THREE.DoubleSide,
   });
@@ -609,6 +711,12 @@ function _buildTrackLayers(group, course, profile, samples, rc, anisotropy) {
   const road = _mesh(_ribbonGeometry(samples, 0, width, 0.085, rc, distances), roadMaterial, { receive: true });
   road.name = 'rally-track-surface';
   group.add(basin, shoulder, road);
+  const crownWear = _mesh(
+    _ribbonGeometry(samples, 0, width * 0.46, 0.103, rc, distances, 3.8),
+    crownWearMaterial,
+  );
+  crownWear.name = 'rally-route-wear';
+  group.add(crownWear);
 
   const grooveWidth = course.mode === 'stock' ? 0.78 : 0.5;
   const grooveOffset = Math.min(width * 0.24, course.mode === 'stock' ? 3.1 : 2.15);
@@ -661,8 +769,7 @@ function _buildCurbsAndRails(group, course, profile, samples, rc) {
       }
     }
   }
-  const curbGeometry = rc.geometry(new THREE.CapsuleGeometry(0.19, 1.08, 3, 7));
-  curbGeometry.rotateX(Math.PI * 0.5);
+  const curbGeometry = rc.geometry(new THREE.BoxGeometry(0.24, 0.12, 1.16, 1, 1, 2));
   const light = _material(rc, { color: _hex(course.curb, profile.pale), roughness: 0.58, metalness: 0.06 });
   const accent = _material(rc, {
     color: _hex(course.accent, profile.glow),
@@ -719,8 +826,8 @@ function _makeScatterSites(course, samples) {
       if ((serial + (side > 0 ? 2 : 0)) % 7 === 0) continue;
       const p = samples[i];
       const jitter = _seed(serial * 41 + side * 13 + 2 + salt);
-      const scale = 0.78 + _seed(serial * 19 + side * 7 + salt) * 0.64;
-      const lateral = side * (halfWidth + 6.4 + jitter * 7.4);
+      const scale = 0.58 + _seed(serial * 19 + side * 7 + salt) * 0.42;
+      const lateral = side * (halfWidth + 13.5 + jitter * 12.5);
       const site = {
         x: p.x + p.normal.x * lateral,
         y: 0,
@@ -733,14 +840,14 @@ function _makeScatterSites(course, samples) {
       // Test against the complete circuit, not only the source sample. This is
       // what keeps trees and rockwork out of hairpins, linked corners and the
       // lower route of player-drawn figure eights.
-      if (_acceptTracksideSite(site, course, samples, Math.max(4.8, scale * 3.4))) sites.push(site);
+      if (_acceptTracksideSite(site, course, samples, Math.max(7.2, scale * 4.2))) sites.push(site);
     }
   }
   for (let i = 14, serial = 0; i < samples.length; i += 13, serial++) {
     const side = serial % 2 ? -1 : 1;
     const p = samples[i];
-    const lateral = side * (halfWidth + 21 + _seed(serial * 67 + salt) * 12);
-    const scale = 1.15 + _seed(serial * 11 + salt) * 0.9;
+    const lateral = side * (halfWidth + 25 + _seed(serial * 67 + salt) * 15);
+    const scale = 0.92 + _seed(serial * 11 + salt) * 0.62;
     const site = {
       x: p.x + p.normal.x * lateral,
       y: 0,
@@ -823,7 +930,7 @@ function _buildBiomeScatter(group, course, profile, sites, rc, env) {
         const lobeScale = site.scale * (0.62 + ((site.seed + (side > 0 ? 1 : 0)) % 3) * 0.07);
         canopyLobes.push({
           x: site.x + tangentX * side * site.scale * 1.18,
-          y: 4.05 * site.scale + (side > 0 ? 0.34 : -0.06),
+          y: site.y + 4.05 * site.scale + (side > 0 ? 0.34 : -0.06),
           z: site.z + tangentZ * side * site.scale * 1.18,
           yaw: site.yaw + side * 0.32,
           sx: lobeScale * (course.id === 'kakiland' ? 1.22 : 1.05),
@@ -842,18 +949,18 @@ function _buildBiomeScatter(group, course, profile, sites, rc, env) {
       const lantern = _organicGeometry(0.31, 1, rc, 42);
       const transforms = accentSites.map((site) => ({
         x: site.x + Math.cos(site.yaw) * site.scale,
-        y: 3.3 * site.scale,
+        y: site.y + 3.3 * site.scale,
         z: site.z + Math.sin(site.yaw) * site.scale,
         scale: site.scale,
       }));
       _instanced(group, lantern, glow, transforms, { name: 'twilight-lanterns' });
     } else if (course.id === 'forest') {
       const mushroom = _organicGeometry(0.52, 1, rc, 8);
-      const transforms = accentSites.map((site) => ({ x: site.x + 1.5, y: 0.52, z: site.z - 0.8, sx: site.scale, sy: site.scale * 0.48, sz: site.scale }));
+      const transforms = accentSites.map((site) => ({ x: site.x + 1.5, y: site.y + 0.52, z: site.z - 0.8, sx: site.scale, sy: site.scale * 0.48, sz: site.scale }));
       _instanced(group, mushroom, glow, transforms, { name: 'forest-moonroot-caps' });
     } else {
       const pennant = _pennantGeometry(rc);
-      const transforms = accentSites.map((site) => ({ x: site.x, y: 4.2 * site.scale, z: site.z, yaw: site.yaw, scale: site.scale }));
+      const transforms = accentSites.map((site) => ({ x: site.x, y: site.y + 4.2 * site.scale, z: site.z, yaw: site.yaw, scale: site.scale }));
       const flags = _instanced(group, pennant, glow, transforms, { name: 'kakiland-pennants' });
       if (flags) env.animatedObjects.push({ object: flags, baseY: flags.position.y, phase: 1.7, amplitude: 0.055 });
     }
@@ -1173,6 +1280,14 @@ export function buildRallyEnvironment({
   _buildCurbsAndRails(group, course, profile, samples, rc);
   const scenerySites = _makeScatterSites(course, samples);
   const dressingSites = _makeDressingSites(course, samples);
+  for (let index = 0; index < scenerySites.length; index++) {
+    const site = scenerySites[index];
+    site.y = terrain.heightAt(site.x, site.z);
+  }
+  for (let index = 0; index < dressingSites.length; index++) {
+    const site = dressingSites[index];
+    site.y = terrain.heightAt(site.x, site.z);
+  }
   env.sceneryLayout = {
     primary: scenerySites,
     dressing: dressingSites,

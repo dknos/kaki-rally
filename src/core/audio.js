@@ -13,6 +13,28 @@ let sfxVolume = 0.72;
 let ambientVolume = 0.5;
 const cleanupTimers = new Set();
 const counters = { menu: 0, racing: 0, impact: 0, sfx: 0 };
+const SURFACE_AUDIO = Object.freeze({
+  road: Object.freeze({ frequency: 920, q: 0.82, gain: 0.72 }),
+  asphalt: Object.freeze({ frequency: 1040, q: 0.92, gain: 0.7 }),
+  dirt: Object.freeze({ frequency: 610, q: 0.58, gain: 1.05 }),
+  gravel: Object.freeze({ frequency: 1450, q: 1.15, gain: 1.2 }),
+  mud: Object.freeze({ frequency: 390, q: 0.48, gain: 0.9 }),
+  snow: Object.freeze({ frequency: 720, q: 0.7, gain: 0.78 }),
+  water: Object.freeze({ frequency: 1180, q: 0.42, gain: 1.1 }),
+  metal: Object.freeze({ frequency: 1840, q: 1.75, gain: 1.16 }),
+  wood: Object.freeze({ frequency: 760, q: 1.05, gain: 0.94 }),
+  offroad: Object.freeze({ frequency: 560, q: 0.54, gain: 1.02 }),
+});
+const AMBIENT_AUDIO = Object.freeze({
+  forest: Object.freeze({ frequency: 430, gain: 0.011 }),
+  twilight: Object.freeze({ frequency: 680, gain: 0.009 }),
+  cinder: Object.freeze({ frequency: 310, gain: 0.012 }),
+  void: Object.freeze({ frequency: 230, gain: 0.008 }),
+  cave: Object.freeze({ frequency: 260, gain: 0.01 }),
+  kakiland: Object.freeze({ frequency: 540, gain: 0.009 }),
+  monster: Object.freeze({ frequency: 820, gain: 0.015 }),
+  trials: Object.freeze({ frequency: 470, gain: 0.009 }),
+});
 
 function audioContextClass() {
   return globalThis.AudioContext || globalThis.webkitAudioContext || null;
@@ -190,9 +212,20 @@ function ensureRacingAudio() {
   tireFilter.Q.value = 0.72;
   tireGain.gain.value = 0.0001;
   tire.connect(tireFilter).connect(tireGain).connect(sfxBus);
+  const ambience = ctx.createBufferSource();
+  const ambienceFilter = ctx.createBiquadFilter();
+  const ambienceGain = ctx.createGain();
+  ambience.buffer = noiseBuffer(ctx);
+  ambience.loop = true;
+  ambienceFilter.type = 'lowpass';
+  ambienceFilter.frequency.value = 430;
+  ambienceFilter.Q.value = 0.35;
+  ambienceGain.gain.value = 0.0001;
+  ambience.connect(ambienceFilter).connect(ambienceGain).connect(ambientBus);
   engine.start();
   harmonic.start();
   tire.start();
+  ambience.start();
   racingAudio = {
     ctx,
     engine,
@@ -204,8 +237,12 @@ function ensureRacingAudio() {
     tire,
     tireFilter,
     tireGain,
+    ambience,
+    ambienceFilter,
+    ambienceGain,
     lastGear: 1,
     shiftDip: 0,
+    lastThrottle: 0,
   };
   counters.racing += 1;
   return racingAudio;
@@ -222,8 +259,13 @@ export function updateRacingAudio({
   wheelRpm = 0,
   gear = 1,
   engineLoad = 0,
+  engineBraking = 0,
+  acceleration = 0,
   vehicleId = '',
   groundedWheels = 4,
+  surface = 'road',
+  environment = 'forest',
+  raceMode = '',
 } = {}) {
   const audio = ensureRacingAudio();
   if (!audio) return false;
@@ -241,6 +283,8 @@ export function updateRacingAudio({
   const wheelRatio = Math.min(1.5, Math.abs(Number(wheelRpm) || 0) / 220);
   const gearRatio = [0, 1.72, 1.43, 1.2, 1.02, 0.88][safeGear];
   const planted = Math.min(1, Math.max(0, Number(groundedWheels) || 0) / 4);
+  const throttleLift = Math.max(0, audio.lastThrottle - throttleLoad);
+  audio.lastThrottle = throttleLoad;
   const cyber = monster && vehicleId === 'cyber';
   const base = monster ? (cyber ? 38 : 46) : 62;
   const drivenRpm = monster
@@ -250,8 +294,14 @@ export function updateRacingAudio({
   const boostLift = boost ? (monster ? 26 : 42) : 0;
   audio.engine.frequency.setTargetAtTime(rpm + boostLift, now, 0.045);
   audio.harmonic.frequency.setTargetAtTime((rpm + boostLift) * (monster ? (cyber ? 1.38 : 1.56) : 1.92), now, 0.055);
-  audio.engineGain.gain.setTargetAtTime(0.38, now, 0.04);
-  audio.harmonicGain.gain.setTargetAtTime(monster ? (cyber ? 0.105 : 0.135) : 0.075, now, 0.055);
+  audio.engineGain.gain.setTargetAtTime(0.3 + load * 0.1 + Math.min(0.04, Math.abs(Number(acceleration) || 0) * 0.004), now, 0.04);
+  audio.harmonicGain.gain.setTargetAtTime(
+    (monster ? (cyber ? 0.105 : 0.135) : 0.075)
+      + throttleLift * 0.025
+      + Math.min(0.018, Math.abs(Number(engineBraking) || 0) * 0.004),
+    now,
+    0.055,
+  );
   audio.filter.frequency.setTargetAtTime(
     (monster ? 360 : 520) + speedRatio * 980 + load * 300 + (boost ? 1150 : 0) + heat * 220,
     now,
@@ -262,9 +312,40 @@ export function updateRacingAudio({
     now,
     airborne ? 0.12 : 0.055,
   );
+  const surfaceName = String(surface || 'road').toLowerCase();
+  let surfaceProfile = SURFACE_AUDIO.road;
+  if (surfaceName.includes('gravel')) surfaceProfile = SURFACE_AUDIO.gravel;
+  else if (surfaceName.includes('mud') || surfaceName.includes('clay')) surfaceProfile = SURFACE_AUDIO.mud;
+  else if (surfaceName.includes('snow') || surfaceName.includes('ice')) surfaceProfile = SURFACE_AUDIO.snow;
+  else if (surfaceName.includes('water')) surfaceProfile = SURFACE_AUDIO.water;
+  else if (surfaceName.includes('metal')) surfaceProfile = SURFACE_AUDIO.metal;
+  else if (surfaceName.includes('wood')) surfaceProfile = SURFACE_AUDIO.wood;
+  else if (surfaceName.includes('dirt') || surfaceName.includes('sand')) surfaceProfile = SURFACE_AUDIO.dirt;
+  else if (surfaceName.includes('off')) surfaceProfile = SURFACE_AUDIO.offroad;
+  else if (surfaceName.includes('asphalt') || surfaceName.includes('concrete')) surfaceProfile = SURFACE_AUDIO.asphalt;
   const tireAmount = airborne ? 0 : Math.min(1, safeSlip * 1.35 + speedRatio * 0.07);
-  audio.tireFilter.frequency.setTargetAtTime(480 + safeSpeed * 31 + safeSlip * 620, now, 0.045);
-  audio.tireGain.gain.setTargetAtTime(tireAmount * (monster ? 0.038 : 0.048), now, 0.045);
+  audio.tireFilter.frequency.setTargetAtTime(
+    surfaceProfile.frequency + safeSpeed * 25 + safeSlip * 540,
+    now,
+    0.045,
+  );
+  audio.tireFilter.Q.setTargetAtTime(surfaceProfile.q, now, 0.08);
+  audio.tireGain.gain.setTargetAtTime(
+    tireAmount * surfaceProfile.gain * (monster ? 0.038 : 0.048),
+    now,
+    0.045,
+  );
+  const ambientProfile = AMBIENT_AUDIO[raceMode] || AMBIENT_AUDIO[environment] || AMBIENT_AUDIO.forest;
+  audio.ambienceFilter.frequency.setTargetAtTime(
+    ambientProfile.frequency + safeSpeed * 4.5,
+    now,
+    0.22,
+  );
+  audio.ambienceGain.gain.setTargetAtTime(
+    ambientProfile.gain * (0.72 + speedRatio * 0.28),
+    now,
+    0.3,
+  );
   return true;
 }
 
@@ -274,20 +355,21 @@ export function stopRacingAudio({ immediate = false } = {}) {
   racingAudio = null;
   const now = audio.ctx.currentTime;
   const release = immediate ? 0.01 : 0.14;
-  for (const parameter of [audio.mix.gain, audio.tireGain.gain]) {
+  for (const parameter of [audio.mix.gain, audio.tireGain.gain, audio.ambienceGain.gain]) {
     try {
       parameter.cancelScheduledValues(now);
       parameter.setValueAtTime(Math.max(0.0001, parameter.value), now);
       parameter.exponentialRampToValueAtTime(0.0001, now + release);
     } catch (_) {}
   }
-  for (const source of [audio.engine, audio.harmonic, audio.tire]) {
+  for (const source of [audio.engine, audio.harmonic, audio.tire, audio.ambience]) {
     try { source.stop(now + release + 0.015); } catch (_) {}
   }
   scheduleCleanup(() => {
     for (const node of [
       audio.engine, audio.engineGain, audio.harmonic, audio.harmonicGain,
       audio.filter, audio.mix, audio.tire, audio.tireFilter, audio.tireGain,
+      audio.ambience, audio.ambienceFilter, audio.ambienceGain,
     ]) try { node.disconnect(); } catch (_) {}
   }, Math.ceil((release + 0.06) * 1000));
   return true;
@@ -381,7 +463,7 @@ export async function resumeAudio({ menu = false } = {}) {
 export function getAudioDiagnostics() {
   const persistentNodes = context ? 4 : 0;
   const menuNodes = menuMusic ? 2 : 0;
-  const racingNodes = racingAudio ? 9 : 0;
+  const racingNodes = racingAudio ? 12 : 0;
   return {
     contextState: context?.state || 'uninitialized',
     menuPlaying: !!menuMusic && !menuMusic.element.paused,

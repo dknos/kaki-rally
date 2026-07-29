@@ -161,9 +161,11 @@ function _buildTerrain(definition, group, owned, assetLease) {
     normalMap: assetLease?.textures?.monsterArenaDirtNormal || null,
     roughnessMap: assetLease?.textures?.monsterArenaDirtRoughness || null,
     normalScale: new THREE.Vector2(0.72, 0.72),
-    emissive: 0x6a4935,
+    // Arena floodlights should reveal tire contact, ruts, and wreck silhouettes
+    // even where the chase camera looks away from the key light.
+    emissive: definition.dressing === 'pyramid-yard' ? 0x76583f : 0x72452f,
     emissiveMap: map,
-    emissiveIntensity: 0.16,
+    emissiveIntensity: definition.dressing === 'pyramid-yard' ? 0.27 : 0.23,
     vertexColors: true,
     roughness: 0.86,
     metalness: 0.01,
