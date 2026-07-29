@@ -116,6 +116,14 @@ function watchPage(page, origin, diagnostics) {
       diagnostics.expectedAborts.push(text);
       return;
     }
+    if (text === 'The AudioContext encountered an error from the audio device or the WebAudio renderer.') {
+      // Headless Chromium can have a running Web Audio graph but no host audio
+      // output device. Keep that platform diagnostic visible without treating
+      // it as an application console failure; audio state and teardown are
+      // asserted independently by the mode lifecycle checks.
+      diagnostics.expectedAudioDeviceErrors.push(text);
+      return;
+    }
     diagnostics.consoleErrors.push(text);
   });
   page.on('response', (response) => {
@@ -407,6 +415,69 @@ async function runWorkshopResponsive(browser, origin, report) {
   }
 }
 
+async function runDuneResponsive(browser, origin, report) {
+  const diagnostics = emptyDiagnostics();
+  const { context, page } = await bootPage(browser, origin, 'webgl', diagnostics, {
+    viewport: { width: 844, height: 390 },
+    touch: true,
+  });
+  try {
+    await startMode(page, 'dunes', 'whiskerwind', {
+      duneEvent: 'whiskerwind',
+      duneVehicle: 'meowster',
+      duneTerrain: 'low',
+      duneDeformation: 'low',
+      duneParticles: 'low',
+      duneDust: 'low',
+      duneShadow: 'low',
+      cameraMode: 'chase',
+    });
+    await skipCountdown(page);
+    await page.evaluate(() => window.__kkRacing.showDuneState('slide'));
+    await page.waitForTimeout(420);
+    const landscape = await page.evaluate(() => {
+      const stage = document.querySelector('#kk-stage').getBoundingClientRect();
+      const hud = document.querySelector('.kkd-hud').getBoundingClientRect();
+      const route = document.querySelector('.kkd-route').getBoundingClientRect();
+      const camera = document.querySelector('.kkd-hud .kkr-camera-control').getBoundingClientRect();
+      const buttons = [...document.querySelectorAll(
+        '.kkd-touch button, #rally-touch-root button:not([hidden]), .kkd-topbar button',
+      )].map((node) => node.getBoundingClientRect()).filter((rect) => rect.width && rect.height);
+      return {
+        viewport: [innerWidth, innerHeight],
+        overflowX: document.documentElement.scrollWidth - innerWidth,
+        stage: stage.toJSON(),
+        hud: hud.toJSON(),
+        coarse: matchMedia('(pointer: coarse)').matches,
+        orientationGate: !document.querySelector('#rally-orientation-gate').hidden,
+        duneTouchButtons: document.querySelectorAll('.kkd-touch button').length,
+        visibleDuneTouchButtons: [...document.querySelectorAll('.kkd-touch button')]
+          .filter((node) => getComputedStyle(node).display !== 'none').length,
+        minTouchTarget: Math.min(...buttons.map((rect) => Math.min(rect.width, rect.height))),
+        routeCameraOverlap: !(
+          route.right <= camera.left
+          || route.left >= camera.right
+          || route.bottom <= camera.top
+          || route.top >= camera.bottom
+        ),
+        snapshot: window.__kkRacing.snapshot(),
+      };
+    });
+    assert(landscape.coarse, 'mobile Dune Run did not receive coarse-pointer media rules');
+    assert(!landscape.orientationGate, 'landscape Dune Run shows the rotate prompt');
+    assert(landscape.overflowX <= 2, 'mobile Dune Run has horizontal overflow');
+    assert.equal(landscape.duneTouchButtons, 3, 'mobile Dune Run lost an action control');
+    assert.equal(landscape.visibleDuneTouchButtons, 3, 'mobile Dune Run hid an action control');
+    assert(landscape.minTouchTarget >= 43.5, `mobile Dune target fell below 44 CSS px: ${landscape.minTouchTarget}`);
+    assert(!landscape.routeCameraOverlap, 'mobile Dune camera control covers route progress');
+    assert.equal(landscape.snapshot.terrain.authorityShared, true, 'mobile Dune terrain authorities diverged');
+    await page.screenshot({ path: path.join(QA_DIR, 'webgl-dunes-mobile-landscape.png') });
+    report.webgl.responsiveDunes = { ...landscape, diagnostics };
+  } finally {
+    await context.close();
+  }
+}
+
 async function runWebGpuFallback(browser, origin, report) {
   const diagnostics = emptyDiagnostics();
   const context = await browser.newContext({
@@ -604,6 +675,10 @@ async function startModeFromMenu(page, spec) {
     monsterEvent: spec.options.monsterEvent,
     monsterVehicle: spec.options.monsterVehicle,
     monsterArena: spec.options.monsterArena,
+    duneEvent: spec.options.duneEvent,
+    duneVehicle: spec.options.duneVehicle,
+    duneDifficulty: spec.options.duneDifficulty,
+    duneDeformation: spec.options.duneDeformation,
     trialsTrack: spec.options.trialsTrackId,
     trialsVehicle: spec.options.trialsVehicle,
     crashVehicle: spec.options.crashVehicle,
@@ -882,6 +957,233 @@ async function runMonster(page, backend, evidence) {
     assert.equal(snapshot.monster.eventMode, monsterEvent);
     assert(snapshot.monster.score > 0, `${monsterEvent} did not produce a score state`);
     evidence[monsterEvent] = snapshot;
+    await page.evaluate(() => window.__kakiRally.menu());
+  }
+}
+
+async function runDunes(page, backend, evidence) {
+  const spec = {
+    mode: 'dunes',
+    courseId: 'whiskerwind',
+    options: {
+      carCount: 1,
+      duneEvent: 'whiskerwind',
+      duneVehicle: 'meowster',
+      duneDifficulty: 'standard',
+      duneTerrain: backend === 'webgl' ? 'high' : 'medium',
+      duneDeformation: backend === 'webgl' ? 'high' : 'medium',
+      duneParticles: backend === 'webgl' ? 'high' : 'medium',
+      duneDust: 'high',
+      duneShadow: 'medium',
+      duneHeatHaze: true,
+      cameraMode: 'chase',
+    },
+  };
+  evidence.opening = await startModeFromMenu(page, spec);
+  await skipCountdown(page);
+  const keyboard = await exerciseKeyboard(page);
+  await exerciseTouch(page, 'dunes');
+  const gamepad = await exerciseGamepad(page);
+
+  const recoveriesBefore = await page.evaluate(() => window.__kkRacing.snapshot().race.recoveries);
+  await page.keyboard.press('r');
+  await page.waitForFunction((before) => (
+    window.__kkRacing?.snapshot?.()?.race?.recoveries > before
+  ), recoveriesBefore, { timeout: 10_000 });
+  const recovery = await page.evaluate(() => window.__kkRacing.snapshot());
+
+  assert(
+    await page.evaluate(() => window.__kkRacing.setCameraMode('chase')),
+    'Dune Run rejected its chase camera',
+  );
+  assert(
+    await page.evaluate(() => window.__kkRacing.showDuneState('wheelspin')),
+    'Dune Run wheelspin/deformation setup failed',
+  );
+  await page.waitForTimeout(1_400);
+  const wheelspin = await page.evaluate(() => window.__kkRacing.snapshot());
+  assert.equal(wheelspin.raceMode, 'dunes');
+  assert.equal(wheelspin.eventId, 'whiskerwind');
+  assert.equal(wheelspin.visual.authoredBody, true, 'Dune Run lost its authored truck body');
+  assert.equal(wheelspin.visual.wheels, 4, 'Dune Run lost independent wheels');
+  assert.equal(wheelspin.terrain.authorityShared, true, 'Dune renderer and physics heights diverged');
+  assert(
+    wheelspin.terrain.rendererPhysicsDelta <= 1e-6,
+    `Dune renderer/physics height delta escaped tolerance: ${wheelspin.terrain.rendererPhysicsDelta}`,
+  );
+  assert(wheelspin.terrain.clipmap.levels >= 6, 'Dune clipmap lost its nested detail levels');
+  assert(wheelspin.terrain.clipmap.staticTopology, 'Dune clipmap rebuilds topology while driving');
+  assert(wheelspin.terrain.clipmap.shaderTrimmedUnderlays, 'Dune clipmap lost crack-free underlay trims');
+  assert(wheelspin.telemetry.groundedWheels > 0, 'Dune truck has no terrain contacts');
+  assert(wheelspin.deformation.maximumDepression > 0, 'Dune tires made no persistent rut');
+  assert(wheelspin.vfx.roosterTail.emittedSamples > 0, 'Dune tires emitted no swept sand wake');
+  assert(wheelspin.vfx.roosterTail.activeCurtains > 0, 'Dune swept sand wake is inactive');
+  assert(wheelspin.environment.kitAttached, 'Dune environment kit did not attach');
+  assert.equal(wheelspin.assets.error, '', `Dune asset error: ${wheelspin.assets.error}`);
+  assert(wheelspin.performance.drawCalls > 0, 'Dune Run submitted no draw calls');
+  await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-wheelspin.png`) });
+
+  assert(
+    await page.evaluate(() => window.__kkRacing.showDuneState('big-jump')),
+    'Dune Run big-jump camera fixture failed',
+  );
+  assert(
+    await page.evaluate(() => window.__kakiRally.state.racing.cameraManager.setCameraMode('isometric')),
+    'Dune Run rejected isometric during a big jump',
+  );
+  await page.waitForFunction(() => {
+    const camera = window.__kakiRally?.state?.racing?.cameraManager;
+    return camera?.mode === 'isometric'
+      && camera?.activeCamera?.isOrthographicCamera
+      && !camera?.transition;
+  }, null, { timeout: 20_000 });
+  const bigJumpIsometric = await page.evaluate(() => {
+    const session = window.__kakiRally.state.racing;
+    const manager = session.cameraManager;
+    const camera = manager.activeCamera;
+    const playerWorld = session.visual.root.getWorldPosition(session.visual.root.position.clone());
+    const playerNdc = playerWorld.clone().project(camera);
+    return {
+      cameraY: camera.position.y,
+      kartWorldY: session.root.position.y + session.kart.y,
+      playerNdc: playerNdc.toArray(),
+      projection: camera.isOrthographicCamera ? 'orthographic' : 'perspective',
+      mode: manager.mode,
+      transitioning: !!manager.transition,
+    };
+  });
+  assert(
+    bigJumpIsometric.cameraY > bigJumpIsometric.kartWorldY + 12,
+    `Dune isometric fell below the big jump: ${JSON.stringify(bigJumpIsometric)}`,
+  );
+  assert(
+    Math.abs(bigJumpIsometric.playerNdc[0]) < 0.92
+      && Math.abs(bigJumpIsometric.playerNdc[1]) < 0.92
+      && bigJumpIsometric.playerNdc[2] >= -1
+      && bigJumpIsometric.playerNdc[2] <= 1,
+    `Dune big-jump player left the isometric frame: ${JSON.stringify(bigJumpIsometric)}`,
+  );
+  await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-big-jump-isometric.png`) });
+  await page.click('.kkd-hud .kkr-camera-cycle');
+  await page.waitForFunction(() => {
+    const camera = window.__kakiRally?.state?.racing?.cameraManager;
+    return camera?.mode === 'chase'
+      && camera?.activeCamera?.isPerspectiveCamera
+      && !camera?.transition;
+  }, null, { timeout: 20_000 });
+  const bigJumpChaseRecovery = await page.evaluate(() => window.__kkRacing.snapshot().camera);
+
+  assert(await page.evaluate(() => !!window.__kkRacing.finish()), 'Dune result could not be banked');
+  await page.waitForFunction(() => (
+    window.__kkRacing?.snapshot?.()?.phase === 'finished'
+    && !document.querySelector('.kkd-finish')?.hidden
+  ));
+  const result = await page.evaluate(() => ({
+    snapshot: window.__kkRacing.snapshot(),
+    stored: JSON.parse(localStorage.getItem('kks_dune_records_v1') || '{}'),
+  }));
+  assert(result.snapshot.records.result, 'Dune result did not persist to the active session');
+  assert(Object.keys(result.stored.records || {}).length > 0, 'Dune result did not persist locally');
+  await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-results.png`) });
+  await page.click('.kkd-finish [data-action="retry"]');
+  await page.waitForFunction(() => (
+    window.__kakiRally?.getDiagnostics?.().activeMode === 'dunes'
+    && window.__kkRacing?.snapshot?.()?.phase === 'countdown'
+    && window.__kkRacing?.snapshot?.()?.records?.result === null
+    && document.querySelectorAll('.kkd-hud').length === 1
+  ), null, { timeout: 120_000 });
+  evidence.resultRetry = await page.evaluate(() => window.__kakiRally.getDiagnostics());
+
+  evidence.keyboard = keyboard;
+  evidence.gamepad = gamepad;
+  evidence.recovery = recovery;
+  evidence.wheelspin = wheelspin;
+  evidence.bigJumpIsometric = bigJumpIsometric;
+  evidence.bigJumpChaseRecovery = bigJumpChaseRecovery;
+  evidence.result = result.snapshot;
+  await assertPauseRestartExitReentry(page, spec, evidence);
+
+  if (backend === 'webgl') {
+    evidence.events = {};
+    for (const eventId of ['sunspine', 'mirage', 'litterbox']) {
+      await startMode(page, 'dunes', eventId, {
+        ...spec.options,
+        duneEvent: eventId,
+        duneVehicle: eventId === 'sunspine' ? 'cyber' : eventId === 'mirage' ? 'tipsy' : 'meowster',
+      });
+      await skipCountdown(page);
+      await page.evaluate((kind) => window.__kkRacing.showDuneState(kind), (
+        eventId === 'sunspine' ? 'crest' : eventId === 'mirage' ? 'boost' : 'slide'
+      ));
+      await page.waitForTimeout(520);
+      const snapshot = await page.evaluate(() => window.__kkRacing.snapshot());
+      assert.equal(snapshot.eventId, eventId, `${eventId} selected the wrong Dune event`);
+      assert.equal(snapshot.terrain.authorityShared, true, `${eventId} lost shared terrain authority`);
+      assert.equal(snapshot.assets.error, '', `${eventId} asset error: ${snapshot.assets.error}`);
+      evidence.events[eventId] = snapshot;
+      await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-${eventId}.png`) });
+      await page.evaluate(() => window.__kakiRally.menu());
+    }
+
+    await page.evaluate(() => window.__kakiRally.openDraw());
+    await page.waitForSelector('.kdt-editor');
+    await drawCircle(page, 'mouse');
+    const workshop = await page.evaluate(() => {
+      const editor = window.__kdtEditor;
+      editor.setTheme('dune');
+      editor.setSize('mega');
+      editor.setWidth('extra-wide');
+      editor.draft.modifiers.randomJumps = true;
+      editor.draft.modifiers.rain = true;
+      editor.setEditorStage('elevation');
+      editor.selectedElevationFraction = 0.28;
+      editor.applyElevationTool('hill');
+      editor.selectedElevationFraction = 0.62;
+      editor.applyElevationTool('bank-left');
+      editor.build();
+      const course = editor.pendingBuild?.course;
+      editor.finishBuild();
+      return {
+        valid: editor.validation.valid,
+        theme: course?.drawThemeId,
+        discipline: course?.drawDiscipline,
+        elevationStamps: course?.drawDraft?.elevationProfile?.stamps?.length || 0,
+      };
+    });
+    assert(
+      workshop.valid
+        && workshop.theme === 'dune'
+        && workshop.discipline === 'dunes'
+        && workshop.elevationStamps === 2,
+      `Dune Workshop build failed: ${JSON.stringify(workshop)}`,
+    );
+    await page.waitForFunction(() => (
+      window.__kakiRally?.getDiagnostics?.().activeMode === 'dunes'
+      && window.__kkRacing?.snapshot?.()?.event?.isDrawTrack
+    ), null, { timeout: 120_000 });
+    await skipCountdown(page);
+    await page.evaluate(() => window.__kkRacing.showDuneState('crest'));
+    await page.waitForTimeout(520);
+    const custom = await page.evaluate(() => window.__kkRacing.snapshot());
+    assert(custom.event.isDrawTrack && custom.event.customTrackId, 'Dune Workshop lost custom identity');
+    assert(custom.environment.drawPlacements >= 0, 'Dune Workshop environment did not initialize');
+    assert.equal(custom.terrain.authorityShared, true, 'Dune Workshop renderer/physics heights diverged');
+    evidence.workshop = { build: workshop, snapshot: custom };
+    await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-workshop.png`) });
+    await page.evaluate(() => window.__kakiRally.menu());
+
+    const origin = new URL(page.url()).origin;
+    await page.goto(`${origin}/index.html?qa=1&renderer=webgl&mode=dunes&play=1`, {
+      waitUntil: 'load',
+      timeout: 120_000,
+    });
+    await page.waitForFunction(() => (
+      document.body.dataset.kakiRallyReady === 'true'
+      && window.__kakiRally?.getDiagnostics?.().activeMode === 'dunes'
+      && window.__kkRacing?.snapshot?.()?.eventId === 'whiskerwind'
+    ), null, { timeout: 120_000 });
+    evidence.deepLink = await page.evaluate(() => window.__kakiRally.getDiagnostics());
+    await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-deep-link.png`) });
     await page.evaluate(() => window.__kakiRally.menu());
   }
 }
@@ -1712,6 +2014,7 @@ async function runWebGl(browser, origin, report) {
     }, 'webgl', report.webgl.modes.stock);
     if (requestedScope === 'all' || requestedScope === 'draw') await runDraw(page, 'webgl', report.webgl.modes.draw);
     if (requestedScope === 'all' || requestedScope === 'monster') await runMonster(page, 'webgl', report.webgl.modes.monster);
+    if (requestedScope === 'all' || requestedScope === 'dunes') await runDunes(page, 'webgl', report.webgl.modes.dunes);
     if (requestedScope === 'all' || requestedScope === 'trials') await runTrials(page, 'webgl', report.webgl.modes.trials);
     if (catastropheRequested && (requestedScope === 'all' || requestedScope === 'crash')) {
       await runCrash(page, 'webgl', report.webgl.modes.crash);
@@ -1720,6 +2023,7 @@ async function runWebGl(browser, origin, report) {
     if (requestedScope === 'all') {
       const persistenceBefore = await page.evaluate((includeCatastrophe) => ({
         draw: localStorage.getItem('kks_draw_tracks_v1'),
+        dunes: localStorage.getItem('kks_dune_records_v1'),
         trials: localStorage.getItem('kks_rally_trials_v1'),
         trialsCourses: localStorage.getItem('kks_rally_trials_courses_v1'),
         ...(includeCatastrophe ? {
@@ -1728,6 +2032,7 @@ async function runWebGl(browser, origin, report) {
       }), catastropheRequested);
       assert(
         persistenceBefore.draw
+          && persistenceBefore.dunes
           && persistenceBefore.trials
           && persistenceBefore.trialsCourses
           && (!catastropheRequested || persistenceBefore.crash),
@@ -1737,6 +2042,7 @@ async function runWebGl(browser, origin, report) {
       await page.waitForFunction(() => !!window.__kakiRally);
       const persistenceAfter = await page.evaluate((includeCatastrophe) => ({
         draw: localStorage.getItem('kks_draw_tracks_v1'),
+        dunes: localStorage.getItem('kks_dune_records_v1'),
         trials: localStorage.getItem('kks_rally_trials_v1'),
         trialsCourses: localStorage.getItem('kks_rally_trials_courses_v1'),
         ...(includeCatastrophe ? {
@@ -1746,6 +2052,7 @@ async function runWebGl(browser, origin, report) {
       assert.deepEqual(persistenceAfter, persistenceBefore, 'records changed across reload');
       report.webgl.persistence = {
         drawBytes: persistenceAfter.draw.length,
+        duneBytes: persistenceAfter.dunes.length,
         trialsBytes: persistenceAfter.trials.length,
         trialsCourseBytes: persistenceAfter.trialsCourses.length,
         ...(persistenceAfter.crash ? { crashBytes: persistenceAfter.crash.length } : {}),
@@ -1757,6 +2064,9 @@ async function runWebGl(browser, origin, report) {
   }
   if (['all', 'draw', 'responsive'].includes(requestedScope)) {
     await runWorkshopResponsive(browser, origin, report);
+  }
+  if (['all', 'dunes', 'responsive'].includes(requestedScope)) {
+    await runDuneResponsive(browser, origin, report);
   }
   if (['all', 'draw', 'visual'].includes(requestedScope)) {
     await runDrawThemeVariants(browser, origin, report);
@@ -1774,12 +2084,23 @@ async function runWebGpu(browser, origin, report) {
       ['drift', 'twilight', { carCount: 4 }],
       ['stock', 'cinder', { carCount: 8 }],
       ['monster', 'forest', { carCount: 1, monsterEvent: 'free-ride', monsterVehicle: 'meowster', monsterArena: 'crown-chaos-coliseum' }],
+      ['dunes', 'whiskerwind', {
+        carCount: 1,
+        duneEvent: 'whiskerwind',
+        duneVehicle: 'meowster',
+        duneTerrain: 'medium',
+        duneDeformation: 'medium',
+        duneParticles: 'medium',
+        duneDust: 'medium',
+        cameraMode: 'chase',
+      }],
       ['trials', 'forest', { trialsTrackId: 'meadow', trialsVehicle: 'monster' }],
-    ];
+    ].filter(([mode]) => requestedScope === 'all' || requestedScope === mode);
     for (const [mode, courseId, options] of specs) {
       await startMode(page, mode, courseId, options);
       await skipCountdown(page);
-      if (mode !== 'trials') await page.evaluate((activeMode) => (
+      if (mode === 'dunes') await page.evaluate(() => window.__kkRacing.showDuneState('wheelspin'));
+      else if (mode !== 'trials') await page.evaluate((activeMode) => (
         window.__kkRacing.showState?.(activeMode === 'drift' ? 'drift' : 'boost')
         || window.__kkRacing.showMonsterJump?.()
       ), mode);
@@ -1788,41 +2109,52 @@ async function runWebGpu(browser, origin, report) {
       const diagnosticsNow = await page.evaluate(() => window.__kakiRally.getDiagnostics());
       assert.equal(diagnosticsNow.backend, 'webgpu');
       assert(diagnosticsNow.renderer.drawCalls > 0, `${mode} WebGPU made no submissions`);
+      if (mode === 'dunes') {
+        const snapshot = await page.evaluate(() => window.__kkRacing.snapshot());
+        assert.equal(snapshot.terrain.authorityShared, true, 'Dune WebGPU renderer/physics heights diverged');
+        assert(snapshot.terrain.clipmap.shaderTrimmedUnderlays, 'Dune WebGPU lost clipmap trims');
+        assert.equal(snapshot.assets.error, '', `Dune WebGPU asset error: ${snapshot.assets.error}`);
+        await page.screenshot({ path: path.join(QA_DIR, 'webgpu-dunes.png') });
+      }
       report.webgpu.modes[mode] = diagnosticsNow;
       await page.evaluate(() => window.__kakiRally.menu());
     }
 
-    await page.evaluate(() => window.__kakiRally.openDraw());
-    await page.waitForSelector('.kdt-editor');
-    await drawCircle(page, 'mouse');
-    await page.evaluate(() => {
-      window.__kdtEditor.setSize('mega');
-      window.__kdtEditor.recalculate();
-    });
-    assert(await addWorkshopCircuitStamp(page), 'WebGPU Draw Workshop could not place a ramp');
-    await page.evaluate(() => {
-      window.__kdtEditor.build();
-      window.__kdtEditor.finishBuild();
-    });
-    await page.waitForFunction(() => window.__kakiRally.getDiagnostics().activeMode === 'draw', null, { timeout: 120_000 });
-    await assertRallyGrass(page, 'draw');
-    await page.waitForFunction(() => (
-      window.__kkRacing?.snapshot?.()?.workshop?.features?.built >= 1
-    ), null, { timeout: 120_000 });
-    await skipCountdown(page);
-    const drawDiagnostics = await page.evaluate(() => window.__kakiRally.getDiagnostics());
-    assert.equal(drawDiagnostics.backend, 'webgpu');
-    assert(drawDiagnostics.renderer.drawCalls > 0, 'Draw Track WebGPU made no submissions');
-    report.webgpu.modes.draw = drawDiagnostics;
-    await page.evaluate(() => window.__kakiRally.menu());
+    if (requestedScope === 'all' || requestedScope === 'draw') {
+      await page.evaluate(() => window.__kakiRally.openDraw());
+      await page.waitForSelector('.kdt-editor');
+      await drawCircle(page, 'mouse');
+      await page.evaluate(() => {
+        window.__kdtEditor.setSize('mega');
+        window.__kdtEditor.recalculate();
+      });
+      assert(await addWorkshopCircuitStamp(page), 'WebGPU Draw Workshop could not place a ramp');
+      await page.evaluate(() => {
+        window.__kdtEditor.build();
+        window.__kdtEditor.finishBuild();
+      });
+      await page.waitForFunction(() => window.__kakiRally.getDiagnostics().activeMode === 'draw', null, { timeout: 120_000 });
+      await assertRallyGrass(page, 'draw');
+      await page.waitForFunction(() => (
+        window.__kkRacing?.snapshot?.()?.workshop?.features?.built >= 1
+      ), null, { timeout: 120_000 });
+      await skipCountdown(page);
+      const drawDiagnostics = await page.evaluate(() => window.__kakiRally.getDiagnostics());
+      assert.equal(drawDiagnostics.backend, 'webgpu');
+      assert(drawDiagnostics.renderer.drawCalls > 0, 'Draw Track WebGPU made no submissions');
+      report.webgpu.modes.draw = drawDiagnostics;
+      await page.evaluate(() => window.__kakiRally.menu());
+    }
 
-    report.webgpu.modes.trialsWorkshop = {};
-    await runTrialsWorkshop(
-      page,
-      'webgpu',
-      report.webgpu.modes.trialsWorkshop,
-      { verifyRestart: false },
-    );
+    if (requestedScope === 'all' || requestedScope === 'trials') {
+      report.webgpu.modes.trialsWorkshop = {};
+      await runTrialsWorkshop(
+        page,
+        'webgpu',
+        report.webgpu.modes.trialsWorkshop,
+        { verifyRestart: false },
+      );
+    }
 
     const crashAvailability = await page.evaluate(async () => {
       const api = await import('./src/racing/racingModeAvailability.js');
@@ -1853,6 +2185,7 @@ function emptyDiagnostics() {
     badResponses: [],
     failedRequests: [],
     expectedAborts: [],
+    expectedAudioDeviceErrors: [],
     frozenModeRequests: [],
   };
 }
@@ -1866,7 +2199,7 @@ const report = {
   webgl: {
     diagnostics: emptyDiagnostics(),
     modes: {
-      circuit: {}, drift: {}, stock: {}, draw: {}, monster: {}, trials: {}, crash: {},
+      circuit: {}, drift: {}, stock: {}, draw: {}, monster: {}, dunes: {}, trials: {}, crash: {},
     },
   },
   webgpu: {
@@ -1911,7 +2244,7 @@ for (const [backend, section] of Object.entries({ webgl: report.webgl, webgpu: r
 
 const covered = [];
 if (requestedBackend === 'all' || requestedBackend === 'webgl') {
-  covered.push(`WebGL six-mode lifecycle/touch/gamepad${catastropheRequested ? ' plus optional Catastrophe' : ''}`);
+  covered.push(`WebGL seven-mode lifecycle/touch/gamepad${catastropheRequested ? ' plus optional Catastrophe' : ''}`);
 }
 if (requestedBackend === 'all' || requestedBackend === 'webgpu') covered.push('WebGPU production-mode smoke and frozen-mode gate');
 console.log(`Kaki Rally browser matrix passed: ${covered.join('; ')}`);

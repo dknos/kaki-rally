@@ -17,6 +17,10 @@ import {
   TRIALS_TRACKS,
 } from '../racing/trialsTracks.js';
 import { TRIALS_VEHICLE_PROFILES } from '../racing/trialsPhysics.js';
+import {
+  DUNE_EVENTS,
+  DUNE_EVENT_ORDER,
+} from '../racing/dunes/duneEvents.js';
 import { rendererPreferenceReloadUrl } from '../rendering/rendererSettings.js';
 import {
   exportRallySave,
@@ -70,6 +74,14 @@ const MODE_DATA = Object.freeze({
     art: 'assets/racing/monster-smash-key-art-oekaki-v2.webp',
     description: 'Crush traffic, collapse supports, chain dominoes, land flips, and spend Zoomies.',
     mechanic: 'Smashdown · Freestyle · Free Ride',
+  }),
+  dunes: Object.freeze({
+    eyebrow: 'DEFORMABLE SAND · MONSTER RALLY',
+    title: 'Kaki Dune Run',
+    short: 'Dune Run',
+    art: 'assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp',
+    description: 'Climb directional dune chains, carve persistent four-wheel ruts, throw swept rooster tails, and chase deterministic ghosts.',
+    mechanic: 'Three timed events · freeride · deformable sand',
   }),
   trials: Object.freeze({
     eyebrow: 'SIDE TRIAL · KTR1 COURSE WORKSHOP',
@@ -133,6 +145,7 @@ function recordSummary() {
   const rally = safeJson('kks_rally_best_v1', {});
   const draw = safeJson('kks_draw_tracks_v1', { tracks: [] });
   const monster = safeJson('kks_monster_records_v1', { records: {} });
+  const dunes = safeJson('kks_dune_records_v1', { records: {} });
   const trials = safeJson('kks_rally_trials_v1', { records: {}, unlocked: ['meadow'] });
   const trialRecords = Object.values(trials.records || {});
   return {
@@ -141,6 +154,7 @@ function recordSummary() {
     drawTracks: Array.isArray(draw.tracks) ? draw.tracks.length : 0,
     drawBest: (draw.tracks || []).filter((track) => track.bestLap).sort((a, b) => a.bestLap - b.bestLap)[0] || null,
     monsterRecords: Object.keys(monster.records || monster).length,
+    duneRecords: Object.keys(dunes.records || dunes).length,
     trialsMedals: trialRecords.filter((record) => record?.medal).length,
     trialsUnlocked: (trials.unlocked || ['meadow']).length,
   };
@@ -212,6 +226,7 @@ export class RallyMenu {
           <button type="button" data-mode="circuit"><span>GP</span><strong>OFF-ROAD GP</strong></button>
           <button type="button" data-mode="drift"><span>90</span><strong>DRIFT ATTACK</strong></button>
           <button type="button" data-mode="stock"><span>16</span><strong>KAKI STOCK CUP</strong></button>
+          <button type="button" data-mode="dunes"><span>≈</span><strong>KAKI DUNE RUN</strong></button>
           <p>BUILD / BREAK</p>
           <button type="button" data-mode="draw"><span>✎</span><strong>DRAW YOUR TRACK</strong></button>
           <button type="button" data-mode="monster"><span>✦</span><strong>MONSTER SMASH</strong></button>
@@ -308,7 +323,11 @@ export class RallyMenu {
     const art = this.host.querySelector('.rally-menu-art');
     art.style.backgroundImage = `url("${data.art}")`;
     art.dataset.mode = this.selectedMode;
-    const path = trackPath(course.points);
+    const path = trackPath(
+      this.selectedMode === 'dunes'
+        ? DUNE_EVENTS[this.settings.duneEvent]?.route
+        : course.points,
+    );
     const availability = this.availability();
     let setup = '';
     if (['circuit', 'drift', 'stock'].includes(this.selectedMode)) {
@@ -337,6 +356,28 @@ export class RallyMenu {
         ], this.settings.monsterVehicle)}
         ${selectMarkup('monsterArena', 'Arena', MONSTER_ARENA_ORDER.map((id) => ({ value: id, label: MONSTER_ARENAS[id].name })), this.settings.monsterArena)}
         ${this.driverSelect()}`;
+    } else if (this.selectedMode === 'dunes') {
+      setup = `
+        ${selectMarkup('duneEvent', 'Event', DUNE_EVENT_ORDER.map((id) => ({
+          value: id,
+          label: DUNE_EVENTS[id].name,
+        })), this.settings.duneEvent)}
+        ${selectMarkup('duneVehicle', 'Monster', [
+          { value: 'meowster', label: 'Mighty Meowster' },
+          { value: 'cyber', label: 'Cyber Kaki' },
+          { value: 'tipsy', label: 'Tipsy Tumbler' },
+        ], this.settings.duneVehicle)}
+        ${selectMarkup('duneDifficulty', 'Driving', [
+          { value: 'relaxed', label: 'Relaxed assists' },
+          { value: 'standard', label: 'Standard' },
+          { value: 'pro', label: 'Pro · no line assist' },
+        ], this.settings.duneDifficulty)}
+        ${selectMarkup('duneDeformation', 'Sand simulation', ['low', 'medium', 'high', 'ultra'].map((value) => ({
+          value,
+          label: value[0].toUpperCase() + value.slice(1),
+        })), this.settings.duneDeformation)}
+        ${this.driverSelect()}
+        ${this.cameraSelect()}`;
     } else if (this.selectedMode === 'trials') {
       const unlocked = unlockedTrialsTracks();
       const selectedTrack = unlocked.has(this.settings.trialsTrack) ? this.settings.trialsTrack : 'meadow';
@@ -374,7 +415,7 @@ export class RallyMenu {
         <p>${escapeHtml(data.description)}</p>
         <strong>${escapeHtml(data.mechanic)}</strong>
       </div>
-      <svg class="rally-route-signature" viewBox="0 0 300 128" role="img" aria-label="${escapeHtml(course.name)} route diagram">
+      <svg class="rally-route-signature" viewBox="0 0 300 128" role="img" aria-label="${escapeHtml(this.selectedMode === 'dunes' ? DUNE_EVENTS[this.settings.duneEvent].name : course.name)} route diagram">
         <path class="route-shadow" d="${path}"></path><path d="${path}"></path><circle cx="0" cy="0" r="4"></circle>
       </svg>
       <form class="rally-setup" data-mode="${escapeHtml(this.selectedMode)}">${setup}${action}</form>`;
@@ -423,6 +464,16 @@ export class RallyMenu {
           ${rangeMarkup('controllerDeadzone', 'Controller deadzone', settings.controllerDeadzone, 0, 0.5)}
           <p class="rally-control-copy">WASD / arrows drive. Shift drifts or boosts. Space handbrakes; in Trials it restarts from checkpoint. Camera controls are always on-screen.</p>
         </fieldset>
+        <fieldset><legend>DUNE RUN</legend>
+          ${selectMarkup('duneTerrain', 'Terrain detail', ['low', 'medium', 'high', 'ultra'].map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) })), settings.duneTerrain)}
+          ${selectMarkup('duneParticles', 'Sand particles', ['low', 'medium', 'high', 'ultra'].map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) })), settings.duneParticles)}
+          ${selectMarkup('duneDust', 'Dust density', ['off', 'low', 'medium', 'high'].map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) })), settings.duneDust)}
+          ${selectMarkup('duneShadow', 'Dune shadows', ['low', 'medium', 'high', 'ultra'].map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) })), settings.duneShadow)}
+          ${rangeMarkup('duneCameraShake', 'Camera shake', settings.duneCameraShake, 0, 1)}
+          <label class="rally-check"><input name="duneHeatHaze" type="checkbox"${settings.duneHeatHaze ? ' checked' : ''}><span>Heat haze</span></label>
+          <label class="rally-check"><input name="duneSteeringAssist" type="checkbox"${settings.duneSteeringAssist ? ' checked' : ''}><span>Steering assist</span></label>
+          <label class="rally-check"><input name="duneRecoveryAssist" type="checkbox"${settings.duneRecoveryAssist ? ' checked' : ''}><span>Automatic recovery</span></label>
+        </fieldset>
         <button class="rally-launch" type="button" data-action="apply-options">SAVE OPTIONS <span>✓</span></button>
       </form>`;
   }
@@ -438,6 +489,7 @@ export class RallyMenu {
         <article><span>RALLY BOARDS</span><strong>${summary.rallyRecords}</strong><p>${summary.bestRally ? `${escapeHtml(summary.bestRally[0])} · ${formatTime(summary.bestRally[1])}` : 'Set your first lap.'}</p></article>
         <article><span>DRAW LIBRARY</span><strong>${summary.drawTracks}</strong><p>${summary.drawBest ? `${escapeHtml(summary.drawBest.name)} · ${formatTime(summary.drawBest.bestLap)}` : 'No saved best lap.'}</p></article>
         <article><span>MONSTER ROUTES</span><strong>${summary.monsterRecords}</strong><p>Personal routes and event records.</p></article>
+        <article><span>DUNE RECORDS</span><strong>${summary.duneRecords}</strong><p>Timed runs, freeride scores, and deterministic ghosts.</p></article>
         <article><span>TRIALS MEDALS</span><strong>${summary.trialsMedals}</strong><p>${summary.trialsUnlocked} / 3 courses unlocked.</p></article>
         <article><span>DRIVER</span><strong>${escapeHtml(AVATARS.find((avatar) => avatar.id === this.settings.lastDriver)?.icon || '🐱')}</strong><p>${escapeHtml(AVATARS.find((avatar) => avatar.id === this.settings.lastDriver)?.name || 'Kitty Kaki')}</p></article>
       </div>
@@ -463,8 +515,12 @@ export class RallyMenu {
       this.settings = writeRallySettings({ ...this.settings, lastCourse: value });
       this.renderMode();
       return;
+    } else if (target.name === 'duneEvent') {
+      this.settings = writeRallySettings({ ...this.settings, duneEvent: value });
+      this.renderMode();
+      return;
     } else {
-      const numeric = ['masterVolume', 'musicVolume', 'sfxVolume', 'ambientVolume', 'controllerDeadzone'].includes(target.name);
+      const numeric = ['masterVolume', 'musicVolume', 'sfxVolume', 'ambientVolume', 'controllerDeadzone', 'duneCameraShake'].includes(target.name);
       this.settings = writeRallySettings({ ...this.settings, [target.name]: numeric ? Number(value) : value });
     }
     if (this.screen === 'options') applyRallyOptions(this.settings);
@@ -495,6 +551,27 @@ export class RallyMenu {
           monsterEvent: this.settings.monsterEvent,
           monsterVehicle: this.settings.monsterVehicle,
           monsterArena: this.settings.monsterArena,
+        },
+      };
+    }
+    if (mode === 'dunes') {
+      return {
+        courseId: this.settings.duneEvent,
+        options: {
+          ...common,
+          carCount: 1,
+          duneEvent: this.settings.duneEvent,
+          duneVehicle: this.settings.duneVehicle,
+          duneDifficulty: this.settings.duneDifficulty,
+          duneDeformation: this.settings.duneDeformation,
+          duneParticles: this.settings.duneParticles,
+          duneDust: this.settings.duneDust,
+          duneHeatHaze: this.settings.duneHeatHaze,
+          duneTerrain: this.settings.duneTerrain,
+          duneShadow: this.settings.duneShadow,
+          duneCameraShake: this.settings.duneCameraShake,
+          duneSteeringAssist: this.settings.duneSteeringAssist,
+          duneRecoveryAssist: this.settings.duneRecoveryAssist,
         },
       };
     }

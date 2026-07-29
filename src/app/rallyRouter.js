@@ -7,6 +7,8 @@ const MODE_ALIASES = Object.freeze({
   stock: 'stock',
   draw: 'draw',
   monster: 'monster',
+  dune: 'dunes',
+  dunes: 'dunes',
   trials: 'trials',
   crash: 'crash',
   catastrophe: 'crash',

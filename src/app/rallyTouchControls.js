@@ -1,6 +1,6 @@
 import { clearTouchDriveState, setTouchDriveState } from '../input.js';
 
-const DRIVE_MODES = new Set(['circuit', 'drift', 'stock', 'draw', 'monster']);
+const DRIVE_MODES = new Set(['circuit', 'drift', 'stock', 'draw', 'monster', 'dunes']);
 
 export class RallyTouchControls {
   constructor({ host } = {}) {

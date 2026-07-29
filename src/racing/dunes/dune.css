@@ -1,0 +1,486 @@
+.kkd-hud {
+  --kkd-ink: #17111b;
+  --kkd-panel: rgba(29, 18, 24, .86);
+  --kkd-sand: #f2b96c;
+  --kkd-cream: #fff2d0;
+  --kkd-muted: rgba(255, 239, 209, .68);
+  --kkd-line: rgba(255, 220, 163, .3);
+  color: var(--kkd-cream);
+  font-family: "Geist", system-ui, sans-serif;
+  text-shadow: 0 2px 8px rgba(38, 13, 5, .35);
+}
+
+#rally-loader-root[data-mode="dunes"] .rally-boot {
+  background:
+    linear-gradient(90deg, rgba(22, 10, 17, .94) 0 28%, rgba(22, 10, 17, .58) 54%, rgba(22, 10, 17, .18)),
+    linear-gradient(0deg, rgba(22, 10, 17, .78), transparent 60%),
+    url("../../../assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp") center / cover no-repeat;
+}
+
+#rally-loader-root[data-mode="dunes"] .rally-boot-panel {
+  justify-self: start;
+  margin-left: clamp(22px, 8vw, 128px);
+  border-color: rgba(255, 222, 171, .36);
+  border-top-color: #f2b96c;
+  border-radius: 6px 28px 6px 6px;
+  background: rgba(29, 16, 22, .88);
+  box-shadow: 0 24px 80px rgba(26, 8, 4, .44);
+  backdrop-filter: blur(12px);
+}
+
+#rally-loader-root[data-mode="dunes"] .rally-boot-mark {
+  border-color: #6ee7e2;
+  color: #6ee7e2;
+}
+
+#rally-loader-root[data-mode="dunes"] .rally-boot-progress i {
+  background: linear-gradient(90deg, #d87845, #f2b96c, #6ee7e2);
+}
+
+.kkd-hud::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(21, 9, 17, .3), transparent 22%),
+    radial-gradient(circle at 50% 110%, rgba(215, 106, 46, .16), transparent 48%);
+  content: "";
+  pointer-events: none;
+}
+
+.kkd-topbar,
+.kkd-route,
+.kkd-clock,
+.kkd-speed,
+.kkd-zoomies,
+.kkd-deformation {
+  position: absolute;
+  border: 1px solid var(--kkd-line);
+  background:
+    linear-gradient(135deg, rgba(255, 194, 103, .09), transparent 44%),
+    var(--kkd-panel);
+  box-shadow: 0 12px 34px rgba(26, 9, 4, .24), inset 0 1px rgba(255, 245, 218, .09);
+  backdrop-filter: blur(12px) saturate(1.18);
+}
+
+.kkd-topbar {
+  top: calc(var(--race-safe-top) + 14px);
+  left: calc(var(--race-safe-left) + 16px);
+  min-width: min(430px, calc(100% - 210px));
+  padding: 13px 62px 12px 17px;
+  border-radius: 5px 20px 5px 5px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+
+.kkd-topbar span,
+.kkd-topbar em,
+.kkd-route span,
+.kkd-clock span,
+.kkd-speed span,
+.kkd-zoomies span,
+.kkd-deformation span {
+  display: block;
+  color: var(--kkd-muted);
+  font: 700 8px/1.2 "Geist Mono", monospace;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.kkd-topbar strong {
+  display: block;
+  margin-top: 3px;
+  color: #fff8e7;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -.035em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.kkd-topbar em {
+  margin-top: 5px;
+  color: var(--kkd-accent);
+  font-style: normal;
+}
+
+.kkd-topbar button {
+  position: absolute;
+  top: 10px;
+  right: 13px;
+  border: 1px solid rgba(255, 238, 198, .34);
+  border-radius: 4px;
+  padding: 7px 10px;
+  background: rgba(20, 10, 15, .62);
+  color: var(--kkd-cream);
+  font: 800 8px/1 "Geist Mono", monospace;
+  letter-spacing: .1em;
+}
+
+.kkd-route {
+  top: calc(var(--race-safe-top) + 100px);
+  left: calc(var(--race-safe-left) + 16px);
+  width: min(290px, 32vw);
+  padding: 11px 13px 12px;
+  border-radius: 5px;
+}
+
+.kkd-route strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--kkd-sand);
+  font: 900 26px/1 "Geist Mono", monospace;
+  letter-spacing: -.08em;
+}
+
+.kkd-route em {
+  position: absolute;
+  top: 17px;
+  right: 13px;
+  max-width: 64%;
+  color: var(--kkd-muted);
+  font: 700 8px/1.25 "Geist Mono", monospace;
+  font-style: normal;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.kkd-route > div,
+.kkd-zoomies > div {
+  height: 5px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 242, 209, .12);
+}
+
+.kkd-route i,
+.kkd-zoomies i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #d47742, var(--kkd-sand), var(--kkd-accent));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--kkd-accent) 70%, transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.kkd-clock {
+  top: calc(var(--race-safe-top) + 14px);
+  right: calc(var(--race-safe-right) + 16px);
+  min-width: 164px;
+  padding: 11px 13px;
+  border-radius: 18px 5px 5px 5px;
+  text-align: right;
+}
+
+.kkd-clock strong {
+  display: block;
+  margin-top: 2px;
+  font: 900 23px/1 "Geist Mono", monospace;
+  letter-spacing: -.07em;
+}
+
+.kkd-clock em {
+  display: block;
+  margin-top: 5px;
+  color: var(--kkd-accent);
+  font: 700 8px/1 "Geist Mono", monospace;
+  font-style: normal;
+}
+
+.kkd-speed {
+  right: calc(var(--race-safe-right) + 18px);
+  bottom: calc(var(--race-safe-bottom) + 18px);
+  min-width: 132px;
+  padding: 10px 13px 11px;
+  border-radius: 22px 5px 5px 5px;
+  text-align: right;
+}
+
+.kkd-speed strong {
+  display: block;
+  color: #fff8e7;
+  font: 900 42px/.85 "Geist Mono", monospace;
+  letter-spacing: -.11em;
+}
+
+.kkd-speed em {
+  display: block;
+  margin-top: 7px;
+  color: var(--kkd-sand);
+  font: 700 7px/1 "Geist Mono", monospace;
+  font-style: normal;
+  letter-spacing: .08em;
+}
+
+.kkd-zoomies {
+  left: 50%;
+  bottom: calc(var(--race-safe-bottom) + 18px);
+  width: min(330px, 35vw);
+  padding: 10px 13px 11px;
+  border-radius: 5px;
+  transform: translateX(-50%);
+}
+
+.kkd-zoomies strong {
+  position: absolute;
+  top: 10px;
+  right: 13px;
+  color: var(--kkd-muted);
+  font: 800 8px/1 "Geist Mono", monospace;
+}
+
+.kkd-zoomies.is-active {
+  border-color: color-mix(in srgb, var(--kkd-accent) 62%, white);
+  box-shadow: 0 0 26px color-mix(in srgb, var(--kkd-accent) 25%, transparent);
+}
+
+.kkd-zoomies.is-overheated i {
+  background: linear-gradient(90deg, #ffb34f, #ff5548);
+}
+
+.kkd-deformation {
+  right: calc(var(--race-safe-right) + 18px);
+  bottom: calc(var(--race-safe-bottom) + 105px);
+  min-width: 180px;
+  padding: 10px 12px;
+  border-radius: 5px;
+  text-align: right;
+}
+
+.kkd-deformation strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--kkd-accent);
+  font: 850 14px/1 "Geist Mono", monospace;
+}
+
+.kkd-deformation em {
+  display: block;
+  margin-top: 5px;
+  color: var(--kkd-muted);
+  font: 650 7px/1 "Geist Mono", monospace;
+  font-style: normal;
+  letter-spacing: .06em;
+}
+
+.kkd-callout {
+  position: absolute;
+  top: 21%;
+  left: 50%;
+  min-width: 230px;
+  color: var(--kkd-cream);
+  font: 900 clamp(22px, 4vw, 48px)/.9 "Geist", sans-serif;
+  letter-spacing: -.06em;
+  text-align: center;
+  text-transform: uppercase;
+  filter: drop-shadow(0 7px 0 rgba(75, 31, 21, .48));
+  transform: translateX(-50%) rotate(-1deg);
+}
+
+.kkd-callout[data-tone="perfect"],
+.kkd-callout[data-tone="checkpoint"] { color: var(--kkd-accent); }
+.kkd-callout[data-tone="finish"] { color: var(--kkd-sand); }
+
+.kkd-hud .kkr-camera-control {
+  top: calc(var(--race-safe-top) + 188px);
+  left: calc(var(--race-safe-left) + 16px);
+}
+
+.kkd-countdown {
+  position: absolute;
+  inset: 40% 0 auto;
+  color: #fff3cf;
+  font: 900 clamp(72px, 14vw, 168px)/.7 "Geist", sans-serif;
+  letter-spacing: -.1em;
+  text-align: center;
+  text-shadow: 0 12px 0 rgba(115, 48, 25, .4), 0 0 60px rgba(255, 187, 91, .3);
+}
+
+.kkd-controls {
+  position: absolute;
+  bottom: calc(var(--race-safe-bottom) + 4px);
+  left: calc(var(--race-safe-left) + 16px);
+  max-width: calc(50% - 190px);
+  color: rgba(255, 242, 214, .66);
+  font: 650 7px/1.3 "Geist Mono", monospace;
+  letter-spacing: .055em;
+}
+
+.kkd-bank {
+  position: absolute;
+  right: calc(var(--race-safe-right) + 18px);
+  bottom: calc(var(--race-safe-bottom) + 166px);
+  border: 1px solid color-mix(in srgb, var(--kkd-accent) 55%, white);
+  border-radius: 5px;
+  padding: 9px 13px;
+  background: rgba(21, 12, 18, .82);
+  color: var(--kkd-accent);
+  font: 800 8px/1 "Geist Mono", monospace;
+  letter-spacing: .09em;
+}
+
+.kkd-touch { display: none; }
+
+.kkd-finish {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  background:
+    linear-gradient(90deg, rgba(27, 11, 13, .72), rgba(52, 23, 22, .42)),
+    radial-gradient(circle at 50% 50%, rgba(255, 183, 93, .16), transparent 56%);
+  backdrop-filter: blur(8px);
+}
+
+.kkd-finish[hidden] { display: none; }
+
+.kkd-finish section {
+  width: min(620px, calc(100% - 32px));
+  border: 1px solid rgba(255, 222, 171, .42);
+  border-radius: 8px 34px 8px 8px;
+  padding: 28px;
+  background:
+    linear-gradient(135deg, rgba(235, 139, 69, .2), transparent 46%),
+    rgba(30, 16, 21, .94);
+  box-shadow: 0 24px 80px rgba(31, 9, 4, .48), inset 0 1px rgba(255, 246, 223, .12);
+  text-align: center;
+}
+
+.kkd-finish section > span {
+  color: var(--kkd-accent);
+  font: 800 9px/1 "Geist Mono", monospace;
+  letter-spacing: .16em;
+}
+
+.kkd-finish h2 {
+  margin: 9px 0 14px;
+  font-size: clamp(34px, 7vw, 70px);
+  font-weight: 900;
+  letter-spacing: -.075em;
+  line-height: .86;
+}
+
+.kkd-finish section > strong {
+  display: inline-grid;
+  width: 92px;
+  height: 92px;
+  place-items: center;
+  border: 2px solid var(--kkd-sand);
+  border-radius: 50%;
+  color: var(--kkd-sand);
+  font: 900 30px/1 "Geist Mono", monospace;
+  box-shadow: 0 0 26px rgba(242, 185, 108, .18);
+}
+
+.kkd-finish p {
+  margin: 15px 0 4px;
+  font: 800 16px/1.2 "Geist Mono", monospace;
+}
+
+.kkd-finish em {
+  color: var(--kkd-muted);
+  font: 700 9px/1 "Geist Mono", monospace;
+  font-style: normal;
+}
+
+.kkd-finish section > div {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.kkd-finish button {
+  border: 1px solid rgba(255, 231, 190, .38);
+  border-radius: 4px;
+  padding: 11px 16px;
+  background: rgba(255, 234, 198, .08);
+  color: var(--kkd-cream);
+  font: 800 9px/1 "Geist Mono", monospace;
+}
+
+@media (pointer: coarse), (max-width: 900px) {
+  .kkd-topbar {
+    top: calc(var(--race-safe-top) + 5px);
+    left: calc(var(--race-safe-left) + 7px);
+    min-width: min(330px, calc(100% - 150px));
+    padding: 8px 52px 8px 11px;
+  }
+  .kkd-topbar strong { font-size: 15px; }
+  .kkd-topbar em { display: none; }
+  .kkd-topbar button {
+    top: 2px;
+    right: 5px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .kkd-route {
+    top: calc(var(--race-safe-top) + 67px);
+    left: calc(var(--race-safe-left) + 7px);
+    width: min(245px, 39vw);
+    padding: 8px 9px;
+  }
+  .kkd-route strong { font-size: 18px; }
+  .kkd-route em { top: 11px; right: 9px; font-size: 6px; }
+  .kkd-clock {
+    top: calc(var(--race-safe-top) + 5px);
+    right: calc(var(--race-safe-right) + 7px);
+    min-width: 126px;
+    padding: 8px 9px;
+  }
+  .kkd-clock strong { font-size: 17px; }
+  .kkd-clock em { display: none; }
+  .kkd-speed {
+    right: calc(var(--race-safe-right) + 7px);
+    bottom: calc(var(--race-safe-bottom) + 6px);
+    min-width: 92px;
+    padding: 8px;
+  }
+  .kkd-speed strong { font-size: 30px; }
+  .kkd-deformation { display: none; }
+  .kkd-zoomies {
+    bottom: calc(var(--race-safe-bottom) + 5px);
+    width: min(250px, 32vw);
+    padding: 8px 10px;
+  }
+  .kkd-controls { display: none; }
+  .kkd-touch {
+    position: absolute;
+    right: calc(var(--race-safe-right) + 102px);
+    bottom: calc(var(--race-safe-bottom) + 52px);
+    display: flex;
+    gap: 5px;
+  }
+  .kkd-touch button,
+  .kkd-bank {
+    min-width: 66px;
+    min-height: 44px;
+    border: 1px solid rgba(255, 226, 179, .34);
+    border-radius: 7px;
+    padding: 9px;
+    background: rgba(28, 15, 19, .72);
+    color: var(--kkd-cream);
+    font: 800 7px/1 "Geist Mono", monospace;
+  }
+  .kkd-touch button.is-held { color: var(--kkd-accent); border-color: var(--kkd-accent); }
+  .kkd-bank {
+    right: calc(var(--race-safe-right) + 8px);
+    bottom: calc(var(--race-safe-bottom) + 108px);
+  }
+  .kkd-callout { top: 24%; }
+  .kkd-hud .kkr-camera-control {
+    top: calc(var(--race-safe-top) + 124px);
+    left: calc(var(--race-safe-left) + 7px);
+  }
+}
+
+@media (max-height: 500px) {
+  .kkd-route { top: calc(var(--race-safe-top) + 60px); }
+  .kkd-deformation { display: none; }
+  .kkd-hud .kkr-camera-control { top: calc(var(--race-safe-top) + 128px); }
+  .kkd-finish section { padding: 17px 22px; }
+  .kkd-finish section > strong { width: 62px; height: 62px; font-size: 22px; }
+}

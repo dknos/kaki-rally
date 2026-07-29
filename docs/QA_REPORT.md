@@ -1,33 +1,50 @@
 # Kaki Rally definitive browser rebuild QA
 
-Production-code candidate: `fc84c36518651c8d80fc708f7398db2536046fd4`
+Expansion base: `05b6a394c26fe186e466cc02e4bca357057c2020`
+
+The tested expansion is the GitHub Pages release candidate built from that
+integration base.
 
 Validation date: 2026-07-29
 
-The production navigation now contains exactly six pillars: Off-Road GP,
-Drift Attack, Kaki Stock Cup, Draw Your Track, Monster Smash, and Kaki Trials.
-Kaki Catastrophe is preserved outside production and is excluded from the
-acceptance matrix.
+The production navigation now contains exactly seven pillars: Off-Road GP,
+Drift Attack, Kaki Stock Cup, Draw Your Track, Monster Smash, Kaki Dune Run,
+and Kaki Trials. Kaki Catastrophe is preserved outside production and is
+excluded from the acceptance matrix.
 
 ## Automated release gates
 
-`npm test` passes the renderer, racing, Workshop, Monster, Trials, persistence,
-asset, and lifecycle suites. The production import walk covers 100 modules and
-261 edges; the Catastrophe boundary separately checks 57 production racing
-modules. The asset validator checks 70 runtime files (24.94 MiB) and 1,493
-assertions; the broader inventory contains 119 files (60.96 MiB). The frozen
+`npm test` passes the renderer, racing, Workshop, Monster, Dune, Trials,
+persistence, asset, and lifecycle suites. Dune-specific deterministic tests
+cover seeded heightfields, worker/object definitions, route conditioning,
+bounded deformation, wheel load/slip/sinkage, records/ghosts, and custom Draw
+routes. The broader inventory contains 123 hashed files (62.48 MiB). The frozen
 experiment remains available only through the separate
 `npm run test:catastrophe` command.
 
-The fresh `npm test:browser` matrix passed:
+The production boundary walk covers 112 runtime modules and 309 import edges;
+the Catastrophe isolation audit inspects 71 production racing modules. Asset
+validation checks 73 local assets (26.26 MiB) with 1,549 assertions.
 
-> Kaki Rally browser matrix passed: WebGL six-mode lifecycle/touch/gamepad;
+The complete browser matrix recorded in `docs/qa/browser-matrix.json` passed:
+
+> Kaki Rally browser matrix passed: WebGL seven-mode lifecycle/touch/gamepad;
 > WebGPU production-mode smoke and frozen-mode gate
+
+After the big-jump camera and authored-route refinement, the focused Dune
+WebGL/WebGPU matrix and split WebGL Circuit, Drift, Stock, Monster, and Trials
+scopes also passed. The all-at-once rerun reached the managed runner's
+two-minute ceiling without an assertion, so the completed split reports under
+`docs/qa/targeted/` are retained as the post-change shared-camera evidence.
 
 Both backends recorded zero page errors, console errors, bad responses,
 unexpected failed requests, and frozen-mode requests. Expected aborts are
 limited to in-flight decoder/model requests canceled by deliberate mode exit
-or browser-context disposal.
+or browser-context disposal. Headless Chromium also emitted three exact host
+audio-device/WebAudio-renderer diagnostics; the harness retains those under
+`expectedAudioDeviceErrors` rather than hiding them. The game AudioContext
+remained `running`, its active-node state was reported, and audio teardown
+continued to pass independently.
 
 | Production pillar | WebGL 2 | WebGPU | Keyboard | Gamepad | Touch |
 | --- | --- | --- | --- | --- | --- |
@@ -36,12 +53,13 @@ or browser-context disposal.
 | Kaki Stock Cup | Pass | Pass | Pass | Pass | Pass |
 | Draw Your Track | Pass | Pass | Pass | Pass | Pass |
 | Monster Smash | Pass | Pass | Pass | Pass | Pass |
+| Kaki Dune Run | Pass | Pass | Pass | Pass | Pass |
 | Kaki Trials | Pass | Pass | Pass | Pass | Pass |
 
 Each production mode was entered, controlled, exercised through its central
 mechanic, restarted, exited, and re-entered. WebGL additionally covers pause,
 camera/input changes, records, ghosts, custom content, and detailed resource
-state. WebGPU covers all six mode starts, the Trials Workshop custom route,
+state. WebGPU covers all seven mode starts, the Trials Workshop custom route,
 fallback behavior, and the frozen Catastrophe gate.
 
 ## Handling results
@@ -89,6 +107,27 @@ keep distinct torque, radius, pitch response, landing weight, and forgiveness.
 Official/custom course, gap, turbo, checkpoint restart, vehicle switch, and
 ghost persistence paths pass.
 
+Dune-specific deterministic and browser coverage verifies:
+
+- four independently loaded wheels, suspension/contact telemetry, load,
+  longitudinal/lateral slip, sinkage, resistance, steering, and air trim;
+- a seeded 257²/513² CPU-readable height authority uploaded to the terrain,
+  with a zero sampled renderer/physics delta;
+- fixed-topology quality-scaled clipmap patches with snapped origins, LOD
+  morphing, and shader-trimmed underlays rather than open ring holes;
+- bounded recent/coarse depression, displaced berm, and compaction fields,
+  including rut persistence under later contacts;
+- four fixed-lattice swept wake curtains and one fixed-capacity dust pool;
+- authored centerline profiles with at least three prominent, catchable
+  crest/landing sections per event and bounded centerline grades;
+- checkpoint circuit, ridge rally, ghost sprint, and freeride progress/results;
+- keyboard, gamepad, coarse-pointer controls, explicit recovery, pause,
+  restart, exit/re-entry, direct auto-start, local records, and ghost samples;
+- a +34 m big-jump isometric frame with the truck inside clip space, the camera
+  above it, and a one-click airborne return to settled Chase;
+- Draw-theme conversion with route, elevation/banking, weather, seed, and
+  custom identity preserved through the Dune runtime.
+
 ## Visual audit and corrections
 
 The baseline defects were flat near-black road ribbons, repeated planar
@@ -114,6 +153,9 @@ The candidate replaces or corrects them with:
   atmospheric dust;
 - a readable 16-car Stock pack with unique paint, numbers, badges, drivers,
   wheels, damage, smoke, and sparks at the production LOD;
+- a seeded sculpted Dune field with authored gates/flags/landmarks, independent
+  monster-truck wheels, persistent ruts/berms, sand wake/dust, warm clear/heat/
+  storm palettes, compact telemetry, and a branded result card;
 - a six-shot Draw reveal that calls out outline, bridges, features, and grid,
   supports Skip, and shortens repeat viewing.
 
@@ -134,6 +176,10 @@ Representative evidence:
 - [finished build flyover](qa/webgl-draw-build-flyover.png)
 - [Monster arena](qa/webgl-monster.png) and
   [crush-car traversal](qa/webgl-monster-crush-traversal.png)
+- [Dune wheelspin and deformation](qa/targeted/all-dunes/webgl-dunes-wheelspin.png),
+  [sandstorm freeride](qa/targeted/all-dunes/webgl-dunes-litterbox.png),
+  [custom Dune Workshop run](qa/targeted/all-dunes/webgl-dunes-workshop.png),
+  and [Dune result](qa/targeted/all-dunes/webgl-dunes-results.png)
 - [Trials layered side view](qa/webgl-trials.png) and
   [custom course](qa/webgl-trials-workshop-custom-run.png)
 - [mobile Draw editor](qa/webgl-draw-editor-mobile-landscape.png),
@@ -157,6 +203,7 @@ and one strong venue-intro gesture instead of a collection of generic cards.
 | Curvature/height/grade/bank/clearance/AI/cost overlays | Added |
 | Elevation-aware road, AI, checkpoints, respawns, camera | Added |
 | Route-aware foundations, shoulders, terrain, dressing | Added |
+| Dune theme, seeded sand/weather, physical profile and compatible stamps | Added and browser-tested |
 | Finished flyover with Skip/repeat timing | Added |
 | Mouse, touch, controller cursor, direct manipulation | Passed |
 | Trials terrain/ramp/gap/checkpoint/goal/custom workflow | Passed |
@@ -171,6 +218,8 @@ the same sanitized samples used by visible road geometry.
 ## Persistence and compatibility
 
 - Existing legacy save keys and record/ghost strings remain source of truth.
+- `kks_dune_records_v1` is isolated, bounded, exportable, and stores timed or
+  freeride records plus deterministic ghost samples.
 - KDT1 and KDT2 import unchanged and remain flat.
 - KDT3 without elevation data decodes exactly as before; the optional bounded
   `e` field round-trips only when authored.
@@ -206,6 +255,9 @@ baseline after the final exit. Full values and limitations are in
   run is still required to prove 120 FPS.
 - Chromium emulation verifies responsive layout and touch plumbing, not
   physical-phone thermals, battery, safe areas, frame pacing, or tactile feel.
+- Dune WebGL/WebGPU evidence currently uses SwiftShader; a native
+  physical-adapter Dune performance rotation is still required before an FPS
+  claim.
 - Synthetic gamepads verify the standards path, not every physical controller
   mapping.
 - Automated motion inspection and screenshots do not replace final human art,

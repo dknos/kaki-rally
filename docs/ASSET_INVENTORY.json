@@ -24,13 +24,13 @@
     }
   ],
   "summary": {
-    "files": 119,
-    "bytes": 63917381,
-    "referencedFiles": 93,
+    "files": 123,
+    "bytes": 65509856,
+    "referencedFiles": 96,
     "byKind": {
-      "support": 4,
-      "model": 25,
-      "image": 75,
+      "support": 5,
+      "model": 26,
+      "image": 77,
       "audio": 1,
       "source-artifact": 1,
       "runtime": 13
@@ -306,6 +306,45 @@
       "kind": "image",
       "references": [
         "manifest:monsterArenaBackdrop",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/dunes/kaki-dune-environment-kit-v1.blend",
+      "bytes": 216567,
+      "sha256": "cd09f6f79a49216882eac7afa830bba61d8c91770e9e1a52c8be0461ca1e87b9",
+      "kind": "support",
+      "references": []
+    },
+    {
+      "path": "assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
+      "bytes": 668524,
+      "sha256": "66065b24dc3a27962333cb0c2531d39214f056d3628b4ae2238bddbb3781973f",
+      "kind": "model",
+      "references": [
+        "manifest:duneEnvironmentKit",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp",
+      "bytes": 264922,
+      "sha256": "a84a4498d126d334fd233a045c9f5714505805778d9d65d00cacfdbafb7abed7",
+      "kind": "image",
+      "references": [
+        "manifest:duneKeyArt",
+        "source:src/app/rallyMenu.js",
+        "source:src/racing/dunes/dune.css",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp",
+      "bytes": 442462,
+      "sha256": "42ec55c7adac7c5bae7dcdab38d186f2c415941f163a445fe9e29cb8ddc72eb5",
+      "kind": "image",
+      "references": [
+        "manifest:duneSandDetail",
         "source:src/racing/racingManifest.js"
       ]
     },

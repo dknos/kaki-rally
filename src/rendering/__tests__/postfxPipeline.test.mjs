@@ -80,10 +80,12 @@ test('legacy shader constants, accessibility uniforms, and HDR-safe optional dit
   const accessibility = source('accessibilityPostfx.js');
 
   assert.match(pipeline, /chromatic: uniform\(0\.0008\)/);
+  assert.match(pipeline, /heatHaze: uniform\(0\)/);
   assert.match(pipeline, /vignette: uniform\(0\.45\)/);
   assert.match(pipeline, /fogAmount: uniform\(0\.18\)/);
   assert.match(pipeline, /ditheringAmount: uniform\(0\)/);
   assert.match(chromatic, /mul\(distance\)\.mul\(2\)/);
+  assert.match(chromatic, /heatHaze[\s\S]*lowerMask[\s\S]*motionGate/);
   assert.match(chromatic, /sceneColorNode\.sample\(sampleUv\)/);
   assert.match(chromatic, /bloomTextureNode\.sample\(sampleUv\)/);
   assert.doesNotMatch(chromatic, /convertToTexture|isRTTNode|renderTarget/);

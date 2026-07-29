@@ -58,16 +58,27 @@ export class IsometricCameraRig {
       const leadX = velocityLength > 0.4 ? vehicle.velocity.x / velocityLength : Math.sin(vehicle.yaw || 0);
       const leadZ = velocityLength > 0.4 ? vehicle.velocity.z / velocityLength : Math.cos(vehicle.yaw || 0);
       const cameraLead = clamp(speed * 0.2, 0, vehicle.monster ? 5.2 : 5.4);
-      const cameraLift = vehicle.monster ? 0.62 : 0.25;
+      const groundHeight = Number.isFinite(Number(vehicle.groundHeight))
+        ? Number(vehicle.groundHeight)
+        : Number(vehicle.position.y) || 0;
+      const airborneMeters = Math.max(0, (Number(vehicle.position.y) || 0) - groundHeight);
       const targetX = vehicle.position.x + leadX * cameraLead;
-      const targetY = vehicle.position.y * cameraLift;
       const targetZ = vehicle.position.z + leadZ * cameraLead;
       const offset = base.offset + speedRatio * (vehicle.monster ? 3.6 : 3.1);
-      const height = base.height + speedRatio * (vehicle.monster ? 4.2 : 3.4) + air * (vehicle.monster ? 4.4 : 3.2);
+      // ISO used to treat its Y coordinate as an absolute world height. Tall
+      // Dune crests and large jumps could therefore carry the truck above the
+      // camera, leaving an all-terrain frame and a disorienting projection
+      // transition back to Chase. Anchor the rig to authoritative ground and
+      // carry most of airborne displacement so the same composition survives
+      // rolling terrain, ridge launches, and arena ramps.
+      const height = groundHeight
+        + base.height
+        + speedRatio * (vehicle.monster ? 4.2 : 3.4)
+        + airborneMeters * (vehicle.monster ? 0.74 : 0.68);
       this.desiredPosition.set(targetX + offset + shakeX, height + shakeY, targetZ + offset + shakeZ);
       this.focus.set(
         targetX + shakeX * 0.28,
-        base.lookAtBase + targetY + speedRatio * 0.28 + shakeY * 0.2,
+        vehicle.position.y + base.lookAtBase + speedRatio * 0.28 + shakeY * 0.2,
         targetZ + shakeZ * 0.28,
       );
       frustum = (base.frustum + speedRatio * (vehicle.monster ? 2.2 : 1.65) + air * 1.6 - fx.punch * 0.72)

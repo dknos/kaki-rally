@@ -113,7 +113,7 @@ function sceneObjectCount(scene) {
 
 function sessionRootCount(scene) {
   return scene?.children?.filter((child) => (
-    /^kaki-(rally|trials|catastrophe)-/.test(child.name)
+    /^kaki-(rally|trials|dunes|catastrophe)-/.test(child.name)
     && !child.name.startsWith('kaki-rally-driver-')
   )).length || 0;
 }
@@ -481,6 +481,7 @@ export class KakiRallyApp {
     configureRallyNavigation({
       menu: (reason) => this.exitToMenu(reason),
       startRacing: (courseId, options) => this.startMode({ courseId, options }),
+      restartRacing: () => this.restartActiveMode(),
       openDrawEditor: (initialTrack) => this.openDrawEditor(initialTrack),
     });
   }
@@ -555,7 +556,13 @@ export class KakiRallyApp {
     this.pauseRoot.hidden = true;
     state.time.paused = false;
     this.touchControls?.hide();
-    this.showLoader(`Loading ${mode === 'crash' ? 'Kaki Catastrophe' : 'the starting grid'}`, 'Preparing course, vehicles, and controls…');
+    this.loaderRoot.dataset.mode = mode;
+    this.showLoader(
+      `Loading ${mode === 'crash' ? 'Kaki Catastrophe' : mode === 'dunes' ? 'Kaki Dune Run' : 'the starting grid'}`,
+      mode === 'dunes'
+        ? 'Baking the seeded dune field, warming sand materials, and staging the monster truck…'
+        : 'Preparing course, vehicles, and controls…',
+    );
 
     try {
       if (mode === 'crash') {
@@ -646,15 +653,29 @@ export class KakiRallyApp {
       onBuild: ({ draft, course }) => {
         state.mode = 'menu';
         const settings = readRallySettings();
+        const isDuneRun = course.drawDiscipline === 'dunes' && course.drawThemeId === 'dune';
         void this.startMode({
           courseId: course.id,
           options: {
-            mode: 'draw',
+            mode: isDuneRun ? 'dunes' : 'draw',
             customCourse: course,
             customTrack: draft,
             carCount: settings.carCounts.draw,
             playerAvatarId: settings.lastDriver,
             cameraMode: settings.camera,
+            ...(isDuneRun ? {
+              duneVehicle: settings.duneVehicle,
+              duneDifficulty: settings.duneDifficulty,
+              duneDeformation: settings.duneDeformation,
+              duneParticles: settings.duneParticles,
+              duneDust: settings.duneDust,
+              duneHeatHaze: settings.duneHeatHaze,
+              duneTerrain: settings.duneTerrain,
+              duneShadow: settings.duneShadow,
+              duneCameraShake: settings.duneCameraShake,
+              duneSteeringAssist: settings.duneSteeringAssist,
+              duneRecoveryAssist: settings.duneRecoveryAssist,
+            } : {}),
           },
         });
       },
@@ -909,11 +930,15 @@ export class KakiRallyApp {
         const cameraConfig = cameraUpdate?.effects || getRacingCameraConfig();
         if (state.postFXPass?.uniforms) {
           state.postFXPass.uniforms.chromatic.value = cameraConfig.chromatic ?? 0.0008;
+          if (state.postFXPass.uniforms.heatHaze) {
+            state.postFXPass.uniforms.heatHaze.value = cameraConfig.heatHaze ?? 0;
+          }
         }
         if (state.bloomPass) state.bloomPass.strength = cameraConfig.bloom ?? 0.34;
       }
     } else if (this.activeCamera !== this.menuCamera) {
       this.setActiveCamera(this.menuCamera);
+      if (state.postFXPass?.uniforms?.heatHaze) state.postFXPass.uniforms.heatHaze.value = 0;
     }
 
     if (state.postFXPass?.uniforms?.time) {

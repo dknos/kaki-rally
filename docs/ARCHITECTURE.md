@@ -55,6 +55,11 @@ Draw UI ──> drawTrackGeometry ──> drawTrackCrossings ──> generated c
 Trials UI ──> normalized custom course ──> sampleTrialsGround ──> Trials runtime
    │                  │                          ▲
    └─ shared catalog  └─ KTR1 + custom library ──┘
+
+Dune theme ──> validated Draw course ──> createDrawDuneEvent ──> Dune runtime
+                    │                          │                     │
+                    ├─ elevation/banking ──────┤                     ├─ heightfield
+                    └─ compatible placements ──┴─ terrain stamps ───└─ props/records
 ```
 
 `courseFeatureCatalog.js` is renderer-free and defines 47 production entries
@@ -156,7 +161,7 @@ being collapsed to an official string ID.
 - `input.js` and `gamepad.js` expose racing actions, pointer/touch attribution,
   Trials pitch, pause, camera switching, and Draw Track controller input.
 - `audio.js` owns menu/racing engines, impacts and bus volumes. Exit cancels
-  racing audio and cleanup timers. Circuit/Monster/Trials telemetry drives
+  racing audio and cleanup timers. Circuit/Monster/Dune/Trials telemetry drives
   engine load/RPM layers, throttle lift, surfaces, suspension, impact, boost,
   and venue ambience rather than one global pitch control.
 - `assets.js` owns cached GLTF/texture loading, DRACO, Meshopt, safe cloning,
@@ -186,6 +191,50 @@ both backends. `racingEnvironment.js` owns update and disposal. Reduced-motion
 sets wind strength to zero; low through ultra display quality changes instance
 budgets without changing track geometry or handling.
 
+## Kaki Dune Run
+
+`src/racing/dunes/duneMode.js` is a normal shell-owned session adapter. It
+leases the chosen Monster truck, Dune environment kit, key art, and sand detail;
+starts one worker heightfield bake; creates fixed-capacity terrain,
+deformation, dust, wake, record, environment, and vehicle systems; binds the
+shared camera manager and HUD; and removes every listener/resource on exit.
+
+```text
+duneEvents ──> duneHeightWorker ──> DuneHeightfield Float32 authority
+                                           │
+                     ┌─────────────────────┴──────────────────────┐
+                     ▼                                            ▼
+          DuneSurfaceField / 120 Hz wheels             TSL height DataTexture
+                     │                                            │
+                     └──── DuneDeformationField ──────────────────┘
+                                  │
+                         depression / berm / pack
+                                  │
+                  race + recovery + records + wake/dust/audio
+```
+
+The base event field is deterministic and CPU-readable. Its exact float array
+is uploaded rather than reimplemented in a shader. A recent high-resolution
+window and coarser world field add bounded deformation; both physics and TSL
+sample that same state. Terrain patches have fixed topology, snapped origins,
+LOD morphing, and shader-trimmed overlapping underlays. This differs
+deliberately from a WebGPU-only compute/render-target design and keeps the
+renderer contract intact.
+
+`duneVehiclePhysics.js` owns four wheel contacts, suspension, load/slip,
+sinkage, resistance, drive/brake forces, steering, chassis attitude, and
+air-control state. `duneRace.js` owns checkpoint/lap/freeride progress and
+recovery. `duneRecords.js` owns the isolated `kks_dune_records_v1` document and
+bounded deterministic ghosts. `duneRoosterTail.js` and `duneDust.js` are
+fixed-capacity VFX pools driven by those contacts rather than cosmetic throttle
+guesses.
+
+Draw integration does not create a second track format. The appended Dune theme
+marks a compiled course with `drawDiscipline: "dunes"` and a bounded
+`duneConfig`; `createDrawDuneEvent()` converts the current sanitized route,
+profile, modifiers, and placements when launched. Restart preserves the
+original custom course and draft.
+
 ## Renderer policy
 
 The renderer layer remains backend-neutral Three.js r185. WebGL 2 is the
@@ -200,15 +249,16 @@ resource/pool/audio counts, and active vehicle telemetry.
 
 Kaki Catastrophe and vendored Rapier are frozen outside the production graph.
 The source and assets remain for later extraction, but the production menu,
-normal manifest, default tests, and six production modes cannot import or
+normal manifest, default tests, and seven production modes cannot import or
 request them. A localhost-only `?dev=catastrophe` flag dynamically imports the
 frozen entry when explicitly requested. Extraction boundaries are documented
 in `docs/CATASTROPHE_EXTRACTION_NOTES.md`.
 
 ## Persistence
 
-The existing five `kks_*` keys remain source-of-truth legacy data. The new
-`kks_rally_trials_courses_v1` key is isolated custom-course content, and
+The existing legacy `kks_*` keys remain source-of-truth data.
+`kks_dune_records_v1` is an isolated Dune record/ghost document,
+`kks_rally_trials_courses_v1` is isolated custom-course content, and
 `kaki_rally_settings_v1` holds standalone menu preferences. Export copies
 recognized strings verbatim into a versioned document. Import validates JSON,
 writes a pre-import backup, and never deletes keys absent from the incoming

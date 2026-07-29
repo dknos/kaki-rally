@@ -1,6 +1,11 @@
 # Kaki Rally performance and lifecycle evidence
 
-Release candidate: `fc84c36518651c8d80fc708f7398db2536046fd4`
+Physical-benchmark baseline: `fc84c36518651c8d80fc708f7398db2536046fd4`
+
+Dune expansion base: `05b6a394c26fe186e466cc02e4bca357057c2020`
+
+The expansion was validated from that integration base for its GitHub Pages
+release; the Pages workflow packages the exact revision that passes `npm test`.
 
 Validation date: 2026-07-29
 
@@ -99,6 +104,27 @@ exclusion, and theme-aware distance layers. Elevation and banking are sampled
 from a sparse bounded profile, so legacy flat tracks do not allocate or render
 extra structures.
 
+## Kaki Dune Run structural evidence
+
+The physical RTX 5080 benchmark above predates Kaki Dune Run and therefore does
+not establish a Dune FPS number. The focused Dune Chromium matrix currently
+uses SwiftShader and is reported only as behavior/parity evidence.
+
+Its WebGL High Whiskerwind sample used a deterministic 513² base heightfield,
+seven fixed-topology clipmap patches (90,240 terrain triangles), a 512² recent
+deformation field, a 128² coarse field, four active swept wake curtains, and a
+196-instance pooled dust field. At the measured truck position the
+renderer/physics height delta was zero. The same test drove keyboard, touch,
+gamepad, recovery, result persistence, restart/re-entry, all four events,
+custom Dune Workshop content, and direct auto-start.
+
+The explicit WebGPU run initialized Three r185’s real WebGPU backend, submitted
+the Dune scene, retained static trimmed clipmap underlays and shared height
+authority, and recorded no compilation event after warmup or device loss.
+These headless software-backend measurements are not substituted for the
+required native physical-adapter benchmark. Full budgets and the remaining gate
+are in `docs/DUNE_RUN_PERFORMANCE.md`.
+
 ## Loading and release footprint
 
 The menu does not import production mode sessions or their asset sets. Critical
@@ -106,7 +132,7 @@ mode assets, materials, effects, and audio are prewarmed behind the branded
 transition before interactivity. Catastrophe assets and Rapier are absent from
 the normal manifest and request log.
 
-The focused inventory contains 119 hashed files totaling 60.96 MiB. The
+The focused inventory contains 123 hashed files totaling 62.48 MiB. The
 machine-generated record includes path, byte size, SHA-256, source/licence
 metadata, and runtime grouping. No runtime CDN request is permitted.
 
@@ -118,6 +144,11 @@ metadata, and runtime grouping. No runtime CDN request is permitted.
 - `docs/qa/performance-hardware-1280x720.json` — native physical-adapter probe.
 - `docs/qa/browser-matrix.json` — WebGL/WebGPU mode, input, Workshop, request,
   resource, and responsive-browser evidence.
+- `docs/qa/targeted/all-dunes/browser-matrix.json` — focused WebGL Dune events,
+  input, lifecycle, records, Workshop, deep-link, asset, authority evidence,
+  and explicit WebGPU Dune parity.
+- `docs/qa/targeted/webgl-responsive/browser-matrix.json` — 844×390 Dune
+  touch/overflow/target-size evidence.
 
 ## Remaining hardware gates
 
@@ -125,4 +156,6 @@ The benchmark does not establish physical-phone thermals, battery use,
 safe-area behavior, touch feel, or sustained mobile frame pacing. The mobile
 layouts and input paths passed Chromium emulation at 844×390 and 390×844, but
 a landscape phone remains required. A visible 120 Hz Chrome run is also needed
-to prove the aspirational 120 FPS reference target.
+to prove the aspirational 120 FPS reference target. Kaki Dune Run additionally
+needs to be added to the native physical-adapter transition/performance
+rotation before any Dune release FPS claim is made.

@@ -89,7 +89,9 @@ export class RacingCameraManager {
     this.modes = availableCameraModes(this.profile);
     this.input.setAvailability(this.modes);
     this.hasVehiclePosition = false;
-    const collisionRoot = this.trackBinding?.mode === 'monster' ? null : this.trackBinding?.root;
+    const collisionRoot = this.trackBinding?.mode === 'monster' ? null
+      : this.trackBinding?.mode === 'dunes' ? null
+        : this.trackBinding?.root;
     this.collision.bind(collisionRoot, [vehicle?.visual?.root].filter(Boolean));
     this.onVehicleChanged();
     return this;
@@ -103,7 +105,9 @@ export class RacingCameraManager {
     // mesh, then repeats triangle raycasts during the opening countdown. Ground
     // clearance still runs in ChaseCameraRig; scenery boom collision is neither
     // useful nor affordable for this mode.
-    const collisionRoot = this.trackBinding.mode === 'monster' ? null : this.trackBinding.root;
+    const collisionRoot = this.trackBinding.mode === 'monster' ? null
+      : this.trackBinding.mode === 'dunes' ? null
+        : this.trackBinding.root;
     this.collision.bind(collisionRoot, [this.vehicleBinding?.visual?.root].filter(Boolean));
     this.onTrackChanged();
     return this;
@@ -127,7 +131,14 @@ export class RacingCameraManager {
     this.rigs[next].reset();
     this.input.closeList();
     if (save) savePreference(next);
-    const shouldSnap = instant || this.lastReducedMotion || !this.lastFrame;
+    const vehicle = this._vehicleState();
+    const airborneProjectionChange = vehicle?.grounded === false
+      && (previous === RacingCameraMode.ISOMETRIC || next === RacingCameraMode.ISOMETRIC);
+    // Projection blends are attractive on the ground, but during a large jump
+    // an obsolete airborne ISO frame can spend several frames looking below
+    // the rider. Snap projection changes in flight so Chase/FPV is always an
+    // immediate escape path.
+    const shouldSnap = instant || this.lastReducedMotion || !this.lastFrame || airborneProjectionChange;
     if (next === RacingCameraMode.DRIVER_FPV) this._applyInteriorVisibility(true);
     // Monster-truck FPV hides the complete exterior root. Restore it before
     // calculating or rendering the destination frame: waiting for the blend

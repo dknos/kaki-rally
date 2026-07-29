@@ -279,8 +279,9 @@ export function cameraProfileForSession(session = {}) {
       ? RACING_CAMERA_PROFILES.pocket_pouncer
       : RACING_CAMERA_PROFILES.trials_monster;
   }
-  if (session.raceMode === 'monster') {
-    return session.monsterVehicleId === 'cyber'
+  if (session.raceMode === 'monster' || session.raceMode === 'dunes') {
+    const vehicleId = session.monsterVehicleId || session.duneVehicleId || session.vehicleId;
+    return vehicleId === 'cyber'
       ? RACING_CAMERA_PROFILES.cyber
       : RACING_CAMERA_PROFILES.meowster;
   }

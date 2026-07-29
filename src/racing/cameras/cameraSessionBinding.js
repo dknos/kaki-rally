@@ -42,7 +42,7 @@ function circuitVehicleBinding(session, profile) {
     impactStrength: 0,
     drifting: false,
     boosting: false,
-    monster: session.raceMode === 'monster',
+    monster: session.raceMode === 'monster' || session.raceMode === 'dunes',
     trials: false,
     profileId: profile.id,
     rideHeight: 0,
@@ -60,8 +60,8 @@ function circuitVehicleBinding(session, profile) {
       cameraState.pitch = car.visual?.bodyPivot?.rotation?.x || physics.bodyPitch || physics.stuntPitch || 0;
       cameraState.roll = car.visual?.bodyPivot?.rotation?.z || physics.bodyRoll || physics.stuntRoll || 0;
       cameraState.speed = Math.max(0, Number(physics.speed) || 0);
-      cameraState.maxSpeed = session.raceMode === 'monster'
-        ? (session.monsterVehicleProfile?.tuning?.boostSpeed || 31)
+      cameraState.maxSpeed = session.raceMode === 'monster' || session.raceMode === 'dunes'
+        ? ((session.monsterVehicleProfile || session.duneVehicleProfile)?.tuning?.boostSpeed || 31)
         : session.raceMode === 'crash'
           ? (session.player?.playerProfile?.maxSpeed || 34)
         : 31;
@@ -71,7 +71,8 @@ function circuitVehicleBinding(session, profile) {
       cameraState.lateralSpeed = Number(physics.lateralSpeed) || 0;
       cameraState.longitudinalWeightTransfer = Number(physics.longitudinalWeightTransfer) || 0;
       cameraState.suspensionOffset = Number(physics.suspensionOffset) || 0;
-      cameraState.impactStrength = Number(physics.impactStrength) || 0;
+      cameraState.impactStrength = (Number(physics.impactStrength) || 0)
+        * (session.raceMode === 'dunes' ? Number(session.cameraShake ?? 0.72) : 1);
       cameraState.drifting = !!physics.drifting;
       cameraState.boosting = (physics.boostTime || 0) > 0;
       return cameraState;
@@ -137,6 +138,20 @@ function trackBinding(session) {
       groundHeightAt(x) {
         const sample = sampleTrialsGround(session.track, x - offset.x);
         return offset.y + (sample?.height || 0);
+      },
+    };
+  }
+  if (session.raceMode === 'dunes') {
+    return {
+      mode: 'dunes',
+      samples: session.samples,
+      root: session.root,
+      session,
+      worldOffset: offset,
+      loop: session.event?.routeType !== 'point-to-point',
+      trackWidth: session.event?.routeWidth || 20,
+      groundHeightAt(x, z) {
+        return offset.y + session.surfaceField.heightAt(x - offset.x, z - offset.z);
       },
     };
   }

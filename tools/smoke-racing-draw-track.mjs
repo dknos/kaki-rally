@@ -103,7 +103,11 @@ assert.deepEqual(
   [440, 300, 650, 1900],
 );
 assert.deepEqual(Object.keys(TRACK_WIDTH_PRESETS), ['narrow', 'standard', 'wide', 'extra']);
-assert.equal(DRAW_TRACK_THEME_ORDER.length, 8, 'initial theme set changed');
+assert.deepEqual(
+  DRAW_TRACK_THEME_ORDER,
+  ['countryside', 'forest', 'desert', 'snow', 'neon', 'coastal', 'industrial', 'dirt', 'dune'],
+  'theme order changed; new themes must remain appended for KDT compatibility',
+);
 
 const ellipse = Array.from({ length: 160 }, (_, index) => {
   const angle = index / 160 * Math.PI * 2;
