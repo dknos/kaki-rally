@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { clamp, equivalentVerticalFov, expAlpha, lookQuaternion } from './cameraRigMath.js';
+import { guardIsometricTerrainFrame } from './isometricFrameGuard.js';
 
 const STANDARD = Object.freeze({ offset: 22, height: 34, frustum: 16.5, lookAtBase: 0.72 });
 const MONSTER = Object.freeze({ offset: 27, height: 41, frustum: 20.5, lookAtBase: 1.2 });
@@ -12,6 +13,7 @@ export class IsometricCameraRig {
     this.desiredFocus = new THREE.Vector3();
     this.quaternion = new THREE.Quaternion();
     this.initialized = false;
+    this.guardRecoveries = 0;
   }
 
   reset() {
@@ -90,6 +92,12 @@ export class IsometricCameraRig {
       this.position.lerp(this.desiredPosition, alpha);
       this.focus.lerp(this.desiredFocus, alpha);
     }
+    // An ISO frame must always look down into the course. Keep this invariant
+    // local to the rig so a stale pre-switch position, a throttled transition,
+    // or any future target handoff cannot leave the orthographic camera aimed
+    // upward at the sky. Normal authored frames clear this by a wide margin.
+    const guarded = guardIsometricTerrainFrame(this.position, this.focus, vehicle);
+    if (guarded) this.guardRecoveries += 1;
     lookQuaternion(this.position, this.focus, roll, this.quaternion);
     frustum = Math.max(4, frustum);
     return {
@@ -105,6 +113,7 @@ export class IsometricCameraRig {
         chromatic: reducedMotion ? 0 : 0.0008 + (vehicle.boosting ? 0.0014 : 0) + fx.shake * 0.00075,
         bloom: 0.34 + (vehicle.boosting ? 0.16 : 0) + clamp(vehicle.position.y / 20, 0, 0.12),
         shake: reducedMotion ? 0 : fx.shake,
+        isometricGuarded: guarded,
       },
     };
   }
