@@ -1188,6 +1188,126 @@ function _buildInfrastructure(group, course, profile, samples, rc, env, atlasTex
   // authored trees, rockwork and sponsor boards now dress those sightlines.
 }
 
+function _sampleAtFraction(samples, fraction) {
+  const index = Math.max(0, Math.min(samples.length - 1, Math.round((Number(fraction) || 0) * (samples.length - 1))));
+  return samples[index];
+}
+
+/**
+ * Compact discipline dressing layered on the shared Kaki biome. It gives
+ * Whisker Yard judging zones and Thunderbowl stadium hardware a clear identity
+ * while retaining the single environment owner and its bounded resource set.
+ */
+function _buildDisciplineVenue(group, course, samples, rc, env) {
+  if (course.mode === 'drift') {
+    const zoneMaterial = _material(rc, {
+      color: 0xffc15d,
+      emissive: 0xff6c9c,
+      emissiveIntensity: 1.45,
+      roughness: 0.32,
+      metalness: 0.35,
+    });
+    _registerGlow(env, zoneMaterial);
+    const zoneGeometry = rc.geometry(new THREE.CylinderGeometry(0.34, 0.42, 0.14, 18));
+    const zoneTransforms = (course.driftZones || []).map((zone, index) => {
+      const sample = _sampleAtFraction(samples, zone.fraction);
+      return {
+        x: sample.x + sample.normal.x * (index % 2 ? -1.2 : 1.2),
+        y: (sample.y || 0) + 0.16,
+        z: sample.z + sample.normal.z * (index % 2 ? -1.2 : 1.2),
+        sx: zone.type === 'clipping' ? 1.2 : 0.84,
+        sy: 1,
+        sz: zone.type === 'outside' ? 2.4 : 0.84,
+      };
+    });
+    _instanced(group, zoneGeometry, zoneMaterial, zoneTransforms, { name: 'whisker-yard-judging-zones', cast: false });
+
+    const poleGeometry = rc.geometry(new THREE.CylinderGeometry(0.075, 0.12, 5.6, 8));
+    const lampGeometry = rc.geometry(new THREE.SphereGeometry(0.22, 10, 7));
+    const poleMaterial = _material(rc, { color: 0x263142, roughness: 0.5, metalness: 0.72 });
+    const towers = [];
+    for (const [index, fraction] of [0.16, 0.48, 0.82].entries()) {
+      const sample = _sampleAtFraction(samples, fraction);
+      const side = index % 2 ? -1 : 1;
+      const lateral = course.trackWidth * 0.5 + 7.5;
+      towers.push({
+        x: sample.x + sample.normal.x * side * lateral,
+        y: (sample.y || 0) + 2.8,
+        z: sample.z + sample.normal.z * side * lateral,
+      });
+    }
+    _instanced(group, poleGeometry, poleMaterial, towers, { name: 'whisker-yard-floodlight-poles', cast: true });
+    _instanced(group, lampGeometry, zoneMaterial, towers.map((tower) => ({ ...tower, y: tower.y + 2.8 })), { name: 'whisker-yard-floodlight-heads', cast: false });
+    return;
+  }
+
+  if (course.mode === 'stock') {
+    const clay = course.stockVariant === 'dirt';
+    const standMaterial = _material(rc, {
+      color: clay ? 0x8a4f58 : 0x788697,
+      emissive: clay ? 0x291522 : 0x1b2633,
+      emissiveIntensity: 0.42,
+      roughness: 0.78,
+      metalness: 0.16,
+    });
+    const seatMaterial = _material(rc, { color: clay ? 0xd47a5d : 0xe9b66d, emissive: clay ? 0x421d2e : 0x4a2a2c, emissiveIntensity: 0.38, roughness: 0.58 });
+    const standGeometry = rc.geometry(new THREE.BoxGeometry(6.8, 2.3, 3.1));
+    const seatGeometry = rc.geometry(new THREE.BoxGeometry(6.2, 0.18, 0.36));
+    const stands = [];
+    const seats = [];
+    for (const [index, fraction] of [0.06, 0.2, 0.34, 0.64, 0.78, 0.92].entries()) {
+      const sample = _sampleAtFraction(samples, fraction);
+      const side = index % 2 ? -1 : 1;
+      const lateral = course.trackWidth * 0.5 + 10.5;
+      const x = sample.x + sample.normal.x * side * lateral;
+      const z = sample.z + sample.normal.z * side * lateral;
+      const yaw = Math.atan2(sample.tangent.x, sample.tangent.z);
+      stands.push({ x, y: (sample.y || 0) + 1.08, z, yaw, sx: 1, sy: 1 + (index % 3) * 0.2, sz: 1 });
+      for (let row = 0; row < 3; row += 1) {
+        seats.push({
+          x: x + sample.normal.x * side * (row * 0.5 - 0.48),
+          y: (sample.y || 0) + 2.25 + row * 0.33,
+          z: z + sample.normal.z * side * (row * 0.5 - 0.48),
+          yaw,
+          sx: 1,
+          sy: 1,
+          sz: 1,
+        });
+      }
+    }
+    _instanced(group, standGeometry, standMaterial, stands, { name: clay ? 'thunderbowl-clay-grandstands' : 'thunderbowl-concrete-grandstands', cast: true, receive: true });
+    _instanced(group, seatGeometry, seatMaterial, seats, { name: 'thunderbowl-spectator-rows', cast: false });
+
+    const pylonGeometry = rc.geometry(new THREE.BoxGeometry(1.65, 7.5, 1.65));
+    const pylonTopGeometry = rc.geometry(new THREE.BoxGeometry(3.1, 1.6, 0.38));
+    const pylonMaterial = _material(rc, { color: clay ? 0x9b586a : 0x334052, roughness: 0.42, metalness: 0.55 });
+    const pylonGlow = _material(rc, { color: 0xffcf5b, emissive: 0xff5d6e, emissiveIntensity: 1.1, roughness: 0.3, metalness: 0.3 });
+    _registerGlow(env, pylonGlow);
+    const pylon = new THREE.Group();
+    pylon.name = 'thunderbowl-scoring-pylon';
+    const pylonBody = _mesh(pylonGeometry, pylonMaterial, { cast: true });
+    const pylonTop = _mesh(pylonTopGeometry, pylonGlow, { cast: false });
+    pylonTop.position.y = 4.0;
+    pylon.add(pylonBody, pylonTop);
+    const pylonSample = _sampleAtFraction(samples, 0.28);
+    _placeObject(pylon, pylonSample, -(course.trackWidth * 0.5 + 15.5), 0);
+    group.add(pylon);
+
+    if (clay) {
+      const cushionMaterial = _material(rc, { color: 0xb87655, roughness: 0.88, metalness: 0.02 });
+      const cushionGeometry = rc.geometry(new THREE.ConeGeometry(0.72, 1.25, 7));
+      const cushions = [];
+      for (const [index, fraction] of [0.12, 0.18, 0.24, 0.72, 0.78, 0.84].entries()) {
+        const sample = _sampleAtFraction(samples, fraction);
+        const side = index % 2 ? -1 : 1;
+        const lateral = course.trackWidth * 0.5 + 1.8;
+        cushions.push({ x: sample.x + sample.normal.x * side * lateral, y: (sample.y || 0) + 0.62, z: sample.z + sample.normal.z * side * lateral });
+      }
+      _instanced(group, cushionGeometry, cushionMaterial, cushions, { name: 'thunderbowl-clay-cushion', cast: true });
+    }
+  }
+}
+
 /** Returns a clone-safe lighting/fog descriptor for the current chapter. */
 export function getRallyLightingProfile(courseOrId) {
   const id = typeof courseOrId === 'string' ? courseOrId : courseOrId?.id;
@@ -1303,6 +1423,7 @@ export function buildRallyEnvironment({
   // procedural landmark used scaled primitives that read as floating blocks
   // from the top-down camera.
   _buildInfrastructure(group, course, profile, samples, rc, env, decalAtlas);
+  _buildDisciplineVenue(group, course, samples, rc, env);
 
   if (assetLease?.ready) {
     assetLease.ready.then(() => {

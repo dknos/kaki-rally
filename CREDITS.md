@@ -125,3 +125,18 @@ in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 Thanks to the authors and communities whose work makes an open browser game
 like this possible. No ownership of third-party work is claimed.
+
+## Local Wave 1 authored content
+
+The Needle, Comet, and Monarch drift-car presentation, Whisker Yard venue
+dressing, Kaki Thunderbowl stadium/clay dressing, and Skimmer, Atlas, and
+Colossus rally-raid bodies in Wave 1 are project-authored procedural content
+in the existing Three.js presentation code. No manufacturer logo, protected
+livery, or downloaded vehicle/environment mesh was added. Drift judging,
+Thunderbowl variants, and Raid roadbook/stage data are original gameplay data
+in `src/racing/`.
+
+Formula Drift, Bristol Motor Speedway, Dakar, and Wreckfest references were
+used as broad design and engineering references supplied in the task, not as
+runtime assets or copied branding. Any future external asset must be added to
+the inventory and provenance tables before production use.

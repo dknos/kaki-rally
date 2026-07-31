@@ -366,6 +366,29 @@
 .kkr-drift.is-overheated { border-color: rgba(255, 104, 95, .92); box-shadow: var(--race-shadow), inset 0 0 0 1px rgba(255, 104, 95, .2); }
 .kkr-drift.is-overheated i { background: linear-gradient(90deg, #ffbd69, #ff685f 68%, #fff0c6); }
 
+.kkr-drift-judge {
+  position: absolute;
+  bottom: calc(var(--race-safe-bottom) + 151px);
+  left: 50%;
+  width: min(398px, 38vw);
+  padding: 8px 12px 7px;
+  border: 1px solid rgba(120, 232, 244, .36);
+  border-radius: 10px 6px 10px 6px;
+  background: rgba(20, 16, 24, .76);
+  box-shadow: var(--race-shadow), inset 0 1px rgba(255, 255, 255, .07);
+  -webkit-backdrop-filter: blur(11px) saturate(1.12);
+  backdrop-filter: blur(11px) saturate(1.12);
+  opacity: .88;
+  transform: translateX(-50%);
+  transition: border-color .18s ease, opacity .18s ease;
+}
+.kkr-drift-judge.is-active { border-color: rgba(255, 199, 107, .8); opacity: 1; }
+.kkr-drift-judge > div { display: grid; grid-template-columns: repeat(4, 1fr); align-items: baseline; gap: 4px; }
+.kkr-drift-judge span { color: var(--race-paper-dim); font: 800 7px/1 "Geist Mono", monospace; letter-spacing: .12em; }
+.kkr-drift-judge b { color: var(--race-blue); font: 900 13px/1 "Geist Mono", monospace; text-align: right; }
+.kkr-drift-judge small { display: block; margin-top: 6px; overflow: hidden; color: var(--race-gold); font: 850 7px/1 "Geist Mono", monospace; letter-spacing: .08em; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+.kkr-hud[data-race-mode="drift"] .kkr-course h1 { font-size: clamp(22px, 2.1vw, 27px); letter-spacing: -.01em; }
+
 .kkr-controls {
   position: absolute;
   bottom: var(--race-safe-bottom);
@@ -1154,6 +1177,7 @@
   .kkt-controls { display: none; }
   .kkr-map { bottom: calc(var(--race-safe-bottom) + 4px); width: 166px; height: 124px; }
   .kkr-drift { bottom: calc(var(--race-safe-bottom) + 3px); width: 35vw; }
+  .kkr-drift-judge { bottom: calc(var(--race-safe-bottom) + 105px); width: 35vw; }
   .kkr-speed { right: var(--race-safe-right); bottom: calc(var(--race-safe-bottom) + 4px); transform: scale(.86) rotate(-1deg); transform-origin: right bottom; }
   .kkr-health { right: var(--race-safe-right); bottom: calc(var(--race-safe-bottom) + 112px); transform: scale(.88); transform-origin: right bottom; }
   .kkt-style,
@@ -1195,6 +1219,10 @@
   .kkr-map { display: none; }
   .kkr-drift { bottom: var(--race-safe-bottom); left: var(--race-safe-left); width: min(44vw, 210px); padding: 9px 10px 8px; transform: none; }
   .kkr-drift em { display: none; }
+  .kkr-drift-judge { bottom: calc(var(--race-safe-bottom) + 93px); left: var(--race-safe-left); width: min(44vw, 210px); padding: 7px 8px; transform: none; }
+  .kkr-drift-judge span { font-size: 6px; }
+  .kkr-drift-judge b { font-size: 10px; }
+  .kkr-drift-judge small { font-size: 6px; }
   .kkr-speed { display: none; }
   .kkr-health { right: var(--race-safe-right); bottom: calc(var(--race-safe-bottom) + 96px); width: 156px; padding: 9px 10px; }
   .kkr-health em { display: none; }

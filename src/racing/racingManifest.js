@@ -139,6 +139,7 @@ export function rallyAssetIds(
     ];
   }
   if (mode === 'dunes') {
+    const isRallyRaid = ['buggy', 'prototype', 'truck'].includes(monsterVehicleId);
     const bodyAsset = monsterVehicleId === 'cyber'
       ? 'cyberKakiBody'
       : monsterVehicleId === 'tipsy'
@@ -146,7 +147,7 @@ export function rallyAssetIds(
         : 'mightyMeowsterBody';
     return [
       'monsterDecal',
-      bodyAsset,
+      ...(isRallyRaid ? [] : [bodyAsset]),
       'duneEnvironmentKit',
       'duneKeyArt',
       'duneSandDetail',

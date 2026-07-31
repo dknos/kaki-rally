@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kaki Rally / Gauntlet Workbench</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7ead3;
+      --muted: #b6a994;
+      --paper: #1c1719;
+      --paper-2: #282024;
+      --line: #5a4b49;
+      --coral: #ff6d91;
+      --amber: #f4c36d;
+      --aqua: #87e8df;
+      --red: #ff8d72;
+      font-family: "Geist", system-ui, sans-serif;
+      background: #100d12;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 82% 8%, #3a233c 0, transparent 34rem),
+        linear-gradient(135deg, #0f0c12, #211921 55%, #12191b);
+    }
+    main { width: min(1240px, calc(100% - 36px)); margin: 0 auto; padding: 42px 0 72px; }
+    header { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; border-bottom: 1px solid var(--line); padding-bottom: 28px; }
+    .eyebrow { color: var(--amber); font: 700 11px/1.2 "Geist Mono", monospace; letter-spacing: .22em; text-transform: uppercase; }
+    h1 { margin: 10px 0 12px; max-width: 760px; font-size: clamp(34px, 6vw, 76px); line-height: .92; letter-spacing: -.06em; }
+    h1 em { color: var(--coral); font-style: normal; }
+    .lede { max-width: 680px; color: var(--muted); font-size: 16px; line-height: 1.55; }
+    .stamp { min-width: 205px; padding: 14px 16px; border: 1px solid var(--line); background: #171218cc; font: 700 12px/1.55 "Geist Mono", monospace; text-transform: uppercase; }
+    .stamp strong { display: block; color: var(--aqua); font-size: 18px; }
+    section { margin-top: 30px; }
+    .section-head { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 14px; }
+    h2 { margin: 0; font-size: 20px; letter-spacing: -.02em; }
+    .section-head span { color: var(--muted); font: 11px "Geist Mono", monospace; text-transform: uppercase; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .card { border: 1px solid var(--line); background: linear-gradient(150deg, #2a2027dd, #171318dd); padding: 18px; min-height: 164px; }
+    .card[data-state="active"] { border-color: var(--amber); box-shadow: inset 3px 0 var(--amber); }
+    .card[data-state="pending"] { opacity: .82; }
+    .card[data-state="verified"] { border-color: var(--aqua); box-shadow: inset 3px 0 var(--aqua); }
+    .card h3 { margin: 9px 0 7px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .ref { display: block; margin-top: 12px; color: var(--amber); font: 10px/1.35 "Geist Mono", monospace; }
+    .tag { display: inline-block; color: var(--aqua); font: 700 10px "Geist Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
+    .tag.pending { color: var(--amber); }
+    .tag.blocked { color: var(--red); }
+    .evidence { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    figure { margin: 0; border: 1px solid var(--line); background: var(--paper); }
+    figure img { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+    figcaption { padding: 10px 12px 12px; color: var(--muted); font: 11px/1.35 "Geist Mono", monospace; }
+    .metrics { display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; }
+    .panel { border: 1px solid var(--line); background: var(--paper); padding: 18px; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px 20px; margin: 0; font: 12px/1.3 "Geist Mono", monospace; }
+    dt { color: var(--muted); }
+    dd { margin: 0; color: var(--aqua); text-align: right; }
+    .verdict { border-left: 3px solid var(--coral); padding-left: 14px; color: var(--ink); line-height: 1.55; }
+    .verdict small { display: block; margin-top: 9px; color: var(--muted); font: 11px/1.4 "Geist Mono", monospace; }
+    footer { margin-top: 36px; color: var(--muted); font: 11px/1.5 "Geist Mono", monospace; }
+    @media (max-width: 840px) {
+      main { width: min(100% - 24px, 640px); padding-top: 26px; }
+      header { grid-template-columns: 1fr; }
+      .stamp { width: 100%; }
+      .cards, .evidence, .metrics { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .cards, .evidence, .metrics { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">Kaki Motor Club / local gauntlet workbench</div>
+        <h1>Make the road feel <em>earned.</em></h1>
+        <p class="lede">A candid implementation log for the Kaki Rally expansion. This page is intentionally outside the production graph: it records the running artifact, the evidence that supports it, and the sharpest remaining gap.</p>
+      </div>
+      <div class="stamp"><span>Active wave</span><strong id="stamp-wave">Wave 1 / integrated</strong><span id="stamp-time">Loading timestamp…</span></div>
+    </header>
+
+    <section>
+      <div class="section-head"><h2>Workstreams</h2><span>ownership / quality bar / verdict</span></div>
+      <div class="cards">
+        <article class="card" data-state="verified"><span class="tag">Verified / shared contract</span><h3>Drift Attack 2.0</h3><p>Three measured cars, three Whisker Yard layouts, physical lateral slip, and judged line/angle/speed/style feedback in the existing session.</p><span class="ref">Bar: Formula Drift line/angle/style + drift onboard readability</span></article>
+        <article class="card" data-state="verified"><span class="tag">Verified / stock owner</span><h3>Thunderbowl</h3><p>Concrete and clay variants share the oval contract while changing bank, grip, drag, groove, AI grid, and presentation. Live 16-car pack proof captured.</p><span class="ref">Bar: Bristol banking/pack behavior + dirt short-track attitude</span></article>
+        <article class="card" data-state="verified"><span class="tag">Verified / raid owner</span><h3>Kaki Rally Raid</h3><p>Four authored stages, three vehicle archetypes, roadbook assists, waypoint/speed penalties, service choice, and cumulative expedition state on Dune terrain.</p><span class="ref">Bar: Dakar roadbook/navigation + rally-raid onboard movement</span></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Current artifact</h2><span>focused live probes after Wave 1</span></div>
+      <div class="evidence">
+        <figure><a href="qa/targeted/webgl-drift/webgl-drift.png"><img src="qa/targeted/webgl-drift/webgl-drift.png" alt="Drift Attack Whisker Yard judged run"></a><figcaption>Drift / Monarch · Wall Run · judged HUD</figcaption></figure>
+        <figure><a href="qa/webgl-stock-thunderbowl-discipline-direct.png"><img src="qa/webgl-stock-thunderbowl-discipline-direct.png" alt="Thunderbowl dirt pack race"></a><figcaption>Thunderbowl / clay · banked 16-car pack</figcaption></figure>
+        <figure><a href="qa/webgl-dunes-rally-raid-direct.png"><img src="qa/webgl-dunes-rally-raid-direct.png" alt="Kaki Rally Raid roadbook stage"></a><figcaption>Raid / Prologue · Navigator roadbook</figcaption></figure>
+        <figure><a href="qa/targeted/webgl-stock/webgl-stock-pack.png"><img src="qa/targeted/webgl-stock/webgl-stock-pack.png" alt="Thunderbowl pack race browser capture"></a><figcaption>Browser matrix / live pack and stadium proof</figcaption></figure>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Baseline reference packet</h2><span>captured from the current checkout</span></div>
+      <div class="evidence">
+        <figure><img src="qa/webgl-drift.png" alt="Current Drift Attack gameplay"><figcaption>Drift Attack / current charged-drift baseline</figcaption></figure>
+        <figure><img src="qa/webgl-stock.png" alt="Current Kaki Stock Cup gameplay"><figcaption>Stock Cup / current oval baseline</figcaption></figure>
+        <figure><img src="qa/webgl-dunes-sunspine.png" alt="Current Dune Run gameplay"><figcaption>Dune Run / current terrain baseline</figcaption></figure>
+        <figure><img src="qa/webgl-circuit.png" alt="Current Off-Road GP gameplay"><figcaption>Off-Road GP / shared presentation baseline</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="metrics">
+      <div class="panel"><div class="section-head"><h2>Engineering baseline</h2><span>npm test / 2026-07-30</span></div><dl>
+        <dt>Renderer unit tests</dt><dd>30 / 30 pass</dd>
+        <dt>Racing smoke</dt><dd>pass + Raid</dd>
+        <dt>Visual/lifecycle smoke</dt><dd>30 configs / 585 + 88</dd>
+        <dt>Browser matrix</dt><dd>WebGL + WebGPU pass</dd>
+        <dt>Raid live probe</dt><dd>start / penalty / finish pass</dd>
+        <dt>Save/boundaries</dt><dd>pass / 116 modules</dd>
+        <dt>Assets</dt><dd>123 files / 62.48 MiB</dd>
+        <dt>Asset provenance</dt><dd>local / authored Wave 1</dd>
+        <dt>Architecture</dt><dd>one scene / loop / renderer</dd>
+        <dt>SwiftShader probe</dt><dd>168 draws / 787k tris</dd>
+        <dt>Physical FPS claim</dt><dd>baseline only</dd>
+      </dl></div>
+      <div class="panel"><div class="section-head"><h2>Independent verdict</h2><span>fresh integration critique</span></div><p class="verdict">Wave 1 clears its functional bar: Drift now communicates why a run scores, Thunderbowl banking reaches contact and telemetry, and Rally Raid is playable through a live roadbook/penalty/service loop. The final combined browser matrix also passes both renderer paths. The largest remaining gap is authored spectacle and human feel: the new venue dressing and procedural Raid bodies are credible but still lighter than a finished commercial showcase, and SwiftShader cannot answer native performance or controller feel.<small>Evidence reviewed: final WebGL/WebGPU matrix, focused browser pixels, direct Raid finish state, deterministic smoke, visual/lifecycle suites, and source/contract inspection. This is a verified implementation wave, not a claim of final AAA parity.</small></p></div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Evidence scorecard</h2><span>lead rating / 5 · evidence-bounded</span></div>
+      <div class="panel"><dl>
+        <dt>Drift handling feedback</dt><dd>4 / 5 · judge + slip proof</dd>
+        <dt>Thunderbowl discipline</dt><dd>4 / 5 · bank + surface proof</dd>
+        <dt>Raid navigation</dt><dd>4 / 5 · roadbook + penalty proof</dd>
+        <dt>Visual cohesion</dt><dd>3 / 5 · strong Kaki, lighter spectacle</dd>
+        <dt>Engineering confidence</dt><dd>4 / 5 · full gates pass</dd>
+      </dl></div>
+    </section>
+
+    <footer>Reference links are local captures only. Reference media is not shipped as runtime content. The workbench timestamp is generated locally by this document. Native RTX 5080 expansion rotation, physical controller review, and final human art/audio review remain open gates.</footer>
+  </main>
+  <script>
+    const now = new Date();
+    document.querySelector('#stamp-time').textContent = now.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+  </script>
+</body>
+</html>

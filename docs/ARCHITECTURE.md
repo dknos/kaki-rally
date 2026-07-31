@@ -280,3 +280,21 @@ Catastrophe tree. `tools/smoke-catastrophe-isolation.mjs` independently checks
 production racing imports, normal navigation, manifests, and request paths for
 Catastrophe/Rapier leakage. Asset checks likewise reject absolute or
 out-of-repository paths and stale or case-mismatched references.
+
+## Production discipline extensions
+
+Wave 1 keeps the existing ownership boundaries. Drift Attack data and judging
+live in `src/racing/drift/driftAttack.js`; the normal racing session remains
+the owner of input, fixed-step state, camera, ghost, HUD, and cleanup. Stock
+banking is authored by `sampleTrackBank()` in `src/racing/tracks.js` and is
+consumed by both `TrackMeshBuilder` and the racing contact sample, so the
+visible oval and tire contact do not disagree. Concrete and clay are variants
+of the existing Stock contract rather than a second oval engine.
+
+Kaki Rally Raid extends the Dune ownership boundary. `duneRallyRaid.js`
+contains stage, vehicle, roadbook, penalty, and expedition data; `duneMode.js`
+continues to own the one Dune scene, 120 Hz vehicle loop, shared heightfield,
+deformation, camera, records, Workshop lifecycle, and teardown. Procedural
+raid bodies are built through the existing vehicle presentation path. The new
+progress key is versioned and included in the existing export/import/reset
+allow-list; KDT1/KDT2/KDT3 and prior production saves remain unchanged.

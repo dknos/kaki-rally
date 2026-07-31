@@ -11,6 +11,8 @@ import {
   RACE_COURSES,
   RACE_COURSE_ORDER,
   RACE_MODES,
+  STOCK_VARIANT_ORDER,
+  STOCK_VARIANTS,
 } from '../racing/tracks.js';
 import {
   TRIALS_TRACK_ORDER,
@@ -21,6 +23,18 @@ import {
   DUNE_EVENTS,
   DUNE_EVENT_ORDER,
 } from '../racing/dunes/duneEvents.js';
+import {
+  RALLY_RAID_VEHICLES,
+  RALLY_RAID_VEHICLE_ORDER,
+  ROADBOOK_ASSISTS,
+  ROADBOOK_ASSIST_ORDER,
+} from '../racing/dunes/duneRallyRaid.js';
+import {
+  DRIFT_CAR_ORDER,
+  DRIFT_CAR_PROFILES,
+  DRIFT_LAYOUT_ORDER,
+  DRIFT_LAYOUTS,
+} from '../racing/drift/driftAttack.js';
 import { rendererPreferenceReloadUrl } from '../rendering/rendererSettings.js';
 import {
   exportRallySave,
@@ -49,16 +63,16 @@ const MODE_DATA = Object.freeze({
     title: 'Drift Attack',
     short: 'Drift Attack',
     art: 'assets/sprites/chapters/chapter_twilight.webp',
-    description: 'Hold the slide, charge the tires, and release mini-turbo without cooking the line.',
-    mechanic: '90 seconds · course high scores · unique grip',
+    description: 'Drive the Whisker Yard, place the car on the line, and earn a judgeable run through angle, speed, and style.',
+    mechanic: '90 seconds · 3 cars · 3 authored layouts · line / angle / style',
   }),
   stock: Object.freeze({
     eyebrow: 'RACE · OVAL PACK',
     title: 'Kaki Stock Cup',
     short: 'Stock Cup',
     art: 'assets/sprites/chapters/chapter_cinder.webp',
-    description: 'Draft through a physical pack, trade paint, manage smoke, and reach the repair lane.',
-    mechanic: 'Eight laps · drafting · up to 16 cars',
+    description: 'Draft through the steeply banked Thunderbowl, trade paint cleanly, and choose concrete grip or loose clay.',
+    mechanic: 'Eight laps · concrete / clay · drafting · up to 16 cars',
   }),
   draw: Object.freeze({
     eyebrow: 'COURSE WORKSHOP · KDT1 / KDT2 / KDT3',
@@ -77,12 +91,12 @@ const MODE_DATA = Object.freeze({
     mechanic: 'Smashdown · Freestyle · Free Ride',
   }),
   dunes: Object.freeze({
-    eyebrow: 'DEFORMABLE SAND · MONSTER RALLY',
-    title: 'Kaki Dune Run',
-    short: 'Dune Run',
+    eyebrow: 'DEFORMABLE SAND · RALLY RAID',
+    title: 'Kaki Rally Raid',
+    short: 'Rally Raid',
     art: 'assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp',
-    description: 'Climb directional dune chains, carve persistent four-wheel ruts, throw swept rooster tails, and chase deterministic ghosts.',
-    mechanic: 'Three timed events · freeride · deformable sand',
+    description: 'Read the roadbook across authored dunes, wadis, hardpack, salt, and ridge stages while the original Dune Run events remain ready for freeride.',
+    mechanic: 'Four raid stages · CAP calls · penalties · deformable sand',
   }),
   trials: Object.freeze({
     eyebrow: 'SIDE TRIAL · KTR1 COURSE WORKSHOP',
@@ -327,17 +341,27 @@ export class RallyMenu {
   renderMode() {
     const data = MODE_DATA[this.selectedMode];
     const course = RACE_COURSES[this.settings.lastCourse] || RACE_COURSES.forest;
+    const driftLayout = DRIFT_LAYOUTS[this.settings.driftLayout] || DRIFT_LAYOUTS.judged;
     const art = this.host.querySelector('.rally-menu-art');
     art.style.backgroundImage = `url("${data.art}")`;
     art.dataset.mode = this.selectedMode;
     const path = trackPath(
       this.selectedMode === 'dunes'
         ? DUNE_EVENTS[this.settings.duneEvent]?.route
+        : this.selectedMode === 'drift'
+          ? driftLayout.points
         : course.points,
     );
     const availability = this.availability();
     let setup = '';
-    if (['circuit', 'drift', 'stock'].includes(this.selectedMode)) {
+    if (this.selectedMode === 'drift') {
+      setup = `
+        ${selectMarkup('driftLayout', 'Layout', DRIFT_LAYOUT_ORDER.map((id) => ({ value: id, label: DRIFT_LAYOUTS[id].name })), this.settings.driftLayout)}
+        ${selectMarkup('driftCar', 'Drift car', DRIFT_CAR_ORDER.map((id) => ({ value: id, label: `${DRIFT_CAR_PROFILES[id].name} · ${DRIFT_CAR_PROFILES[id].archetype}` })), this.settings.driftCar)}
+        <div class="rally-workshop-note"><strong>JUDGED RUN</strong><span>Line, angle, speed, and style are scored at the zones shown in the venue.</span></div>
+        ${this.driverSelect()}
+        ${this.cameraSelect()}`;
+    } else if (['circuit', 'stock'].includes(this.selectedMode)) {
       const mode = RACE_MODES[this.selectedMode];
       setup = `
         ${selectMarkup('course', 'Venue', RACE_COURSE_ORDER.map((id) => ({ value: id, label: RACE_COURSES[id].name })), this.settings.lastCourse)}
@@ -345,6 +369,7 @@ export class RallyMenu {
           const value = mode.minCars + index;
           return { value: String(value), label: `${value} cars` };
         }), String(this.settings.carCounts[this.selectedMode]))}
+        ${this.selectedMode === 'stock' ? selectMarkup('stockVariant', 'Surface', STOCK_VARIANT_ORDER.map((id) => ({ value: id, label: STOCK_VARIANTS[id].name })), this.settings.stockVariant) : ''}
         ${this.driverSelect()}
         ${this.cameraSelect()}`;
     } else if (this.selectedMode === 'draw') {
@@ -367,13 +392,22 @@ export class RallyMenu {
       setup = `
         ${selectMarkup('duneEvent', 'Event', DUNE_EVENT_ORDER.map((id) => ({
           value: id,
-          label: DUNE_EVENTS[id].name,
+          label: DUNE_EVENTS[id].isRallyRaid ? `RAID · ${DUNE_EVENTS[id].name}` : DUNE_EVENTS[id].name,
         })), this.settings.duneEvent)}
-        ${selectMarkup('duneVehicle', 'Monster', [
+        ${selectMarkup('duneVehicle', 'Vehicle', [
           { value: 'meowster', label: 'Mighty Meowster' },
           { value: 'cyber', label: 'Cyber Kaki' },
           { value: 'tipsy', label: 'Tipsy Tumbler' },
+          ...RALLY_RAID_VEHICLE_ORDER.map((id) => ({ value: id, label: `${RALLY_RAID_VEHICLES[id].name} · ${RALLY_RAID_VEHICLES[id].drive}` })),
         ], this.settings.duneVehicle)}
+        ${selectMarkup('duneNavigationAssist', 'Roadbook', ROADBOOK_ASSIST_ORDER.map((id) => ({
+          value: id,
+          label: `${ROADBOOK_ASSISTS[id].name} · ${ROADBOOK_ASSISTS[id].description}`,
+        })), this.settings.duneNavigationAssist)}
+        ${DUNE_EVENTS[this.settings.duneEvent]?.isRallyRaid ? selectMarkup('duneService', 'Service plan', [
+          { value: 'push', label: 'Push on · no service time' },
+          { value: 'repair', label: 'Service · +18 seconds / reset wear' },
+        ], this.settings.duneService) : ''}
         ${selectMarkup('duneDifficulty', 'Driving', [
           { value: 'relaxed', label: 'Relaxed assists' },
           { value: 'standard', label: 'Standard' },
@@ -422,7 +456,7 @@ export class RallyMenu {
         <p>${escapeHtml(data.description)}</p>
         <strong>${escapeHtml(data.mechanic)}</strong>
       </div>
-      <svg class="rally-route-signature" viewBox="0 0 300 128" role="img" aria-label="${escapeHtml(this.selectedMode === 'dunes' ? DUNE_EVENTS[this.settings.duneEvent].name : course.name)} route diagram">
+      <svg class="rally-route-signature" viewBox="0 0 300 128" role="img" aria-label="${escapeHtml(this.selectedMode === 'dunes' ? DUNE_EVENTS[this.settings.duneEvent].name : this.selectedMode === 'drift' ? driftLayout.name : course.name)} route diagram">
         <path class="route-shadow" d="${path}"></path><path d="${path}"></path><circle cx="0" cy="0" r="4"></circle>
       </svg>
       <form class="rally-setup" data-mode="${escapeHtml(this.selectedMode)}">${setup}${action}</form>`;
@@ -526,6 +560,10 @@ export class RallyMenu {
       this.settings = writeRallySettings({ ...this.settings, duneEvent: value });
       this.renderMode();
       return;
+    } else if (target.name === 'driftLayout' || target.name === 'driftCar' || target.name === 'stockVariant') {
+      this.settings = writeRallySettings({ ...this.settings, [target.name]: value });
+      this.renderMode();
+      return;
     } else {
       const numeric = ['masterVolume', 'musicVolume', 'sfxVolume', 'ambientVolume', 'controllerDeadzone', 'duneCameraShake'].includes(target.name);
       this.settings = writeRallySettings({ ...this.settings, [target.name]: numeric ? Number(value) : value });
@@ -546,8 +584,29 @@ export class RallyMenu {
       playerAvatarId: this.settings.lastDriver,
       cameraMode: this.settings.camera,
     };
-    if (['circuit', 'drift', 'stock'].includes(mode)) {
+    if (mode === 'drift') {
+      return {
+        courseId: 'twilight',
+        options: {
+          ...common,
+          carCount: this.settings.carCounts.drift,
+          driftLayout: this.settings.driftLayout,
+          driftCar: this.settings.driftCar,
+        },
+      };
+    }
+    if (mode === 'circuit') {
       return { courseId: this.settings.lastCourse, options: { ...common, carCount: this.settings.carCounts[mode] } };
+    }
+    if (mode === 'stock') {
+      return {
+        courseId: this.settings.lastCourse,
+        options: {
+          ...common,
+          carCount: this.settings.carCounts.stock,
+          stockVariant: this.settings.stockVariant,
+        },
+      };
     }
     if (mode === 'monster') {
       return {
@@ -569,6 +628,8 @@ export class RallyMenu {
           carCount: 1,
           duneEvent: this.settings.duneEvent,
           duneVehicle: this.settings.duneVehicle,
+          duneNavigationAssist: this.settings.duneNavigationAssist,
+          duneService: this.settings.duneService,
           duneDifficulty: this.settings.duneDifficulty,
           duneDeformation: this.settings.duneDeformation,
           duneParticles: this.settings.duneParticles,

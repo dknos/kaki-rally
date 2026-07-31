@@ -25,6 +25,7 @@ import {
   attachCyberTruckModel,
   attachMightyMeowsterModel,
   attachTipsyTumblerModel,
+  buildRallyRaidVehicle,
   buildGhostVehicle,
   updateVehicleAnimation,
   updateVehicleWheelPresentation,
@@ -101,6 +102,17 @@ import {
   getDuneVehicleTelemetry,
   stepDuneVehicle,
 } from './duneVehiclePhysics.js';
+import {
+  getRallyRaidVehicle,
+  RALLY_RAID_EXPEDITION,
+  ROADBOOK_ASSISTS,
+  roadbookSnapshot,
+  createRoadbookState,
+  stepRoadbook,
+  finishRoadbook,
+  readRallyRaidProgress,
+  recordRallyRaidStage,
+} from './duneRallyRaid.js';
 
 const DUNE_CX = 720;
 const DUNE_CZ = -520;
@@ -109,6 +121,11 @@ const FIXED_STEP = 1 / 120;
 const MAX_FIXED_STEPS = 8;
 const _cameraTarget = new THREE.Vector3(DUNE_CX, 0, DUNE_CZ);
 const _wind = { x: 0, z: 0 };
+const RALLY_RAID_VEHICLE_IDS = Object.freeze(['buggy', 'prototype', 'truck']);
+
+function isRallyRaidVehicle(id) {
+  return RALLY_RAID_VEHICLE_IDS.includes(id);
+}
 
 function safeSfx(name) {
   try { sfx?.[name]?.(); } catch (_) {}
@@ -191,6 +208,23 @@ function restoreHero(session, scene) {
 
 function buildPlayerVisual(session, hero) {
   const decalTexture = session.assetLease?.textures?.monsterDecal || null;
+  if (session.isRallyRaid) {
+    const raidVehicle = getRallyRaidVehicle(session.vehicleId);
+    const visual = buildRallyRaidVehicle({
+      driver: hero,
+      owned: session.owned,
+      decalTexture,
+      color: raidVehicle.color,
+      accent: raidVehicle.accent,
+      rallyRaidVehicleId: session.vehicleId,
+      isPlayer: true,
+    });
+    visual.root.name = `KakiRallyRaid-${session.vehicleId}`;
+    visual.root.userData.mode = 'rally-raid';
+    visual.bodyBaseY = visual.bodyPivot.position.y;
+    session.root.add(visual.root);
+    return visual;
+  }
   const options = {
     driver: hero,
     owned: session.owned,
@@ -212,6 +246,7 @@ function buildPlayerVisual(session, hero) {
 }
 
 function attachPlayerBody(session) {
+  if (session.isRallyRaid) return true;
   const bodyAssetId = session.vehicleId === 'cyber'
     ? 'cyberKakiBody'
     : session.vehicleId === 'tipsy'
@@ -266,7 +301,7 @@ function mountHud(session) {
   root.style.setProperty('--kkd-accent', hex(session.event.palette.accent));
   root.innerHTML = `
     <div class="kkd-topbar">
-      <div><span>KAKI DUNE RUN · ${session.event.subtitle}</span><strong>${session.event.name}</strong><em>${session.vehicle.name}</em></div>
+      <div><span>${session.isRallyRaid ? 'KAKI RALLY RAID' : 'KAKI DUNE RUN'} · ${session.event.subtitle}</span><strong>${session.event.name}</strong><em>${session.vehicle.name}</em></div>
       <button type="button" data-action="menu">MENU</button>
     </div>
     <div class="kkd-route">
@@ -279,6 +314,13 @@ function mountHud(session) {
     <div class="kkd-speed"><strong>0</strong><span>KM/H</span><em>DUNE SAND</em></div>
     <div class="kkd-zoomies"><span>ZOOMIES HEAT</span><div><i></i></div><strong>READY</strong></div>
     <div class="kkd-deformation"><span>SAND STATE</span><strong>4 CONTACTS</strong><em>RUTS 0 CM · PACK 0%</em></div>
+    ${session.isRallyRaid ? `
+      <div class="kkd-roadbook" aria-label="Rally Raid roadbook">
+        <div class="kkd-roadbook-head"><span>ROADBOOK · <b data-role="roadbook-assist">${ROADBOOK_ASSISTS[session.navigationAssist]?.name || 'RALLY'}</b></span><strong data-role="roadbook-distance">— M</strong></div>
+        <div class="kkd-roadbook-call"><b data-role="roadbook-symbol">CAP</b><strong data-role="roadbook-instruction">READ AHEAD</strong></div>
+        <div class="kkd-roadbook-meta"><span data-role="roadbook-cap">CAP —</span><span data-role="roadbook-hazard">HAZARD —</span><span data-role="roadbook-waypoint">WP 0 / 0</span></div>
+        <div class="kkd-roadbook-status" data-role="roadbook-status">READ AHEAD</div>
+      </div>` : ''}
     <div class="kkr-callout kkd-callout"></div>
     <div class="kkd-countdown"></div>
     <div class="kkd-controls">W/S GAS · BRAKE · A/D STEER · SPACE POWERSLIDE · SHIFT ZOOMIES / AIR TRIM · R RECOVER</div>
@@ -300,8 +342,8 @@ function mountHud(session) {
       : ''}
     <div class="kkd-finish" hidden>
       <section>
-        <span>DUNE RUN COMPLETE</span>
-        <h2>PAWS IN THE SAND!</h2>
+        <span>${session.isRallyRaid ? 'RALLY RAID SELECTIVE COMPLETE' : 'DUNE RUN COMPLETE'}</span>
+        <h2>${session.isRallyRaid ? 'ROADBOOK CLOSED!' : 'PAWS IN THE SAND!'}</h2>
         <strong data-role="medal">FINISH</strong>
         <p data-role="result"></p>
         <em data-role="record"></em>
@@ -336,6 +378,15 @@ function mountHud(session) {
     heatLabel: root.querySelector('.kkd-zoomies strong'),
     sandPrimary: root.querySelector('.kkd-deformation strong'),
     sandSecondary: root.querySelector('.kkd-deformation em'),
+    roadbook: root.querySelector('.kkd-roadbook'),
+    roadbookAssist: root.querySelector('[data-role="roadbook-assist"]'),
+    roadbookDistance: root.querySelector('[data-role="roadbook-distance"]'),
+    roadbookSymbol: root.querySelector('[data-role="roadbook-symbol"]'),
+    roadbookInstruction: root.querySelector('[data-role="roadbook-instruction"]'),
+    roadbookCap: root.querySelector('[data-role="roadbook-cap"]'),
+    roadbookHazard: root.querySelector('[data-role="roadbook-hazard"]'),
+    roadbookWaypoint: root.querySelector('[data-role="roadbook-waypoint"]'),
+    roadbookStatus: root.querySelector('[data-role="roadbook-status"]'),
     callout: root.querySelector('.kkd-callout'),
     countdown: root.querySelector('.kkd-countdown'),
     finish: root.querySelector('.kkd-finish'),
@@ -349,6 +400,19 @@ function setCallout(session, text, duration = 1.2, tone = '') {
   session.callout = text;
   session.calloutTime = duration;
   session.calloutTone = tone;
+}
+
+function applyRoadbookEvents(session, events = []) {
+  if (!session.isRallyRaid || !events.length) return;
+  for (const event of events) {
+    if (event.type === 'penalty' && event.seconds > 0) {
+      session.race.penaltySeconds = (session.race.penaltySeconds || 0) + event.seconds;
+      session.recordRun.elapsed += event.seconds;
+      setCallout(session, `${event.reason === 'speed-control' ? 'SPEED CONTROL' : 'WAYPOINT'} +${event.seconds}s`, 1.4, 'penalty');
+    } else if (event.type === 'validated' && event.note) {
+      setCallout(session, `${event.note.symbol} · ${event.note.instruction}`, 1.15, 'roadbook');
+    }
+  }
 }
 
 function readControls(session) {
@@ -462,10 +526,35 @@ function recover(session, automatic = false) {
 
 function finishRun(session) {
   if (!session || session.phase === 'finished') return session?.result || null;
+  if (session.isRallyRaid) {
+    finishRoadbook(session.roadbook);
+    applyRoadbookEvents(session, session.roadbook.events);
+  }
   session.race.finished = true;
   session.race.finishTime = session.recordRun.elapsed;
   session.recordRun.score = Math.max(session.recordRun.score, Math.round(session.race.score));
   session.result = finishDuneRecordRun(session.recordRun, session.event);
+  if (session.isRallyRaid) {
+    session.expedition = recordRallyRaidStage({
+      progress: session.expedition,
+      stageId: session.event.id,
+      vehicleId: session.vehicleId,
+      stageTime: session.recordRun.elapsed,
+      recoveries: session.race.recoveryCount,
+      serviceId: session.serviceChoice,
+    });
+    session.result = {
+      ...session.result,
+      expedition: {
+        completedStages: session.expedition.completedStages.length,
+        totalStages: RALLY_RAID_EXPEDITION.stages.length,
+        cumulativeTime: session.expedition.cumulativeTime,
+        service: session.serviceChoice,
+        serviceSeconds: session.expedition.serviceSeconds,
+        damage: session.expedition.damage,
+      },
+    };
+  }
   session.phase = 'finished';
   session.kart.vx = 0;
   session.kart.vz = 0;
@@ -513,6 +602,12 @@ function fixedStep(session, controls, dt) {
     playRacingImpact({ strength: clamp(events.landingSpeed / 20, 0.16, 1), kind: 'landing' });
   }
   stepDuneRace(session.race, session.event, session.routeRuntime, session.kart, dt);
+  if (session.isRallyRaid) {
+    applyRoadbookEvents(
+      session,
+      stepRoadbook(session.roadbook, session.event, session.routeRuntime, session.kart, session.race, dt),
+    );
+  }
   if (session.race.checkpointCount !== previousCheckpointCount) {
     setCallout(session, session.race.lastEvent, 1.1, 'checkpoint');
     safeSfx('levelUp');
@@ -580,6 +675,19 @@ function updateHud(session) {
   hud.heatLabel.textContent = kart.overheated ? 'COOLING' : kart.boostTime > 0 ? 'CHURNING' : 'READY';
   hud.sandPrimary.textContent = `${telemetry.groundedWheels} CONTACT${telemetry.groundedWheels === 1 ? '' : 'S'}`;
   hud.sandSecondary.textContent = `RUT ${(telemetry.sinkage * 100).toFixed(1)} CM · SLIP ${Math.round(telemetry.wheelSlip * 100)}%`;
+  if (session.isRallyRaid && hud.roadbook) {
+    const book = roadbookSnapshot(session.roadbook, race);
+    const next = book?.next;
+    hud.roadbookAssist.textContent = book?.assist?.toUpperCase() || 'RALLY';
+    hud.roadbookDistance.textContent = next ? `${next.distanceMeters} M` : 'FINISH';
+    hud.roadbookSymbol.textContent = next?.symbol || 'FIN';
+    hud.roadbookInstruction.textContent = next?.instruction || 'EXPEDITION COMPLETE';
+    hud.roadbookCap.textContent = next ? `CAP ${String(next.cap).padStart(3, '0')}` : 'CAP —';
+    hud.roadbookHazard.textContent = next ? `HAZARD ${(next.hazard || 'NONE').replaceAll('-', ' ')}` : 'HAZARD —';
+    hud.roadbookWaypoint.textContent = `WP ${book?.validated || 0} / ${book?.total || 0} · +${book?.penaltySeconds || 0}s`;
+    hud.roadbookStatus.textContent = book?.status || 'READ AHEAD';
+    hud.roadbook.dataset.status = book?.missed > 0 ? 'penalty' : book?.activeSpeedZone ? 'speed' : 'clear';
+  }
   hud.callout.textContent = session.calloutTime > 0 ? session.callout : '';
   hud.callout.dataset.tone = session.calloutTone || '';
   hud.countdown.textContent = session.phase === 'countdown'
@@ -590,8 +698,12 @@ function updateHud(session) {
     hud.medal.textContent = session.result.medal;
     hud.result.textContent = session.event.routeType === 'freeride'
       ? `${session.result.score.toLocaleString()} STYLE · ${session.race.recoveryCount} RECOVERIES`
-      : `${formatRaceTime(session.result.time)} · ${session.race.checkpointCount} GATES`;
-    hud.record.textContent = session.result.improved ? 'NEW PERSONAL BEST · GHOST SAVED' : 'RUN SAVED · PERSONAL BEST HOLDS';
+      : session.isRallyRaid
+        ? `${formatRaceTime(session.result.time)} · ${session.roadbook?.validated || 0}/${session.roadbook?.notes?.length || 0} WP · +${session.race.penaltySeconds || 0}s`
+        : `${formatRaceTime(session.result.time)} · ${session.race.checkpointCount} GATES`;
+    hud.record.textContent = session.isRallyRaid && session.result.expedition
+      ? `EXPEDITION ${session.result.expedition.completedStages}/${session.result.expedition.totalStages} · CUM ${formatRaceTime(session.result.expedition.cumulativeTime)} · ${session.result.expedition.service === 'repair' ? 'SERVICE +18s' : 'PUSH ON'}`
+      : session.result.improved ? 'NEW PERSONAL BEST · GHOST SAVED' : 'RUN SAVED · PERSONAL BEST HOLDS';
   }
   hud.root.dataset.phase = session.phase;
   hud.root.dataset.event = session.event.id;
@@ -727,15 +839,17 @@ export async function enterDuneMode(scene, options = {}) {
   const event = options.customCourse?.isDrawTrack && options.customCourse?.drawThemeId === 'dune'
     ? createDrawDuneEvent(options.customCourse, options.customTrack)
     : getDuneEvent(options.duneEvent || options.eventId || 'whiskerwind');
-  const vehicleId = ['meowster', 'cyber', 'tipsy'].includes(options.duneVehicle || options.monsterVehicle)
-    ? (options.duneVehicle || options.monsterVehicle)
+  const requestedVehicleId = options.duneVehicle || options.monsterVehicle;
+  const vehicleId = ['meowster', 'cyber', 'tipsy', ...RALLY_RAID_VEHICLE_IDS].includes(requestedVehicleId)
+    ? requestedVehicleId
     : 'meowster';
   const vehicleProfile = getDuneVehicleProfile(vehicleId);
+  const isRallyRaid = !!event.isRallyRaid;
   const quality = resolveQuality(options);
   const hero = state.hero.mesh;
   const owned = { geometries: new Set(), materials: new Set(), textures: new Set() };
   const root = new THREE.Group();
-  root.name = `kaki-dunes-${event.id}-${vehicleId}`;
+  root.name = `${isRallyRaid ? 'kaki-rally-raid' : 'kaki-dunes'}-${event.id}-${vehicleId}`;
   root.position.set(DUNE_CX, 0, DUNE_CZ);
   scene.add(root);
   const session = {
@@ -759,6 +873,14 @@ export async function enterDuneMode(scene, options = {}) {
     playerAvatarId: options.playerAvatarId || 'kitty',
     vehicleId,
     duneVehicleId: vehicleId,
+    isRallyRaid,
+    raidVehicle: isRallyRaidVehicle(vehicleId) ? getRallyRaidVehicle(vehicleId) : null,
+    navigationAssist: ROADBOOK_ASSISTS[options.duneNavigationAssist]
+      ? options.duneNavigationAssist
+      : 'rally',
+    serviceChoice: ['push', 'repair'].includes(options.duneService) ? options.duneService : 'push',
+    expedition: isRallyRaid ? readRallyRaidProgress(vehicleId) : null,
+    roadbook: null,
     vehicle: vehicleProfile,
     vehicleProfile,
     duneVehicleProfile: vehicleProfile,
@@ -853,6 +975,9 @@ export async function enterDuneMode(scene, options = {}) {
     session.surfaceField = new DuneSurfaceField(heightfield, session.deformation);
     session.samples = routeSamplesWithTerrain(session.routeRuntime, session.surfaceField);
     session.race = createDuneRaceState(event, session.routeRuntime);
+    session.roadbook = isRallyRaid
+      ? createRoadbookState(event, session.routeRuntime, session.navigationAssist)
+      : null;
     session.checkpoints = session.race.checkpoints;
     const start = session.routeRuntime.samples[0];
     const startY = session.surfaceField.heightAt(start.x, start.z);
@@ -1071,6 +1196,8 @@ export function restartDuneMode(scene, options = {}) {
     duneSteeringAssist: current?.steeringAssist,
     duneRecoveryAssist: current?.recoveryAssist,
     duneCameraShake: current?.cameraShake,
+    duneNavigationAssist: options.duneNavigationAssist || current?.navigationAssist || 'rally',
+    duneService: options.duneService || current?.serviceChoice || 'push',
     playerAvatarId: options.playerAvatarId || current?.playerAvatarId || 'kitty',
     cameraHost: options.cameraHost || current?.cameraHost || {},
     customCourse: options.customCourse || current?.customCourse || null,
@@ -1167,6 +1294,15 @@ export function getDuneSnapshot() {
     },
     vehicleId: session.vehicleId,
     vehicle: { id: session.vehicleId, name: session.vehicle.name },
+    rallyRaid: session.isRallyRaid
+      ? {
+          vehicle: session.raidVehicle,
+          navigationAssist: session.navigationAssist,
+          serviceChoice: session.serviceChoice,
+          expedition: session.expedition,
+          roadbook: roadbookSnapshot(session.roadbook, session.race),
+        }
+      : null,
     speed: session.kart.speed,
     x: session.kart.x,
     y: session.kart.y,
@@ -1181,6 +1317,7 @@ export function getDuneSnapshot() {
       checkpoint: session.race.nextCheckpoint,
       checkpoints: session.race.checkpoints.length,
       score: Math.round(session.race.score),
+      penaltySeconds: session.race.penaltySeconds || 0,
       recoveries: session.race.recoveryCount,
       finished: session.race.finished,
     },
@@ -1204,7 +1341,7 @@ export function getDuneSnapshot() {
       ghostVisible: !!session.ghost?.visual?.root?.visible,
     },
     visual: {
-      authoredBody: !!session.visual?.modelAttached,
+      authoredBody: !!session.visual?.modelAttached || session.isRallyRaid,
       wheels: session.visual?.wheels?.length || 0,
       suspension: session.visual?.suspension?.length || 0,
     },

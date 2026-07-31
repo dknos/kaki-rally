@@ -31,7 +31,6 @@ import {
   impactDamage,
   applyKartDamage,
   repairKart,
-  driftScoreStep,
 } from './physics.js';
 import { getCourseDefinition, nextCourseId, RACE_MODES } from './tracks.js';
 import {
@@ -154,6 +153,16 @@ import { TrackCodeCodec, TrackGallery } from './drawTrackStorage.js';
 import { attachRacingCameraManager } from './cameras/cameraSessionBinding.js';
 import { mapRacingSteerInput } from './racingSteering.js';
 import { getRallyHandlingProfile } from './handlingProfiles.js';
+import {
+  DRIFT_CAR_ORDER,
+  createDriftJudgeState,
+  driftDisciplineSnapshot,
+  finalizeDriftJudge,
+  getDriftCarProfile,
+  getDriftLayout,
+  noteDriftCollision,
+  stepDriftJudge,
+} from './drift/driftAttack.js';
 
 export const RACE_CX = 720;
 export const RACE_CZ = -520;
@@ -185,6 +194,8 @@ const SURFACE_FEEL = Object.freeze({
   void: Object.freeze({ id: 'riftstone', grip: 0.9, drag: 0.08 }),
   cave: Object.freeze({ id: 'quarry', grip: 0.88, drag: 0.11 }),
   kakiland: Object.freeze({ id: 'turf', grip: 1.04, drag: 0.03 }),
+  'stock-concrete': Object.freeze({ id: 'concrete', grip: 1.08, drag: 0.045 }),
+  'stock-clay': Object.freeze({ id: 'clay', grip: 0.78, drag: 0.26 }),
 });
 let _touchDrift = false;
 let _touchHandbrake = false;
@@ -525,6 +536,7 @@ function _buildKart(color, driver, owned, isPlayer, options = {}) {
     isPlayer,
     mode: options.mode || 'circuit',
     variant: options.variant || 0,
+    driftCarId: options.driftCarId || null,
     decalTexture: options.decalTexture || null,
     decalTile: options.decalTile,
     detailTier: options.detailTier || 'showcase',
@@ -641,7 +653,14 @@ function _createRacers(session, hero) {
     : 0;
   for (let i = 0; i < session.carCount; i++) {
     const avatar = i === 0 ? AVATARS.find((entry) => entry.id === session.playerAvatarId) : rivals[(i - 1) % rivals.length];
-    const color = course.kartColors[i % course.kartColors.length];
+    const driftCarId = session.raceMode === 'drift'
+      ? (i === 0 ? session.driftCarId : DRIFT_CAR_ORDER[(i - 1) % DRIFT_CAR_ORDER.length])
+      : null;
+    const driftProfile = driftCarId ? getDriftCarProfile(driftCarId) : null;
+    const color = driftProfile?.color || course.kartColors[i % course.kartColors.length];
+    const carHandlingProfile = session.raceMode === 'drift'
+      ? getRallyHandlingProfile('drift', driftCarId)
+      : session.handlingProfile;
     const renderTier = monsterMode ? 'monster-showcase' : (i <= 1 ? 'showcase' : 'pack');
     const visual = monsterMode
       ? (session.monsterVehicleId === 'cyber'
@@ -652,6 +671,7 @@ function _createRacers(session, hero) {
       : _buildKart(color, drivers[i], owned, i === 0, {
           mode: session.raceMode,
           variant: i,
+          driftCarId,
           decalTexture: decalAtlas,
           decalTile: (i * 5 + RACE_MODES[session.raceMode].carCount) % 16,
           detailTier: renderTier,
@@ -669,22 +689,25 @@ function _createRacers(session, hero) {
     const x = monsterMode ? sample.x : sample.x + sample.normal.x * lateral;
     const z = monsterMode ? sample.z : sample.z + sample.normal.z * lateral;
     const ground = monsterMode ? queryMonsterArenaGround(x, z, session.monsterArenaDefinition) : null;
+    const startHeight = monsterMode
+      ? (ground?.height || 0)
+      : (sample.y || 0) + Math.tan(Number(sample.bank) || 0) * lateral;
     const monsterProfile = session.monsterVehicleProfile;
     const physics = createKartState({
       x,
       z,
-      y: monsterMode ? (ground?.height || 0) : (sample.y || 0),
+      y: startHeight,
       yaw: monsterMode ? sample.yaw : Math.atan2(sample.tangent.x, sample.tangent.z),
       nearestIndex: index,
       unwrappedIndex: monsterMode ? 0 : testStartIndex - back,
       previousX: x,
       previousZ: z,
-      previousY: monsterMode ? (ground?.height || 0) : (sample.y || 0),
-      groundHeight: monsterMode ? (ground?.height || 0) : (sample.y || 0),
+      previousY: startHeight,
+      groundHeight: startHeight,
       groundPitch: monsterMode ? (ground?.pitch || 0) : (sample.groundPitch || 0),
-      groundRoll: ground?.roll || 0,
+      groundRoll: monsterMode ? (ground?.roll || 0) : (sample.bank || 0),
       collisionRadius: monsterMode ? monsterProfile.collisionRadius : 1.05,
-      mass: monsterMode ? monsterProfile.mass : 1,
+      mass: monsterMode ? monsterProfile.mass : (driftProfile?.tuning.mass || 1),
       stuntPitch: 0,
       stuntPitchVelocity: 0,
       stuntRoll: 0,
@@ -716,6 +739,8 @@ function _createRacers(session, hero) {
       avatarId: avatar?.id || 'kitty',
       renderTier,
       gridIndex: i,
+      driftCarId,
+      handlingProfile: carHandlingProfile,
       physics,
       visual,
       aiSkill: Math.min(0.98, 0.78 + (i % 6) * 0.034),
@@ -848,9 +873,17 @@ function _featureGroundAt(session, carPhysics, x, z, y, preferredIndex, scratch)
   result.shortcut = shortcut;
   result.onRoad = onRoad;
   result.featureContact = featureContact;
+  const lateralOffset = roadSample
+    ? (x - roadSample.x) * (roadSample.normal?.x || 0)
+      + (z - roadSample.z) * (roadSample.normal?.z || 0)
+    : 0;
+  result.lateralOffset = lateralOffset;
+  const bankHeight = roadSample && onRoad && !shortcut
+    ? Math.tan(Number(roadSample.bank) || 0) * lateralOffset
+    : 0;
   result.height = ramp?.hasSurface
     ? ramp.groundHeight
-    : onRoad && !shortcut ? (roadSample?.y || 0) : 0;
+    : onRoad && !shortcut ? (roadSample?.y || 0) + bankHeight : 0;
   result.pitch = ramp?.hasSurface
     ? ramp.groundPitch
     : onRoad && !shortcut ? (roadSample?.groundPitch || 0) : 0;
@@ -881,8 +914,9 @@ function _contactFor(session, car) {
     shortcut,
     onRoad,
     featureContact,
+    lateralOffset,
   } = ground;
-  const surface = SURFACE_FEEL[session.course.id] || SURFACE_FEEL.forest;
+  const surface = SURFACE_FEEL[session.course.surfaceId || session.course.id] || SURFACE_FEEL.forest;
   let materialContact = null;
   let boostPad = false;
   let repairBay = false;
@@ -901,14 +935,15 @@ function _contactFor(session, car) {
   contact.groundHeight = ground.height;
   contact.groundPitch = ground.pitch;
   contact.groundRoll = session.samples[nearest.index]?.groundRoll || 0;
+  contact.lateralOffset = lateralOffset;
   contact.surface = materialContact?.surface
     || (shortcut ? 'shortcut-dirt' : onRoad ? surface.id : 'loose-dirt');
   contact.surfaceGrip = Number.isFinite(materialContact?.grip)
     ? materialContact.grip
-    : shortcut ? 0.68 : onRoad ? surface.grip : 0.62;
+    : shortcut ? 0.68 : onRoad ? (Number(session.course.surfaceGrip) || surface.grip) : 0.62;
   contact.surfaceDrag = Number.isFinite(materialContact?.drag)
     ? materialContact.drag
-    : shortcut ? 0.36 : onRoad ? surface.drag : 0.72;
+    : shortcut ? 0.36 : onRoad ? (Number(session.course.surfaceDrag) || surface.drag) : 0.72;
   contact.ramp = !!ramp?.takeoff || (
     !session.courseFeatureRuntimes.length
     && !shortcut
@@ -1138,6 +1173,7 @@ function _resolveKartCollisions(session) {
           session.driftChain = 0;
           session.driftCombo = 1;
           session.driftGap = 1;
+          if (session.raceMode === 'drift') noteDriftCollision(session.driftJudge);
           _kickCamera(session, damage / 22, spin * 0.025, damage / 32);
           playRacingImpact({ strength: damage / 28, kind: 'crash' });
           _spawnImpactBurst(session, cars[i].id === 'player' ? cars[i] : cars[j], damage / 24, 'spark');
@@ -1421,6 +1457,12 @@ function _bestKey(session) {
     const prefix = event === 'smashdown' ? 'monster-speedrun-v1' : `monster-${event}`;
     return `${prefix}:${session.monsterArenaDefinition?.id || session.course?.arenaId || 'arena'}`;
   }
+  if (session?.raceMode === 'drift') {
+    return `drift:${session.driftLayoutId || session.course?.driftLayoutId || 'judged'}:${session.driftCarId || 'comet'}`;
+  }
+  if (session?.raceMode === 'stock') {
+    return `stock:${session.course?.id || 'forest'}:${session.course?.stockVariant || 'concrete'}`;
+  }
   return `${session?.raceMode}:${session?.course?.customTrackId || session?.course?.id}`;
 }
 
@@ -1551,6 +1593,10 @@ function _mountHud(session) {
     <div class="kkr-mode-status"></div>
     <div class="kkr-spotlight" aria-live="polite"></div>
     <div class="kkr-drift"><span><b>${monsterMode ? '✦ ZOOMIES' : 'DRIFT CHARGE / TURBO HEAT'}</b><strong class="kkr-charge-value">0%</strong></span><div><i></i></div><em>${monsterMode ? 'SMASH + STUNT TO FILL · HOLD SHIFT TO ZOOM' : 'HOLD SHIFT · GOLD ZONE = PERFECT · RED = OVERCOOKED'}</em></div>
+    ${driftMode ? `<div class="kkr-drift-judge" aria-label="Drift judging telemetry">
+      <div><span>LINE</span><b data-judge="line">—</b><span>ANGLE</span><b data-judge="angle">—</b><span>SPEED</span><b data-judge="speed">—</b><span>STYLE</span><b data-judge="style">—</b></div>
+      <small data-judge-callout>FIND THE INITIATION BOX</small>
+    </div>` : ''}
     <div class="kkr-controls"><kbd>W S</kbd> ${monsterMode ? 'GAS / BRAKE · AIR TRIM' : 'GAS / BRAKE'}&nbsp;&nbsp;<kbd>A D</kbd> ${monsterMode ? 'STEER · AIR TRIM' : 'STEER'}&nbsp;&nbsp;<kbd>SHIFT</kbd> ${monsterMode ? 'ZOOMIES · HOLD FOR FLIPS' : 'DRIFT'}&nbsp;&nbsp;<kbd>SPACE</kbd> HANDBRAKE&nbsp;&nbsp;<kbd>+ −</kbd> VIEW${monsterMode ? '&nbsp;&nbsp;<kbd>R</kbd> RECOVER' : ''}${freeRide ? '&nbsp;&nbsp;<kbd>F</kbd> REFILL' : ''}</div>
     <div class="kkr-camera-control">
       <button class="kkr-camera-cycle" type="button" aria-label="Camera: Isometric. Activate to cycle; hold for camera list."><span>CAMERA</span><strong>ISOMETRIC</strong></button>
@@ -1584,9 +1630,15 @@ function _mountHud(session) {
         <div class="kkr-finish-actions">${finishActions}</div>
       </div>
     </div>`;
-  root.querySelector('.kkr-course h1').textContent = session.course.name;
+  root.querySelector('.kkr-course h1').textContent = driftMode
+    ? `Whisker Yard · ${session.driftLayout?.shortName || 'Drift Run'}`
+    : session.course.name;
   root.querySelector('.kkr-generated').textContent = monsterMode
     ? `${session.monsterVehicleProfile.name.toUpperCase()} · ${session.monsterEvent.replace('-', ' ').toUpperCase()} · ${session.monsterArenaDefinition.districts.length} DISTRICTS`
+    : driftMode
+      ? `WHISKER YARD · ${(session.driftLayout?.shortName || 'JUDGED RUN').toUpperCase()} · LINE / ANGLE / SPEED`
+      : session.raceMode === 'stock'
+        ? `THUNDERBOWL · ${(session.course.stockVariant || 'CONCRETE').toUpperCase()} · BANK / DRAFT / PACK`
     : drawMode
       ? `${session.course.drawSizeId.toUpperCase()} · ${Math.round(session.course.drawStats?.length || 0)} M · ${session.course.overpasses?.length || 0} OVERPASS${session.course.overpasses?.length === 1 ? '' : 'ES'} · ${session.course.drawStats?.personality || 'DRAWN CIRCUIT'}`
     : session.course.detailTexture ? 'VERTEX × GROK TERRAIN' : 'GENERATED CHAPTER TERRAIN';
@@ -1672,6 +1724,12 @@ function _mountHud(session) {
     driftFill: root.querySelector('.kkr-drift i'),
     chargeValue: root.querySelector('.kkr-charge-value'),
     drift: root.querySelector('.kkr-drift'),
+    judge: root.querySelector('.kkr-drift-judge'),
+    judgeLine: root.querySelector('[data-judge="line"]'),
+    judgeAngle: root.querySelector('[data-judge="angle"]'),
+    judgeSpeed: root.querySelector('[data-judge="speed"]'),
+    judgeStyle: root.querySelector('[data-judge="style"]'),
+    judgeCallout: root.querySelector('[data-judge-callout]'),
     callout: root.querySelector('.kkr-callout'),
     map: root.querySelector('.kkr-map'),
     finish: root.querySelector('.kkr-finish'),
@@ -2172,9 +2230,18 @@ function _updateHud(session) {
       ? `${carsLeft} TO CRUSH · ${round.name}`
       : monster.wreckChain > 1.05 ? `${monster.wreckChain.toFixed(1)}× WRECK CHAIN` : 'FIND A NEW LINE';
   } else if (session.raceMode === 'drift') {
+    const judge = driftDisciplineSnapshot(session.driftJudge);
     hud.position.textContent = Math.round(session.driftScore).toLocaleString();
     hud.lap.textContent = `${Math.max(0, Math.ceil(session.modeDef.duration - session.raceTime))} SEC`;
     hud.timer.textContent = session.driftCombo > 1.05 ? `${session.driftCombo.toFixed(1)}× COMBO` : 'LINK A DRIFT';
+    hud.judgeLine.textContent = `${judge.line}%`;
+    hud.judgeAngle.textContent = `${judge.angle}%`;
+    hud.judgeSpeed.textContent = `${judge.speed}%`;
+    hud.judgeStyle.textContent = `${judge.style}%`;
+    hud.judgeCallout.textContent = session.driftJudge?.lastEventTime > 0
+      ? session.driftJudge.lastEvent
+      : `${judge.zonesHit}/${session.driftLayout?.zones?.length || 0} ZONES · ${session.driftCarId?.toUpperCase() || 'COMET'}`;
+    hud.judge?.classList.toggle('is-active', !!player.drifting);
   } else {
     hud.position.textContent = _ordinal(position);
     hud.lap.textContent = `${Math.min(session.course.laps, player.completedLaps + 1)} / ${session.course.laps}`;
@@ -2321,6 +2388,7 @@ function _finishPlayer(session) {
   const position = ranking.findIndex((car) => car.id === 'player') + 1;
   const driftMode = session.raceMode === 'drift';
   const monsterMode = session.raceMode === 'monster';
+  const driftBreakdown = driftMode ? finalizeDriftJudge(session.driftJudge, session.driftLayout) : null;
   if (monsterMode) _finishMonsterRecords(session);
   const scoreMode = session.modeDef.objective !== 'laps';
   const monsterTime = monsterMode ? session.monsterRounds.elapsedTime : 0;
@@ -2388,7 +2456,7 @@ function _finishPlayer(session) {
     ? (monsterFreestyle
         ? `${Math.round(score).toLocaleString()} POINTS · 120 SEC`
         : `${session.monsterRounds.won ? 'TOTAL' : 'RUN TIME'} ${formatRaceTime(monsterTime)} · ${session.monsterRounds.roundTimes.length} / 5 LEVELS`)
-    : driftMode ? `BEST COMBO ${session.bestDriftCombo.toFixed(1)}×`
+    : driftMode ? `${driftBreakdown?.grade || 'D'} GRADE · ${Math.round(score).toLocaleString()} POINTS · BEST COMBO ${session.bestDriftCombo.toFixed(1)}×`
     : `${formatRaceTime(session.raceTime)} · ${Math.round(session.styleScore || 0).toLocaleString()} STYLE`;
   finish.querySelector('.kkr-finish-breakdown').textContent = monsterMode
     ? (monsterFreestyle
@@ -2397,7 +2465,9 @@ function _finishPlayer(session) {
             .map(([kind, count]) => `${kind.toUpperCase()} ${count}`)
             .join(' · ') || 'NO CLASS CRUSHES'} · AIR ${session.monsterScore.totalAirTime.toFixed(1)} SEC`
         : `${session.monsterRounds.won ? 'ALL FIVE LEVELS CLEARED' : 'LEVEL TIMER EXPIRED'} · SPLITS ${session.monsterRounds.roundTimes.map((time, index) => `L${index + 1} ${time.toFixed(1)}S`).join(' · ') || '—'}`)
-    : '';
+    : driftMode
+      ? `LINE ${driftBreakdown.line} · ANGLE ${driftBreakdown.angle} · SPEED ${driftBreakdown.speed} · STYLE ${driftBreakdown.style} · ZONES ${driftBreakdown.zonesHit}/${driftBreakdown.zonesTotal}`
+      : '';
   const stored = _readBest(bestKey) || (scoreMode ? score : session.raceTime);
   finish.querySelector('.kkr-finish-best').textContent = practiceRun
     ? 'TEST DRIVE · RECORDS WERE NOT SAVED'
@@ -2418,6 +2488,9 @@ function _snapshot(session) {
     courseId: session.course.id,
     customTrackId: session.course.customTrackId || null,
     courseName: session.course.name,
+    stockVariant: session.course.stockVariant || null,
+    driftCarId: session.driftCarId || null,
+    driftLayoutId: session.driftLayoutId || null,
     arenaId: session.monsterArenaDefinition?.id || null,
     phase: session.phase,
     raceTime: session.raceTime,
@@ -2462,6 +2535,7 @@ function _snapshot(session) {
     engineDamage: player?.engineDamage || 0,
     driftScore: session.driftScore || 0,
     driftCombo: session.driftCombo || 1,
+    driftJudge: session.raceMode === 'drift' ? driftDisciplineSnapshot(session.driftJudge) : null,
     styleScore: session.styleScore || 0,
     styleCombo: session.styleCombo || 1,
     perfectDriftChain: session.perfectDriftChain || 0,
@@ -2573,7 +2647,11 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
   const course = getCourseDefinition(courseId, raceMode, {
     monsterArena: monsterArenaDefinition?.id,
     customCourse: options.customCourse,
+    stockVariant: options.stockVariant,
+    driftLayout: options.driftLayout,
   });
+  const driftCarId = DRIFT_CAR_ORDER.includes(options.driftCar) ? options.driftCar : 'comet';
+  const driftLayoutId = getDriftLayout(options.driftLayout).id;
   const monsterVehicleId = ['meowster', 'cyber', 'tipsy'].includes(options.monsterVehicle)
     ? options.monsterVehicle
     : 'meowster';
@@ -2604,7 +2682,12 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
     course,
     raceMode,
     modeDef,
-    handlingProfile: raceMode === 'monster' ? null : getRallyHandlingProfile(raceMode),
+    handlingProfile: raceMode === 'monster'
+      ? null
+      : getRallyHandlingProfile(raceMode, raceMode === 'drift' ? driftCarId : null),
+    driftCarId: raceMode === 'drift' ? driftCarId : null,
+    driftLayoutId: raceMode === 'drift' ? driftLayoutId : null,
+    driftLayout: raceMode === 'drift' ? getDriftLayout(driftLayoutId) : null,
     carCount,
     testFromFraction: Number.isFinite(options.testFromFraction)
       ? ((Number(options.testFromFraction) % 1) + 1) % 1
@@ -2664,6 +2747,7 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
     driftCombo: 1,
     bestDriftCombo: 1,
     driftGap: 0,
+    driftJudge: raceMode === 'drift' ? createDriftJudgeState(driftLayoutId) : null,
     styleScore: 0,
     styleCombo: 1,
     styleTime: 0,
@@ -3118,7 +3202,7 @@ export function tickRacing(dt, elapsedDt = dt) {
         controls,
         contact,
         stepDt,
-        monsterMode ? session.monsterVehicleProfile.tuning : session.handlingProfile,
+        monsterMode ? session.monsterVehicleProfile.tuning : (car.handlingProfile || session.handlingProfile),
         car.stepEvents,
       );
       const resolvedContact = monsterMode ? _contactFor(session, car) : contact;
@@ -3233,22 +3317,22 @@ export function tickRacing(dt, elapsedDt = dt) {
   }
   session.physicsTimeMs = performance.now() - physicsStarted;
   if (session.phase === 'racing' && session.raceMode === 'drift') {
+    _maintainRallyQaState(session);
     const player = session.cars[0].physics;
-    const earned = driftScoreStep(player, dt, session.driftCombo);
-    if (earned > 0) {
-      session.driftScore += earned;
-      session.driftChain += dt;
-      session.driftGap = 0;
-      session.driftCombo = clamp(1 + session.driftChain / 2.2, 1, 8);
-      session.bestDriftCombo = Math.max(session.bestDriftCombo, session.driftCombo);
-    } else {
-      session.driftGap += dt;
-      if (session.driftGap > 0.72) {
-        session.driftChain = 0;
-        session.driftCombo = 1;
-      }
-    }
+    const judged = stepDriftJudge(session.driftJudge, {
+      dt,
+      physics: player,
+      contact: session.cars[0].frameContact,
+      layout: session.driftLayout,
+      sampleCount: session.samples.length,
+    });
+    session.driftScore = session.driftJudge.score;
+    session.driftCombo = session.driftJudge.combo;
+    session.driftChain = session.driftJudge.comboTime;
+    session.bestDriftCombo = Math.max(session.bestDriftCombo, session.driftCombo);
+    session.driftGap = judged.drifting ? 0 : session.driftGap + dt;
   }
+  if (session.raceMode !== 'drift') _maintainRallyQaState(session);
   // _startMonsterRound already installed the static countdown presentation.
   // Rebuilding every destructible instance while the controls are locked only
   // burns the exact opening frames that need to compile and upload textures.
@@ -3276,7 +3360,6 @@ export function tickRacing(dt, elapsedDt = dt) {
     }
     _tickMonsterRound(session, dt);
   }
-  _maintainRallyQaState(session);
   for (const car of session.cars) {
     _syncKartVisual(
       session,
@@ -3623,9 +3706,20 @@ function _setRallyQaState(session, kind) {
     p.speed = 20;
     for (let i = 0; i < 10; i++) _spawnDust(session, car, 1 + i * 0.04, true);
   } else if (kind === 'drift') {
+    const forwardX = Math.sin(p.yaw);
+    const forwardZ = Math.cos(p.yaw);
+    const rightX = Math.cos(p.yaw);
+    const rightZ = -Math.sin(p.yaw);
+    const forwardSpeed = 14;
+    const lateralSpeed = 5.6;
+    p.vx = forwardX * forwardSpeed + rightX * lateralSpeed;
+    p.vz = forwardZ * forwardSpeed + rightZ * lateralSpeed;
+    p.forwardSpeed = forwardSpeed;
+    p.lateralSpeed = lateralSpeed;
+    p.slipAngle = Math.atan2(lateralSpeed, forwardSpeed);
     p.drifting = true;
     p.driftCharge = 2.15;
-    p.speed = 16;
+    p.speed = Math.hypot(forwardSpeed, lateralSpeed);
     p.bodyRoll = 0.14;
     for (let i = 0; i < 14; i++) _spawnDust(session, car, 1.05 + i * 0.025, false);
   } else if (kind === 'damage') {
@@ -3662,9 +3756,20 @@ function _maintainRallyQaState(session) {
     return;
   }
   if (qa.kind === 'drift') {
+    const forwardX = Math.sin(p.yaw);
+    const forwardZ = Math.cos(p.yaw);
+    const rightX = Math.cos(p.yaw);
+    const rightZ = -Math.sin(p.yaw);
+    const forwardSpeed = 14;
+    const lateralSpeed = 5.6;
+    p.vx = forwardX * forwardSpeed + rightX * lateralSpeed;
+    p.vz = forwardZ * forwardSpeed + rightZ * lateralSpeed;
+    p.forwardSpeed = forwardSpeed;
+    p.lateralSpeed = lateralSpeed;
+    p.slipAngle = Math.atan2(lateralSpeed, forwardSpeed);
     p.drifting = true;
     p.driftCharge = Math.max(p.driftCharge || 0, 2.15);
-    p.speed = Math.max(p.speed || 0, 16);
+    p.speed = Math.hypot(forwardSpeed, lateralSpeed);
     p.bodyRoll = 0.14;
   } else if (qa.kind === 'boost') {
     p.boostTime = Math.max(p.boostTime || 0, 0.9);

@@ -74,3 +74,18 @@ equivalent) to add Dune sessions at 1280×720 High, 1920×1080 High, and
 and restart time, and exact post-exit resource equality. A landscape phone must
 separately cover thermals, battery, safe-area layout, sustained frame pacing,
 and touch feel.
+
+## Rally Raid extension
+
+The Rally Raid layer retains the Dune heightfield as the authority for both
+rendering and contact, then adds bounded roadbook state and stage metadata
+around it. Roadbook notes, waypoint validation, speed-control penalties,
+service choice, and cumulative expedition progress are deterministic data
+operations; they do not add a second terrain or physics implementation.
+
+The live SwiftShader probe reached the Atlas Prologue with four authored
+wheel/suspension assemblies, Navigator roadbook state, a forced missed-note
+penalty, a clean finish/result screen, and repair-service persistence. This is
+functional evidence only. Native measurements still need the existing
+1280x720, 1920x1080, and 5120x1440 Dune rotation, plus human testing of the
+buggy/prototype/truck handling over the authored terrain identities.

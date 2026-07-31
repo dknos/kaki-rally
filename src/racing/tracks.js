@@ -1,5 +1,6 @@
 /** Chapter-to-racetrack art direction and spline control points. */
 import { getMonsterArenaDefinition } from './monsterArenaDefinition.js';
+import { getDriftLayout } from './drift/driftAttack.js';
 
 const COMMON = {
   laps: 3,
@@ -26,15 +27,59 @@ export const RACE_MODES = Object.freeze({
   crash: Object.freeze({ id: 'crash', name: 'Kaki Catastrophe', objective: 'crashScore', vehicle: 'crash-car', courseKind: 'crash-junction', carCount: 1, minCars: 1, maxCars: 1, duration: 36 }),
 });
 
+export const STOCK_VARIANTS = Object.freeze({
+  concrete: Object.freeze({
+    id: 'concrete',
+    name: 'Kaki Thunderbowl · Concrete',
+    chapter: 'Thunderbowl Stadium',
+    tagline: 'A steep concrete short oval: hold the middle groove, or spend tires on the high line.',
+    road: 0x5d5657,
+    ground: 0x4e4a4a,
+    shoulder: 0x39373b,
+    curb: 0xf3b85f,
+    accent: 0xff6d91,
+    surfaceId: 'stock-concrete',
+    surfaceGrip: 1.08,
+    surfaceDrag: 0.045,
+    bankProfile: Object.freeze({ straight: -0.035, corner: -0.47, exponent: 1.35 }),
+    grooveGrip: 1.12,
+    cushionGrip: 0.88,
+  }),
+  dirt: Object.freeze({
+    id: 'dirt',
+    name: 'Kaki Thunderbowl · Clay',
+    chapter: 'Thunderbowl Clay',
+    tagline: 'A loose historical clay surface: lean on the cushion, rotate the rear, and leave room for the roost.',
+    road: 0x79503f,
+    ground: 0x694738,
+    shoulder: 0x4c332d,
+    curb: 0xffa35f,
+    accent: 0xffd06d,
+    surfaceId: 'stock-clay',
+    surfaceGrip: 0.78,
+    surfaceDrag: 0.26,
+    bankProfile: Object.freeze({ straight: -0.018, corner: -0.31, exponent: 1.12 }),
+    grooveGrip: 0.92,
+    cushionGrip: 0.66,
+  }),
+});
+
+export const STOCK_VARIANT_ORDER = Object.freeze(['concrete', 'dirt']);
+
+export function sampleTrackBank(course, fraction = 0, fallback = 0) {
+  const profile = course?.bankProfile;
+  if (!profile) return Number(fallback) || 0;
+  const cornerPhase = Math.abs(Math.cos((((Number(fraction) || 0) % 1 + 1) % 1) * Math.PI * 2));
+  const cornerWeight = Math.pow(cornerPhase, Math.max(0.35, Number(profile.exponent) || 1));
+  const straight = Number(profile.straight) || 0;
+  const corner = Number(profile.corner) || straight;
+  return straight + (corner - straight) * cornerWeight;
+}
+
 const STOCK_POINTS = Object.freeze([
   [-58, -28], [-43, -43], [-20, -51], [14, -51], [42, -43], [58, -26],
   [64, 0], [58, 26], [42, 43], [14, 51], [-20, 51], [-43, 43], [-58, 28], [-64, 0],
 ]);
-
-const STOCK_NAMES = Object.freeze({
-  forest: 'Borrowed Post Bowl', twilight: 'Nobody\'s Turn', cinder: 'Kiln-Shift Oval',
-  void: 'Quiet Toll Ring', cave: 'Glass Mile Motor Yard', kakiland: 'Chalkline Speedway',
-});
 
 export const RACE_COURSES = Object.freeze({
   forest: {
@@ -229,28 +274,54 @@ export function getCourseDefinition(id, mode = 'circuit', options = {}) {
     };
   }
   if (mode === 'stock') {
+    const stockVariant = STOCK_VARIANTS[options.stockVariant] || STOCK_VARIANTS.concrete;
     return {
       ...base,
-      name: STOCK_NAMES[base.id] || `${base.name} Speedway`,
-      tagline: 'High-speed pack racing, drafting, damage, and pit repairs.',
+      name: stockVariant.name,
+      chapter: stockVariant.chapter,
+      tagline: stockVariant.tagline,
+      road: stockVariant.road,
+      ground: stockVariant.ground,
+      shoulder: stockVariant.shoulder,
+      curb: stockVariant.curb,
+      accent: stockVariant.accent,
       points: STOCK_POINTS.map((point) => [...point]),
-      trackWidth: 14.5,
+      trackWidth: stockVariant.id === 'dirt' ? 15.8 : 14.8,
       samples: 224,
       laps: 8,
       rampFractions: [],
       boostFractions: [],
       repairFractions: [0.88],
       shortcutFractions: [],
+      stockVariant: stockVariant.id,
+      surfaceId: stockVariant.surfaceId,
+      surfaceGrip: stockVariant.surfaceGrip,
+      surfaceDrag: stockVariant.surfaceDrag,
+      grooveGrip: stockVariant.grooveGrip,
+      cushionGrip: stockVariant.cushionGrip,
+      bankProfile: stockVariant.bankProfile,
+      venueId: 'kaki-thunderbowl',
       mode: 'stock',
     };
   }
   if (mode === 'drift') {
+    const layout = getDriftLayout(options.driftLayout);
+    const driftBase = RACE_COURSES[layout.artCourseId] || base;
     return {
-      ...base,
-      name: `${base.name} Drift Attack`,
-      tagline: 'Link slides, hold the combo, and bank the biggest score.',
+      ...driftBase,
+      ...layout,
+      id: driftBase.id,
+      name: `Drift Attack · ${layout.name}`,
+      chapter: layout.chapter,
+      tagline: layout.description,
+      points: layout.points.map((point) => [...point]),
+      trackWidth: layout.trackWidth,
+      samples: layout.samples,
       laps: 99,
       repairFractions: [0.88],
+      driftLayoutId: layout.id,
+      driftZones: layout.zones,
+      venueId: layout.venue,
       mode: 'drift',
     };
   }

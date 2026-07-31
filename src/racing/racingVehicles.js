@@ -464,6 +464,16 @@ export function buildRallyCar(options = {}) {
   const variant = Math.abs(Math.floor(options.variant || 0));
   const isDrift = mode === 'drift';
   const isStock = mode === 'stock';
+  const driftCarId = isDrift && ['needle', 'comet', 'monarch'].includes(options.driftCarId)
+    ? options.driftCarId
+    : 'comet';
+  const driftSpec = isDrift
+    ? ({
+        needle: { width: 2.34, length: 3.22, noseWidth: 2.04, stanceY: 0.6, wheelRadius: 0.45, wheelTrack: 1.16, rearZ: -0.98, frontZ: 0.98, bumperRearZ: -1.66, bumperFrontZ: 1.76, wingWidth: 2.08, shadow: 1.66 },
+        comet: { width: 2.62, length: 3.68, noseWidth: 2.28, stanceY: 0.63, wheelRadius: 0.49, wheelTrack: 1.33, rearZ: -1.12, frontZ: 1.12, bumperRearZ: -1.87, bumperFrontZ: 1.96, wingWidth: 2.3, shadow: 1.82 },
+        monarch: { width: 2.86, length: 4.16, noseWidth: 2.5, stanceY: 0.7, wheelRadius: 0.55, wheelTrack: 1.46, rearZ: -1.34, frontZ: 1.34, bumperRearZ: -2.12, bumperFrontZ: 2.22, wingWidth: 2.58, shadow: 2.04 },
+      }[driftCarId])
+    : null;
   const isPlayer = Boolean(options.isPlayer);
   const detailTier = options.detailTier === 'pack' ? 'pack' : 'showcase';
   const isPack = detailTier === 'pack';
@@ -528,10 +538,10 @@ export function buildRallyCar(options = {}) {
     toneMapped: false,
   });
 
-  const stanceY = isDrift ? 0.63 : isStock ? 0.8 : 0.72;
+  const stanceY = isDrift ? driftSpec.stanceY : isStock ? 0.8 : 0.72;
   const chassis = _damageReady(_mesh(
     registry,
-    _roundedDeckGeometry(isDrift ? 2.62 : 2.46, isStock ? 3.48 : 3.68, isStock ? 0.58 : 0.54, 0.4, 0.09),
+    _roundedDeckGeometry(isDrift ? driftSpec.width : 2.46, isDrift ? driftSpec.length : isStock ? 3.48 : 3.68, isStock ? 0.58 : 0.54, 0.4, 0.09),
     bodyMaterial,
     'rally-chassis',
     { receive: true },
@@ -542,24 +552,55 @@ export function buildRallyCar(options = {}) {
 
   const nose = _damageReady(_mesh(
     registry,
-    _roundedDeckGeometry(isDrift ? 2.28 : 2.14, 1.18, 0.38, 0.32, 0.065),
+    _roundedDeckGeometry(isDrift ? driftSpec.noseWidth : 2.14, isDrift ? 1.24 : 1.18, 0.38, 0.32, 0.065),
     creamMaterial,
     'rally-nose',
   ));
-  nose.position.set(0, stanceY + 0.29, 1.25);
+  nose.position.set(0, stanceY + 0.29, isDrift ? driftSpec.frontZ + 0.14 : 1.25);
   nose.rotation.x = -0.045;
   nose.userData.role = 'damage-shell';
   bodyPivot.add(nose);
 
   const lowerNose = _damageReady(_mesh(
     registry,
-    _roundedDeckGeometry(2.25, 0.44, 0.26, 0.18, 0.045),
+    _roundedDeckGeometry(isDrift ? driftSpec.noseWidth + 0.02 : 2.25, 0.44, 0.26, 0.18, 0.045),
     darkMaterial,
     'front-splitter',
   ));
-  lowerNose.position.set(0, stanceY - 0.05, 1.78);
+  lowerNose.position.set(0, stanceY - 0.05, isDrift ? driftSpec.bumperFrontZ : 1.78);
   lowerNose.userData.role = 'damage-shell';
   bodyPivot.add(lowerNose);
+
+  if (isDrift && driftCarId === 'monarch') {
+    const scoop = _mesh(
+      registry,
+      _roundedDeckGeometry(0.82, 0.72, 0.16, 0.12, 0.03),
+      darkMaterial,
+      'monarch-hood-scoop',
+    );
+    scoop.position.set(0, stanceY + 0.49, 0.82);
+    scoop.rotation.x = -0.08;
+    bodyPivot.add(scoop);
+    for (const side of [-1, 1]) {
+      const skirt = _mesh(
+        registry,
+        _roundedDeckGeometry(0.12, 2.44, 0.16, 0.04, 0.02),
+        accentMaterial,
+        `${side < 0 ? 'left' : 'right'}-monarch-side-skirt`,
+      );
+      skirt.position.set(side * (driftSpec.width * 0.47), stanceY - 0.06, -0.02);
+      bodyPivot.add(skirt);
+    }
+  } else if (isDrift && driftCarId === 'needle') {
+    const canard = _mesh(
+      registry,
+      _roundedDeckGeometry(2.18, 0.18, 0.1, 0.04, 0.015),
+      accentMaterial,
+      'needle-front-canard',
+    );
+    canard.position.set(0, stanceY + 0.06, driftSpec.bumperFrontZ + 0.04);
+    bodyPivot.add(canard);
+  }
 
   const cockpit = _mesh(
     registry,
@@ -567,8 +608,12 @@ export function buildRallyCar(options = {}) {
     glassMaterial,
     'bubble-cockpit',
   );
-  cockpit.scale.set(isStock ? 0.98 : 1.08, isStock ? 0.8 : 0.72, isStock ? 1.05 : 1.17);
-  cockpit.position.set(0, stanceY + 0.45, -0.23);
+  cockpit.scale.set(
+    isStock ? 0.98 : isDrift && driftCarId === 'needle' ? 0.92 : isDrift && driftCarId === 'monarch' ? 1.14 : 1.08,
+    isStock ? 0.8 : isDrift && driftCarId === 'monarch' ? 0.78 : 0.72,
+    isStock ? 1.05 : isDrift && driftCarId === 'needle' ? 1.05 : 1.17,
+  );
+  cockpit.position.set(0, stanceY + 0.45, isDrift ? (driftCarId === 'monarch' ? -0.28 : -0.2) : -0.23);
   cockpit.rotation.x = -0.06;
   cockpit.userData.role = 'cockpit-canopy';
   bodyPivot.add(cockpit);
@@ -582,7 +627,7 @@ export function buildRallyCar(options = {}) {
     );
     cockpitRim.scale.z = 1.25;
     cockpitRim.rotation.x = Math.PI / 2;
-    cockpitRim.position.set(0, stanceY + 0.45, -0.36);
+    cockpitRim.position.set(0, stanceY + 0.45, isDrift ? (driftCarId === 'monarch' ? -0.42 : -0.33) : -0.36);
     cockpitRim.userData.role = 'cockpit-canopy';
     bodyPivot.add(cockpitRim);
   }
@@ -594,20 +639,20 @@ export function buildRallyCar(options = {}) {
       creamMaterial,
       'rear-engine-cowl',
     );
-    rearDeck.position.set(0, stanceY + 0.33, -1.38);
+      rearDeck.position.set(0, stanceY + 0.33, isDrift ? driftSpec.rearZ - 0.22 : -1.38);
     bodyPivot.add(rearDeck);
   }
 
-  const wheelRadius = isStock ? 0.54 : 0.49;
-  const wheelTrack = isDrift ? 1.33 : isStock ? 1.27 : 1.25;
+  const wheelRadius = isDrift ? driftSpec.wheelRadius : isStock ? 0.54 : 0.49;
+  const wheelTrack = isDrift ? driftSpec.wheelTrack : isStock ? 1.27 : 1.25;
   const wheels = _makeWheelSet({
     registry,
     bodyPivot,
     radius: wheelRadius,
-    width: isStock ? 0.47 : 0.4,
+    width: isStock ? 0.47 : isDrift && driftCarId === 'monarch' ? 0.5 : isDrift ? 0.43 : 0.4,
     track: wheelTrack,
-    rearZ: -1.12,
-    frontZ: 1.12,
+    rearZ: isDrift ? driftSpec.rearZ : -1.12,
+    frontZ: isDrift ? driftSpec.frontZ : 1.12,
     palette: { tire: tireMaterial, rim: rimMaterial, accent: accentMaterial },
     style: isStock ? 'stock' : 'rally',
     detail: detailTier,
@@ -631,43 +676,43 @@ export function buildRallyCar(options = {}) {
   const rearBumperY = stanceY - 0.02;
   const bumper = _damageReady(_mesh(
     registry,
-    _capsuleGeometry(0.13, isStock ? 2.88 : 2.66, 5, 10),
+    _capsuleGeometry(0.13, isDrift ? driftSpec.width + 0.16 : isStock ? 2.88 : 2.66, 5, 10),
     isStock ? rimMaterial : darkMaterial,
     'rear-bumper',
   ));
   bumper.rotation.z = Math.PI / 2;
-  bumper.position.set(0, rearBumperY, -1.87);
+  bumper.position.set(0, rearBumperY, isDrift ? driftSpec.bumperRearZ : -1.87);
   bumper.userData.role = 'damage-bumper';
   bodyPivot.add(bumper);
 
   if (!isPack) {
     const frontGuard = _mesh(
       registry,
-      _capsuleGeometry(0.105, 2.38, 5, 10),
+      _capsuleGeometry(0.105, isDrift ? driftSpec.width - 0.16 : 2.38, 5, 10),
       isStock ? rimMaterial : darkMaterial,
       'front-bumper',
     );
     frontGuard.rotation.z = Math.PI / 2;
-    frontGuard.position.set(0, stanceY - 0.02, 1.96);
+    frontGuard.position.set(0, stanceY - 0.02, isDrift ? driftSpec.bumperFrontZ : 1.96);
     bodyPivot.add(frontGuard);
   }
 
   if (isDrift) {
     const wing = _mesh(
       registry,
-      _roundedDeckGeometry(2.3, 0.34, 0.12, 0.1, 0.025),
+      _roundedDeckGeometry(driftSpec.wingWidth, 0.34, 0.12, 0.1, 0.025),
       accentMaterial,
       'drift-ducktail-wing',
     );
-    wing.position.set(0, stanceY + 0.77, -1.69);
+    wing.position.set(0, stanceY + (driftCarId === 'monarch' ? 0.86 : 0.77), driftSpec.rearZ - 0.48);
     wing.rotation.x = 0.1;
     bodyPivot.add(wing);
     for (const side of [-1, 1]) {
       const mount = _barBetween(
         registry,
         darkMaterial,
-        new THREE.Vector3(side * 0.66, stanceY + 0.38, -1.57),
-        new THREE.Vector3(side * 0.66, stanceY + 0.72, -1.66),
+        new THREE.Vector3(side * (driftSpec.wingWidth * 0.287), stanceY + 0.38, driftSpec.rearZ - 0.34),
+        new THREE.Vector3(side * (driftSpec.wingWidth * 0.287), stanceY + (driftCarId === 'monarch' ? 0.8 : 0.72), driftSpec.rearZ - 0.45),
         0.045,
         `${side < 0 ? 'left' : 'right'}-wing-mount`,
       );
@@ -695,15 +740,15 @@ export function buildRallyCar(options = {}) {
         accentMaterial,
         `${side < 0 ? 'left' : 'right'}-aero-fin`,
       );
-      fin.position.set(side * 0.86, stanceY + 0.42, -1.43);
+      fin.position.set(side * (isDrift ? driftSpec.width * 0.34 : 0.86), stanceY + 0.42, isDrift ? driftSpec.rearZ - 0.18 : -1.43);
       bodyPivot.add(fin);
     }
   }
 
-  _addCatEars(registry, bodyPivot, bodyMaterial, 0.52, stanceY + 1.24, -0.23, 0.54);
+  _addCatEars(registry, bodyPivot, bodyMaterial, isDrift && driftCarId === 'monarch' ? 0.6 : 0.52, stanceY + 1.24, isDrift ? -0.25 : -0.23, isDrift && driftCarId === 'needle' ? 0.46 : 0.54);
   const headlights = isPack
     ? []
-    : _addHeadlights(registry, bodyPivot, lampMaterial, 0.67, stanceY + 0.29, 1.79, 0.17);
+    : _addHeadlights(registry, bodyPivot, lampMaterial, isDrift ? driftSpec.noseWidth * 0.29 : 0.67, stanceY + 0.29, isDrift ? driftSpec.bumperFrontZ - 0.1 : 1.79, 0.17);
 
   if (!isPack) {
     const grille = _mesh(
@@ -716,14 +761,14 @@ export function buildRallyCar(options = {}) {
     grille.rotation.x = Math.PI / 2;
     grille.rotation.z = Math.PI;
     grille.scale.x = 1.45;
-    grille.position.set(0, stanceY + 0.04, 1.94);
+    grille.position.set(0, stanceY + 0.04, isDrift ? driftSpec.bumperFrontZ + 0.02 : 1.94);
     bodyPivot.add(grille);
   }
 
   const flames = isPack
     ? []
     : [-0.55, 0.55].map((x, index) => {
-        const flame = _makeFlame(registry, accentMaterial, new THREE.Vector3(x, stanceY - 0.05, -2.05), 1.1, index);
+        const flame = _makeFlame(registry, accentMaterial, new THREE.Vector3(x, stanceY - 0.05, isDrift ? driftSpec.bumperRearZ - 0.18 : -2.05), 1.1, index);
         bodyPivot.add(flame);
         return flame;
       });
@@ -734,7 +779,7 @@ export function buildRallyCar(options = {}) {
     decalTexture: options.decalTexture,
     decalTile: options.decalTile,
     scale: 0.76,
-    sideX: isDrift ? 1.326 : isStock ? 1.246 : 1.205,
+    sideX: isDrift ? driftSpec.wheelTrack + 0.01 : isStock ? 1.246 : 1.205,
     sideY: stanceY + 0.15,
     sideZ: 0.05,
     hoodY: stanceY + 0.505,
@@ -748,7 +793,7 @@ export function buildRallyCar(options = {}) {
   const driverShadowProxy = options.optimizeDriverShadow === false
     ? null
     : _detailedDriverShadowProxy(registry, seatedDriver, bodyPivot, false);
-  const shadow = _makeShadow(registry, isDrift ? 1.82 : 1.72, isPlayer ? 0.3 : 0.26);
+  const shadow = _makeShadow(registry, isDrift ? driftSpec.shadow : 1.72, isPlayer ? 0.3 : 0.26);
   shadow.scale.set(isDrift ? 1.08 : 1, 1.32, 1);
   root.add(shadow);
   if (isPack) {
@@ -777,10 +822,283 @@ export function buildRallyCar(options = {}) {
     damageStamp: '',
     bumperBaseY: rearBumperY,
     wheelRadius,
+    driftCarId: isDrift ? driftCarId : null,
     monster: false,
     headlights,
     decalPanels,
     animationAnchors,
+  };
+}
+
+/**
+ * Original Kaki Rally Raid fleet. These are separate silhouettes rather than
+ * monster-truck reskins: the Skimmer is an open cage, Atlas is a compact
+ * enclosed prototype, and Colossus is a long-wheelbase cab-over truck.
+ */
+export function buildRallyRaidVehicle(options = {}) {
+  const registry = _registry(options);
+  const id = ['buggy', 'prototype', 'truck'].includes(options.rallyRaidVehicleId)
+    ? options.rallyRaidVehicleId
+    : 'prototype';
+  const spec = {
+    buggy: {
+      width: 1.92, length: 3.28, chassisHeight: 0.34, stanceY: 0.58,
+      wheelRadius: 0.49, wheelWidth: 0.36, wheelTrack: 0.86, rearZ: -1.1, frontZ: 1.1,
+      shadow: 1.46, windshield: 0.72, roof: 1.52,
+    },
+    prototype: {
+      width: 2.28, length: 3.82, chassisHeight: 0.46, stanceY: 0.68,
+      wheelRadius: 0.58, wheelWidth: 0.43, wheelTrack: 0.95, rearZ: -1.29, frontZ: 1.29,
+      shadow: 1.72, windshield: 0.88, roof: 1.94,
+    },
+    truck: {
+      width: 2.92, length: 5.42, chassisHeight: 0.7, stanceY: 1.02,
+      wheelRadius: 0.82, wheelWidth: 0.56, wheelTrack: 1.04, rearZ: -2.08, frontZ: 2.08,
+      shadow: 2.36, windshield: 1.12, roof: 2.72,
+    },
+  }[id];
+  const color = _cloneColor(options.color ?? (id === 'buggy' ? 0xff7b5f : id === 'truck' ? 0x9b586a : 0x4b9f9c));
+  const accentColor = _cloneColor(options.accent ?? (id === 'buggy' ? 0xffd45c : id === 'truck' ? 0x75e3d3 : 0xffcf5b));
+  const isPlayer = Boolean(options.isPlayer);
+  const root = new THREE.Group();
+  root.name = `kaki-rally-raid-${id}`;
+  root.userData.vehicleType = 'rally-raid';
+  root.userData.rallyRaidVehicleId = id;
+  root.userData.forwardAxis = '+Z';
+  const bodyPivot = new THREE.Group();
+  bodyPivot.name = 'rally-raid-body-pivot';
+  bodyPivot.userData.role = 'suspension-body';
+  root.add(bodyPivot);
+
+  const bodyMaterial = _physical(registry, {
+    color,
+    roughness: id === 'truck' ? 0.45 : 0.32,
+    metalness: id === 'buggy' ? 0.16 : 0.26,
+    clearcoat: 0.58,
+    clearcoatRoughness: 0.23,
+  });
+  const warmMaterial = _physical(registry, {
+    color: id === 'truck' ? 0xd7c39d : 0xffe1a3,
+    roughness: 0.48,
+    metalness: 0.1,
+    clearcoat: 0.3,
+  });
+  const darkMaterial = _standard(registry, { color: 0x14141b, roughness: 0.88, metalness: 0.1 });
+  const metalMaterial = _standard(registry, { color: 0xb8c7cb, roughness: 0.29, metalness: 0.8 });
+  const tireMaterial = _standard(registry, { color: 0x101015, roughness: 0.97, metalness: 0.02 });
+  const rimMaterial = _standard(registry, { color: 0x3f5660, roughness: 0.3, metalness: 0.72 });
+  const accentMaterial = _physical(registry, {
+    color: accentColor,
+    emissive: _mix(accentColor, 0x2c9f9d, 0.48),
+    emissiveIntensity: isPlayer ? 1.18 : 0.58,
+    roughness: 0.25,
+    metalness: 0.28,
+    clearcoat: 0.44,
+  });
+  const glassMaterial = _physical(registry, {
+    color: id === 'truck' ? 0x203744 : 0x213f50,
+    emissive: 0x12283a,
+    emissiveIntensity: 0.24,
+    roughness: 0.1,
+    metalness: 0.18,
+    transparent: true,
+    opacity: 0.91,
+    transmission: 0.05,
+    clearcoat: 1,
+  });
+  const lampMaterial = _physical(registry, {
+    color: 0xfff3bd,
+    emissive: 0xffc85e,
+    emissiveIntensity: isPlayer ? 2.4 : 1.4,
+    roughness: 0.2,
+    toneMapped: false,
+  });
+
+  const chassis = _damageReady(_mesh(
+    registry,
+    _roundedDeckGeometry(spec.width, spec.length, spec.chassisHeight, id === 'truck' ? 0.48 : 0.34, 0.075),
+    bodyMaterial,
+    'raid-chassis',
+    { receive: true },
+  ));
+  chassis.position.y = spec.stanceY;
+  chassis.userData.role = 'damage-shell';
+  bodyPivot.add(chassis);
+
+  const nose = _damageReady(_mesh(
+    registry,
+    _roundedDeckGeometry(id === 'truck' ? 2.62 : spec.width * 0.84, id === 'truck' ? 1.46 : 1.08, id === 'truck' ? 0.58 : 0.34, 0.28, 0.06),
+    warmMaterial,
+    'raid-nose',
+  ));
+  nose.position.set(0, spec.stanceY + (id === 'truck' ? 0.36 : 0.28), id === 'truck' ? 1.56 : 1.18);
+  nose.rotation.x = -0.055;
+  nose.userData.role = 'damage-shell';
+  bodyPivot.add(nose);
+
+  const cockpit = _mesh(
+    registry,
+    new THREE.SphereGeometry(id === 'truck' ? 1.08 : 0.78, 18, 11, 0, Math.PI * 2, 0, Math.PI * 0.68),
+    glassMaterial,
+    'raid-cockpit',
+  );
+  cockpit.scale.set(id === 'truck' ? 1.18 : 1.04, id === 'truck' ? 0.86 : 0.72, id === 'truck' ? 1.04 : 1.22);
+  cockpit.position.set(0, spec.stanceY + (id === 'truck' ? 0.78 : 0.47), id === 'truck' ? -0.42 : -0.28);
+  cockpit.rotation.x = -0.06;
+  cockpit.userData.role = 'cockpit-canopy';
+  bodyPivot.add(cockpit);
+
+  const wheels = _makeWheelSet({
+    registry,
+    bodyPivot,
+    radius: spec.wheelRadius,
+    width: spec.wheelWidth,
+    track: spec.wheelTrack,
+    rearZ: spec.rearZ,
+    frontZ: spec.frontZ,
+    palette: { tire: tireMaterial, rim: rimMaterial, accent: accentMaterial },
+    style: id === 'truck' ? 'monster' : 'rally',
+    detail: 'showcase',
+  });
+
+  const suspension = [];
+  for (const wheel of wheels) {
+    const spring = _makeSpring(
+      registry,
+      accentMaterial,
+      id === 'truck' ? 0.16 : 0.11,
+      id === 'truck' ? 1.1 : 0.76,
+      id === 'truck' ? 5 : 4,
+      `${wheel.userData.side}-${wheel.userData.axle}-raid-spring`,
+    );
+    spring.position.set(wheel.position.x * 0.72, spec.stanceY - 0.12, wheel.position.z * 0.9);
+    spring.rotation.z = wheel.userData.side === 'left' ? -0.18 : 0.18;
+    spring.userData.side = wheel.userData.side;
+    spring.userData.axle = wheel.userData.axle;
+    spring.userData.basePosition = spring.position.clone();
+    spring.userData.baseScale = spring.scale.clone();
+    bodyPivot.add(spring);
+    suspension.push(spring);
+    const lower = new THREE.Vector3(wheel.position.x * 0.9, spec.stanceY - 0.3, wheel.position.z);
+    const upper = new THREE.Vector3(wheel.position.x * 0.62, spec.stanceY + 0.32, wheel.position.z * 0.86);
+    bodyPivot.add(_barBetween(registry, metalMaterial, lower, upper, id === 'truck' ? 0.085 : 0.055, `${wheel.name}-raid-control-arm`));
+  }
+
+  const cage = [];
+  if (id === 'buggy') {
+    const cagePoints = [
+      [new THREE.Vector3(-0.74, spec.stanceY + 0.18, -0.78), new THREE.Vector3(-0.56, spec.stanceY + 1.28, -0.25)],
+      [new THREE.Vector3(0.74, spec.stanceY + 0.18, -0.78), new THREE.Vector3(0.56, spec.stanceY + 1.28, -0.25)],
+      [new THREE.Vector3(-0.56, spec.stanceY + 1.28, -0.25), new THREE.Vector3(0.56, spec.stanceY + 1.28, -0.25)],
+      [new THREE.Vector3(-0.56, spec.stanceY + 1.28, -0.25), new THREE.Vector3(-0.62, spec.stanceY + 0.72, 0.8)],
+      [new THREE.Vector3(0.56, spec.stanceY + 1.28, -0.25), new THREE.Vector3(0.62, spec.stanceY + 0.72, 0.8)],
+    ];
+    cagePoints.forEach(([start, end], index) => {
+      const bar = _barBetween(registry, accentMaterial, start, end, 0.052, `skimmer-cage-${index}`);
+      cage.push(bar);
+      bodyPivot.add(bar);
+    });
+  } else if (id === 'prototype') {
+    const roofRail = _mesh(registry, _roundedDeckGeometry(1.64, 0.24, 0.11, 0.04, 0.018), accentMaterial, 'atlas-roof-rail');
+    roofRail.position.set(0, spec.stanceY + 1.23, -0.34);
+    bodyPivot.add(roofRail);
+    for (const side of [-1, 1]) {
+      const post = _barBetween(
+        registry,
+        accentMaterial,
+        new THREE.Vector3(side * 0.68, spec.stanceY + 0.38, -0.58),
+        new THREE.Vector3(side * 0.72, spec.stanceY + 1.22, -0.36),
+        0.05,
+        `${side < 0 ? 'left' : 'right'}-atlas-a-post`,
+      );
+      bodyPivot.add(post);
+    }
+  } else {
+    const roof = _mesh(registry, _roundedDeckGeometry(2.34, 1.28, 0.18, 0.16, 0.035), accentMaterial, 'colossus-service-roof');
+    roof.position.set(0, spec.stanceY + 1.55, -0.45);
+    bodyPivot.add(roof);
+    const spareKit = _wheelKit(registry, spec.wheelRadius * 0.78, spec.wheelWidth * 0.86, { tire: tireMaterial, rim: rimMaterial, accent: accentMaterial }, 'monster', 'showcase');
+    const spare = _makeWheel(spareKit, 1, -1, registry, 'colossus-spare-wheel');
+    spare.position.set(0, spec.stanceY + 0.78, -2.48);
+    spare.rotation.y = Math.PI / 2;
+    bodyPivot.add(spare);
+    const stack = _mesh(registry, new THREE.CylinderGeometry(0.13, 0.18, 1.0, 10, 1, true), metalMaterial, 'colossus-exhaust-stack');
+    stack.position.set(1.12, spec.stanceY + 1.42, -1.5);
+    stack.rotation.z = -0.08;
+    bodyPivot.add(stack);
+  }
+
+  const headlights = _addHeadlights(
+    registry,
+    bodyPivot,
+    lampMaterial,
+    id === 'truck' ? 0.86 : 0.58,
+    spec.stanceY + (id === 'truck' ? 0.45 : 0.28),
+    id === 'truck' ? 2.34 : 1.72,
+    id === 'truck' ? 0.21 : 0.15,
+  );
+  const roofLights = [];
+  if (id !== 'buggy') {
+    for (const x of (id === 'truck' ? [-0.72, 0, 0.72] : [-0.42, 0.42])) {
+      const light = _mesh(registry, new THREE.SphereGeometry(0.11, 10, 7), lampMaterial, 'raid-roof-lamp', { cast: false });
+      light.position.set(x, spec.stanceY + (id === 'truck' ? 1.7 : 1.35), -0.42);
+      bodyPivot.add(light);
+      roofLights.push(light);
+    }
+  }
+  const flames = id === 'truck' ? [] : [-0.38, 0.38].map((x, index) => {
+    const flame = _makeFlame(registry, accentMaterial, new THREE.Vector3(x, spec.stanceY - 0.1, id === 'buggy' ? -1.7 : -2.0), id === 'buggy' ? 0.66 : 0.84, index);
+    bodyPivot.add(flame);
+    return flame;
+  });
+  const decalPanels = _addDecals({
+    registry,
+    bodyPivot,
+    decalTexture: options.decalTexture,
+    decalTile: options.decalTile,
+    scale: id === 'truck' ? 1.0 : 0.76,
+    sideX: id === 'truck' ? 1.48 : id === 'prototype' ? 1.12 : 0.96,
+    sideY: spec.stanceY + (id === 'truck' ? 0.4 : 0.14),
+    sideZ: id === 'truck' ? -0.22 : 0.04,
+    hoodY: spec.stanceY + (id === 'truck' ? 0.7 : 0.46),
+    hoodZ: id === 'truck' ? 1.55 : 1.22,
+  });
+  const seatedDriver = _seatDriver(options.driver, bodyPivot, {
+    position: new THREE.Vector3(0, spec.stanceY + (id === 'truck' ? 0.75 : 0.25), -0.28),
+    scale: id === 'truck' ? 0.62 : 0.5,
+  });
+  const driverShadowProxy = options.optimizeDriverShadow === false
+    ? null
+    : _detailedDriverShadowProxy(registry, seatedDriver, bodyPivot, id === 'truck');
+  bodyPivot.traverse((object) => {
+    if (object.isMesh) object.castShadow = false;
+  });
+  const shadow = _makeShadow(registry, spec.shadow, isPlayer ? 0.31 : 0.26);
+  shadow.scale.set(1.05, 1.34, 1);
+  root.add(shadow);
+
+  return {
+    root,
+    bodyPivot,
+    wheels,
+    flames,
+    driver: seatedDriver,
+    driverShadowProxy,
+    shadow,
+    chassis,
+    nose,
+    bumper: null,
+    damageMeshes: [chassis, nose],
+    damageStamp: '',
+    bumperBaseY: spec.stanceY - 0.2,
+    wheelRadius: spec.wheelRadius,
+    monster: false,
+    raidVehicleId: id,
+    suspension,
+    cage,
+    headlights: [...headlights, ...roofLights],
+    decalPanels,
+    animationAnchors: { bodyPivot, wheels, flames, headlights: [...headlights, ...roofLights], decalPanels },
   };
 }
 

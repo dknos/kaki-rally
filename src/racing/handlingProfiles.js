@@ -1,4 +1,5 @@
 import { RACE_TUNING } from './physics.js';
+import { getDriftCarProfile } from './drift/driftAttack.js';
 
 function freezeCurve(points) {
   return Object.freeze(points.map((point) => Object.freeze([...point])));
@@ -82,6 +83,14 @@ export const RALLY_HANDLING_PROFILES = Object.freeze({
   }),
 });
 
-export function getRallyHandlingProfile(mode = 'circuit') {
-  return RALLY_HANDLING_PROFILES[mode] || RALLY_HANDLING_PROFILES.circuit;
+export function getRallyHandlingProfile(mode = 'circuit', variant = null) {
+  const base = RALLY_HANDLING_PROFILES[mode] || RALLY_HANDLING_PROFILES.circuit;
+  if (mode !== 'drift' || !variant) return base;
+  const car = getDriftCarProfile(variant);
+  return profile(`drift-${car.id}`, {
+    ...base,
+    ...car.tuning,
+    id: `drift-${car.id}`,
+    accelerationCurve: base.accelerationCurve,
+  });
 }

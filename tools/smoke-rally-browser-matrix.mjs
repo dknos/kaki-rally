@@ -678,11 +678,16 @@ async function startModeFromMenu(page, spec) {
   const selections = {
     course: spec.courseId,
     carCount: spec.options.carCount,
+    driftLayout: spec.options.driftLayout,
+    driftCar: spec.options.driftCar,
+    stockVariant: spec.options.stockVariant,
     monsterEvent: spec.options.monsterEvent,
     monsterVehicle: spec.options.monsterVehicle,
     monsterArena: spec.options.monsterArena,
     duneEvent: spec.options.duneEvent,
     duneVehicle: spec.options.duneVehicle,
+    duneNavigationAssist: spec.options.duneNavigationAssist,
+    duneService: spec.options.duneService,
     duneDifficulty: spec.options.duneDifficulty,
     duneDeformation: spec.options.duneDeformation,
     trialsTrack: spec.options.trialsTrackId,
@@ -871,7 +876,13 @@ async function runRoadMode(page, spec, backend, evidence) {
   assert.equal(snapshot.cars, spec.options.carCount);
   assert(snapshot.performance.drawCalls > 0, `${spec.mode} submitted no draw calls`);
   if (spec.mode === 'drift') assert(snapshot.drifting, 'Drift Attack did not enter charged-drift state');
+  if (spec.mode === 'drift') {
+    assert.equal(snapshot.driftCarId, spec.options.driftCar || 'comet');
+    assert.equal(snapshot.driftLayoutId, spec.options.driftLayout || 'judged');
+    assert(snapshot.driftJudge?.score > 0, 'Drift Attack judge did not score the driven showcase state');
+  }
   if (spec.mode === 'stock') assert(snapshot.integrity <= 24, 'Stock Cup damage/smoke state did not trigger');
+  if (spec.mode === 'stock') assert.equal(snapshot.stockVariant, spec.options.stockVariant || 'concrete');
   if (spec.mode === 'circuit') assert(snapshot.raceTime > 0, 'Off-Road GP fixed-step race clock did not advance');
   await page.screenshot({ path: path.join(QA_DIR, `${backend}-${spec.mode}.png`) });
   if (spec.mode === 'circuit') {
@@ -1260,6 +1271,42 @@ async function runDunes(page, backend, evidence) {
       await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-${eventId}.png`) });
       await page.evaluate(() => window.__kakiRally.menu());
     }
+
+    await startMode(page, 'dunes', 'raid-prologue', {
+      ...spec.options,
+      duneEvent: 'raid-prologue',
+      duneVehicle: 'prototype',
+      duneNavigationAssist: 'navigator',
+      duneService: 'repair',
+    });
+    await skipCountdown(page);
+    await page.evaluate(() => window.__kkRacing.warpDuneProgress(0.03, 5));
+    await page.waitForTimeout(420);
+    const raidOpening = await page.evaluate(() => window.__kkRacing.snapshot());
+    assert.equal(raidOpening.eventId, 'raid-prologue', 'Rally Raid selected the wrong stage');
+    assert.equal(raidOpening.rallyRaid.navigationAssist, 'navigator', 'Rally Raid lost Navigator assistance');
+    assert.equal(raidOpening.vehicleId, 'prototype', 'Rally Raid selected the wrong vehicle');
+    assert.equal(raidOpening.rallyRaid.roadbook.assist, 'navigator');
+    assert(raidOpening.rallyRaid.roadbook.next, 'Rally Raid did not expose a next roadbook call');
+    assert(raidOpening.visual.authoredBody, 'Rally Raid procedural vehicle was not treated as a finished body');
+    assert.equal(raidOpening.visual.wheels, 4, 'Rally Raid lost independent wheel presentation');
+    assert(raidOpening.terrain.authorityShared, 'Rally Raid lost shared terrain authority');
+    await page.evaluate(() => window.__kkRacing.warpDuneProgress(0.5, 10));
+    await page.waitForTimeout(240);
+    const raidPenalty = await page.evaluate(() => window.__kkRacing.snapshot());
+    assert(raidPenalty.rallyRaid.roadbook.missed > 0, 'Rally Raid did not report a missed waypoint');
+    assert(raidPenalty.race.penaltySeconds >= 8, 'Rally Raid missed-waypoint penalty was not applied');
+    assert(await page.evaluate(() => !!window.__kkRacing.finish()), 'Rally Raid result could not be finalized');
+    await page.waitForFunction(() => window.__kkRacing.snapshot()?.phase === 'finished', null, { timeout: 20_000 });
+    const raidResult = await page.evaluate(() => window.__kkRacing.snapshot());
+    assert.equal(raidResult.rallyRaid.expedition.completedStages.length, 1, 'Rally Raid cumulative stage did not persist');
+    assert.equal(raidResult.rallyRaid.expedition.completedStages[0], 'raid-prologue', 'Rally Raid stage id did not persist');
+    assert.equal(raidResult.rallyRaid.serviceChoice, 'repair', 'Rally Raid service choice did not persist');
+    assert.equal(raidResult.rallyRaid.expedition.lastService, 'repair', 'Rally Raid service record did not persist');
+    assert(raidResult.rallyRaid.expedition.serviceSeconds >= 18, 'Rally Raid service time was not added');
+    evidence.rallyRaid = { opening: raidOpening, penalty: raidPenalty, result: raidResult };
+    await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-rally-raid-prologue.png`) });
+    await page.evaluate(() => window.__kakiRally.menu());
 
     await page.evaluate(() => window.__kakiRally.openDraw());
     await page.waitForSelector('.kdt-editor');
@@ -2139,13 +2186,13 @@ async function runWebGl(browser, origin, report) {
     if (requestedScope === 'all' || requestedScope === 'drift') await runRoadMode(page, {
       mode: 'drift',
       courseId: 'twilight',
-      options: { carCount: 6 },
+      options: { carCount: 6, driftLayout: 'wallrun', driftCar: 'monarch' },
       mechanic: 'drift',
     }, 'webgl', report.webgl.modes.drift);
     if (requestedScope === 'all' || requestedScope === 'stock') await runRoadMode(page, {
       mode: 'stock',
       courseId: 'cinder',
-      options: { carCount: 16 },
+      options: { carCount: 16, stockVariant: 'dirt' },
       mechanic: 'damage',
     }, 'webgl', report.webgl.modes.stock);
     if (requestedScope === 'all' || requestedScope === 'draw') await runDraw(page, 'webgl', report.webgl.modes.draw);

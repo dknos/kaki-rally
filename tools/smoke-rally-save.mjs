@@ -30,6 +30,7 @@ assert.deepEqual(LEGACY_SAVE_KEYS, [
   'kks_draw_tracks_v1',
   'kks_monster_records_v1',
   'kks_dune_records_v1',
+  'kks_rally_raid_progress_v1',
   'kks_rally_trials_v1',
   'kks_kaki_catastrophe_records_v1',
 ]);

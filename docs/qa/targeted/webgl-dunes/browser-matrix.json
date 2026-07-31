@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
-  "generatedAt": "2026-07-29T16:17:19.734Z",
+  "generatedAt": "2026-07-31T02:17:19.932Z",
   "chromium": "/home/nemoclaw/bin/chromium",
   "requestedBackend": "webgl",
   "webgl": {
@@ -11,8 +11,7 @@
       "badResponses": [],
       "failedRequests": [],
       "expectedAborts": [
-        "net::ERR_ABORTED http://127.0.0.1:36879/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js",
-        "net::ERR_ABORTED http://127.0.0.1:36879/vendor/three/examples/jsm/libs/draco/draco_decoder.wasm"
+        "net::ERR_ABORTED http://127.0.0.1:39601/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js"
       ],
       "expectedAudioDeviceErrors": [],
       "frozenModeRequests": []
@@ -43,11 +42,11 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 7.111585216791936,
-            "cpuFrameTimeMs": 8.758461538458674,
-            "cpuFrameTimeP99Ms": 348.20000000018626,
-            "renderSubmissionTimeMs": 8.470769230820812,
-            "renderSubmissionTimeP99Ms": 345.29999999981374,
+            "fps": 5.761561383137921,
+            "cpuFrameTimeMs": 8.0123076911156,
+            "cpuFrameTimeP99Ms": 329.90000000596046,
+            "renderSubmissionTimeMs": 7.7230769217014315,
+            "renderSubmissionTimeP99Ms": 326.90000000596046,
             "drawCalls": 496,
             "renderCalls": 914,
             "frameRenderCalls": 15,
@@ -90,6 +89,7 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
+            "rallyRaid": null,
             "speed": 0,
             "x": -155,
             "y": -0.41773169863322535,
@@ -120,6 +120,7 @@
               "checkpoint": 1,
               "checkpoints": 19,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -386,7 +387,7 @@
             "instances": 300
           },
           "estimatedGpuMemoryBytes": 84098912,
-          "domNodes": 222,
+          "domNodes": 235,
           "modeOwnedDomNodes": 54,
           "hudRoots": 1,
           "sessionRoots": 1,
@@ -453,7 +454,7 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 327.20000000018626,
+              "at": 291,
               "mode": "menu",
               "domNodes": 164,
               "hudRoots": 0,
@@ -521,9 +522,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 9232.700000000186,
+              "at": 9830.700000017881,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -539,13 +540,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 7.122346078187233,
-                "cpuFrameTimeMs": 8.77812499999709,
-                "cpuFrameTimeP99Ms": 348.20000000018626,
-                "renderSubmissionTimeMs": 8.490625000049477,
-                "renderSubmissionTimeP99Ms": 345.29999999981374,
+                "fps": 6.834064504759757,
+                "cpuFrameTimeMs": 7.974603173278627,
+                "cpuFrameTimeP99Ms": 329.90000000596046,
+                "renderSubmissionTimeMs": 7.690476189057033,
+                "renderSubmissionTimeP99Ms": 326.90000000596046,
                 "drawCalls": 497,
-                "renderCalls": 899,
+                "renderCalls": 884,
                 "frameRenderCalls": 16,
                 "triangles": 252530,
                 "points": 0,
@@ -590,7 +591,7 @@
           ],
           "frameCount": 65,
           "stateDiagnostics": {
-            "bootedAt": 1785341840076,
+            "bootedAt": 1785464240264,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
             "modeTransitions": 1,
@@ -616,13 +617,13 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 2.8782155063860406,
-            "cpuFrameTimeMs": 8.058333333364377,
-            "cpuFrameTimeP99Ms": 15.900000000372529,
-            "renderSubmissionTimeMs": 7.456666666649593,
-            "renderSubmissionTimeP99Ms": 8.799999999813735,
+            "fps": 1.7603180307908963,
+            "cpuFrameTimeMs": 10.66333333303531,
+            "cpuFrameTimeP99Ms": 35.19999998807907,
+            "renderSubmissionTimeMs": 9.761666664977868,
+            "renderSubmissionTimeP99Ms": 20,
             "drawCalls": 268,
-            "renderCalls": 3757,
+            "renderCalls": 3728,
             "frameRenderCalls": 15,
             "triangles": 216235,
             "points": 0,
@@ -663,6 +664,7 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
+            "rallyRaid": null,
             "speed": 0,
             "x": -155,
             "y": -0.41773169863322535,
@@ -693,6 +695,7 @@
               "checkpoint": 1,
               "checkpoints": 19,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -836,7 +839,7 @@
               "previous": {
                 "eventId": "whiskerwind",
                 "vehicleId": "meowster",
-                "time": 5.433,
+                "time": 5.4,
                 "score": 0,
                 "medal": "S",
                 "ghost": [
@@ -1220,8 +1223,8 @@
                   },
                   {
                     "t": 4.308,
-                    "x": 77.921,
-                    "y": 40.631,
+                    "x": 77.922,
+                    "y": 40.999,
                     "z": -169.264,
                     "yaw": 1.7419,
                     "pitch": 0.0522,
@@ -1229,105 +1232,96 @@
                   },
                   {
                     "t": 4.408,
-                    "x": 79.472,
-                    "y": 43.263,
-                    "z": -169.532,
+                    "x": 79.483,
+                    "y": 44.691,
+                    "z": -169.534,
                     "yaw": 1.7419,
-                    "pitch": 0.0737,
-                    "roll": 0.0368
+                    "pitch": 0.0739,
+                    "roll": 0.0367
                   },
                   {
                     "t": 4.508,
-                    "x": 81.004,
-                    "y": 46.841,
-                    "z": -169.797,
+                    "x": 81.027,
+                    "y": 48.212,
+                    "z": -169.801,
                     "yaw": 1.7419,
-                    "pitch": 0.0854,
-                    "roll": 0.0226
+                    "pitch": 0.0855,
+                    "roll": 0.0225
                   },
                   {
                     "t": 4.608,
-                    "x": 82.521,
-                    "y": 50.246,
-                    "z": -170.059,
+                    "x": 82.554,
+                    "y": 51.56,
+                    "z": -170.065,
                     "yaw": 1.7419,
-                    "pitch": 0.0827,
+                    "pitch": 0.0825,
                     "roll": 0.0171
                   },
                   {
                     "t": 4.708,
-                    "x": 84.023,
-                    "y": 53.48,
-                    "z": -170.319,
+                    "x": 84.065,
+                    "y": 54.737,
+                    "z": -170.326,
                     "yaw": 1.7419,
-                    "pitch": 0.0722,
-                    "roll": 0.0214
+                    "pitch": 0.0718,
+                    "roll": 0.0216
                   },
                   {
                     "t": 4.808,
-                    "x": 85.511,
-                    "y": 56.542,
-                    "z": -170.576,
+                    "x": 85.562,
+                    "y": 57.741,
+                    "z": -170.585,
                     "yaw": 1.7419,
-                    "pitch": 0.0563,
-                    "roll": 0.0322
+                    "pitch": 0.0558,
+                    "roll": 0.0326
                   },
                   {
                     "t": 4.908,
-                    "x": 86.985,
-                    "y": 59.432,
-                    "z": -170.831,
+                    "x": 87.045,
+                    "y": 60.574,
+                    "z": -170.841,
                     "yaw": 1.7419,
-                    "pitch": 0.0389,
-                    "roll": 0.0446
+                    "pitch": 0.0382,
+                    "roll": 0.045
                   },
                   {
                     "t": 5.008,
-                    "x": 88.446,
-                    "y": 62.15,
-                    "z": -171.083,
+                    "x": 88.515,
+                    "y": 63.234,
+                    "z": -171.095,
                     "yaw": 1.7419,
-                    "pitch": 0.0233,
-                    "roll": 0.0548
+                    "pitch": 0.0225,
+                    "roll": 0.0552
                   },
                   {
                     "t": 5.108,
-                    "x": 89.895,
-                    "y": 64.696,
-                    "z": -171.333,
+                    "x": 89.972,
+                    "y": 65.723,
+                    "z": -171.347,
                     "yaw": 1.7419,
-                    "pitch": 0.0016,
-                    "roll": 0.0643
+                    "pitch": 0.0002,
+                    "roll": 0.0649
                   },
                   {
                     "t": 5.208,
-                    "x": 91.333,
-                    "y": 67.069,
-                    "z": -171.582,
+                    "x": 91.416,
+                    "y": 68.039,
+                    "z": -171.596,
                     "yaw": 1.7419,
-                    "pitch": -0.0292,
-                    "roll": 0.0774
+                    "pitch": -0.0311,
+                    "roll": 0.0782
                   },
                   {
                     "t": 5.308,
-                    "x": 92.759,
-                    "y": 69.271,
-                    "z": -171.828,
+                    "x": 92.85,
+                    "y": 70.184,
+                    "z": -171.844,
                     "yaw": 1.7419,
-                    "pitch": -0.0583,
-                    "roll": 0.0958
-                  },
-                  {
-                    "t": 5.408,
-                    "x": 94.174,
-                    "y": 71.301,
-                    "z": -172.073,
-                    "yaw": 1.7419,
-                    "pitch": -0.0813,
-                    "roll": 0.1201
+                    "pitch": -0.06,
+                    "roll": 0.0972
                   }
                 ],
-                "setAt": "2026-07-29T16:18:37.941Z"
+                "setAt": "2026-07-31T02:19:05.367Z"
               },
               "result": null,
               "samples": 0,
@@ -1439,7 +1433,7 @@
             "instances": 300
           },
           "estimatedGpuMemoryBytes": 84098912,
-          "domNodes": 222,
+          "domNodes": 235,
           "modeOwnedDomNodes": 54,
           "hudRoots": 1,
           "sessionRoots": 1,
@@ -1506,7 +1500,7 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 327.20000000018626,
+              "at": 291,
               "mode": "menu",
               "domNodes": 164,
               "hudRoots": 0,
@@ -1574,9 +1568,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 9232.700000000186,
+              "at": 9830.700000017881,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -1592,13 +1586,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 7.122346078187233,
-                "cpuFrameTimeMs": 8.77812499999709,
-                "cpuFrameTimeP99Ms": 348.20000000018626,
-                "renderSubmissionTimeMs": 8.490625000049477,
-                "renderSubmissionTimeP99Ms": 345.29999999981374,
+                "fps": 6.834064504759757,
+                "cpuFrameTimeMs": 7.974603173278627,
+                "cpuFrameTimeP99Ms": 329.90000000596046,
+                "renderSubmissionTimeMs": 7.690476189057033,
+                "renderSubmissionTimeP99Ms": 326.90000000596046,
                 "drawCalls": 497,
-                "renderCalls": 899,
+                "renderCalls": 884,
                 "frameRenderCalls": 16,
                 "triangles": 252530,
                 "points": 0,
@@ -1642,9 +1636,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 88278.5,
+              "at": 114928.80000001192,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -1660,13 +1654,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.8567823584166887,
-                "cpuFrameTimeMs": 5.387500000031044,
-                "cpuFrameTimeP99Ms": 9.5,
-                "renderSubmissionTimeMs": 4.7833333333100505,
-                "renderSubmissionTimeP99Ms": 7.1000000005587935,
+                "fps": 1.753952605277198,
+                "cpuFrameTimeMs": 7.920833332836628,
+                "cpuFrameTimeP99Ms": 21.299999982118607,
+                "renderSubmissionTimeMs": 7.015833331644535,
+                "renderSubmissionTimeP99Ms": 17.400000005960464,
                 "drawCalls": 14,
-                "renderCalls": 3742,
+                "renderCalls": 3713,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -1709,9 +1703,9 @@
               }
             }
           ],
-          "frameCount": 255,
+          "frameCount": 253,
           "stateDiagnostics": {
-            "bootedAt": 1785341840076,
+            "bootedAt": 1785464240264,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
             "modeTransitions": 2,
@@ -1738,6 +1732,7 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
+            "rallyRaid": null,
             "speed": 0,
             "x": -155,
             "y": -0.3897513154006966,
@@ -1768,6 +1763,7 @@
               "checkpoint": 1,
               "checkpoints": 19,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -2022,7 +2018,7 @@
             },
             "performance": {
               "fps": 29,
-              "physicsMs": 3.599999999627471,
+              "physicsMs": 3.5999999940395355,
               "drawCalls": 496,
               "triangles": 252529
             }
@@ -2046,6 +2042,7 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
+            "rallyRaid": null,
             "speed": 2.2971351323042724,
             "x": -154.85355591780953,
             "y": -0.4059322030647725,
@@ -2076,6 +2073,7 @@
               "checkpoint": 1,
               "checkpoints": 19,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -2330,7 +2328,7 @@
             },
             "performance": {
               "fps": 18,
-              "physicsMs": 0.30000000074505806,
+              "physicsMs": 0.19999998807907104,
               "drawCalls": 497,
               "triangles": 252609
             }
@@ -2376,6 +2374,7 @@
             "id": "meowster",
             "name": "Mighty Meowster"
           },
+          "rallyRaid": null,
           "speed": 1.0328648929990323,
           "x": -152.85227240755833,
           "y": -0.5694034848352267,
@@ -2406,6 +2405,7 @@
             "checkpoint": 1,
             "checkpoints": 19,
             "score": 0,
+            "penaltySeconds": 0,
             "recoveries": 1,
             "finished": false
           },
@@ -2660,7 +2660,7 @@
           },
           "performance": {
             "fps": 12,
-            "physicsMs": 0.19999999925494194,
+            "physicsMs": 0.30000001192092896,
             "drawCalls": 512,
             "triangles": 255245
           }
@@ -2684,6 +2684,7 @@
             "id": "meowster",
             "name": "Mighty Meowster"
           },
+          "rallyRaid": null,
           "speed": 7.394661918031833,
           "x": -0.6656488035290121,
           "y": -1.2393243592071137,
@@ -2714,6 +2715,7 @@
             "checkpoint": 1,
             "checkpoints": 19,
             "score": 0,
+            "penaltySeconds": 0,
             "recoveries": 1,
             "finished": false
           },
@@ -2968,7 +2970,7 @@
           },
           "performance": {
             "fps": 11,
-            "physicsMs": 0.2999999998137355,
+            "physicsMs": 0.4000000059604645,
             "drawCalls": 519,
             "triangles": 255335
           }
@@ -3055,17 +3057,17 @@
           "isometricGuardRecoveries": 0
         },
         "postCycleIsoRecovery": {
-          "maximumAltitude": 66.84395492831808,
+          "maximumAltitude": 67.07985971213192,
           "apex": {
-            "altitude": 66.84395492831808,
-            "cameraY": 106.46104473739592,
-            "focusY": 65.1253143423535,
+            "altitude": 67.07985971213192,
+            "cameraY": 106.6913157644325,
+            "focusY": 65.34297149588848,
             "playerNdc": [
-              -0.022836496442945883,
-              0.07284676454283671,
-              -0.8580968853182781
+              -0.023015983641282663,
+              0.07297048348268287,
+              -0.8580345322325509
             ],
-            "forwardY": -0.7170746177056793,
+            "forwardY": -0.7170388921859574,
             "projection": "orthographic",
             "mode": "isometric",
             "transitioning": false,
@@ -3092,36 +3094,38 @@
             "id": "meowster",
             "name": "Mighty Meowster"
           },
-          "speed": 14.291347608717478,
-          "x": 94.52676933868263,
-          "y": 71.78161215484445,
-          "z": -172.13383952176045,
+          "rallyRaid": null,
+          "speed": 14.3924835457521,
+          "x": 94.15371856982371,
+          "y": 71.99844548817777,
+          "z": -172.06937485804585,
           "grounded": false,
           "telemetry": {
-            "speed": 14.291347608717478,
-            "forwardVelocity": 14.291347608717476,
-            "engineRpm": 5312.367930224229,
-            "requestedDriveForce": 23482.12473067803,
-            "deliveredWheelForce": 23482.12473067803,
+            "speed": 14.3924835457521,
+            "forwardVelocity": 14.3924835457521,
+            "engineRpm": 5350.0730057364,
+            "requestedDriveForce": 23356.71204515562,
+            "deliveredWheelForce": 23356.71204515562,
             "normalLoad": 0,
-            "chassisPitchVelocity": -0.2308837636786394,
-            "chassisRoll": 0.12665853321097614,
+            "chassisPitchVelocity": -0.23211939821932143,
+            "chassisRoll": 0.11963953151588261,
             "steeringInput": 0,
-            "wheelAngle": 5.437431363352474e-22,
+            "wheelAngle": 8.275561496337481e-22,
             "groundedWheels": 0,
-            "sandResistance": 5.98819452864458,
+            "sandResistance": 6.078571281141777,
             "brushStrength": 0,
-            "sinkage": 0.014044395422949467,
-            "wheelSlip": 0.0366676673923309
+            "sinkage": 0.01417529220935653,
+            "wheelSlip": 0.0370094179399448
           },
           "race": {
-            "elapsed": 5.433333333333393,
+            "elapsed": 5.400000000000058,
             "progress": 0.25773195876288646,
             "lap": 0,
             "targetLaps": 2,
             "checkpoint": 1,
             "checkpoints": 19,
             "score": 0,
+            "penaltySeconds": 0,
             "recoveries": 1,
             "finished": true
           },
@@ -3153,22 +3157,22 @@
               "trackColor": "#4a3043",
               "snappedOrigins": [
                 [
-                  94.24,
+                  93.62,
                   -172.35999999999999,
                   0.31
                 ],
                 [
-                  94.24,
+                  93,
                   -172.35999999999999,
                   0.62
                 ],
                 [
-                  94.24,
+                  91.76,
                   -173.6,
                   1.24
                 ],
                 [
-                  94.24,
+                  89.28,
                   -173.6,
                   2.48
                 ],
@@ -3214,8 +3218,8 @@
               -216.6105675146771
             ],
             "focus": [
-              94.40941407218973,
-              -172.11356006271333
+              94.03553281238149,
+              -172.04895188684372
             ],
             "scrollCount": 4,
             "appliedBrushes": 716,
@@ -3265,14 +3269,14 @@
             "previous": null,
             "result": {
               "improved": true,
-              "time": 5.433,
+              "time": 5.4,
               "score": 0,
               "medal": "S",
               "previous": null,
               "record": {
                 "eventId": "whiskerwind",
                 "vehicleId": "meowster",
-                "time": 5.433,
+                "time": 5.4,
                 "score": 0,
                 "medal": "S",
                 "ghost": [
@@ -3656,8 +3660,8 @@
                   },
                   {
                     "t": 4.308,
-                    "x": 77.921,
-                    "y": 40.631,
+                    "x": 77.922,
+                    "y": 40.999,
                     "z": -169.264,
                     "yaw": 1.7419,
                     "pitch": 0.0522,
@@ -3665,108 +3669,99 @@
                   },
                   {
                     "t": 4.408,
-                    "x": 79.472,
-                    "y": 43.263,
-                    "z": -169.532,
+                    "x": 79.483,
+                    "y": 44.691,
+                    "z": -169.534,
                     "yaw": 1.7419,
-                    "pitch": 0.0737,
-                    "roll": 0.0368
+                    "pitch": 0.0739,
+                    "roll": 0.0367
                   },
                   {
                     "t": 4.508,
-                    "x": 81.004,
-                    "y": 46.841,
-                    "z": -169.797,
+                    "x": 81.027,
+                    "y": 48.212,
+                    "z": -169.801,
                     "yaw": 1.7419,
-                    "pitch": 0.0854,
-                    "roll": 0.0226
+                    "pitch": 0.0855,
+                    "roll": 0.0225
                   },
                   {
                     "t": 4.608,
-                    "x": 82.521,
-                    "y": 50.246,
-                    "z": -170.059,
+                    "x": 82.554,
+                    "y": 51.56,
+                    "z": -170.065,
                     "yaw": 1.7419,
-                    "pitch": 0.0827,
+                    "pitch": 0.0825,
                     "roll": 0.0171
                   },
                   {
                     "t": 4.708,
-                    "x": 84.023,
-                    "y": 53.48,
-                    "z": -170.319,
+                    "x": 84.065,
+                    "y": 54.737,
+                    "z": -170.326,
                     "yaw": 1.7419,
-                    "pitch": 0.0722,
-                    "roll": 0.0214
+                    "pitch": 0.0718,
+                    "roll": 0.0216
                   },
                   {
                     "t": 4.808,
-                    "x": 85.511,
-                    "y": 56.542,
-                    "z": -170.576,
+                    "x": 85.562,
+                    "y": 57.741,
+                    "z": -170.585,
                     "yaw": 1.7419,
-                    "pitch": 0.0563,
-                    "roll": 0.0322
+                    "pitch": 0.0558,
+                    "roll": 0.0326
                   },
                   {
                     "t": 4.908,
-                    "x": 86.985,
-                    "y": 59.432,
-                    "z": -170.831,
+                    "x": 87.045,
+                    "y": 60.574,
+                    "z": -170.841,
                     "yaw": 1.7419,
-                    "pitch": 0.0389,
-                    "roll": 0.0446
+                    "pitch": 0.0382,
+                    "roll": 0.045
                   },
                   {
                     "t": 5.008,
-                    "x": 88.446,
-                    "y": 62.15,
-                    "z": -171.083,
+                    "x": 88.515,
+                    "y": 63.234,
+                    "z": -171.095,
                     "yaw": 1.7419,
-                    "pitch": 0.0233,
-                    "roll": 0.0548
+                    "pitch": 0.0225,
+                    "roll": 0.0552
                   },
                   {
                     "t": 5.108,
-                    "x": 89.895,
-                    "y": 64.696,
-                    "z": -171.333,
+                    "x": 89.972,
+                    "y": 65.723,
+                    "z": -171.347,
                     "yaw": 1.7419,
-                    "pitch": 0.0016,
-                    "roll": 0.0643
+                    "pitch": 0.0002,
+                    "roll": 0.0649
                   },
                   {
                     "t": 5.208,
-                    "x": 91.333,
-                    "y": 67.069,
-                    "z": -171.582,
+                    "x": 91.416,
+                    "y": 68.039,
+                    "z": -171.596,
                     "yaw": 1.7419,
-                    "pitch": -0.0292,
-                    "roll": 0.0774
+                    "pitch": -0.0311,
+                    "roll": 0.0782
                   },
                   {
                     "t": 5.308,
-                    "x": 92.759,
-                    "y": 69.271,
-                    "z": -171.828,
+                    "x": 92.85,
+                    "y": 70.184,
+                    "z": -171.844,
                     "yaw": 1.7419,
-                    "pitch": -0.0583,
-                    "roll": 0.0958
-                  },
-                  {
-                    "t": 5.408,
-                    "x": 94.174,
-                    "y": 71.301,
-                    "z": -172.073,
-                    "yaw": 1.7419,
-                    "pitch": -0.0813,
-                    "roll": 0.1201
+                    "pitch": -0.06,
+                    "roll": 0.0972
                   }
                 ],
-                "setAt": "2026-07-29T16:18:37.941Z"
+                "setAt": "2026-07-31T02:19:05.367Z"
               }
             },
-            "samples": 54,
+            "samples": 53,
             "ghostVisible": false
           },
           "visual": {
@@ -3802,7 +3797,7 @@
             "cinematicLabel": "",
             "transitionProgress": 1,
             "projection": "orthographic",
-            "fov": 44.12204367222752,
+            "fov": 44.119964818202746,
             "visionStage": null,
             "lookAheadMeters": null,
             "collision": null,
@@ -3863,9 +3858,9 @@
           },
           "performance": {
             "fps": 10,
-            "physicsMs": 0,
-            "drawCalls": 250,
-            "triangles": 211893
+            "physicsMs": 0.10000002384185791,
+            "drawCalls": 251,
+            "triangles": 212169
           }
         },
         "restart": {
@@ -3887,13 +3882,13 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 2.9563786332661444,
-            "cpuFrameTimeMs": 10.146666666663561,
-            "cpuFrameTimeP99Ms": 313.59999999962747,
-            "renderSubmissionTimeMs": 9.690833333305394,
-            "renderSubmissionTimeP99Ms": 313.5,
+            "fps": 1.7832437501023228,
+            "cpuFrameTimeMs": 13.036666666467985,
+            "cpuFrameTimeP99Ms": 332.69999998807907,
+            "renderSubmissionTimeMs": 12.199999998758237,
+            "renderSubmissionTimeP99Ms": 332.69999998807907,
             "drawCalls": 268,
-            "renderCalls": 4020,
+            "renderCalls": 3977,
             "frameRenderCalls": 15,
             "triangles": 216235,
             "points": 0,
@@ -3934,6 +3929,7 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
+            "rallyRaid": null,
             "speed": 0,
             "x": -155,
             "y": -0.41773169863322535,
@@ -3964,6 +3960,7 @@
               "checkpoint": 1,
               "checkpoints": 19,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -4107,7 +4104,7 @@
               "previous": {
                 "eventId": "whiskerwind",
                 "vehicleId": "meowster",
-                "time": 5.433,
+                "time": 5.4,
                 "score": 0,
                 "medal": "S",
                 "ghost": [
@@ -4491,8 +4488,8 @@
                   },
                   {
                     "t": 4.308,
-                    "x": 77.921,
-                    "y": 40.631,
+                    "x": 77.922,
+                    "y": 40.999,
                     "z": -169.264,
                     "yaw": 1.7419,
                     "pitch": 0.0522,
@@ -4500,105 +4497,96 @@
                   },
                   {
                     "t": 4.408,
-                    "x": 79.472,
-                    "y": 43.263,
-                    "z": -169.532,
+                    "x": 79.483,
+                    "y": 44.691,
+                    "z": -169.534,
                     "yaw": 1.7419,
-                    "pitch": 0.0737,
-                    "roll": 0.0368
+                    "pitch": 0.0739,
+                    "roll": 0.0367
                   },
                   {
                     "t": 4.508,
-                    "x": 81.004,
-                    "y": 46.841,
-                    "z": -169.797,
+                    "x": 81.027,
+                    "y": 48.212,
+                    "z": -169.801,
                     "yaw": 1.7419,
-                    "pitch": 0.0854,
-                    "roll": 0.0226
+                    "pitch": 0.0855,
+                    "roll": 0.0225
                   },
                   {
                     "t": 4.608,
-                    "x": 82.521,
-                    "y": 50.246,
-                    "z": -170.059,
+                    "x": 82.554,
+                    "y": 51.56,
+                    "z": -170.065,
                     "yaw": 1.7419,
-                    "pitch": 0.0827,
+                    "pitch": 0.0825,
                     "roll": 0.0171
                   },
                   {
                     "t": 4.708,
-                    "x": 84.023,
-                    "y": 53.48,
-                    "z": -170.319,
+                    "x": 84.065,
+                    "y": 54.737,
+                    "z": -170.326,
                     "yaw": 1.7419,
-                    "pitch": 0.0722,
-                    "roll": 0.0214
+                    "pitch": 0.0718,
+                    "roll": 0.0216
                   },
                   {
                     "t": 4.808,
-                    "x": 85.511,
-                    "y": 56.542,
-                    "z": -170.576,
+                    "x": 85.562,
+                    "y": 57.741,
+                    "z": -170.585,
                     "yaw": 1.7419,
-                    "pitch": 0.0563,
-                    "roll": 0.0322
+                    "pitch": 0.0558,
+                    "roll": 0.0326
                   },
                   {
                     "t": 4.908,
-                    "x": 86.985,
-                    "y": 59.432,
-                    "z": -170.831,
+                    "x": 87.045,
+                    "y": 60.574,
+                    "z": -170.841,
                     "yaw": 1.7419,
-                    "pitch": 0.0389,
-                    "roll": 0.0446
+                    "pitch": 0.0382,
+                    "roll": 0.045
                   },
                   {
                     "t": 5.008,
-                    "x": 88.446,
-                    "y": 62.15,
-                    "z": -171.083,
+                    "x": 88.515,
+                    "y": 63.234,
+                    "z": -171.095,
                     "yaw": 1.7419,
-                    "pitch": 0.0233,
-                    "roll": 0.0548
+                    "pitch": 0.0225,
+                    "roll": 0.0552
                   },
                   {
                     "t": 5.108,
-                    "x": 89.895,
-                    "y": 64.696,
-                    "z": -171.333,
+                    "x": 89.972,
+                    "y": 65.723,
+                    "z": -171.347,
                     "yaw": 1.7419,
-                    "pitch": 0.0016,
-                    "roll": 0.0643
+                    "pitch": 0.0002,
+                    "roll": 0.0649
                   },
                   {
                     "t": 5.208,
-                    "x": 91.333,
-                    "y": 67.069,
-                    "z": -171.582,
+                    "x": 91.416,
+                    "y": 68.039,
+                    "z": -171.596,
                     "yaw": 1.7419,
-                    "pitch": -0.0292,
-                    "roll": 0.0774
+                    "pitch": -0.0311,
+                    "roll": 0.0782
                   },
                   {
                     "t": 5.308,
-                    "x": 92.759,
-                    "y": 69.271,
-                    "z": -171.828,
+                    "x": 92.85,
+                    "y": 70.184,
+                    "z": -171.844,
                     "yaw": 1.7419,
-                    "pitch": -0.0583,
-                    "roll": 0.0958
-                  },
-                  {
-                    "t": 5.408,
-                    "x": 94.174,
-                    "y": 71.301,
-                    "z": -172.073,
-                    "yaw": 1.7419,
-                    "pitch": -0.0813,
-                    "roll": 0.1201
+                    "pitch": -0.06,
+                    "roll": 0.0972
                   }
                 ],
-                "setAt": "2026-07-29T16:18:37.941Z"
+                "setAt": "2026-07-31T02:19:05.367Z"
               },
               "result": null,
               "samples": 0,
@@ -4710,7 +4698,7 @@
             "instances": 300
           },
           "estimatedGpuMemoryBytes": 84098912,
-          "domNodes": 222,
+          "domNodes": 235,
           "modeOwnedDomNodes": 54,
           "hudRoots": 1,
           "sessionRoots": 1,
@@ -4777,7 +4765,7 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 327.20000000018626,
+              "at": 291,
               "mode": "menu",
               "domNodes": 164,
               "hudRoots": 0,
@@ -4845,9 +4833,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 9232.700000000186,
+              "at": 9830.700000017881,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -4863,13 +4851,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 7.122346078187233,
-                "cpuFrameTimeMs": 8.77812499999709,
-                "cpuFrameTimeP99Ms": 348.20000000018626,
-                "renderSubmissionTimeMs": 8.490625000049477,
-                "renderSubmissionTimeP99Ms": 345.29999999981374,
+                "fps": 6.834064504759757,
+                "cpuFrameTimeMs": 7.974603173278627,
+                "cpuFrameTimeP99Ms": 329.90000000596046,
+                "renderSubmissionTimeMs": 7.690476189057033,
+                "renderSubmissionTimeP99Ms": 326.90000000596046,
                 "drawCalls": 497,
-                "renderCalls": 899,
+                "renderCalls": 884,
                 "frameRenderCalls": 16,
                 "triangles": 252530,
                 "points": 0,
@@ -4913,9 +4901,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 88278.5,
+              "at": 114928.80000001192,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -4931,13 +4919,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.8567823584166887,
-                "cpuFrameTimeMs": 5.387500000031044,
-                "cpuFrameTimeP99Ms": 9.5,
-                "renderSubmissionTimeMs": 4.7833333333100505,
-                "renderSubmissionTimeP99Ms": 7.1000000005587935,
+                "fps": 1.753952605277198,
+                "cpuFrameTimeMs": 7.920833332836628,
+                "cpuFrameTimeP99Ms": 21.299999982118607,
+                "renderSubmissionTimeMs": 7.015833331644535,
+                "renderSubmissionTimeP99Ms": 17.400000005960464,
                 "drawCalls": 14,
-                "renderCalls": 3742,
+                "renderCalls": 3713,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -4981,9 +4969,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 93760.09999999963,
+              "at": 122041.5,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -4999,13 +4987,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.991056740346392,
-                "cpuFrameTimeMs": 7.643333333342647,
-                "cpuFrameTimeP99Ms": 15.900000000372529,
-                "renderSubmissionTimeMs": 7.094166666641831,
-                "renderSubmissionTimeP99Ms": 6.7999999998137355,
+                "fps": 1.7870465927721315,
+                "cpuFrameTimeMs": 10.346666666616995,
+                "cpuFrameTimeP99Ms": 35.19999998807907,
+                "renderSubmissionTimeMs": 9.50833333209157,
+                "renderSubmissionTimeP99Ms": 20,
                 "drawCalls": 14,
-                "renderCalls": 3975,
+                "renderCalls": 3932,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -5048,9 +5036,9 @@
               }
             }
           ],
-          "frameCount": 273,
+          "frameCount": 270,
           "stateDiagnostics": {
-            "bootedAt": 1785341840076,
+            "bootedAt": 1785464240264,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
             "modeTransitions": 3,
@@ -5076,13 +5064,13 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 3.00711935507315,
-            "cpuFrameTimeMs": 10.005833333327125,
-            "cpuFrameTimeP99Ms": 313.59999999962747,
-            "renderSubmissionTimeMs": 9.563333333291423,
-            "renderSubmissionTimeP99Ms": 313.5,
+            "fps": 1.8129215986946965,
+            "cpuFrameTimeMs": 12.491666666418315,
+            "cpuFrameTimeP99Ms": 332.69999998807907,
+            "renderSubmissionTimeMs": 11.850833331793547,
+            "renderSubmissionTimeP99Ms": 332.69999998807907,
             "drawCalls": 13,
-            "renderCalls": 4077,
+            "renderCalls": 4034,
             "frameRenderCalls": 14,
             "triangles": 13,
             "points": 0,
@@ -5112,7 +5100,7 @@
             "instances": 0
           },
           "estimatedGpuMemoryBytes": 68935776,
-          "domNodes": 167,
+          "domNodes": 180,
           "modeOwnedDomNodes": 0,
           "hudRoots": 0,
           "sessionRoots": 0,
@@ -5179,7 +5167,7 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 327.20000000018626,
+              "at": 291,
               "mode": "menu",
               "domNodes": 164,
               "hudRoots": 0,
@@ -5247,9 +5235,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 9232.700000000186,
+              "at": 9830.700000017881,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -5265,13 +5253,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 7.122346078187233,
-                "cpuFrameTimeMs": 8.77812499999709,
-                "cpuFrameTimeP99Ms": 348.20000000018626,
-                "renderSubmissionTimeMs": 8.490625000049477,
-                "renderSubmissionTimeP99Ms": 345.29999999981374,
+                "fps": 6.834064504759757,
+                "cpuFrameTimeMs": 7.974603173278627,
+                "cpuFrameTimeP99Ms": 329.90000000596046,
+                "renderSubmissionTimeMs": 7.690476189057033,
+                "renderSubmissionTimeP99Ms": 326.90000000596046,
                 "drawCalls": 497,
-                "renderCalls": 899,
+                "renderCalls": 884,
                 "frameRenderCalls": 16,
                 "triangles": 252530,
                 "points": 0,
@@ -5315,9 +5303,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 88278.5,
+              "at": 114928.80000001192,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -5333,13 +5321,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.8567823584166887,
-                "cpuFrameTimeMs": 5.387500000031044,
-                "cpuFrameTimeP99Ms": 9.5,
-                "renderSubmissionTimeMs": 4.7833333333100505,
-                "renderSubmissionTimeP99Ms": 7.1000000005587935,
+                "fps": 1.753952605277198,
+                "cpuFrameTimeMs": 7.920833332836628,
+                "cpuFrameTimeP99Ms": 21.299999982118607,
+                "renderSubmissionTimeMs": 7.015833331644535,
+                "renderSubmissionTimeP99Ms": 17.400000005960464,
                 "drawCalls": 14,
-                "renderCalls": 3742,
+                "renderCalls": 3713,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -5383,9 +5371,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 93760.09999999963,
+              "at": 122041.5,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -5401,13 +5389,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.991056740346392,
-                "cpuFrameTimeMs": 7.643333333342647,
-                "cpuFrameTimeP99Ms": 15.900000000372529,
-                "renderSubmissionTimeMs": 7.094166666641831,
-                "renderSubmissionTimeP99Ms": 6.7999999998137355,
+                "fps": 1.7870465927721315,
+                "cpuFrameTimeMs": 10.346666666616995,
+                "cpuFrameTimeP99Ms": 35.19999998807907,
+                "renderSubmissionTimeMs": 9.50833333209157,
+                "renderSubmissionTimeP99Ms": 20,
                 "drawCalls": 14,
-                "renderCalls": 3975,
+                "renderCalls": 3932,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -5451,9 +5439,9 @@
             },
             {
               "label": "exit:dunes",
-              "at": 96201.70000000019,
+              "at": 125804.70000001788,
               "mode": "menu",
-              "domNodes": 167,
+              "domNodes": 180,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -5469,13 +5457,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.958930050893651,
-                "cpuFrameTimeMs": 10.125,
-                "cpuFrameTimeP99Ms": 313.59999999962747,
-                "renderSubmissionTimeMs": 9.672499999970508,
-                "renderSubmissionTimeP99Ms": 313.5,
+                "fps": 1.7830105836534984,
+                "cpuFrameTimeMs": 12.929166666418315,
+                "cpuFrameTimeP99Ms": 332.69999998807907,
+                "renderSubmissionTimeMs": 12.093333331992229,
+                "renderSubmissionTimeP99Ms": 332.69999998807907,
                 "drawCalls": 268,
-                "renderCalls": 4035,
+                "renderCalls": 3992,
                 "frameRenderCalls": 15,
                 "triangles": 216235,
                 "points": 0,
@@ -5518,9 +5506,9 @@
               }
             }
           ],
-          "frameCount": 277,
+          "frameCount": 274,
           "stateDiagnostics": {
-            "bootedAt": 1785341840076,
+            "bootedAt": 1785464240264,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
             "modeTransitions": 4,
@@ -5547,13 +5535,13 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 3.025970390879711,
-            "cpuFrameTimeMs": 11.952499999975165,
-            "cpuFrameTimeP99Ms": 313.59999999962747,
-            "renderSubmissionTimeMs": 11.547499999970508,
-            "renderSubmissionTimeP99Ms": 313.5,
+            "fps": 1.8566194672741587,
+            "cpuFrameTimeMs": 15.624166666219631,
+            "cpuFrameTimeP99Ms": 336,
+            "renderSubmissionTimeMs": 15.001666664580505,
+            "renderSubmissionTimeP99Ms": 336,
             "drawCalls": 438,
-            "renderCalls": 4310,
+            "renderCalls": 4238,
             "frameRenderCalls": 15,
             "triangles": 242343,
             "points": 0,
@@ -5594,6 +5582,7 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
+            "rallyRaid": null,
             "speed": 0,
             "x": -155,
             "y": -0.3897513154006966,
@@ -5624,6 +5613,7 @@
               "checkpoint": 1,
               "checkpoints": 19,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -5767,7 +5757,7 @@
               "previous": {
                 "eventId": "whiskerwind",
                 "vehicleId": "meowster",
-                "time": 5.433,
+                "time": 5.4,
                 "score": 0,
                 "medal": "S",
                 "ghost": [
@@ -6151,8 +6141,8 @@
                   },
                   {
                     "t": 4.308,
-                    "x": 77.921,
-                    "y": 40.631,
+                    "x": 77.922,
+                    "y": 40.999,
                     "z": -169.264,
                     "yaw": 1.7419,
                     "pitch": 0.0522,
@@ -6160,105 +6150,96 @@
                   },
                   {
                     "t": 4.408,
-                    "x": 79.472,
-                    "y": 43.263,
-                    "z": -169.532,
+                    "x": 79.483,
+                    "y": 44.691,
+                    "z": -169.534,
                     "yaw": 1.7419,
-                    "pitch": 0.0737,
-                    "roll": 0.0368
+                    "pitch": 0.0739,
+                    "roll": 0.0367
                   },
                   {
                     "t": 4.508,
-                    "x": 81.004,
-                    "y": 46.841,
-                    "z": -169.797,
+                    "x": 81.027,
+                    "y": 48.212,
+                    "z": -169.801,
                     "yaw": 1.7419,
-                    "pitch": 0.0854,
-                    "roll": 0.0226
+                    "pitch": 0.0855,
+                    "roll": 0.0225
                   },
                   {
                     "t": 4.608,
-                    "x": 82.521,
-                    "y": 50.246,
-                    "z": -170.059,
+                    "x": 82.554,
+                    "y": 51.56,
+                    "z": -170.065,
                     "yaw": 1.7419,
-                    "pitch": 0.0827,
+                    "pitch": 0.0825,
                     "roll": 0.0171
                   },
                   {
                     "t": 4.708,
-                    "x": 84.023,
-                    "y": 53.48,
-                    "z": -170.319,
+                    "x": 84.065,
+                    "y": 54.737,
+                    "z": -170.326,
                     "yaw": 1.7419,
-                    "pitch": 0.0722,
-                    "roll": 0.0214
+                    "pitch": 0.0718,
+                    "roll": 0.0216
                   },
                   {
                     "t": 4.808,
-                    "x": 85.511,
-                    "y": 56.542,
-                    "z": -170.576,
+                    "x": 85.562,
+                    "y": 57.741,
+                    "z": -170.585,
                     "yaw": 1.7419,
-                    "pitch": 0.0563,
-                    "roll": 0.0322
+                    "pitch": 0.0558,
+                    "roll": 0.0326
                   },
                   {
                     "t": 4.908,
-                    "x": 86.985,
-                    "y": 59.432,
-                    "z": -170.831,
+                    "x": 87.045,
+                    "y": 60.574,
+                    "z": -170.841,
                     "yaw": 1.7419,
-                    "pitch": 0.0389,
-                    "roll": 0.0446
+                    "pitch": 0.0382,
+                    "roll": 0.045
                   },
                   {
                     "t": 5.008,
-                    "x": 88.446,
-                    "y": 62.15,
-                    "z": -171.083,
+                    "x": 88.515,
+                    "y": 63.234,
+                    "z": -171.095,
                     "yaw": 1.7419,
-                    "pitch": 0.0233,
-                    "roll": 0.0548
+                    "pitch": 0.0225,
+                    "roll": 0.0552
                   },
                   {
                     "t": 5.108,
-                    "x": 89.895,
-                    "y": 64.696,
-                    "z": -171.333,
+                    "x": 89.972,
+                    "y": 65.723,
+                    "z": -171.347,
                     "yaw": 1.7419,
-                    "pitch": 0.0016,
-                    "roll": 0.0643
+                    "pitch": 0.0002,
+                    "roll": 0.0649
                   },
                   {
                     "t": 5.208,
-                    "x": 91.333,
-                    "y": 67.069,
-                    "z": -171.582,
+                    "x": 91.416,
+                    "y": 68.039,
+                    "z": -171.596,
                     "yaw": 1.7419,
-                    "pitch": -0.0292,
-                    "roll": 0.0774
+                    "pitch": -0.0311,
+                    "roll": 0.0782
                   },
                   {
                     "t": 5.308,
-                    "x": 92.759,
-                    "y": 69.271,
-                    "z": -171.828,
+                    "x": 92.85,
+                    "y": 70.184,
+                    "z": -171.844,
                     "yaw": 1.7419,
-                    "pitch": -0.0583,
-                    "roll": 0.0958
-                  },
-                  {
-                    "t": 5.408,
-                    "x": 94.174,
-                    "y": 71.301,
-                    "z": -172.073,
-                    "yaw": 1.7419,
-                    "pitch": -0.0813,
-                    "roll": 0.1201
+                    "pitch": -0.06,
+                    "roll": 0.0972
                   }
                 ],
-                "setAt": "2026-07-29T16:18:37.941Z"
+                "setAt": "2026-07-31T02:19:05.367Z"
               },
               "result": null,
               "samples": 0,
@@ -6372,8 +6353,8 @@
               ]
             },
             "performance": {
-              "fps": 22,
-              "physicsMs": 0.20000000018626451,
+              "fps": 24,
+              "physicsMs": 0.20000001788139343,
               "drawCalls": 438,
               "triangles": 242343
             }
@@ -6385,7 +6366,7 @@
             "instances": 300
           },
           "estimatedGpuMemoryBytes": 84098912,
-          "domNodes": 222,
+          "domNodes": 235,
           "modeOwnedDomNodes": 54,
           "hudRoots": 1,
           "sessionRoots": 1,
@@ -6452,7 +6433,7 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 327.20000000018626,
+              "at": 291,
               "mode": "menu",
               "domNodes": 164,
               "hudRoots": 0,
@@ -6520,9 +6501,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 9232.700000000186,
+              "at": 9830.700000017881,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -6538,13 +6519,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 7.122346078187233,
-                "cpuFrameTimeMs": 8.77812499999709,
-                "cpuFrameTimeP99Ms": 348.20000000018626,
-                "renderSubmissionTimeMs": 8.490625000049477,
-                "renderSubmissionTimeP99Ms": 345.29999999981374,
+                "fps": 6.834064504759757,
+                "cpuFrameTimeMs": 7.974603173278627,
+                "cpuFrameTimeP99Ms": 329.90000000596046,
+                "renderSubmissionTimeMs": 7.690476189057033,
+                "renderSubmissionTimeP99Ms": 326.90000000596046,
                 "drawCalls": 497,
-                "renderCalls": 899,
+                "renderCalls": 884,
                 "frameRenderCalls": 16,
                 "triangles": 252530,
                 "points": 0,
@@ -6588,9 +6569,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 88278.5,
+              "at": 114928.80000001192,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -6606,13 +6587,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.8567823584166887,
-                "cpuFrameTimeMs": 5.387500000031044,
-                "cpuFrameTimeP99Ms": 9.5,
-                "renderSubmissionTimeMs": 4.7833333333100505,
-                "renderSubmissionTimeP99Ms": 7.1000000005587935,
+                "fps": 1.753952605277198,
+                "cpuFrameTimeMs": 7.920833332836628,
+                "cpuFrameTimeP99Ms": 21.299999982118607,
+                "renderSubmissionTimeMs": 7.015833331644535,
+                "renderSubmissionTimeP99Ms": 17.400000005960464,
                 "drawCalls": 14,
-                "renderCalls": 3742,
+                "renderCalls": 3713,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -6656,9 +6637,9 @@
             },
             {
               "label": "restart:dunes",
-              "at": 93760.09999999963,
+              "at": 122041.5,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -6674,13 +6655,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.991056740346392,
-                "cpuFrameTimeMs": 7.643333333342647,
-                "cpuFrameTimeP99Ms": 15.900000000372529,
-                "renderSubmissionTimeMs": 7.094166666641831,
-                "renderSubmissionTimeP99Ms": 6.7999999998137355,
+                "fps": 1.7870465927721315,
+                "cpuFrameTimeMs": 10.346666666616995,
+                "cpuFrameTimeP99Ms": 35.19999998807907,
+                "renderSubmissionTimeMs": 9.50833333209157,
+                "renderSubmissionTimeP99Ms": 20,
                 "drawCalls": 14,
-                "renderCalls": 3975,
+                "renderCalls": 3932,
                 "frameRenderCalls": 14,
                 "triangles": 36013,
                 "points": 0,
@@ -6724,9 +6705,9 @@
             },
             {
               "label": "exit:dunes",
-              "at": 96201.70000000019,
+              "at": 125804.70000001788,
               "mode": "menu",
-              "domNodes": 167,
+              "domNodes": 180,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -6742,13 +6723,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 2.958930050893651,
-                "cpuFrameTimeMs": 10.125,
-                "cpuFrameTimeP99Ms": 313.59999999962747,
-                "renderSubmissionTimeMs": 9.672499999970508,
-                "renderSubmissionTimeP99Ms": 313.5,
+                "fps": 1.7830105836534984,
+                "cpuFrameTimeMs": 12.929166666418315,
+                "cpuFrameTimeP99Ms": 332.69999998807907,
+                "renderSubmissionTimeMs": 12.093333331992229,
+                "renderSubmissionTimeP99Ms": 332.69999998807907,
                 "drawCalls": 268,
-                "renderCalls": 4035,
+                "renderCalls": 3992,
                 "frameRenderCalls": 15,
                 "triangles": 216235,
                 "points": 0,
@@ -6792,9 +6773,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 98203,
+              "at": 129318.20000001788,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1254,
               "sessionRoots": 1,
@@ -6810,13 +6791,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 3.1696893176186713,
-                "cpuFrameTimeMs": 11.856666666649593,
-                "cpuFrameTimeP99Ms": 313.59999999962747,
-                "renderSubmissionTimeMs": 11.439999999967403,
-                "renderSubmissionTimeP99Ms": 313.5,
+                "fps": 1.9358491844424983,
+                "cpuFrameTimeMs": 15.49166666616996,
+                "cpuFrameTimeP99Ms": 336,
+                "renderSubmissionTimeMs": 14.85583333124717,
+                "renderSubmissionTimeP99Ms": 336,
                 "drawCalls": 417,
-                "renderCalls": 4205,
+                "renderCalls": 4163,
                 "frameRenderCalls": 16,
                 "triangles": 238714,
                 "points": 0,
@@ -6859,9 +6840,9 @@
               }
             }
           ],
-          "frameCount": 293,
+          "frameCount": 288,
           "stateDiagnostics": {
-            "bootedAt": 1785341840076,
+            "bootedAt": 1785464240264,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
             "modeTransitions": 5,
@@ -6889,6 +6870,7 @@
               "id": "cyber",
               "name": "Cyber Kaki"
             },
+            "rallyRaid": null,
             "speed": 19.279273443763184,
             "x": -8.346010969715092,
             "y": 25.76910144867022,
@@ -6919,6 +6901,7 @@
               "checkpoint": 1,
               "checkpoints": 16,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -7047,7 +7030,7 @@
                 "activeCurtains": 2,
                 "emittedSamples": 2,
                 "vertexCapacity": 480,
-                "peakHeight": 0.4261082185493276
+                "peakHeight": 0.42610822946231597
               },
               "dust": {
                 "quality": "high",
@@ -7172,8 +7155,8 @@
               ]
             },
             "performance": {
-              "fps": 19,
-              "physicsMs": 0.2999999998137355,
+              "fps": 20,
+              "physicsMs": 0.29999998211860657,
               "drawCalls": 592,
               "triangles": 267309
             }
@@ -7197,6 +7180,7 @@
               "id": "tipsy",
               "name": "Tipsy Tumbler"
             },
+            "rallyRaid": null,
             "speed": 18.273724982280537,
             "x": -220.42123030991542,
             "y": -4.179728858305905,
@@ -7227,6 +7211,7 @@
               "checkpoint": 1,
               "checkpoints": 15,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -7355,7 +7340,7 @@
                 "activeCurtains": 2,
                 "emittedSamples": 2,
                 "vertexCapacity": 480,
-                "peakHeight": 0.5370647018561102
+                "peakHeight": 0.5370646949787722
               },
               "dust": {
                 "quality": "high",
@@ -7480,8 +7465,8 @@
               ]
             },
             "performance": {
-              "fps": 18,
-              "physicsMs": 0.10000000055879354,
+              "fps": 20,
+              "physicsMs": 0.29999998211860657,
               "drawCalls": 624,
               "triangles": 300651
             }
@@ -7505,6 +7490,7 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
+            "rallyRaid": null,
             "speed": 16.669196396140745,
             "x": 52.21661668596917,
             "y": -4.20858135525302,
@@ -7535,6 +7521,7 @@
               "checkpoint": 0,
               "checkpoints": 0,
               "score": 9,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -7789,86 +7776,192 @@
             },
             "performance": {
               "fps": 20,
-              "physicsMs": 0.2999999998137355,
+              "physicsMs": 0.29999998211860657,
               "drawCalls": 220,
               "triangles": 207941
             }
           }
         },
-        "workshop": {
-          "build": {
-            "valid": true,
-            "theme": "dune",
-            "discipline": "dunes",
-            "elevationStamps": 2
-          },
-          "snapshot": {
+        "rallyRaid": {
+          "opening": {
             "mode": "racing",
             "raceMode": "dunes",
             "phase": "racing",
-            "eventId": "draw-kdt-1cgro2b-69h8",
+            "eventId": "raid-prologue",
             "event": {
-              "id": "draw-kdt-1cgro2b-69h8",
-              "name": "Wobbly Tail Grand Prix",
-              "routeType": "circuit",
-              "weather": "sandstorm",
-              "timeOfDay": "noon",
-              "isDrawTrack": true,
-              "customTrackId": "kdt-1cgro2b-69h8"
+              "id": "raid-prologue",
+              "name": "Rally Raid Prologue",
+              "routeType": "point-to-point",
+              "weather": "clear",
+              "timeOfDay": "dawn",
+              "isDrawTrack": false,
+              "customTrackId": null
             },
-            "vehicleId": "meowster",
+            "vehicleId": "prototype",
             "vehicle": {
-              "id": "meowster",
-              "name": "Mighty Meowster"
+              "id": "prototype",
+              "name": "Kaki Atlas 4×4"
             },
-            "speed": 19.312210562336325,
-            "x": 80.88860106412099,
-            "y": 8.880375509359475,
-            "z": -143.55644547597308,
+            "rallyRaid": {
+              "vehicle": {
+                "id": "prototype",
+                "name": "Kaki Atlas 4×4",
+                "shortName": "Atlas",
+                "archetype": "BALANCED 4×4 PROTOTYPE",
+                "description": "The all-round expedition tool: four driven wheels, calm landings, and enough pace to make every surface useful.",
+                "color": 4956060,
+                "accent": 16764763,
+                "drive": "4WD",
+                "mass": 1.68,
+                "stability": 1.04,
+                "tuning": {
+                  "acceleration": 18.8,
+                  "reverseAcceleration": 11.1,
+                  "brake": 30.2,
+                  "rollingResistance": 0.54,
+                  "aerodynamicDrag": 0.0054,
+                  "engineBraking": 0.11,
+                  "roadGrip": 8.8,
+                  "offroadGrip": 7.35,
+                  "driftGrip": 2.5,
+                  "surfaceDragScale": 0.68,
+                  "surfaceResponse": 5.6,
+                  "steerRate": 1.66,
+                  "driftSteerRate": 2.02,
+                  "steeringResponse": 10.2,
+                  "steeringReturn": 12.8,
+                  "maxSpeed": 32.4,
+                  "reverseSpeed": 8.6,
+                  "offroadSpeed": 29.7,
+                  "boostSpeed": 38.1,
+                  "boostAcceleration": 27.2,
+                  "gravity": 17.2,
+                  "airPitchControl": 7.3,
+                  "airRollControl": 7.8,
+                  "highSpeedSteerScale": 0.52,
+                  "lowSpeedTorque": 0.42,
+                  "suspensionSpring": 54,
+                  "suspensionDamping": 10.5,
+                  "powertrain": {
+                    "peakTorque": 1260,
+                    "gearRatios": [
+                      3.48,
+                      2.29,
+                      1.64,
+                      1.22,
+                      0.93
+                    ],
+                    "shiftSpeeds": [
+                      11.8,
+                      18.3,
+                      24.8,
+                      31.2
+                    ],
+                    "finalDrive": 17.5,
+                    "tractionLimit": 15.3,
+                    "mass": 1680
+                  }
+                },
+                "contact": {
+                  "wheelbase": 3.16,
+                  "trackWidth": 1.9,
+                  "wheelRadius": 0.58,
+                  "tireWidth": 0.7,
+                  "suspensionTravel": 0.86,
+                  "suspensionRest": 0.38,
+                  "contactSpring": 54,
+                  "contactDamping": 10.4,
+                  "maxClimbHeight": 1.42
+                }
+              },
+              "navigationAssist": "navigator",
+              "serviceChoice": "repair",
+              "expedition": {
+                "schema": 1,
+                "vehicleId": "prototype",
+                "completedStages": [],
+                "cumulativeTime": 0,
+                "serviceSeconds": 0,
+                "damage": 0,
+                "lastStageId": "",
+                "lastService": "",
+                "updatedAt": ""
+              },
+              "roadbook": {
+                "assist": "navigator",
+                "routeReveal": false,
+                "gateAssist": false,
+                "next": {
+                  "id": "roadbook-1",
+                  "index": 0,
+                  "symbol": "CAP",
+                  "instruction": "CAP 062 · keep hardpack",
+                  "hazard": "hardpack",
+                  "cap": 54,
+                  "distanceMeters": 50,
+                  "speedLimit": 25,
+                  "speedZone": null
+                },
+                "total": 5,
+                "validated": 0,
+                "missed": 0,
+                "penaltySeconds": 0,
+                "speedPenaltySeconds": 0,
+                "activeSpeedZone": null,
+                "status": "READ AHEAD",
+                "callout": "CAP · CAP 062 · keep hardpack",
+                "complete": false
+              }
+            },
+            "speed": 4.958697810901918,
+            "x": -271.8042299613268,
+            "y": 0.11043610096893665,
+            "z": -139.66908750868913,
             "grounded": true,
             "telemetry": {
-              "speed": 19.312210562336325,
-              "forwardVelocity": 19.312210562336325,
-              "engineRpm": 5192.812521670814,
-              "requestedDriveForce": 38484.9368385498,
-              "deliveredWheelForce": 38484.9368385498,
+              "speed": 4.958697810901918,
+              "forwardVelocity": 4.958697810901918,
+              "engineRpm": 0,
+              "requestedDriveForce": 0,
+              "deliveredWheelForce": 0,
               "normalLoad": 0,
-              "chassisPitchVelocity": 1.3967088664511444,
-              "chassisRoll": 0.0003582233860992042,
+              "chassisPitchVelocity": 1.0461996468910568,
+              "chassisRoll": 0.0060561273540881986,
               "steeringInput": 0,
               "wheelAngle": 0,
               "groundedWheels": 4,
-              "sandResistance": 1.2489123241645272,
+              "sandResistance": 0.2479348905450959,
               "brushStrength": 0,
               "sinkage": 0.008,
-              "wheelSlip": 0.040197617777005944
+              "wheelSlip": 0
             },
             "race": {
-              "elapsed": 0.09999999999999999,
-              "progress": 0.14237288135593215,
+              "elapsed": 0.06666666666666667,
+              "progress": 0.029411764705882373,
               "lap": 0,
-              "targetLaps": 2,
+              "targetLaps": 1,
               "checkpoint": 1,
-              "checkpoints": 16,
+              "checkpoints": 15,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
             "terrain": {
               "heightfield": {
                 "schema": 1,
-                "eventId": "draw-kdt-1cgro2b-69h8",
-                "seed": 559924650,
+                "eventId": "raid-prologue",
+                "seed": 1380995663,
                 "resolution": [
                   513,
                   513
                 ],
-                "worldSize": 640,
+                "worldSize": 832,
                 "heightRange": [
-                  -10.725432395935059,
-                  15.005707740783691
+                  -10.574115753173828,
+                  15.829109191894531
                 ],
-                "checksum": "e64527ed"
+                "checksum": "fc699498"
               },
               "clipmap": {
                 "quality": "high",
@@ -7879,40 +7972,40 @@
                 "staticTopology": true,
                 "shaderTrimmedUnderlays": true,
                 "signedTrackContrast": true,
-                "trackColor": "#4a3043",
+                "trackColor": "#493447",
                 "snappedOrigins": [
                   [
-                    80.6,
-                    -143.84,
+                    -272.18,
+                    -140.12,
                     0.31
                   ],
                   [
-                    80.6,
-                    -143.84,
+                    -272.8,
+                    -140.12,
                     0.62
                   ],
                   [
-                    79.36,
-                    -143.84,
+                    -272.8,
+                    -141.35999999999999,
                     1.24
                   ],
                   [
-                    79.36,
+                    -272.8,
                     -143.84,
                     2.48
                   ],
                   [
-                    79.36,
+                    -277.76,
                     -148.8,
                     4.96
                   ],
                   [
-                    79.36,
+                    -277.76,
                     -158.72,
                     9.92
                   ],
                   [
-                    79.36,
+                    -277.76,
                     -158.72,
                     19.84
                   ]
@@ -7939,12 +8032,423 @@
               "recentWorldSize": 96,
               "coarseResolution": 128,
               "origin": [
-                33.816046966731896,
-                -191.06066536203522
+                -340.03913894324853,
+                -194.0665362035225
               ],
               "focus": [
-                81.0289714319005,
-                -143.47772913456117
+                -271.8436361028106,
+                -139.68152549534148
+              ],
+              "scrollCount": 0,
+              "appliedBrushes": 0,
+              "droppedBrushes": 0,
+              "maximumDepression": 0,
+              "maximumBerm": 0,
+              "physicalBounds": [
+                -0.15,
+                0.08
+              ],
+              "version": 1
+            },
+            "environment": {
+              "eventId": "raid-prologue",
+              "kitAttached": true,
+              "authoredScatter": 38,
+              "flags": 30,
+              "lods": 17,
+              "checkpointGates": 15,
+              "drawPlacements": 0,
+              "weather": "clear",
+              "timeOfDay": "dawn"
+            },
+            "vfx": {
+              "roosterTail": {
+                "quality": "high",
+                "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
+                "segmentsPerWheel": 24,
+                "activeCurtains": 0,
+                "emittedSamples": 0,
+                "vertexCapacity": 480,
+                "peakHeight": 0
+              },
+              "dust": {
+                "quality": "high",
+                "capacity": 300,
+                "active": 1,
+                "spawned": 1,
+                "pooled": true
+              }
+            },
+            "records": {
+              "key": "raid-prologue:prototype",
+              "previous": null,
+              "result": null,
+              "samples": 0,
+              "ghostVisible": false
+            },
+            "visual": {
+              "authoredBody": true,
+              "wheels": 4,
+              "suspension": 4
+            },
+            "quality": {
+              "terrain": "high",
+              "deformation": "high",
+              "particles": "high",
+              "shadow": "medium",
+              "dustEnabled": true,
+              "dustScale": 1.08,
+              "heatHaze": true
+            },
+            "assists": {
+              "difficulty": "standard",
+              "steering": true,
+              "recovery": true,
+              "cameraShake": 0.72
+            },
+            "camera": {
+              "mode": "chase",
+              "available": [
+                "isometric",
+                "chase",
+                "driver_fpv"
+              ],
+              "transitioning": false,
+              "cinematic": false,
+              "cinematicProgress": 1,
+              "cinematicLabel": "",
+              "transitionProgress": 1,
+              "projection": "perspective",
+              "fov": 71.36657026284699,
+              "visionStage": null,
+              "lookAheadMeters": null,
+              "collision": {
+                "blocked": false,
+                "distance": 12.365067567632787,
+                "hit": "",
+                "lifted": false,
+                "lowerFrustumBlocked": false,
+                "foregroundBlocked": false,
+                "foregroundObject": "",
+                "contained": false,
+                "containingObject": "",
+                "candidates": 0,
+                "activeCandidates": 0,
+                "boomCandidates": 0,
+                "foregroundCandidates": 0,
+                "raycasts": 0
+              },
+              "zoom": 1,
+              "isometricGuardRecoveries": 0
+            },
+            "assets": {
+              "ids": [
+                "monsterDecal",
+                "duneEnvironmentKit",
+                "duneKeyArt",
+                "duneSandDetail"
+              ],
+              "error": "",
+              "cache": [
+                {
+                  "id": "monsterDecal",
+                  "url": "assets/racing/kitty-monster-truck-decal-oekaki-v2.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "duneEnvironmentKit",
+                  "url": "assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "duneKeyArt",
+                  "url": "assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "duneSandDetail",
+                  "url": "assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                }
+              ]
+            },
+            "performance": {
+              "fps": 26,
+              "physicsMs": 0.30000001192092896,
+              "drawCalls": 772,
+              "triangles": 294937
+            }
+          },
+          "penalty": {
+            "mode": "racing",
+            "raceMode": "dunes",
+            "phase": "racing",
+            "eventId": "raid-prologue",
+            "event": {
+              "id": "raid-prologue",
+              "name": "Rally Raid Prologue",
+              "routeType": "point-to-point",
+              "weather": "clear",
+              "timeOfDay": "dawn",
+              "isDrawTrack": false,
+              "customTrackId": null
+            },
+            "vehicleId": "prototype",
+            "vehicle": {
+              "id": "prototype",
+              "name": "Kaki Atlas 4×4"
+            },
+            "rallyRaid": {
+              "vehicle": {
+                "id": "prototype",
+                "name": "Kaki Atlas 4×4",
+                "shortName": "Atlas",
+                "archetype": "BALANCED 4×4 PROTOTYPE",
+                "description": "The all-round expedition tool: four driven wheels, calm landings, and enough pace to make every surface useful.",
+                "color": 4956060,
+                "accent": 16764763,
+                "drive": "4WD",
+                "mass": 1.68,
+                "stability": 1.04,
+                "tuning": {
+                  "acceleration": 18.8,
+                  "reverseAcceleration": 11.1,
+                  "brake": 30.2,
+                  "rollingResistance": 0.54,
+                  "aerodynamicDrag": 0.0054,
+                  "engineBraking": 0.11,
+                  "roadGrip": 8.8,
+                  "offroadGrip": 7.35,
+                  "driftGrip": 2.5,
+                  "surfaceDragScale": 0.68,
+                  "surfaceResponse": 5.6,
+                  "steerRate": 1.66,
+                  "driftSteerRate": 2.02,
+                  "steeringResponse": 10.2,
+                  "steeringReturn": 12.8,
+                  "maxSpeed": 32.4,
+                  "reverseSpeed": 8.6,
+                  "offroadSpeed": 29.7,
+                  "boostSpeed": 38.1,
+                  "boostAcceleration": 27.2,
+                  "gravity": 17.2,
+                  "airPitchControl": 7.3,
+                  "airRollControl": 7.8,
+                  "highSpeedSteerScale": 0.52,
+                  "lowSpeedTorque": 0.42,
+                  "suspensionSpring": 54,
+                  "suspensionDamping": 10.5,
+                  "powertrain": {
+                    "peakTorque": 1260,
+                    "gearRatios": [
+                      3.48,
+                      2.29,
+                      1.64,
+                      1.22,
+                      0.93
+                    ],
+                    "shiftSpeeds": [
+                      11.8,
+                      18.3,
+                      24.8,
+                      31.2
+                    ],
+                    "finalDrive": 17.5,
+                    "tractionLimit": 15.3,
+                    "mass": 1680
+                  }
+                },
+                "contact": {
+                  "wheelbase": 3.16,
+                  "trackWidth": 1.9,
+                  "wheelRadius": 0.58,
+                  "tireWidth": 0.7,
+                  "suspensionTravel": 0.86,
+                  "suspensionRest": 0.38,
+                  "contactSpring": 54,
+                  "contactDamping": 10.4,
+                  "maxClimbHeight": 1.42
+                }
+              },
+              "navigationAssist": "navigator",
+              "serviceChoice": "repair",
+              "expedition": {
+                "schema": 1,
+                "vehicleId": "prototype",
+                "completedStages": [],
+                "cumulativeTime": 0,
+                "serviceSeconds": 0,
+                "damage": 0,
+                "lastStageId": "",
+                "lastService": "",
+                "updatedAt": ""
+              },
+              "roadbook": {
+                "assist": "navigator",
+                "routeReveal": false,
+                "gateAssist": false,
+                "next": {
+                  "id": "roadbook-4",
+                  "index": 3,
+                  "symbol": "R2",
+                  "instruction": "R2 opens · cut late",
+                  "hazard": "rocks",
+                  "cap": 116,
+                  "distanceMeters": 114,
+                  "speedLimit": null,
+                  "speedZone": null
+                },
+                "total": 5,
+                "validated": 0,
+                "missed": 3,
+                "penaltySeconds": 24,
+                "speedPenaltySeconds": 0,
+                "activeSpeedZone": null,
+                "status": "MISSED WAYPOINT +8s",
+                "callout": "MISSED WAYPOINT +8s",
+                "complete": false
+              }
+            },
+            "speed": 9.925450125395193,
+            "x": 12.56661468610695,
+            "y": -0.42319845978038484,
+            "z": -10.433844605620012,
+            "grounded": true,
+            "telemetry": {
+              "speed": 9.925450125395193,
+              "forwardVelocity": 9.925450125395193,
+              "engineRpm": 0,
+              "requestedDriveForce": 0,
+              "deliveredWheelForce": 0,
+              "normalLoad": 0,
+              "chassisPitchVelocity": -1.229100807514294,
+              "chassisRoll": -0.015576864762756916,
+              "steeringInput": 1.850371707708594e-17,
+              "wheelAngle": 7.378661845113938e-19,
+              "groundedWheels": 4,
+              "sandResistance": 0.49627250626975966,
+              "brushStrength": 0,
+              "sinkage": 0.008,
+              "wheelSlip": 0
+            },
+            "race": {
+              "elapsed": 24.133333333333333,
+              "progress": 0.5000000000000001,
+              "lap": 0,
+              "targetLaps": 1,
+              "checkpoint": 1,
+              "checkpoints": 15,
+              "score": 0,
+              "penaltySeconds": 24,
+              "recoveries": 0,
+              "finished": false
+            },
+            "terrain": {
+              "heightfield": {
+                "schema": 1,
+                "eventId": "raid-prologue",
+                "seed": 1380995663,
+                "resolution": [
+                  513,
+                  513
+                ],
+                "worldSize": 832,
+                "heightRange": [
+                  -10.574115753173828,
+                  15.829109191894531
+                ],
+                "checksum": "fc699498"
+              },
+              "clipmap": {
+                "quality": "high",
+                "levels": 7,
+                "cells": 80,
+                "baseSpacing": 0.31,
+                "triangles": 90240,
+                "staticTopology": true,
+                "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#493447",
+                "snappedOrigins": [
+                  [
+                    12.4,
+                    -10.54,
+                    0.31
+                  ],
+                  [
+                    12.4,
+                    -11.16,
+                    0.62
+                  ],
+                  [
+                    12.4,
+                    -12.4,
+                    1.24
+                  ],
+                  [
+                    9.92,
+                    -14.879999999999999,
+                    2.48
+                  ],
+                  [
+                    9.92,
+                    -19.84,
+                    4.96
+                  ],
+                  [
+                    0,
+                    -19.84,
+                    9.92
+                  ],
+                  [
+                    0,
+                    -19.84,
+                    19.84
+                  ]
+                ],
+                "heightTexture": [
+                  513,
+                  513
+                ],
+                "recentDeformation": [
+                  512,
+                  512
+                ],
+                "coarseDeformation": [
+                  128,
+                  128
+                ]
+              },
+              "rendererPhysicsDelta": 0,
+              "authorityShared": true
+            },
+            "deformation": {
+              "quality": "high",
+              "recentResolution": 512,
+              "recentWorldSize": 96,
+              "coarseResolution": 128,
+              "origin": [
+                -35.69471624266144,
+                -58.80234833659491
+              ],
+              "focus": [
+                12.503477852133345,
+                -10.4872770779378
               ],
               "scrollCount": 1,
               "appliedBrushes": 0,
@@ -7958,15 +8462,760 @@
               "version": 2
             },
             "environment": {
-              "eventId": "draw-kdt-1cgro2b-69h8",
+              "eventId": "raid-prologue",
+              "kitAttached": true,
+              "authoredScatter": 38,
+              "flags": 30,
+              "lods": 17,
+              "checkpointGates": 15,
+              "drawPlacements": 0,
+              "weather": "clear",
+              "timeOfDay": "dawn"
+            },
+            "vfx": {
+              "roosterTail": {
+                "quality": "high",
+                "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
+                "segmentsPerWheel": 24,
+                "activeCurtains": 0,
+                "emittedSamples": 0,
+                "vertexCapacity": 480,
+                "peakHeight": 0
+              },
+              "dust": {
+                "quality": "high",
+                "capacity": 300,
+                "active": 5,
+                "spawned": 5,
+                "pooled": true
+              }
+            },
+            "records": {
+              "key": "raid-prologue:prototype",
+              "previous": null,
+              "result": null,
+              "samples": 1,
+              "ghostVisible": false
+            },
+            "visual": {
+              "authoredBody": true,
+              "wheels": 4,
+              "suspension": 4
+            },
+            "quality": {
+              "terrain": "high",
+              "deformation": "high",
+              "particles": "high",
+              "shadow": "medium",
+              "dustEnabled": true,
+              "dustScale": 1.08,
+              "heatHaze": true
+            },
+            "assists": {
+              "difficulty": "standard",
+              "steering": true,
+              "recovery": true,
+              "cameraShake": 0.72
+            },
+            "camera": {
+              "mode": "chase",
+              "available": [
+                "isometric",
+                "chase",
+                "driver_fpv"
+              ],
+              "transitioning": false,
+              "cinematic": false,
+              "cinematicProgress": 1,
+              "cinematicLabel": "",
+              "transitionProgress": 1,
+              "projection": "perspective",
+              "fov": 72.7353602707782,
+              "visionStage": null,
+              "lookAheadMeters": null,
+              "collision": {
+                "blocked": false,
+                "distance": 13.707486576916743,
+                "hit": "",
+                "lifted": false,
+                "lowerFrustumBlocked": false,
+                "foregroundBlocked": false,
+                "foregroundObject": "",
+                "contained": false,
+                "containingObject": "",
+                "candidates": 0,
+                "activeCandidates": 0,
+                "boomCandidates": 0,
+                "foregroundCandidates": 0,
+                "raycasts": 0
+              },
+              "zoom": 1,
+              "isometricGuardRecoveries": 0
+            },
+            "assets": {
+              "ids": [
+                "monsterDecal",
+                "duneEnvironmentKit",
+                "duneKeyArt",
+                "duneSandDetail"
+              ],
+              "error": "",
+              "cache": [
+                {
+                  "id": "monsterDecal",
+                  "url": "assets/racing/kitty-monster-truck-decal-oekaki-v2.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "duneEnvironmentKit",
+                  "url": "assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "duneKeyArt",
+                  "url": "assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "duneSandDetail",
+                  "url": "assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                }
+              ]
+            },
+            "performance": {
+              "fps": 22,
+              "physicsMs": 4.0999999940395355,
+              "drawCalls": 495,
+              "triangles": 248887
+            }
+          },
+          "result": {
+            "mode": "racing",
+            "raceMode": "dunes",
+            "phase": "finished",
+            "eventId": "raid-prologue",
+            "event": {
+              "id": "raid-prologue",
+              "name": "Rally Raid Prologue",
+              "routeType": "point-to-point",
+              "weather": "clear",
+              "timeOfDay": "dawn",
+              "isDrawTrack": false,
+              "customTrackId": null
+            },
+            "vehicleId": "prototype",
+            "vehicle": {
+              "id": "prototype",
+              "name": "Kaki Atlas 4×4"
+            },
+            "rallyRaid": {
+              "vehicle": {
+                "id": "prototype",
+                "name": "Kaki Atlas 4×4",
+                "shortName": "Atlas",
+                "archetype": "BALANCED 4×4 PROTOTYPE",
+                "description": "The all-round expedition tool: four driven wheels, calm landings, and enough pace to make every surface useful.",
+                "color": 4956060,
+                "accent": 16764763,
+                "drive": "4WD",
+                "mass": 1.68,
+                "stability": 1.04,
+                "tuning": {
+                  "acceleration": 18.8,
+                  "reverseAcceleration": 11.1,
+                  "brake": 30.2,
+                  "rollingResistance": 0.54,
+                  "aerodynamicDrag": 0.0054,
+                  "engineBraking": 0.11,
+                  "roadGrip": 8.8,
+                  "offroadGrip": 7.35,
+                  "driftGrip": 2.5,
+                  "surfaceDragScale": 0.68,
+                  "surfaceResponse": 5.6,
+                  "steerRate": 1.66,
+                  "driftSteerRate": 2.02,
+                  "steeringResponse": 10.2,
+                  "steeringReturn": 12.8,
+                  "maxSpeed": 32.4,
+                  "reverseSpeed": 8.6,
+                  "offroadSpeed": 29.7,
+                  "boostSpeed": 38.1,
+                  "boostAcceleration": 27.2,
+                  "gravity": 17.2,
+                  "airPitchControl": 7.3,
+                  "airRollControl": 7.8,
+                  "highSpeedSteerScale": 0.52,
+                  "lowSpeedTorque": 0.42,
+                  "suspensionSpring": 54,
+                  "suspensionDamping": 10.5,
+                  "powertrain": {
+                    "peakTorque": 1260,
+                    "gearRatios": [
+                      3.48,
+                      2.29,
+                      1.64,
+                      1.22,
+                      0.93
+                    ],
+                    "shiftSpeeds": [
+                      11.8,
+                      18.3,
+                      24.8,
+                      31.2
+                    ],
+                    "finalDrive": 17.5,
+                    "tractionLimit": 15.3,
+                    "mass": 1680
+                  }
+                },
+                "contact": {
+                  "wheelbase": 3.16,
+                  "trackWidth": 1.9,
+                  "wheelRadius": 0.58,
+                  "tireWidth": 0.7,
+                  "suspensionTravel": 0.86,
+                  "suspensionRest": 0.38,
+                  "contactSpring": 54,
+                  "contactDamping": 10.4,
+                  "maxClimbHeight": 1.42
+                }
+              },
+              "navigationAssist": "navigator",
+              "serviceChoice": "repair",
+              "expedition": {
+                "schema": 1,
+                "vehicleId": "prototype",
+                "completedStages": [
+                  "raid-prologue"
+                ],
+                "cumulativeTime": 58.166666666666664,
+                "serviceSeconds": 18,
+                "damage": 0,
+                "lastStageId": "raid-prologue",
+                "lastService": "repair",
+                "updatedAt": "2026-07-31T02:20:13.565Z"
+              },
+              "roadbook": {
+                "assist": "navigator",
+                "routeReveal": false,
+                "gateAssist": false,
+                "next": null,
+                "total": 5,
+                "validated": 0,
+                "missed": 5,
+                "penaltySeconds": 40,
+                "speedPenaltySeconds": 0,
+                "activeSpeedZone": null,
+                "status": "FINISHED",
+                "callout": "MISSED WAYPOINT +8s",
+                "complete": true
+              }
+            },
+            "speed": 9.85108974282077,
+            "x": 12.817979041503511,
+            "y": -0.38850231000303953,
+            "z": -10.221115868429601,
+            "grounded": true,
+            "telemetry": {
+              "speed": 9.85108974282077,
+              "forwardVelocity": 9.85108974282077,
+              "engineRpm": 0,
+              "requestedDriveForce": 0,
+              "deliveredWheelForce": 0,
+              "normalLoad": 0,
+              "chassisPitchVelocity": -2.185345637345687,
+              "chassisRoll": -0.031867095575080724,
+              "steeringInput": 7.401486830834377e-17,
+              "wheelAngle": 1.0765166421880578e-17,
+              "groundedWheels": 4,
+              "sandResistance": 0.49255448714103856,
+              "brushStrength": 0,
+              "sinkage": 0.008,
+              "wheelSlip": 0
+            },
+            "race": {
+              "elapsed": 40.166666666666664,
+              "progress": 0.5000000000000001,
+              "lap": 0,
+              "targetLaps": 1,
+              "checkpoint": 1,
+              "checkpoints": 15,
+              "score": 0,
+              "penaltySeconds": 40,
+              "recoveries": 0,
+              "finished": true
+            },
+            "terrain": {
+              "heightfield": {
+                "schema": 1,
+                "eventId": "raid-prologue",
+                "seed": 1380995663,
+                "resolution": [
+                  513,
+                  513
+                ],
+                "worldSize": 832,
+                "heightRange": [
+                  -10.574115753173828,
+                  15.829109191894531
+                ],
+                "checksum": "fc699498"
+              },
+              "clipmap": {
+                "quality": "high",
+                "levels": 7,
+                "cells": 80,
+                "baseSpacing": 0.31,
+                "triangles": 90240,
+                "staticTopology": true,
+                "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#493447",
+                "snappedOrigins": [
+                  [
+                    12.4,
+                    -10.54,
+                    0.31
+                  ],
+                  [
+                    12.4,
+                    -11.16,
+                    0.62
+                  ],
+                  [
+                    12.4,
+                    -12.4,
+                    1.24
+                  ],
+                  [
+                    9.92,
+                    -14.879999999999999,
+                    2.48
+                  ],
+                  [
+                    9.92,
+                    -19.84,
+                    4.96
+                  ],
+                  [
+                    0,
+                    -19.84,
+                    9.92
+                  ],
+                  [
+                    0,
+                    -19.84,
+                    19.84
+                  ]
+                ],
+                "heightTexture": [
+                  513,
+                  513
+                ],
+                "recentDeformation": [
+                  512,
+                  512
+                ],
+                "coarseDeformation": [
+                  128,
+                  128
+                ]
+              },
+              "rendererPhysicsDelta": 0,
+              "authorityShared": true
+            },
+            "deformation": {
+              "quality": "high",
+              "recentResolution": 512,
+              "recentWorldSize": 96,
+              "coarseResolution": 128,
+              "origin": [
+                -35.69471624266144,
+                -58.80234833659491
+              ],
+              "focus": [
+                12.755315221757925,
+                -10.274148030531405
+              ],
+              "scrollCount": 1,
+              "appliedBrushes": 0,
+              "droppedBrushes": 0,
+              "maximumDepression": 0,
+              "maximumBerm": 0,
+              "physicalBounds": [
+                -0.15,
+                0.08
+              ],
+              "version": 2
+            },
+            "environment": {
+              "eventId": "raid-prologue",
+              "kitAttached": true,
+              "authoredScatter": 38,
+              "flags": 30,
+              "lods": 17,
+              "checkpointGates": 15,
+              "drawPlacements": 0,
+              "weather": "clear",
+              "timeOfDay": "dawn"
+            },
+            "vfx": {
+              "roosterTail": {
+                "quality": "high",
+                "fixedLattice": true,
+                "curvedSurface": true,
+                "bufferAuthorityShared": true,
+                "crossSectionRows": 5,
+                "segmentsPerWheel": 24,
+                "activeCurtains": 0,
+                "emittedSamples": 0,
+                "vertexCapacity": 480,
+                "peakHeight": 0
+              },
+              "dust": {
+                "quality": "high",
+                "capacity": 300,
+                "active": 7,
+                "spawned": 7,
+                "pooled": true
+              }
+            },
+            "records": {
+              "key": "raid-prologue:prototype",
+              "previous": null,
+              "result": {
+                "improved": true,
+                "time": 40.167,
+                "score": 0,
+                "medal": "S",
+                "previous": null,
+                "record": {
+                  "eventId": "raid-prologue",
+                  "vehicleId": "prototype",
+                  "time": 40.167,
+                  "score": 0,
+                  "medal": "S",
+                  "ghost": [
+                    {
+                      "t": 24.108,
+                      "x": 12.377,
+                      "y": -0.449,
+                      "z": -10.594,
+                      "yaw": 0.8685,
+                      "pitch": 0.0648,
+                      "roll": 0.001
+                    }
+                  ],
+                  "setAt": "2026-07-31T02:20:13.565Z"
+                },
+                "expedition": {
+                  "completedStages": 1,
+                  "totalStages": 4,
+                  "cumulativeTime": 58.166666666666664,
+                  "service": "repair",
+                  "serviceSeconds": 18,
+                  "damage": 0
+                }
+              },
+              "samples": 1,
+              "ghostVisible": false
+            },
+            "visual": {
+              "authoredBody": true,
+              "wheels": 4,
+              "suspension": 4
+            },
+            "quality": {
+              "terrain": "high",
+              "deformation": "high",
+              "particles": "high",
+              "shadow": "medium",
+              "dustEnabled": true,
+              "dustScale": 1.08,
+              "heatHaze": true
+            },
+            "assists": {
+              "difficulty": "standard",
+              "steering": true,
+              "recovery": true,
+              "cameraShake": 0.72
+            },
+            "camera": {
+              "mode": "chase",
+              "available": [
+                "isometric",
+                "chase",
+                "driver_fpv"
+              ],
+              "transitioning": false,
+              "cinematic": false,
+              "cinematicProgress": 1,
+              "cinematicLabel": "",
+              "transitionProgress": 1,
+              "projection": "perspective",
+              "fov": 72.71486725195848,
+              "visionStage": null,
+              "lookAheadMeters": null,
+              "collision": {
+                "blocked": false,
+                "distance": 13.687317299853925,
+                "hit": "",
+                "lifted": false,
+                "lowerFrustumBlocked": false,
+                "foregroundBlocked": false,
+                "foregroundObject": "",
+                "contained": false,
+                "containingObject": "",
+                "candidates": 0,
+                "activeCandidates": 0,
+                "boomCandidates": 0,
+                "foregroundCandidates": 0,
+                "raycasts": 0
+              },
+              "zoom": 1,
+              "isometricGuardRecoveries": 0
+            },
+            "assets": {
+              "ids": [
+                "monsterDecal",
+                "duneEnvironmentKit",
+                "duneKeyArt",
+                "duneSandDetail"
+              ],
+              "error": "",
+              "cache": [
+                {
+                  "id": "monsterDecal",
+                  "url": "assets/racing/kitty-monster-truck-decal-oekaki-v2.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "duneEnvironmentKit",
+                  "url": "assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
+                  "refs": 1,
+                  "kind": "model",
+                  "loaded": true,
+                  "colorSpace": ""
+                },
+                {
+                  "id": "duneKeyArt",
+                  "url": "assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                },
+                {
+                  "id": "duneSandDetail",
+                  "url": "assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp",
+                  "refs": 1,
+                  "kind": "texture",
+                  "loaded": true,
+                  "colorSpace": "srgb"
+                }
+              ]
+            },
+            "performance": {
+              "fps": 17,
+              "physicsMs": 0.19999998807907104,
+              "drawCalls": 495,
+              "triangles": 248887
+            }
+          }
+        },
+        "workshop": {
+          "build": {
+            "valid": true,
+            "theme": "dune",
+            "discipline": "dunes",
+            "elevationStamps": 2
+          },
+          "snapshot": {
+            "mode": "racing",
+            "raceMode": "dunes",
+            "phase": "racing",
+            "eventId": "draw-kdt-1eho75g-1mw3",
+            "event": {
+              "id": "draw-kdt-1eho75g-1mw3",
+              "name": "Kaki Thunder Ring",
+              "routeType": "circuit",
+              "weather": "sandstorm",
+              "timeOfDay": "afternoon",
+              "isDrawTrack": true,
+              "customTrackId": "kdt-1eho75g-1mw3"
+            },
+            "vehicleId": "meowster",
+            "vehicle": {
+              "id": "meowster",
+              "name": "Mighty Meowster"
+            },
+            "rallyRaid": null,
+            "speed": 19.30666812721531,
+            "x": -99.74185277158914,
+            "y": 10.429943692487386,
+            "z": 129.73722938611834,
+            "grounded": true,
+            "telemetry": {
+              "speed": 19.30666812721531,
+              "forwardVelocity": 19.306668127215307,
+              "engineRpm": 5191.536721877323,
+              "requestedDriveForce": 38491.775712011426,
+              "deliveredWheelForce": 38491.775712011426,
+              "normalLoad": 0,
+              "chassisPitchVelocity": 0.012728109036015844,
+              "chassisRoll": 0.022027394805848963,
+              "steeringInput": 0,
+              "wheelAngle": 0,
+              "groundedWheels": 4,
+              "sandResistance": 2.1515504625101087,
+              "brushStrength": 0,
+              "sinkage": 0.008,
+              "wheelSlip": 0.052353496107963124
+            },
+            "race": {
+              "elapsed": 0.09999999999999999,
+              "progress": 0.6203389830508469,
+              "lap": 0,
+              "targetLaps": 2,
+              "checkpoint": 1,
+              "checkpoints": 16,
+              "score": 0,
+              "penaltySeconds": 0,
+              "recoveries": 0,
+              "finished": false
+            },
+            "terrain": {
+              "heightfield": {
+                "schema": 1,
+                "eventId": "draw-kdt-1eho75g-1mw3",
+                "seed": 973845517,
+                "resolution": [
+                  513,
+                  513
+                ],
+                "worldSize": 640,
+                "heightRange": [
+                  -7.551915645599365,
+                  18.42196273803711
+                ],
+                "checksum": "411652e2"
+              },
+              "clipmap": {
+                "quality": "high",
+                "levels": 7,
+                "cells": 80,
+                "baseSpacing": 0.31,
+                "triangles": 90240,
+                "staticTopology": true,
+                "shaderTrimmedUnderlays": true,
+                "signedTrackContrast": true,
+                "trackColor": "#49313f",
+                "snappedOrigins": [
+                  [
+                    -99.82,
+                    129.58,
+                    0.31
+                  ],
+                  [
+                    -100.44,
+                    128.96,
+                    0.62
+                  ],
+                  [
+                    -101.67999999999999,
+                    128.96,
+                    1.24
+                  ],
+                  [
+                    -104.16,
+                    128.96,
+                    2.48
+                  ],
+                  [
+                    -109.12,
+                    128.96,
+                    4.96
+                  ],
+                  [
+                    -119.03999999999999,
+                    119.03999999999999,
+                    9.92
+                  ],
+                  [
+                    -119.03999999999999,
+                    119.03999999999999,
+                    19.84
+                  ]
+                ],
+                "heightTexture": [
+                  513,
+                  513
+                ],
+                "recentDeformation": [
+                  512,
+                  512
+                ],
+                "coarseDeformation": [
+                  128,
+                  128
+                ]
+              },
+              "rendererPhysicsDelta": 0,
+              "authorityShared": true
+            },
+            "deformation": {
+              "quality": "high",
+              "recentResolution": 512,
+              "recentWorldSize": 96,
+              "coarseResolution": 128,
+              "origin": [
+                -148.79060665362033,
+                80.78277886497064
+              ],
+              "focus": [
+                -99.86909793937646,
+                129.638771751782
+              ],
+              "scrollCount": 1,
+              "appliedBrushes": 0,
+              "droppedBrushes": 0,
+              "maximumDepression": 0,
+              "maximumBerm": 0,
+              "physicalBounds": [
+                -0.15,
+                0.08
+              ],
+              "version": 2
+            },
+            "environment": {
+              "eventId": "draw-kdt-1eho75g-1mw3",
               "kitAttached": true,
               "authoredScatter": 58,
               "flags": 32,
-              "lods": 29,
+              "lods": 26,
               "checkpointGates": 16,
               "drawPlacements": 5,
               "weather": "sandstorm",
-              "timeOfDay": "noon"
+              "timeOfDay": "afternoon"
             },
             "vfx": {
               "roosterTail": {
@@ -7979,7 +9228,7 @@
                 "activeCurtains": 2,
                 "emittedSamples": 2,
                 "vertexCapacity": 480,
-                "peakHeight": 0.4143192649816741
+                "peakHeight": 0.42414606378119707
               },
               "dust": {
                 "quality": "high",
@@ -7990,7 +9239,7 @@
               }
             },
             "records": {
-              "key": "draw-kdt-1cgro2b-69h8:meowster",
+              "key": "draw-kdt-1eho75g-1mw3:meowster",
               "previous": null,
               "result": null,
               "samples": 0,
@@ -8029,12 +9278,12 @@
               "cinematicLabel": "",
               "transitionProgress": 1,
               "projection": "perspective",
-              "fov": 75.40741895745417,
+              "fov": 75.40586707562029,
               "visionStage": null,
               "lookAheadMeters": null,
               "collision": {
                 "blocked": false,
-                "distance": 16.232831696622792,
+                "distance": 16.231981934173987,
                 "hit": "",
                 "lifted": false,
                 "lowerFrustumBlocked": false,
@@ -8105,9 +9354,9 @@
             },
             "performance": {
               "fps": 29,
-              "physicsMs": 0.2999999998137355,
-              "drawCalls": 534,
-              "triangles": 259231
+              "physicsMs": 0.19999998807907104,
+              "drawCalls": 542,
+              "triangles": 259779
             }
           }
         },
@@ -8130,13 +9379,13 @@
               "cssHeight": 720
             },
             "dpr": 1,
-            "fps": 4.188700979108037,
-            "cpuFrameTimeMs": 50.50000000020696,
-            "cpuFrameTimeP99Ms": 322.1000000005588,
-            "renderSubmissionTimeMs": 49.77777777798474,
-            "renderSubmissionTimeP99Ms": 320.1000000005588,
+            "fps": 3.8095238095238093,
+            "cpuFrameTimeMs": 53.13750000298023,
+            "cpuFrameTimeP99Ms": 316.90000000596046,
+            "renderSubmissionTimeMs": 52.56249999627471,
+            "renderSubmissionTimeP99Ms": 314.30000001192093,
             "drawCalls": 496,
-            "renderCalls": 129,
+            "renderCalls": 115,
             "frameRenderCalls": 15,
             "triangles": 252529,
             "points": 0,
@@ -8177,6 +9426,7 @@
               "id": "meowster",
               "name": "Mighty Meowster"
             },
+            "rallyRaid": null,
             "speed": 0,
             "x": -155,
             "y": -0.41773169863322535,
@@ -8207,6 +9457,7 @@
               "checkpoint": 1,
               "checkpoints": 19,
               "score": 0,
+              "penaltySeconds": 0,
               "recoveries": 0,
               "finished": false
             },
@@ -8350,7 +9601,7 @@
               "previous": {
                 "eventId": "whiskerwind",
                 "vehicleId": "meowster",
-                "time": 5.433,
+                "time": 5.4,
                 "score": 0,
                 "medal": "S",
                 "ghost": [
@@ -8734,8 +9985,8 @@
                   },
                   {
                     "t": 4.308,
-                    "x": 77.921,
-                    "y": 40.631,
+                    "x": 77.922,
+                    "y": 40.999,
                     "z": -169.264,
                     "yaw": 1.7419,
                     "pitch": 0.0522,
@@ -8743,105 +9994,96 @@
                   },
                   {
                     "t": 4.408,
-                    "x": 79.472,
-                    "y": 43.263,
-                    "z": -169.532,
+                    "x": 79.483,
+                    "y": 44.691,
+                    "z": -169.534,
                     "yaw": 1.7419,
-                    "pitch": 0.0737,
-                    "roll": 0.0368
+                    "pitch": 0.0739,
+                    "roll": 0.0367
                   },
                   {
                     "t": 4.508,
-                    "x": 81.004,
-                    "y": 46.841,
-                    "z": -169.797,
+                    "x": 81.027,
+                    "y": 48.212,
+                    "z": -169.801,
                     "yaw": 1.7419,
-                    "pitch": 0.0854,
-                    "roll": 0.0226
+                    "pitch": 0.0855,
+                    "roll": 0.0225
                   },
                   {
                     "t": 4.608,
-                    "x": 82.521,
-                    "y": 50.246,
-                    "z": -170.059,
+                    "x": 82.554,
+                    "y": 51.56,
+                    "z": -170.065,
                     "yaw": 1.7419,
-                    "pitch": 0.0827,
+                    "pitch": 0.0825,
                     "roll": 0.0171
                   },
                   {
                     "t": 4.708,
-                    "x": 84.023,
-                    "y": 53.48,
-                    "z": -170.319,
+                    "x": 84.065,
+                    "y": 54.737,
+                    "z": -170.326,
                     "yaw": 1.7419,
-                    "pitch": 0.0722,
-                    "roll": 0.0214
+                    "pitch": 0.0718,
+                    "roll": 0.0216
                   },
                   {
                     "t": 4.808,
-                    "x": 85.511,
-                    "y": 56.542,
-                    "z": -170.576,
+                    "x": 85.562,
+                    "y": 57.741,
+                    "z": -170.585,
                     "yaw": 1.7419,
-                    "pitch": 0.0563,
-                    "roll": 0.0322
+                    "pitch": 0.0558,
+                    "roll": 0.0326
                   },
                   {
                     "t": 4.908,
-                    "x": 86.985,
-                    "y": 59.432,
-                    "z": -170.831,
+                    "x": 87.045,
+                    "y": 60.574,
+                    "z": -170.841,
                     "yaw": 1.7419,
-                    "pitch": 0.0389,
-                    "roll": 0.0446
+                    "pitch": 0.0382,
+                    "roll": 0.045
                   },
                   {
                     "t": 5.008,
-                    "x": 88.446,
-                    "y": 62.15,
-                    "z": -171.083,
+                    "x": 88.515,
+                    "y": 63.234,
+                    "z": -171.095,
                     "yaw": 1.7419,
-                    "pitch": 0.0233,
-                    "roll": 0.0548
+                    "pitch": 0.0225,
+                    "roll": 0.0552
                   },
                   {
                     "t": 5.108,
-                    "x": 89.895,
-                    "y": 64.696,
-                    "z": -171.333,
+                    "x": 89.972,
+                    "y": 65.723,
+                    "z": -171.347,
                     "yaw": 1.7419,
-                    "pitch": 0.0016,
-                    "roll": 0.0643
+                    "pitch": 0.0002,
+                    "roll": 0.0649
                   },
                   {
                     "t": 5.208,
-                    "x": 91.333,
-                    "y": 67.069,
-                    "z": -171.582,
+                    "x": 91.416,
+                    "y": 68.039,
+                    "z": -171.596,
                     "yaw": 1.7419,
-                    "pitch": -0.0292,
-                    "roll": 0.0774
+                    "pitch": -0.0311,
+                    "roll": 0.0782
                   },
                   {
                     "t": 5.308,
-                    "x": 92.759,
-                    "y": 69.271,
-                    "z": -171.828,
+                    "x": 92.85,
+                    "y": 70.184,
+                    "z": -171.844,
                     "yaw": 1.7419,
-                    "pitch": -0.0583,
-                    "roll": 0.0958
-                  },
-                  {
-                    "t": 5.408,
-                    "x": 94.174,
-                    "y": 71.301,
-                    "z": -172.073,
-                    "yaw": 1.7419,
-                    "pitch": -0.0813,
-                    "roll": 0.1201
+                    "pitch": -0.06,
+                    "roll": 0.0972
                   }
                 ],
-                "setAt": "2026-07-29T16:18:37.941Z"
+                "setAt": "2026-07-31T02:19:05.367Z"
               },
               "result": null,
               "samples": 0,
@@ -8968,7 +10210,7 @@
             "instances": 300
           },
           "estimatedGpuMemoryBytes": 84098912,
-          "domNodes": 222,
+          "domNodes": 235,
           "modeOwnedDomNodes": 54,
           "hudRoots": 1,
           "sessionRoots": 1,
@@ -9035,9 +10277,9 @@
           "transitions": [
             {
               "label": "boot-menu",
-              "at": 20401.700000000186,
+              "at": 398,
               "mode": "menu",
-              "domNodes": 167,
+              "domNodes": 180,
               "hudRoots": 0,
               "sceneObjects": 4,
               "sessionRoots": 0,
@@ -9103,9 +10345,9 @@
             },
             {
               "label": "enter:dunes",
-              "at": 22320.200000000186,
+              "at": 2244.699999988079,
               "mode": "dunes",
-              "domNodes": 229,
+              "domNodes": 242,
               "hudRoots": 1,
               "sceneObjects": 1486,
               "sessionRoots": 1,
@@ -9121,13 +10363,13 @@
                   "cssHeight": 720
                 },
                 "dpr": 1,
-                "fps": 4.694520823554255,
-                "cpuFrameTimeMs": 55.12500000023283,
-                "cpuFrameTimeP99Ms": 322.1000000005588,
-                "renderSubmissionTimeMs": 54.35000000020955,
-                "renderSubmissionTimeP99Ms": 320.1000000005588,
+                "fps": 4.199034222111395,
+                "cpuFrameTimeMs": 59.47142857313156,
+                "cpuFrameTimeP99Ms": 316.90000000596046,
+                "renderSubmissionTimeMs": 58.84285713945116,
+                "renderSubmissionTimeP99Ms": 314.30000001192093,
                 "drawCalls": 497,
-                "renderCalls": 114,
+                "renderCalls": 100,
                 "frameRenderCalls": 16,
                 "triangles": 252530,
                 "points": 0,
@@ -9170,9 +10412,9 @@
               }
             }
           ],
-          "frameCount": 9,
+          "frameCount": 8,
           "stateDiagnostics": {
-            "bootedAt": 1785341978337,
+            "bootedAt": 1785464428353,
             "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
             "rendererFallback": null,
             "modeTransitions": 1,
@@ -9203,10 +10445,10 @@
         },
         "dpr": 1,
         "fps": 0,
-        "cpuFrameTimeMs": 57.5,
-        "cpuFrameTimeP99Ms": 57.5,
-        "renderSubmissionTimeMs": 56.90000000037253,
-        "renderSubmissionTimeP99Ms": 56.90000000037253,
+        "cpuFrameTimeMs": 54.69999998807907,
+        "cpuFrameTimeP99Ms": 54.69999998807907,
+        "renderSubmissionTimeMs": 54,
+        "renderSubmissionTimeP99Ms": 54,
         "drawCalls": 13,
         "renderCalls": 14,
         "frameRenderCalls": 14,
@@ -9305,7 +10547,7 @@
       "transitions": [
         {
           "label": "boot-menu",
-          "at": 327.20000000018626,
+          "at": 291,
           "mode": "menu",
           "domNodes": 164,
           "hudRoots": 0,
@@ -9374,7 +10616,7 @@
       ],
       "frameCount": 1,
       "stateDiagnostics": {
-        "bootedAt": 1785341840076,
+        "bootedAt": 1785464240264,
         "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
         "rendererFallback": null,
         "modeTransitions": 0,
@@ -9432,6 +10674,7 @@
           "id": "meowster",
           "name": "Mighty Meowster"
         },
+        "rallyRaid": null,
         "speed": 16.201766016786255,
         "x": 61.877236222223594,
         "y": 0.5559628606546818,
@@ -9462,6 +10705,7 @@
           "checkpoint": 1,
           "checkpoints": 19,
           "score": 0,
+          "penaltySeconds": 0,
           "recoveries": 0,
           "finished": false
         },
@@ -9585,7 +10829,7 @@
             "activeCurtains": 2,
             "emittedSamples": 2,
             "vertexCapacity": 240,
-            "peakHeight": 0.4714196346839364
+            "peakHeight": 0.47141962078960675
           },
           "dust": {
             "quality": "low",
@@ -9710,8 +10954,8 @@
           ]
         },
         "performance": {
-          "fps": 18,
-          "physicsMs": 0.599999999627471,
+          "fps": 19,
+          "physicsMs": 0.5999999940395355,
           "drawCalls": 360,
           "triangles": 137853
         }
@@ -9721,7 +10965,10 @@
         "consoleErrors": [],
         "badResponses": [],
         "failedRequests": [],
-        "expectedAborts": [],
+        "expectedAborts": [
+          "net::ERR_ABORTED http://127.0.0.1:39601/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js",
+          "net::ERR_ABORTED http://127.0.0.1:39601/vendor/three/examples/jsm/libs/draco/draco_decoder.wasm"
+        ],
         "expectedAudioDeviceErrors": [],
         "frozenModeRequests": []
       }
