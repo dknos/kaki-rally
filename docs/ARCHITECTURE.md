@@ -298,3 +298,12 @@ deformation, camera, records, Workshop lifecycle, and teardown. Procedural
 raid bodies are built through the existing vehicle presentation path. The new
 progress key is versioned and included in the existing export/import/reset
 allow-list; KDT1/KDT2/KDT3 and prior production saves remain unchanged.
+
+Wave 1.1 keeps the same seams for feel repairs. Drift rear-slip yaw is part of
+the shared `physics.js` integrator and is enabled only by Drift handling
+profiles; the normal racing session still owns input, charge/boost lifecycle,
+judging, camera, and cleanup. `rallyChassisRoll()` combines bank/contact roll,
+weight transfer, and steering lean so the visible car follows the same bank
+authority sampled by contact physics. Dune camera FX are an object contract
+owned by `duneMode.js`; `sanitizeIsometricCameraFx()` and the terrain-frame
+guard provide a defensive boundary for stale or malformed payloads.

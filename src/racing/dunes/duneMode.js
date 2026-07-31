@@ -122,6 +122,28 @@ const MAX_FIXED_STEPS = 8;
 const _cameraTarget = new THREE.Vector3(DUNE_CX, 0, DUNE_CZ);
 const _wind = { x: 0, z: 0 };
 const RALLY_RAID_VEHICLE_IDS = Object.freeze(['buggy', 'prototype', 'truck']);
+const DUNE_CAMERA_FX_DEFAULTS = Object.freeze({ shake: 0, roll: 0, punch: 0, phase: 0 });
+
+function ensureDuneCameraFx(session) {
+  if (!session.cameraFx || typeof session.cameraFx !== 'object' || Array.isArray(session.cameraFx)) {
+    session.cameraFx = { ...DUNE_CAMERA_FX_DEFAULTS };
+  }
+  const fx = session.cameraFx;
+  fx.shake = Number.isFinite(fx.shake) ? Math.max(0, fx.shake) : 0;
+  fx.roll = Number.isFinite(fx.roll) ? fx.roll : 0;
+  fx.punch = Number.isFinite(fx.punch) ? Math.max(0, fx.punch) : 0;
+  fx.phase = Number.isFinite(fx.phase) ? fx.phase : 0;
+  return fx;
+}
+
+function stepDuneCameraFx(session, dt) {
+  const fx = ensureDuneCameraFx(session);
+  fx.phase = (fx.phase + Math.max(0, dt) * 17) % (Math.PI * 2);
+  fx.shake = Math.max(0, fx.shake - Math.max(0, dt) * 3.6);
+  fx.roll *= Math.exp(-Math.max(0, dt) * 9);
+  fx.punch = Math.max(0, fx.punch - Math.max(0, dt) * 4.8);
+  return fx;
+}
 
 function isRallyRaidVehicle(id) {
   return RALLY_RAID_VEHICLE_IDS.includes(id);
@@ -576,6 +598,7 @@ function fixedStep(session, controls, dt) {
     recover(session);
   }
   session.kart.recoveryCooldown = Math.max(0, (session.kart.recoveryCooldown || 0) - dt);
+  const cameraFx = stepDuneCameraFx(session, dt);
   const previousCheckpointCount = session.race.checkpointCount;
   const events = stepDuneVehicle(
     session.kart,
@@ -598,7 +621,10 @@ function fixedStep(session, controls, dt) {
     setCallout(session, `${stunt.label || 'DUNE AIR'} +${Math.round(stunt.points)}`, 1.4, stunt.perfect ? 'perfect' : 'style');
   }
   if (events.landed) {
-    session.cameraFx = Math.max(session.cameraFx, clamp(events.landingSpeed / 18, 0.12, 1));
+    const impact = clamp(events.landingSpeed / 18, 0.12, 1);
+    cameraFx.shake = Math.max(cameraFx.shake, impact);
+    cameraFx.punch = Math.max(cameraFx.punch, impact * 0.72);
+    cameraFx.roll += clamp((session.kart.contactRoll ?? session.kart.groundRoll ?? 0) * 0.08, -0.045, 0.045);
     playRacingImpact({ strength: clamp(events.landingSpeed / 20, 0.16, 1), kind: 'landing' });
   }
   stepDuneRace(session.race, session.event, session.routeRuntime, session.kart, dt);
@@ -943,7 +969,7 @@ export async function enterDuneMode(scene, options = {}) {
     callout: '',
     calloutTime: 0,
     calloutTone: '',
-    cameraFx: 0,
+    cameraFx: { ...DUNE_CAMERA_FX_DEFAULTS },
     qaControls: null,
     qaControlsTime: 0,
     keyHandler: null,

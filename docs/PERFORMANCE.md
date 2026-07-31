@@ -177,3 +177,13 @@ effect pools. Its new stage assets are procedural and mode-owned; no runtime
 CDN or second renderer was introduced. Add Prologue, Wadi, Saltline, and
 Night Ridge to the native hardware rotation before making a release-sized
 asset or frame-time claim.
+
+## Wave 1.1 feel-repair probe
+
+The repair adds no render target, canvas, loop, or mode asset. Drift changes
+only the shared fixed-step handling profile and telemetry state; bank roll is a
+single visual transform driven by existing contact samples; Dune camera FX are
+a four-number object with bounded decay. `npm test` and the focused Dune
+WebGL/WebGPU matrix passed. The managed browser landing capture is behavior
+evidence only; it does not replace the native RTX 5080 or physical-controller
+rotation above.

@@ -1,9 +1,16 @@
 import * as THREE from 'three';
 import { clamp, equivalentVerticalFov, expAlpha, lookQuaternion } from './cameraRigMath.js';
-import { guardIsometricTerrainFrame } from './isometricFrameGuard.js';
+import {
+  guardIsometricTerrainFrame,
+  sanitizeIsometricCameraFx,
+} from './isometricFrameGuard.js';
 
 const STANDARD = Object.freeze({ offset: 22, height: 34, frustum: 16.5, lookAtBase: 0.72 });
 const MONSTER = Object.freeze({ offset: 27, height: 41, frustum: 20.5, lookAtBase: 1.2 });
+
+function finite(value, fallback = 0) {
+  return Number.isFinite(Number(value)) ? Number(value) : fallback;
+}
 
 export class IsometricCameraRig {
   constructor() {
@@ -22,14 +29,20 @@ export class IsometricCameraRig {
 
   update(dt, context = {}, snap = false) {
     const { vehicle, session, reducedMotion = false } = context;
-    const fx = session?.cameraFx || { shake: 0, roll: 0, punch: 0, phase: 0 };
+    const fx = sanitizeIsometricCameraFx(session?.cameraFx);
+    const fxShake = fx.shake;
+    const fxRoll = fx.roll;
+    const fxPunch = fx.punch;
+    const fxPhase = fx.phase;
+    const vehicleHeight = finite(vehicle?.position?.y);
+    const vehicleGroundHeight = finite(vehicle?.groundHeight);
     const speed = Math.max(0, Number(vehicle.speed) || 0);
     const speedRatio = clamp(speed / Math.max(1, vehicle.maxSpeed || 30), 0, 1.2);
-    const air = clamp((vehicle.position.y - (vehicle.groundHeight || 0)) / (vehicle.monster ? 14 : 10), 0, 1.25);
-    const shake = reducedMotion ? 0 : fx.shake * (vehicle.monster ? 0.82 : 0.62);
-    const shakeX = Math.sin(fx.phase * 1.17) * shake;
-    const shakeY = Math.sin(fx.phase * 1.91 + 1.2) * shake * 0.62;
-    const shakeZ = Math.cos(fx.phase * 1.43 + 0.4) * shake;
+    const air = clamp((vehicleHeight - vehicleGroundHeight) / (vehicle.monster ? 14 : 10), 0, 1.25);
+    const shake = reducedMotion ? 0 : fxShake * (vehicle.monster ? 0.82 : 0.62);
+    const shakeX = Math.sin(fxPhase * 1.17) * shake;
+    const shakeY = Math.sin(fxPhase * 1.91 + 1.2) * shake * 0.62;
+    const shakeZ = Math.cos(fxPhase * 1.43 + 0.4) * shake;
     let frustum;
     let damping;
     let roll;
@@ -51,9 +64,9 @@ export class IsometricCameraRig {
         vehicle.position.y - vehicle.rideHeight * 0.38 + height + shakeY,
         vehicle.position.z + depth + shakeZ,
       );
-      frustum = 10.8 + speedRatio * 1.25 + clamp(air * 0.18, 0, 1.2) - fx.punch * 0.55;
+      frustum = 10.8 + speedRatio * 1.25 + clamp(air * 0.18, 0, 1.2) - fxPunch * 0.55;
       damping = vehicle.grounded ? 10.8 : 6.6;
-      roll = reducedMotion ? 0 : fx.roll + clamp((vehicle.pitchVelocity || 0) * 0.0022, -0.018, 0.018);
+      roll = reducedMotion ? 0 : fxRoll + clamp((vehicle.pitchVelocity || 0) * 0.0022, -0.018, 0.018);
     } else {
       const base = vehicle.monster ? MONSTER : STANDARD;
       const velocityLength = Math.hypot(vehicle.velocity.x || 0, vehicle.velocity.z || 0);
@@ -77,10 +90,10 @@ export class IsometricCameraRig {
         vehicle.position.y + base.lookAtBase + speedRatio * 0.28 + shakeY * 0.2,
         targetZ + shakeZ * 0.28,
       );
-      frustum = (base.frustum + speedRatio * (vehicle.monster ? 2.2 : 1.65) + air * 1.6 - fx.punch * 0.72)
+      frustum = (base.frustum + speedRatio * (vehicle.monster ? 2.2 : 1.65) + air * 1.6 - fxPunch * 0.72)
         * (session?.qaFrustumScale || 1);
       damping = vehicle.grounded ? 11.2 : 7.3;
-      roll = reducedMotion ? 0 : fx.roll + clamp(-(vehicle.lateralSpeed || 0) * 0.0014, -0.018, 0.018);
+      roll = reducedMotion ? 0 : fxRoll + clamp(-(vehicle.lateralSpeed || 0) * 0.0014, -0.018, 0.018);
     }
 
     if (!this.initialized || snap) {
@@ -99,7 +112,9 @@ export class IsometricCameraRig {
     const guarded = guardIsometricTerrainFrame(this.position, this.focus, vehicle);
     if (guarded) this.guardRecoveries += 1;
     lookQuaternion(this.position, this.focus, roll, this.quaternion);
-    frustum = Math.max(4, frustum);
+    frustum = Number.isFinite(frustum)
+      ? Math.max(4, frustum)
+      : (vehicle.monster ? MONSTER.frustum : STANDARD.frustum);
     return {
       projection: 'orthographic',
       position: this.position,
@@ -110,9 +125,9 @@ export class IsometricCameraRig {
       near: 0.1,
       far: 800,
       effects: {
-        chromatic: reducedMotion ? 0 : 0.0008 + (vehicle.boosting ? 0.0014 : 0) + fx.shake * 0.00075,
-        bloom: 0.34 + (vehicle.boosting ? 0.16 : 0) + clamp(vehicle.position.y / 20, 0, 0.12),
-        shake: reducedMotion ? 0 : fx.shake,
+        chromatic: reducedMotion ? 0 : 0.0008 + (vehicle.boosting ? 0.0014 : 0) + fxShake * 0.00075,
+        bloom: 0.34 + (vehicle.boosting ? 0.16 : 0) + clamp(vehicleHeight / 20, 0, 0.12),
+        shake: reducedMotion ? 0 : fxShake,
         isometricGuarded: guarded,
       },
     };

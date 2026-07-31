@@ -293,3 +293,32 @@ scope and final combined run passed, but that historical failure still
 explains why SwiftShader is not treated as hardware performance evidence.
 Native Dune performance and physical-controller/touch/art/audio review remain
 open.
+
+## Wave 1.1 feel and camera repair — 2026-07-30
+
+The focused repair pass addressed three reported runtime defects without adding
+a second session or renderer:
+
+- Drift Attack now has throttle/steer breakaway, bounded rear-slip yaw
+  coupling, stronger countersteer authority, and per-car fishtail tuning. The
+  deterministic Comet probe reached a `0.392` rad heading/velocity split with
+  `8.57 m/s` lateral speed; 60 frames of countersteer reduced lateral speed to
+  `2.79 m/s` and reversed the yaw rate.
+- Normal rally-car visuals now consume the same authoritative bank/contact
+  roll as the oval physics. The concrete Thunderbowl probe measured
+  `groundRoll -0.464` and visible chassis roll `-0.463`.
+- Dune landing camera FX remain a finite `{ shake, roll, punch, phase }`
+  object, decay in the Dune fixed step, and are sanitized at the isometric
+  camera boundary. The prior landing repro emitted non-finite camera
+  coordinates and a blue-only frame; the repaired probe stayed orthographic,
+  terrain-facing (`forwardY -0.720`), and finite with zero guard recoveries.
+
+`npm test` passed all renderer, racing, save/boundary, lifecycle, and asset
+gates. The focused `npm run test:browser:dunes` matrix passed the new landing
+assertion plus WebGL/WebGPU Dune lifecycle and parity coverage. Browser captures
+are `docs/qa/repro-dune-landing-blue.png`,
+`docs/qa/fix-dune-landing-isometric.png`,
+`docs/qa/fix-stock-banked-concrete.png`, and
+`docs/qa/fix-drift-fishtail-qa.png`. These are SwiftShader/managed-browser
+behavior captures; native GPU frame time, physical-controller granularity,
+phone thermals, and human feel review remain open.
