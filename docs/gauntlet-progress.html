@@ -82,7 +82,7 @@
         <h1>Make the road feel <em>earned.</em></h1>
         <p class="lede">A candid implementation log for the Kaki Rally expansion. This page is intentionally outside the production graph: it records the running artifact, the evidence that supports it, and the sharpest remaining gap.</p>
       </div>
-      <div class="stamp"><span>Active wave</span><strong id="stamp-wave">Wave 1.1 / feel repair</strong><span id="stamp-time">Loading timestamp…</span></div>
+      <div class="stamp"><span>Active wave</span><strong id="stamp-wave">Wave 1.2 / bank orientation</strong><span id="stamp-time">Loading timestamp…</span></div>
     </header>
 
     <section>
@@ -95,10 +95,10 @@
     </section>
 
     <section>
-      <div class="section-head"><h2>Current artifact</h2><span>focused live probes after Wave 1.1</span></div>
+      <div class="section-head"><h2>Current artifact</h2><span>focused live probes after Wave 1.2</span></div>
       <div class="evidence">
         <figure><a href="qa/fix-drift-fishtail-qa.png"><img src="qa/fix-drift-fishtail-qa.png" alt="Drift Attack fishtail QA capture"></a><figcaption>Drift / Comet · rear slip + judged angle</figcaption></figure>
-        <figure><a href="qa/fix-stock-banked-concrete.png"><img src="qa/fix-stock-banked-concrete.png" alt="Thunderbowl concrete banked corner capture"></a><figcaption>Thunderbowl / concrete · chassis follows -0.464 rad bank</figcaption></figure>
+        <figure><a href="qa/fix-stock-banked-concrete.png"><img src="qa/fix-stock-banked-concrete.png" alt="Thunderbowl concrete banked corner capture"></a><figcaption>Thunderbowl / concrete · bank slope -0.464 → chassis roll +0.464</figcaption></figure>
         <figure><a href="qa/repro-dune-landing-blue.png"><img src="qa/repro-dune-landing-blue.png" alt="Dune landing camera failure baseline"></a><figcaption>Before / Dune landing · poisoned ISO frame</figcaption></figure>
         <figure><a href="qa/fix-dune-landing-isometric.png"><img src="qa/fix-dune-landing-isometric.png" alt="Dune landing camera fixed capture"></a><figcaption>After / Dune landing · finite ISO frame and terrain visible</figcaption></figure>
       </div>
@@ -121,7 +121,7 @@
         <dt>Visual/lifecycle smoke</dt><dd>30 configs / 585 + 88</dd>
         <dt>Browser matrix</dt><dd>WebGL + WebGPU pass</dd>
         <dt>Fishtail probe</dt><dd>0.392 rad split / caught</dd>
-        <dt>Bank visual probe</dt><dd>-0.464 → -0.463 rad</dd>
+        <dt>Bank visual probe</dt><dd>-0.464 → +0.464 rad</dd>
         <dt>Dune landing probe</dt><dd>finite / ISO / sky-safe</dd>
         <dt>Raid live probe</dt><dd>start / penalty / finish pass</dd>
         <dt>Save/boundaries</dt><dd>pass / 116 modules</dd>
@@ -131,7 +131,7 @@
         <dt>SwiftShader probe</dt><dd>168 draws / 787k tris</dd>
         <dt>Physical FPS claim</dt><dd>baseline only</dd>
       </dl></div>
-      <div class="panel"><div class="section-head"><h2>Focused verdict</h2><span>fresh regression critique</span></div><p class="verdict">Wave 1.1 closes the three reported defects: Drift now has a rear-slip yaw state with throttle breakaway and countersteer recovery; normal rally cars carry the authoritative oval bank into visible chassis roll; and Dune landing FX remain a finite object through the isometric camera. The largest remaining gap is human hardware feel: this environment’s managed browser path is SwiftShader, so native GPU frame time, physical controller granularity, and long-run art/audio review remain open.<small>Evidence reviewed: before/after landing pixels, live bank roll telemetry, deterministic fishtail/countersteer probe, full npm test, focused WebGL/WebGPU browser matrix, and source/lifecycle inspection. This is a verified repair pass, not a claim of final AAA parity.</small></p></div>
+      <div class="panel"><div class="section-head"><h2>Focused verdict</h2><span>fresh regression critique</span></div><p class="verdict">Wave 1.2 corrects the Thunderbowl sign while preserving the Wave 1.1 feel and camera repairs: Drift still has a rear-slip yaw state with throttle breakaway and countersteer recovery; normal rally cars now lean into the authored bank instead of away from it; and Dune landing FX remain a finite object through the isometric camera. The largest remaining gap is human hardware feel: this environment’s managed browser path is SwiftShader, so native GPU frame time, physical controller granularity, and long-run art/audio review remain open.<small>Evidence reviewed: signed concrete/clay bank probes, before/after landing pixels, deterministic fishtail/countersteer probe, full npm test, focused WebGL/WebGPU browser matrix, and source/lifecycle inspection. This is a verified repair pass, not a claim of final AAA parity.</small></p></div>
     </section>
 
     <section>

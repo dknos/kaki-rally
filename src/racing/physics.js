@@ -94,7 +94,12 @@ export function rallyChassisRoll(kart, steer = 0, monster = false) {
       ? _finiteOr(kart.contactRoll ?? kart.groundRoll, 0)
       : _finiteOr(kart.stuntRoll, 0);
   }
-  const bankRoll = grounded ? _finiteOr(kart.contactRoll ?? kart.groundRoll, 0) : 0;
+  // Track banks are authored as a cross-track height slope: positive bank
+  // raises the local left edge. THREE's positive Z rotation raises the local
+  // right edge instead, so normal-car presentation needs the opposite sign.
+  // Monster contacts already perform this conversion in their support-plane
+  // solver and take the early return above.
+  const bankRoll = grounded ? -_finiteOr(kart.groundRoll, 0) : 0;
   const bodyRoll = grounded
     ? _finiteOr(kart.bodyRoll, 0)
     : _finiteOr(kart.airRoll, 0);

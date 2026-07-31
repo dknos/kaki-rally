@@ -110,7 +110,11 @@ assert.ok(
 );
 
 const bankedChassis = createKartState({ grounded: true, groundRoll: -0.47, bodyRoll: 0 });
-assert.ok(Math.abs(rallyChassisRoll(bankedChassis, 0)) > 0.4, 'bank roll never reached the visible rally chassis');
+assert.ok(rallyChassisRoll(bankedChassis, 0) > 0.4, 'negative track bank did not raise the visible right side');
+assert.ok(
+  rallyChassisRoll({ grounded: true, groundRoll: 0.22, bodyRoll: 0 }, 0) < -0.18,
+  'positive track bank did not raise the visible left side',
+);
 bankedChassis.grounded = false;
 bankedChassis.airRoll = 0.12;
 assert.ok(Math.abs(rallyChassisRoll(bankedChassis, 0)) < 0.2, 'airborne chassis retained stale track banking');

@@ -306,7 +306,8 @@ a second session or renderer:
   `2.79 m/s` and reversed the yaw rate.
 - Normal rally-car visuals now consume the same authoritative bank/contact
   roll as the oval physics. The concrete Thunderbowl probe measured
-  `groundRoll -0.464` and visible chassis roll `-0.463`.
+  `groundRoll -0.464`; the later sign repair records visible chassis roll
+  `+0.464` below.
 - Dune landing camera FX remain a finite `{ shake, roll, punch, phase }`
   object, decay in the Dune fixed step, and are sanitized at the isometric
   camera boundary. The prior landing repro emitted non-finite camera
@@ -322,3 +323,21 @@ are `docs/qa/repro-dune-landing-blue.png`,
 `docs/qa/fix-drift-fishtail-qa.png`. These are SwiftShader/managed-browser
 behavior captures; native GPU frame time, physical-controller granularity,
 phone thermals, and human feel review remain open.
+
+## Wave 1.2 bank orientation repair — 2026-07-31
+
+The Thunderbowl follow-up corrected the normal-car banking sign at the shared
+presentation seam. Track banks are cross-track height slopes, while positive
+Three.js Z roll raises the opposite side of a car; Monster Arena had already
+converted this sign in its contact solver, but normal racing cars had not.
+
+- Concrete browser probe: `groundRoll -0.464` now renders visible chassis roll
+  `+0.464` on the same grounded corner.
+- Clay browser probe: `groundRoll -0.307` now renders visible chassis roll
+  `+0.306`; both variants remain on-road with no page or console errors.
+- Deterministic coverage now asserts both bank signs and airborne suppression,
+  so future bank presentation changes cannot silently flip the car again.
+
+The full `npm test` suite and the concrete/clay local WebGL browser probes pass.
+The managed browser remains SwiftShader evidence rather than native GPU or
+physical-controller performance evidence.

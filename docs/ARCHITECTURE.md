@@ -304,6 +304,9 @@ the shared `physics.js` integrator and is enabled only by Drift handling
 profiles; the normal racing session still owns input, charge/boost lifecycle,
 judging, camera, and cleanup. `rallyChassisRoll()` combines bank/contact roll,
 weight transfer, and steering lean so the visible car follows the same bank
-authority sampled by contact physics. Dune camera FX are an object contract
-owned by `duneMode.js`; `sanitizeIsometricCameraFx()` and the terrain-frame
-guard provide a defensive boundary for stale or malformed payloads.
+authority sampled by contact physics. Normal track banks are converted from
+their cross-track height-slope sign at this presentation seam; Monster Arena
+contact already performs that conversion before exposing `contactRoll`. Dune
+camera FX are an object contract owned by `duneMode.js`;
+`sanitizeIsometricCameraFx()` and the terrain-frame guard provide a defensive
+boundary for stale or malformed payloads.
