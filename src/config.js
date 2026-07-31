@@ -35,4 +35,26 @@ export const RALLY_DISPLAY = Object.freeze({
   mobileLandscapeAspect: 21 / 9,
   cameraHalfHeight: 18,
   dprCap: 1.25,
+  // Fixed-px menu/HUD chrome is authored against this reference stage.
+  // Larger stages scale the overlays up so labels stay readable.
+  uiReferenceWidth: 1280,
+  uiReferenceHeight: 720,
+  uiScaleMin: 0.92,
+  uiScaleMax: 1.28,
 });
+
+/**
+ * Scale fixed-pixel shell/HUD chrome relative to the live stage size.
+ * 1280×720 → 1.0; 1920×1080 → ~1.28 (capped).
+ */
+export function computeRallyUiScale(width, height, display = RALLY_DISPLAY) {
+  const refW = Math.max(1, Number(display.uiReferenceWidth) || 1280);
+  const refH = Math.max(1, Number(display.uiReferenceHeight) || 720);
+  const min = Math.max(0.5, Number(display.uiScaleMin) || 0.92);
+  const max = Math.max(min, Number(display.uiScaleMax) || 1.28);
+  const raw = Math.min(
+    Math.max(1, Number(width) || refW) / refW,
+    Math.max(1, Number(height) || refH) / refH,
+  );
+  return Math.max(min, Math.min(max, raw));
+}

@@ -17,7 +17,7 @@ import {
   suspendAudio,
   unlockAudio,
 } from '../audio.js';
-import { RALLY_DISPLAY } from '../config.js';
+import { RALLY_DISPLAY, computeRallyUiScale } from '../config.js';
 import {
   disposeInput,
   getInputDiagnostics,
@@ -974,8 +974,11 @@ export class KakiRallyApp {
     this.width = Math.max(1, width);
     this.height = Math.max(1, height);
     this.aspect = this.width / this.height;
+    this.uiScale = computeRallyUiScale(this.width, this.height);
     this.stage.style.width = `${this.width}px`;
     this.stage.style.height = `${this.height}px`;
+    this.stage.style.setProperty('--rally-ui-scale', this.uiScale.toFixed(3));
+    document.documentElement.style.setProperty('--rally-ui-scale', this.uiScale.toFixed(3));
 
     const halfHeight = 18;
     this.menuCamera.left = -halfHeight * this.aspect;
@@ -988,7 +991,12 @@ export class KakiRallyApp {
     }
     resizeRacingCamera(this.aspect);
     this.updateOrientationGate();
-    return { width: this.width, height: this.height, aspect: this.aspect };
+    return {
+      width: this.width,
+      height: this.height,
+      aspect: this.aspect,
+      uiScale: this.uiScale,
+    };
   }
 
   updateOrientationGate() {

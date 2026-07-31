@@ -15,9 +15,10 @@ export function applyRallyOptions(settings = readRallySettings()) {
   setSfxVolume(next.sfxVolume);
   setAmbientVolume(next.ambientVolume);
   if (typeof document !== 'undefined' && document.documentElement) {
+    // --rally-ui-scale is owned by KakiRallyApp.resize() so stage size, not a
+    // stale settings default, drives menu/HUD chrome scale.
     document.documentElement.dataset.reduceMotion = next.reduceMotion ? 'true' : 'false';
     document.documentElement.dataset.reduceFlashing = next.reduceFlashing ? 'true' : 'false';
-    document.documentElement.style.setProperty('--rally-ui-scale', String(next.uiScale || 1));
   }
   return next;
 }

@@ -54,6 +54,7 @@ button {
 }
 
 #kk-stage {
+  --rally-ui-scale: 1;
   position: fixed;
   left: 50%;
   top: 50%;
@@ -74,12 +75,20 @@ button {
   touch-action: none;
 }
 
+/* Fixed-px menu/HUD chrome is authored at ~1280×720. Scale the overlay roots
+   with the live stage so larger desktops keep readable labels without
+   rewriting every panel size. The canvas stays unscaled. */
 #ui-root,
 #rally-menu-root,
 #rally-pause-root,
 #rally-touch-root {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: calc(100% / var(--rally-ui-scale, 1));
+  height: calc(100% / var(--rally-ui-scale, 1));
+  transform: scale(var(--rally-ui-scale, 1));
+  transform-origin: 0 0;
 }
 
 #ui-root {
