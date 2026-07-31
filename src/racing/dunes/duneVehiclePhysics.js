@@ -13,6 +13,7 @@ import {
   initializeMonsterVehiclePhysics,
 } from '../monsterVehiclePhysics.js';
 import { createDuneDeformationBrushBuffer } from './duneDeformation.js';
+import { RALLY_RAID_VEHICLES } from './duneRallyRaid.js';
 
 const TWO_PI = Math.PI * 2;
 const DEFAULT_TIRE_WIDTH = 0.72;
@@ -100,8 +101,8 @@ export const DUNE_VEHICLE_TUNING = Object.freeze({
   }),
 });
 
-const PROFILE_CACHE = Object.freeze(Object.fromEntries(
-  Object.keys(DUNE_VEHICLE_TUNING).map((id) => {
+const PROFILE_CACHE = Object.freeze(Object.fromEntries([
+  ...Object.keys(DUNE_VEHICLE_TUNING).map((id) => {
     const base = getMonsterVehicleProfile(id);
     return [id, Object.freeze({
       ...base,
@@ -117,7 +118,32 @@ const PROFILE_CACHE = Object.freeze(Object.fromEntries(
       }),
     })];
   }),
-));
+  ...Object.entries(RALLY_RAID_VEHICLES).map(([id, raid]) => {
+    const base = getMonsterVehicleProfile('meowster');
+    const tuning = duneTuning(`raid-${id}`, {
+      ...raid.tuning,
+      powertrain: Object.freeze({
+        ...MONSTER_TUNING.powertrain,
+        ...(raid.tuning?.powertrain || {}),
+      }),
+    });
+    return [id, Object.freeze({
+      ...base,
+      id,
+      name: raid.name,
+      traits: Object.freeze([raid.archetype, raid.drive, raid.description]),
+      mass: raid.mass,
+      stability: raid.stability,
+      mode: 'rally-raid',
+      tuning,
+      tireWidth: raid.contact.tireWidth,
+      contact: Object.freeze({
+        ...base.contact,
+        ...raid.contact,
+      }),
+    })];
+  }),
+]));
 
 export function getDuneVehicleProfile(id = 'meowster') {
   return PROFILE_CACHE[id] || PROFILE_CACHE.meowster;

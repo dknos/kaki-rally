@@ -153,3 +153,26 @@ sources retain their own licenses.
 Architecture and safe upstream-sync instructions are documented in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and
 [docs/UPSTREAM_SYNC.md](docs/UPSTREAM_SYNC.md).
+
+## Local Gauntlet Wave 1
+
+The 2026-07-30 local implementation wave extends the existing production
+graph without adding a renderer or parallel session engine:
+
+- Drift Attack now has the three-car Needle / Comet / Monarch fleet, three
+  Whisker Yard layouts, per-car handling profiles, and a judged line/angle/
+  speed/style score.
+- Kaki Stock Cup now exposes the original Kaki Thunderbowl in concrete and
+  clay configurations. Banking is sampled by both track mesh and contact
+  physics, while grip, drag, groove, pack presentation, and dirt dressing
+  change with the selected surface.
+- Kaki Dune Run now contains the Kaki Rally Raid expedition layer: four
+  authored selective stages, three rally-raid vehicle archetypes, roadbook
+  assists, waypoint/speed penalties, cumulative results, and service choice.
+
+Focused evidence and known limitations are kept in
+[docs/gauntlet-progress.html](docs/gauntlet-progress.html),
+[docs/QA_REPORT.md](docs/QA_REPORT.md), and `docs/qa/`. This is a local
+working-tree wave; it has not been pushed or deployed. SwiftShader browser
+captures are functional evidence only and do not replace the native RTX
+5080, controller, phone, or human art/audio gates.

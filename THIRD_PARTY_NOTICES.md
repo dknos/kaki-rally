@@ -33,3 +33,15 @@ retained because Snowflow was an explicit implementation research input.
 > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
+
+## Wave 1 reference boundary
+
+The Wave 1 implementation uses the task-supplied Formula Drift judging
+regulations, Bristol Motor Speedway geometry/banking articles, Dakar
+roadbook/navigation material, and Wreckfest contact principles as research
+references only. No screenshot, video, logo, livery, track mesh, vehicle mesh,
+or other protected reference content is shipped by Kaki Rally. The authored
+Whisker Yard, Kaki Thunderbowl, and Rally Raid content is procedural and
+project-owned. If a future release adds external media or an imported asset,
+its URL, creator, license, modification record, and attribution requirements
+must be added here and to `CREDITS.md` before use.

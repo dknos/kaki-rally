@@ -1,6 +1,7 @@
 /** Runtime generation helpers shared by Draw Your Track and Kaki Rally. */
 import * as THREE from 'three';
 import { sampleElevationProfile } from './drawTrackElevation.js';
+import { sampleTrackBank } from './tracks.js';
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -46,7 +47,9 @@ export class TrackMeshBuilder {
       sample.authoredElevation = elevationSample.elevation;
       sample.y = elevationSample.elevation;
       sample.bank = elevationSample.bank;
+      sample.bank = sampleTrackBank(course, index / Math.max(1, samples.length), elevationSample.bank);
       sample.groundRoll = elevationSample.bank;
+      if (course?.bankProfile) sample.groundRoll = sample.bank;
       sample.overpassIds = [];
     }
     const { distances, total } = sampleDistances(samples);

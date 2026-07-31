@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
-  "generatedAt": "2026-07-29T16:20:13.707Z",
+  "generatedAt": "2026-07-31T02:20:45.071Z",
   "chromium": "/home/nemoclaw/bin/chromium",
   "requestedBackend": "webgpu",
   "webgl": {
@@ -32,10 +32,10 @@
       "badResponses": [],
       "failedRequests": [],
       "expectedAborts": [
-        "net::ERR_ABORTED http://127.0.0.1:43653/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js",
-        "net::ERR_ABORTED http://127.0.0.1:43653/assets/racing/models/mighty-meowster-body-v1.glb",
-        "net::ERR_ABORTED http://127.0.0.1:43653/assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
-        "net::ERR_ABORTED http://127.0.0.1:43653/assets/music/menu_glitch.mp3"
+        "net::ERR_ABORTED http://127.0.0.1:37465/assets/breakroom/runtime-avatars/tower-castle-plain.glb",
+        "net::ERR_ABORTED http://127.0.0.1:37465/assets/racing/models/mighty-meowster-body-v1.glb",
+        "net::ERR_ABORTED http://127.0.0.1:37465/assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
+        "net::ERR_ABORTED http://127.0.0.1:37465/assets/music/menu_glitch.mp3"
       ],
       "expectedAudioDeviceErrors": [],
       "frozenModeRequests": []
@@ -60,13 +60,13 @@
             "cssHeight": 720
           },
           "dpr": 1,
-          "fps": 2.3688262465947543,
-          "cpuFrameTimeMs": 25.2263157895129,
-          "cpuFrameTimeP99Ms": 240.5,
-          "renderSubmissionTimeMs": 23.494736842173886,
-          "renderSubmissionTimeP99Ms": 239.8999999994412,
+          "fps": 2.799413769827815,
+          "cpuFrameTimeMs": 24.7111111101177,
+          "cpuFrameTimeP99Ms": 220,
+          "renderSubmissionTimeMs": 23.216666663686436,
+          "renderSubmissionTimeP99Ms": 219.40000000596046,
           "drawCalls": 518,
-          "renderCalls": 279,
+          "renderCalls": 263,
           "frameRenderCalls": 15,
           "triangles": 206235,
           "points": 0,
@@ -107,36 +107,38 @@
             "id": "meowster",
             "name": "Mighty Meowster"
           },
-          "speed": 13.785736015332455,
-          "x": 1.0632240034359832,
-          "y": -1.2053076290912306,
-          "z": -157.05732741594198,
+          "rallyRaid": null,
+          "speed": 12.867515721017318,
+          "x": 0.7262086679305058,
+          "y": -1.2085305577212133,
+          "z": -157.05425328241844,
           "grounded": true,
           "telemetry": {
-            "speed": 13.785736015332455,
-            "forwardVelocity": 13.785736015332457,
-            "engineRpm": 5008.479115923909,
-            "requestedDriveForce": 54428.67576924353,
-            "deliveredWheelForce": 54428.67576924353,
-            "normalLoad": 0.047565309198578466,
-            "chassisPitchVelocity": -0.16758542559719808,
-            "chassisRoll": 0.020828998137691956,
+            "speed": 12.867515721017318,
+            "forwardVelocity": 12.86751572101732,
+            "engineRpm": 4664.785827774408,
+            "requestedDriveForce": 56969.064573512675,
+            "deliveredWheelForce": 56969.064573512675,
+            "normalLoad": 0.015393158512853864,
+            "chassisPitchVelocity": -0.21705022530201543,
+            "chassisRoll": 0.021414968210253633,
             "steeringInput": 0.2,
-            "wheelAngle": 0.08836546888049504,
+            "wheelAngle": 0.0862459603253945,
             "groundedWheels": 4,
-            "sandResistance": 0.6892868007666229,
-            "brushStrength": 3,
+            "sandResistance": 0.643375786050866,
+            "brushStrength": 2,
             "sinkage": 0.008,
-            "wheelSlip": 0.2676601421622629
+            "wheelSlip": 0.26896908209519155
           },
           "race": {
-            "elapsed": 0.2583333333333333,
+            "elapsed": 0.2333333333333333,
             "progress": 0.18213058419243974,
             "lap": 0,
             "targetLaps": 2,
             "checkpoint": 1,
             "checkpoints": 19,
             "score": 0,
+            "penaltySeconds": 0,
             "recoveries": 0,
             "finished": false
           },
@@ -168,7 +170,7 @@
               "trackColor": "#4a3043",
               "snappedOrigins": [
                 [
-                  0.8,
+                  0,
                   -157.60000000000002,
                   0.4
                 ],
@@ -229,19 +231,19 @@
               -201.1921568627451
             ],
             "focus": [
-              0.9483502068570419,
-              -157.05602907667662
+              0.6189805577802082,
+              -157.05374863055786
             ],
             "scrollCount": 1,
-            "appliedBrushes": 7,
+            "appliedBrushes": 1,
             "droppedBrushes": 0,
-            "maximumDepression": 0.0006043763132765889,
-            "maximumBerm": 0.0002680719189811498,
+            "maximumDepression": 0.00011169639037689194,
+            "maximumBerm": 0.000050453905714675784,
             "physicalBounds": [
               -0.15,
               0.08
             ],
-            "version": 7
+            "version": 4
           },
           "environment": {
             "eventId": "whiskerwind",
@@ -263,15 +265,15 @@
               "crossSectionRows": 5,
               "segmentsPerWheel": 18,
               "activeCurtains": 2,
-              "emittedSamples": 12,
+              "emittedSamples": 10,
               "vertexCapacity": 360,
-              "peakHeight": 0.6070908738275725
+              "peakHeight": 0.6013502699731412
             },
             "dust": {
               "quality": "medium",
               "capacity": 180,
-              "active": 9,
-              "spawned": 11,
+              "active": 8,
+              "spawned": 9,
               "pooled": true
             }
           },
@@ -315,12 +317,12 @@
             "cinematicLabel": "",
             "transitionProgress": 1,
             "projection": "perspective",
-            "fov": 76.0600060842931,
+            "fov": 75.80290440188485,
             "visionStage": null,
             "lookAheadMeters": null,
             "collision": {
               "blocked": false,
-              "distance": 13.60735974936873,
+              "distance": 13.371032734818566,
               "hit": "",
               "lifted": false,
               "lowerFrustumBlocked": false,
@@ -390,8 +392,8 @@
             ]
           },
           "performance": {
-            "fps": 18,
-            "physicsMs": 1.7000000001862645,
+            "fps": 19,
+            "physicsMs": 1.199999988079071,
             "drawCalls": 518,
             "triangles": 206235
           }
@@ -470,7 +472,7 @@
         "transitions": [
           {
             "label": "boot-menu",
-            "at": 271.29999999981374,
+            "at": 400.90000000596046,
             "mode": "menu",
             "domNodes": 164,
             "hudRoots": 0,
@@ -538,7 +540,7 @@
           },
           {
             "label": "enter:dunes",
-            "at": 985.1000000005588,
+            "at": 1095.6000000238419,
             "mode": "dunes",
             "domNodes": 226,
             "hudRoots": 1,
@@ -556,13 +558,13 @@
                 "cssHeight": 720
               },
               "dpr": 1,
-              "fps": 12.741558717364876,
-              "cpuFrameTimeMs": 13.885714285607849,
-              "cpuFrameTimeP99Ms": 44.799999999813735,
-              "renderSubmissionTimeMs": 12.514285714099449,
-              "renderSubmissionTimeP99Ms": 40.59999999962747,
+              "fps": 13.207547169811322,
+              "cpuFrameTimeMs": 13.074999999254942,
+              "cpuFrameTimeP99Ms": 42.900000005960464,
+              "renderSubmissionTimeMs": 12.675000000745058,
+              "renderSubmissionTimeP99Ms": 42.30000001192093,
               "drawCalls": 15,
-              "renderCalls": 99,
+              "renderCalls": 113,
               "frameRenderCalls": 15,
               "triangles": 36014,
               "points": 0,
@@ -605,25 +607,25 @@
             }
           }
         ],
-        "frameCount": 19,
+        "frameCount": 18,
         "stateDiagnostics": {
-          "bootedAt": 1785342014036,
+          "bootedAt": 1785464445403,
           "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
           "rendererFallback": null,
           "modeTransitions": 1,
           "lastError": ""
         },
         "postCycleIsoRecovery": {
-          "maximumAltitude": 32.14479242959954,
+          "maximumAltitude": 32.14139920943335,
           "apex": {
-            "altitude": 32.14479242959954,
-            "cameraY": 69.94782392546338,
-            "focusY": 28.400457489605387,
-            "forwardY": -0.7164783047809629,
+            "altitude": 32.14139920943335,
+            "cameraY": 69.88290663022583,
+            "focusY": 28.39095438728319,
+            "forwardY": -0.7166338086992655,
             "playerNdc": [
-              -0.026073989741568836,
-              0.10366540725596937,
-              0.07109278850462943
+              -0.025113113132347778,
+              0.1031140060539752,
+              0.07095364242008524
             ],
             "mode": "isometric",
             "projection": "orthographic",
@@ -666,10 +668,10 @@
         },
         "dpr": 1,
         "fps": 0,
-        "cpuFrameTimeMs": 41.09999999962747,
-        "cpuFrameTimeP99Ms": 41.09999999962747,
-        "renderSubmissionTimeMs": 40.59999999962747,
-        "renderSubmissionTimeP99Ms": 40.59999999962747,
+        "cpuFrameTimeMs": 42.900000005960464,
+        "cpuFrameTimeP99Ms": 42.900000005960464,
+        "renderSubmissionTimeMs": 42.30000001192093,
+        "renderSubmissionTimeP99Ms": 42.30000001192093,
         "drawCalls": 13,
         "renderCalls": 14,
         "frameRenderCalls": 14,
@@ -768,7 +770,7 @@
       "transitions": [
         {
           "label": "boot-menu",
-          "at": 271.29999999981374,
+          "at": 400.90000000596046,
           "mode": "menu",
           "domNodes": 164,
           "hudRoots": 0,
@@ -837,7 +839,7 @@
       ],
       "frameCount": 1,
       "stateDiagnostics": {
-        "bootedAt": 1785342014036,
+        "bootedAt": 1785464445403,
         "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
         "rendererFallback": null,
         "modeTransitions": 0,

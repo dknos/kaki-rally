@@ -53,7 +53,8 @@
 .kkd-clock,
 .kkd-speed,
 .kkd-zoomies,
-.kkd-deformation {
+.kkd-deformation,
+.kkd-roadbook {
   position: absolute;
   border: 1px solid var(--kkd-line);
   background:
@@ -265,6 +266,88 @@
   letter-spacing: .06em;
 }
 
+.kkd-roadbook {
+  top: calc(var(--race-safe-top) + 100px);
+  right: calc(var(--race-safe-right) + 18px);
+  width: min(320px, 29vw);
+  padding: 11px 13px 12px;
+  border-color: color-mix(in srgb, var(--kkd-accent) 42%, var(--kkd-line));
+  border-radius: 5px 5px 5px 20px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--kkd-accent) 12%, transparent), transparent 48%),
+    var(--kkd-panel);
+}
+
+.kkd-roadbook-head,
+.kkd-roadbook-meta,
+.kkd-roadbook-call {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.kkd-roadbook-head,
+.kkd-roadbook-meta,
+.kkd-roadbook-status {
+  color: var(--kkd-muted);
+  font: 700 8px/1.15 "Geist Mono", monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.kkd-roadbook-head b {
+  color: var(--kkd-accent);
+}
+
+.kkd-roadbook-head > strong {
+  color: var(--kkd-sand);
+  font-size: 12px;
+}
+
+.kkd-roadbook-call {
+  margin: 10px 0 8px;
+  align-items: center;
+}
+
+.kkd-roadbook-call b {
+  display: grid;
+  width: 38px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--kkd-accent) 50%, white);
+  border-radius: 4px;
+  color: var(--kkd-accent);
+  font: 900 11px/1 "Geist Mono", monospace;
+}
+
+.kkd-roadbook-call strong {
+  flex: 1;
+  color: #fff8e7;
+  font: 850 13px/1.05 "Geist", sans-serif;
+  letter-spacing: -.02em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.kkd-roadbook-meta {
+  gap: 7px;
+  font-size: 7px;
+}
+
+.kkd-roadbook-meta span { white-space: nowrap; }
+
+.kkd-roadbook-status {
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 220, 163, .2);
+  color: var(--kkd-sand);
+  font-size: 7px;
+}
+
+.kkd-roadbook[data-status="penalty"] .kkd-roadbook-status { color: #ff8a72; }
+.kkd-roadbook[data-status="speed"] .kkd-roadbook-status { color: #ffcf5b; }
+
 .kkd-callout {
   position: absolute;
   top: 21%;
@@ -441,6 +524,15 @@
   }
   .kkd-speed strong { font-size: 30px; }
   .kkd-deformation { display: none; }
+  .kkd-roadbook {
+    top: calc(var(--race-safe-top) + 67px);
+    right: calc(var(--race-safe-right) + 7px);
+    width: min(290px, 43vw);
+    padding: 8px 9px;
+  }
+  .kkd-roadbook-call { margin: 7px 0 5px; }
+  .kkd-roadbook-call strong { font-size: 10px; }
+  .kkd-roadbook-status { margin-top: 6px; padding-top: 5px; }
   .kkd-zoomies {
     bottom: calc(var(--race-safe-bottom) + 5px);
     width: min(250px, 32vw);
@@ -480,6 +572,7 @@
 @media (max-height: 500px) {
   .kkd-route { top: calc(var(--race-safe-top) + 60px); }
   .kkd-deformation { display: none; }
+  .kkd-roadbook { top: calc(var(--race-safe-top) + 60px); }
   .kkd-hud .kkr-camera-control { top: calc(var(--race-safe-top) + 128px); }
   .kkd-finish section { padding: 17px 22px; }
   .kkd-finish section > strong { width: 62px; height: 62px; font-size: 22px; }

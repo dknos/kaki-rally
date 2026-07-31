@@ -264,3 +264,32 @@ baseline after the final exit. Full values and limitations are in
   audio-mix, accessibility, or repeated-play feel approval.
 - The production pack uses presentation LODs to meet its cost target; close
   replay/cinematic shots should continue reserving showcase-tier vehicles.
+
+## Wave 1 expansion evidence — 2026-07-30
+
+The focused deterministic gates pass through `npm run test:racing`, including
+the new Drift/Stock and Rally Raid smoke modules, the existing visual suite
+(30 configurations / 585 assertions), and lifecycle suite (88 assertions).
+Focused browser runs also pass for:
+
+- `node tools/smoke-rally-browser-matrix.mjs --backend webgl --scope drift`
+  with selected Monarch / Wall Run state and a non-zero judged run.
+- `node tools/smoke-rally-browser-matrix.mjs --backend webgl --scope stock`
+  with a 16-car clay Thunderbowl pack, selected dirt variant, and shared
+  bank/contact telemetry.
+- A direct WebGL Raid probe that starts the Atlas Prologue, reads the
+  Navigator roadbook, forces a missed-waypoint penalty, finishes the stage,
+  and confirms cumulative expedition progress plus repair service state.
+
+The captures are `docs/qa/targeted/webgl-drift/webgl-drift.png`,
+`docs/qa/webgl-stock-thunderbowl-discipline-direct.png`, and
+`docs/qa/webgl-dunes-rally-raid-direct.png`. The focused matrices and final
+combined `npm run test:browser` run recorded no page errors, console errors,
+bad responses, or failed requests; the final combined result passed WebGL
+seven-mode lifecycle/touch/gamepad plus WebGPU production/frozen-mode gates.
+One earlier managed Dune restart/re-entry attempt did hit a SwiftShader
+GPU/context loss before completing its later phases. The corrected focused
+scope and final combined run passed, but that historical failure still
+explains why SwiftShader is not treated as hardware performance evidence.
+Native Dune performance and physical-controller/touch/art/audio review remain
+open.

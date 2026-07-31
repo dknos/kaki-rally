@@ -159,3 +159,21 @@ a landscape phone remains required. A visible 120 Hz Chrome run is also needed
 to prove the aspirational 120 FPS reference target. Kaki Dune Run additionally
 needs to be added to the native physical-adapter transition/performance
 rotation before any Dune release FPS claim is made.
+
+## Wave 1 local expansion probe
+
+The focused WebGL Stock matrix ran under `/home/nemoclaw/bin/chromium` with
+SwiftShader, so its low frame rate and high frame-time tail are not hardware
+claims. The captured dirt opening reported 168 draw calls, 787,893 triangles,
+40 textures, 13 render targets, and an estimated 154,818,743 bytes of GPU
+resources; the warmed concrete restart reported 154 draw calls and 286,539
+triangles. The same matrix recorded `stockVariant: dirt`, 16 cars, clay grip
+near `0.796`, and clay drag near `0.241`, proving the variant and pack are
+reaching runtime state. A native RTX 5080 rotation is required before these
+new disciplines can be compared with the existing 60 FPS baseline.
+
+Rally Raid currently reuses the Dune heightfield/deformation and bounded
+effect pools. Its new stage assets are procedural and mode-owned; no runtime
+CDN or second renderer was introduced. Add Prologue, Wadi, Saltline, and
+Night Ridge to the native hardware rotation before making a release-sized
+asset or frame-time claim.

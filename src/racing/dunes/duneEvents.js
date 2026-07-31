@@ -1,5 +1,10 @@
 const TAU = Math.PI * 2;
 
+import {
+  RALLY_RAID_STAGES,
+  RALLY_RAID_STAGE_ORDER,
+} from './duneRallyRaid.js';
+
 function clamp(value, minimum, maximum) {
   return Math.max(minimum, Math.min(maximum, value));
 }
@@ -320,6 +325,7 @@ export const DUNE_EVENTS = Object.freeze({
     },
     landmarks: ['litter-bowl', 'rock-shelf', 'service-camp', 'oasis'],
   }),
+  ...RALLY_RAID_STAGES,
 });
 
 export const DUNE_EVENT_ORDER = Object.freeze([
@@ -327,6 +333,7 @@ export const DUNE_EVENT_ORDER = Object.freeze([
   'sunspine',
   'mirage',
   'litterbox',
+  ...RALLY_RAID_STAGE_ORDER,
 ]);
 
 export function getDuneEvent(id = 'whiskerwind') {
