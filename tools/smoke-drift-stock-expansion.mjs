@@ -11,7 +11,12 @@ import {
   noteDriftCollision,
   stepDriftJudge,
 } from '../src/racing/drift/driftAttack.js';
-import { createKartState, stepKart } from '../src/racing/physics.js';
+import {
+  createKartState,
+  normalizeAngle,
+  rallyChassisRoll,
+  stepKart,
+} from '../src/racing/physics.js';
 import { getRallyHandlingProfile } from '../src/racing/handlingProfiles.js';
 import {
   RACE_MODES,
@@ -73,6 +78,42 @@ for (let i = 0; i < driveStates.length; i++) {
   );
 }
 assert.ok(new Set(driveStates.map((state) => state.speed.toFixed(4))).size > 1, 'drift profiles produce identical acceleration');
+
+const fishtail = createKartState({ grounded: true, vz: 15 });
+for (let frame = 0; frame < 120; frame += 1) {
+  stepKart(
+    fishtail,
+    { throttle: 1, steer: 0.68, drift: false, handbrake: false },
+    { onRoad: true, surfaceGrip: 1, surfaceDrag: 0 },
+    1 / 120,
+    getRallyHandlingProfile('drift', 'comet'),
+  );
+}
+const driftVelocityYaw = Math.atan2(fishtail.vx, fishtail.vz);
+const driftHeadingError = Math.abs(normalizeAngle(fishtail.yaw - driftVelocityYaw));
+assert.equal(fishtail.drifting, true, 'throttle plus steering never initiated the Drift Attack breakaway');
+assert.ok(fishtail.lateralSpeed > 5, `rear axle never stepped out: ${fishtail.lateralSpeed}`);
+assert.ok(driftHeadingError > 0.3, `fishtail heading/velocity split is too small: ${driftHeadingError}`);
+const beforeCountersteer = Math.abs(fishtail.lateralSpeed);
+for (let frame = 0; frame < 60; frame += 1) {
+  stepKart(
+    fishtail,
+    { throttle: 0.72, steer: -0.62, drift: false, handbrake: false },
+    { onRoad: true, surfaceGrip: 1, surfaceDrag: 0 },
+    1 / 120,
+    getRallyHandlingProfile('drift', 'comet'),
+  );
+}
+assert.ok(
+  Math.abs(fishtail.lateralSpeed) < beforeCountersteer * 0.62,
+  `countersteer did not catch the rear: ${beforeCountersteer} -> ${fishtail.lateralSpeed}`,
+);
+
+const bankedChassis = createKartState({ grounded: true, groundRoll: -0.47, bodyRoll: 0 });
+assert.ok(Math.abs(rallyChassisRoll(bankedChassis, 0)) > 0.4, 'bank roll never reached the visible rally chassis');
+bankedChassis.grounded = false;
+bankedChassis.airRoll = 0.12;
+assert.ok(Math.abs(rallyChassisRoll(bankedChassis, 0)) < 0.2, 'airborne chassis retained stale track banking');
 
 const concrete = getCourseDefinition('forest', 'stock', { stockVariant: 'concrete' });
 const dirt = getCourseDefinition('forest', 'stock', { stockVariant: 'dirt' });

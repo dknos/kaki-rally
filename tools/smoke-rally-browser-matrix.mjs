@@ -1219,6 +1219,63 @@ async function runDunes(page, backend, evidence) {
   };
   await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-camera-cycle-isometric.png`) });
 
+  // Land a short controlled jump after the camera-cycle fixture. This catches
+  // the historical regression where landing replaced the Dune camera FX
+  // object with a number and poisoned the next isometric frame.
+  assert(
+    await page.evaluate(() => {
+      const session = window.__kakiRally.state.racing;
+      session.kart.recoveryCooldown = 0;
+      window.__kkRacing.recover();
+      session.kart.landingType = '';
+      session.kart.landingCooldown = 0;
+      session.kart.landingImpulse = 0;
+      session.kart.lastAirTime = 0;
+      return window.__kkRacing.launchDuneJump(12);
+    }),
+    'Dune landing camera fixture failed to launch',
+  );
+  await page.waitForFunction(() => {
+    const session = window.__kakiRally?.state?.racing;
+    return !!session?.kart?.grounded
+      && !!session?.kart?.landingType;
+  }, null, { timeout: 30_000 });
+  const landingCamera = await page.evaluate(() => {
+    const session = window.__kakiRally.state.racing;
+    const manager = session.cameraManager;
+    const camera = manager.activeCamera;
+    const frame = manager.lastFrame;
+    const forward = camera.getWorldDirection(camera.position.clone());
+    const fx = session.cameraFx;
+    return {
+      landingType: session.kart.landingType,
+      cameraFxType: typeof fx,
+      cameraFx: typeof fx === 'object'
+        ? { shake: fx.shake, roll: fx.roll, punch: fx.punch, phase: fx.phase }
+        : fx,
+      projection: camera.isOrthographicCamera ? 'orthographic' : 'perspective',
+      mode: manager.mode,
+      transitioning: !!manager.transition,
+      cameraY: camera.position.y,
+      focusY: frame?.focus?.y,
+      forwardY: forward.y,
+      finite: [
+        camera.position.x, camera.position.y, camera.position.z,
+        frame?.focus?.x, frame?.focus?.y, frame?.focus?.z,
+        forward.x, forward.y, forward.z,
+      ].every(Number.isFinite),
+      guardRecoveries: manager.rigs.isometric.guardRecoveries,
+    };
+  });
+  assert.equal(landingCamera.cameraFxType, 'object', 'Dune landing replaced camera FX with a scalar');
+  assert(landingCamera.finite, `Dune landing emitted a non-finite camera frame: ${JSON.stringify(landingCamera)}`);
+  assert.equal(landingCamera.projection, 'orthographic', 'Dune landing left the isometric projection');
+  assert.equal(landingCamera.mode, 'isometric', 'Dune landing changed the active camera mode');
+  assert(!landingCamera.transitioning, 'Dune landing left an active camera transition');
+  assert(landingCamera.forwardY < -0.15, `Dune landing camera turned skyward: ${JSON.stringify(landingCamera)}`);
+  evidence.landingCamera = landingCamera;
+  await page.screenshot({ path: path.join(QA_DIR, `${backend}-dunes-landing-isometric.png`) });
+
   assert(await page.evaluate(() => !!window.__kkRacing.finish()), 'Dune result could not be banked');
   await page.waitForFunction(() => (
     window.__kkRacing?.snapshot?.()?.phase === 'finished'

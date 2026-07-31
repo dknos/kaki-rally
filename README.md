@@ -172,7 +172,25 @@ graph without adding a renderer or parallel session engine:
 
 Focused evidence and known limitations are kept in
 [docs/gauntlet-progress.html](docs/gauntlet-progress.html),
-[docs/QA_REPORT.md](docs/QA_REPORT.md), and `docs/qa/`. This is a local
-working-tree wave; it has not been pushed or deployed. SwiftShader browser
-captures are functional evidence only and do not replace the native RTX
-5080, controller, phone, or human art/audio gates.
+[docs/QA_REPORT.md](docs/QA_REPORT.md), and `docs/qa/`. Wave 1 ships through
+the normal PR/Pages workflow. SwiftShader browser captures are functional
+evidence only and do not replace the native RTX 5080, controller, phone, or
+human art/audio gates.
+
+## Local Gauntlet Wave 1.1
+
+The follow-up feel repair keeps the Wave 1 production graph intact:
+
+- Drift Attack now produces a real rear-slip fishtail from throttle/steer
+  breakaway, with measurable heading/velocity separation and countersteer
+  recovery tuned per car.
+- Thunderbowl normal cars visibly carry the authoritative concrete/clay bank
+  into chassis roll instead of treating banking as a height-only effect.
+- Dune landing camera FX retain their finite object shape and decay safely, so
+  an isometric jump landing cannot turn the camera into a non-finite blue
+  frame.
+
+The deterministic suite and focused Dune WebGL/WebGPU browser matrix pass these
+regressions. Before/after captures and measured probes are recorded in
+`docs/QA_REPORT.md` and `docs/gauntlet-progress.html`. This repair ships through
+the normal PR/Pages workflow; verify the public build after deployment.

@@ -82,7 +82,7 @@
         <h1>Make the road feel <em>earned.</em></h1>
         <p class="lede">A candid implementation log for the Kaki Rally expansion. This page is intentionally outside the production graph: it records the running artifact, the evidence that supports it, and the sharpest remaining gap.</p>
       </div>
-      <div class="stamp"><span>Active wave</span><strong id="stamp-wave">Wave 1 / integrated</strong><span id="stamp-time">Loading timestamp…</span></div>
+      <div class="stamp"><span>Active wave</span><strong id="stamp-wave">Wave 1.1 / feel repair</strong><span id="stamp-time">Loading timestamp…</span></div>
     </header>
 
     <section>
@@ -95,12 +95,12 @@
     </section>
 
     <section>
-      <div class="section-head"><h2>Current artifact</h2><span>focused live probes after Wave 1</span></div>
+      <div class="section-head"><h2>Current artifact</h2><span>focused live probes after Wave 1.1</span></div>
       <div class="evidence">
-        <figure><a href="qa/targeted/webgl-drift/webgl-drift.png"><img src="qa/targeted/webgl-drift/webgl-drift.png" alt="Drift Attack Whisker Yard judged run"></a><figcaption>Drift / Monarch · Wall Run · judged HUD</figcaption></figure>
-        <figure><a href="qa/webgl-stock-thunderbowl-discipline-direct.png"><img src="qa/webgl-stock-thunderbowl-discipline-direct.png" alt="Thunderbowl dirt pack race"></a><figcaption>Thunderbowl / clay · banked 16-car pack</figcaption></figure>
-        <figure><a href="qa/webgl-dunes-rally-raid-direct.png"><img src="qa/webgl-dunes-rally-raid-direct.png" alt="Kaki Rally Raid roadbook stage"></a><figcaption>Raid / Prologue · Navigator roadbook</figcaption></figure>
-        <figure><a href="qa/targeted/webgl-stock/webgl-stock-pack.png"><img src="qa/targeted/webgl-stock/webgl-stock-pack.png" alt="Thunderbowl pack race browser capture"></a><figcaption>Browser matrix / live pack and stadium proof</figcaption></figure>
+        <figure><a href="qa/fix-drift-fishtail-qa.png"><img src="qa/fix-drift-fishtail-qa.png" alt="Drift Attack fishtail QA capture"></a><figcaption>Drift / Comet · rear slip + judged angle</figcaption></figure>
+        <figure><a href="qa/fix-stock-banked-concrete.png"><img src="qa/fix-stock-banked-concrete.png" alt="Thunderbowl concrete banked corner capture"></a><figcaption>Thunderbowl / concrete · chassis follows -0.464 rad bank</figcaption></figure>
+        <figure><a href="qa/repro-dune-landing-blue.png"><img src="qa/repro-dune-landing-blue.png" alt="Dune landing camera failure baseline"></a><figcaption>Before / Dune landing · poisoned ISO frame</figcaption></figure>
+        <figure><a href="qa/fix-dune-landing-isometric.png"><img src="qa/fix-dune-landing-isometric.png" alt="Dune landing camera fixed capture"></a><figcaption>After / Dune landing · finite ISO frame and terrain visible</figcaption></figure>
       </div>
     </section>
 
@@ -120,6 +120,9 @@
         <dt>Racing smoke</dt><dd>pass + Raid</dd>
         <dt>Visual/lifecycle smoke</dt><dd>30 configs / 585 + 88</dd>
         <dt>Browser matrix</dt><dd>WebGL + WebGPU pass</dd>
+        <dt>Fishtail probe</dt><dd>0.392 rad split / caught</dd>
+        <dt>Bank visual probe</dt><dd>-0.464 → -0.463 rad</dd>
+        <dt>Dune landing probe</dt><dd>finite / ISO / sky-safe</dd>
         <dt>Raid live probe</dt><dd>start / penalty / finish pass</dd>
         <dt>Save/boundaries</dt><dd>pass / 116 modules</dd>
         <dt>Assets</dt><dd>123 files / 62.48 MiB</dd>
@@ -128,7 +131,7 @@
         <dt>SwiftShader probe</dt><dd>168 draws / 787k tris</dd>
         <dt>Physical FPS claim</dt><dd>baseline only</dd>
       </dl></div>
-      <div class="panel"><div class="section-head"><h2>Independent verdict</h2><span>fresh integration critique</span></div><p class="verdict">Wave 1 clears its functional bar: Drift now communicates why a run scores, Thunderbowl banking reaches contact and telemetry, and Rally Raid is playable through a live roadbook/penalty/service loop. The final combined browser matrix also passes both renderer paths. The largest remaining gap is authored spectacle and human feel: the new venue dressing and procedural Raid bodies are credible but still lighter than a finished commercial showcase, and SwiftShader cannot answer native performance or controller feel.<small>Evidence reviewed: final WebGL/WebGPU matrix, focused browser pixels, direct Raid finish state, deterministic smoke, visual/lifecycle suites, and source/contract inspection. This is a verified implementation wave, not a claim of final AAA parity.</small></p></div>
+      <div class="panel"><div class="section-head"><h2>Focused verdict</h2><span>fresh regression critique</span></div><p class="verdict">Wave 1.1 closes the three reported defects: Drift now has a rear-slip yaw state with throttle breakaway and countersteer recovery; normal rally cars carry the authoritative oval bank into visible chassis roll; and Dune landing FX remain a finite object through the isometric camera. The largest remaining gap is human hardware feel: this environment’s managed browser path is SwiftShader, so native GPU frame time, physical controller granularity, and long-run art/audio review remain open.<small>Evidence reviewed: before/after landing pixels, live bank roll telemetry, deterministic fishtail/countersteer probe, full npm test, focused WebGL/WebGPU browser matrix, and source/lifecycle inspection. This is a verified repair pass, not a claim of final AAA parity.</small></p></div>
     </section>
 
     <section>
@@ -139,6 +142,7 @@
         <dt>Raid navigation</dt><dd>4 / 5 · roadbook + penalty proof</dd>
         <dt>Visual cohesion</dt><dd>3 / 5 · strong Kaki, lighter spectacle</dd>
         <dt>Engineering confidence</dt><dd>4 / 5 · full gates pass</dd>
+        <dt>Regression repair</dt><dd>4 / 5 · three reports closed</dd>
       </dl></div>
     </section>
 

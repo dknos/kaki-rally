@@ -31,6 +31,7 @@ import {
   impactDamage,
   applyKartDamage,
   repairKart,
+  rallyChassisRoll,
 } from './physics.js';
 import { getCourseDefinition, nextCourseId, RACE_MODES } from './tracks.js';
 import {
@@ -1253,10 +1254,11 @@ function _syncKartVisual(session, car, dt, controls, events, contact) {
   const v = car.visual;
   v.root.position.set(p.x, p.y, p.z);
   v.root.rotation.y = p.yaw;
-  const leanTarget = v.monster
-    ? (p.grounded ? (p.contactRoll ?? p.groundRoll ?? 0) : (p.stuntRoll || 0))
-    : -controls.steer * (p.drifting ? 0.17 : 0.07)
-      + (p.grounded ? (p.bodyRoll || 0) : (p.airRoll || 0));
+  const leanTarget = rallyChassisRoll(
+    p,
+    p.appliedSteering ?? controls.steer,
+    v.monster,
+  );
   v.bodyPivot.rotation.z += (leanTarget - v.bodyPivot.rotation.z) * Math.min(1, dt * 10);
   const pitchTarget = v.monster
     ? (p.grounded ? (p.contactPitch ?? p.groundPitch ?? 0) : (p.stuntPitch || 0))

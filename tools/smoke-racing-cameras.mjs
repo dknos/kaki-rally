@@ -8,7 +8,10 @@ import {
   availableCameraModes,
   cycleCameraMode,
 } from '../src/racing/cameras/cameraModes.js';
-import { guardIsometricTerrainFrame } from '../src/racing/cameras/isometricFrameGuard.js';
+import {
+  guardIsometricTerrainFrame,
+  sanitizeIsometricCameraFx,
+} from '../src/racing/cameras/isometricFrameGuard.js';
 import {
   RACING_CAMERA_PROFILES,
   cameraProfileForSession,
@@ -122,6 +125,28 @@ assert.equal(
   false,
   'isometric terrain-facing guard changed an already valid frame',
 );
+const poisonedPosition = { x: Number.NaN, y: Number.NaN, z: Number.NaN };
+const poisonedFocus = { x: Number.NaN, y: Number.NaN, z: Number.NaN };
+assert.equal(
+  guardIsometricTerrainFrame(poisonedPosition, poisonedFocus, {
+    position: { x: 12, y: 4, z: -8 },
+    monster: false,
+  }),
+  true,
+  'isometric frame guard did not report recovery from non-finite camera vectors',
+);
+assert.ok(
+  [poisonedPosition.x, poisonedPosition.y, poisonedPosition.z, poisonedFocus.x, poisonedFocus.y, poisonedFocus.z]
+    .every(Number.isFinite),
+  'isometric frame guard left non-finite vectors after recovery',
+);
+
+const staleNumericFx = sanitizeIsometricCameraFx(0.7746);
+assert.deepEqual(
+  staleNumericFx,
+  { shake: 0, roll: 0, punch: 0, phase: 0 },
+  'isometric camera accepted a stale numeric cameraFx payload instead of a finite neutral frame',
+);
 
 for (const profile of Object.values(RACING_CAMERA_PROFILES)) {
   for (const field of [
@@ -134,7 +159,7 @@ for (const profile of Object.values(RACING_CAMERA_PROFILES)) {
   ]) assert.ok(field in profile, `${profile.id} camera profile is missing ${field}`);
 }
 
-const [managerSource, collisionSource, inputSource, isoSource, fpvSource, rallySource, trialsSource, mainSource, cssSource, gamepadSource] = await Promise.all([
+const [managerSource, collisionSource, inputSource, isoSource, fpvSource, rallySource, trialsSource, mainSource, cssSource, gamepadSource, duneModeSource] = await Promise.all([
   source('src/racing/cameras/racingCameraManager.js'),
   source('src/racing/cameras/chaseCameraCollision.js'),
   source('src/racing/cameras/cameraInput.js'),
@@ -145,6 +170,7 @@ const [managerSource, collisionSource, inputSource, isoSource, fpvSource, rallyS
   source('src/app/rallyApp.js'),
   source('src/racing/racing.css'),
   source('src/core/gamepad.js'),
+  source('src/racing/dunes/duneMode.js'),
 ]);
 for (const method of [
   'bindVehicle', 'bindTrack', 'setCameraMode', 'cycleCamera', 'resetCamera',
@@ -167,6 +193,9 @@ assert.match(isoSource, /const height = vehicle\.position\.y[\s\S]*\+\s*base\.he
 assert.match(isoSource, /this\.focus\.lerp\(this\.desiredFocus,\s*alpha\)/, 'isometric position and focus are not damped as one frame');
 assert.match(isoSource, /this\.focus\.copy\(this\.desiredFocus\)/, 'isometric snap does not initialize its focus');
 assert.match(isoSource, /guardIsometricTerrainFrame\(this\.position, this\.focus, vehicle\)/, 'isometric re-entry has no terrain-facing guard');
+assert.match(isoSource, /sanitizeIsometricCameraFx\(session\?\.cameraFx\)/, 'isometric camera does not sanitize stale camera FX payloads');
+assert.match(duneModeSource, /cameraFx:\s*\{\s*\.\.\.DUNE_CAMERA_FX_DEFAULTS\s*\}/, 'Dune session still initializes camera FX as a number');
+assert.match(duneModeSource, /cameraFx\.shake\s*=\s*Math\.max/, 'Dune landing does not apply a finite camera shake impulse');
 assert.match(managerSource, /const projectionChange = previous === RacingCameraMode\.ISOMETRIC[\s\S]*next === RacingCameraMode\.ISOMETRIC/, 'orthographic projection switches can still blend a stale ISO frame');
 assert.match(managerSource, /\|\| projectionChange;/, 'projection boundary does not force an immediate camera handoff');
 assert.match(managerSource, /trackBinding\.mode === 'monster' \? null/, 'Monster Smash still binds the full arena to chase collision');

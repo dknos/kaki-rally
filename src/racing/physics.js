@@ -32,6 +32,15 @@ export const RACE_TUNING = Object.freeze({
   speedSensitiveSteering: true,
   highSpeedSteerScale: 0.58,
   driftLateralBuild: 0.6,
+  handbrakeDrift: false,
+  driftAutoBreakaway: false,
+  driftBreakawaySpeed: 10,
+  driftBreakawaySteer: 0.3,
+  driftThrottleGripLoss: 0,
+  driftThrottleLateralBuild: 0,
+  driftYawCoupling: 0,
+  driftYawTransition: 5,
+  driftCountersteer: 0,
   maxSpeed: 24.0,
   reverseSpeed: 8.0,
   offroadSpeed: 11.5,
@@ -66,6 +75,32 @@ export function normalizeAngle(angle) {
   let wrapped = (angle + Math.PI) % TAU;
   if (wrapped < 0) wrapped += TAU;
   return wrapped - Math.PI;
+}
+
+/**
+ * Return the authored chassis roll used by the shared rally-car presentation.
+ *
+ * Track banking is part of the contact solution, so the visible body must
+ * carry that same roll instead of treating it as a track-only height offset.
+ * Weight transfer and steering lean are layered on top for readable drift and
+ * cornering feedback. Airborne cars intentionally keep terrain roll out of
+ * the body until the wheels have a real surface to follow.
+ */
+export function rallyChassisRoll(kart, steer = 0, monster = false) {
+  if (!kart) return 0;
+  const grounded = kart.grounded !== false;
+  if (monster) {
+    return grounded
+      ? _finiteOr(kart.contactRoll ?? kart.groundRoll, 0)
+      : _finiteOr(kart.stuntRoll, 0);
+  }
+  const bankRoll = grounded ? _finiteOr(kart.contactRoll ?? kart.groundRoll, 0) : 0;
+  const bodyRoll = grounded
+    ? _finiteOr(kart.bodyRoll, 0)
+    : _finiteOr(kart.airRoll, 0);
+  const steering = _finiteOr(steer, 0);
+  const steeringLean = -steering * (kart.drifting ? 0.17 : 0.07);
+  return bankRoll + bodyRoll + steeringLean;
 }
 
 function _expApproach(current, target, rate, dt) {
@@ -181,6 +216,7 @@ export function createKartState(overrides = {}) {
     lastImpact: 0,
     lateralSpeed: 0,
     slipAngle: 0,
+    driftYawRate: 0,
     draftStrength: 0,
     repairTime: 0,
     wrecked: false,
@@ -388,7 +424,15 @@ export function stepKart(
   kart.slipAngle = Math.atan2(lateralSpeed, Math.max(0.1, Math.abs(forwardSpeed)));
 
   const handbrake = !!controls.handbrake;
-  const wantsDrift = !!controls.drift && onRoad && kart.grounded
+  const explicitDrift = !!controls.drift
+    || (handbrake && tuning.handbrakeDrift === true);
+  const autoBreakaway = tuning.driftAutoBreakaway === true
+    && onRoad
+    && kart.grounded
+    && Math.abs(forwardSpeed) > _finiteOr(tuning.driftBreakawaySpeed, 10)
+    && Math.abs(steer) > _finiteOr(tuning.driftBreakawaySteer, 0.3)
+    && (throttle > 0.56 || throttle < -0.24 || handbrake);
+  const wantsDrift = (explicitDrift || autoBreakaway) && onRoad && kart.grounded
     && Math.abs(forwardSpeed) > (handbrake ? 4.5 : 7)
     && Math.abs(steer) > (handbrake ? 0.08 : 0.12);
   const releasedDrift = !!kart.drifting && !wantsDrift;
@@ -539,7 +583,46 @@ export function stepKart(
   const airSteerScale = kart.grounded ? 1 : 0.34;
   const recoveryStrength = clamp((kart.impactRecovery || 0) / 0.8, 0, 1);
   kart.angularVelocity = clamp(Number(kart.angularVelocity) || 0, -1.45, 1.45);
-  kart.yawRate = steer * steerRate * steerPower * airSteerScale + kart.angularVelocity;
+  const slipRatio = clamp(
+    lateralSpeed / Math.max(4, Math.abs(forwardSpeed)),
+    -1.25,
+    1.25,
+  );
+  const countersteerAmount = wantsDrift && Math.sign(lateralSpeed) !== 0
+    && steer * lateralSpeed < 0
+    ? Math.abs(steer)
+    : 0;
+  const frontSteerAuthority = wantsDrift
+    ? 1 + countersteerAmount * _finiteOr(tuning.driftCountersteer, 0)
+    : 1;
+  const frontYawRate = steer * steerRate * steerPower * airSteerScale * frontSteerAuthority;
+  if (wantsDrift && kart.grounded) {
+    // A drift is a rear-axle state, not just a sideways velocity injection.
+    // Let rear slip feed a bounded yaw-rate target; throttle unloads the rear
+    // and countersteer then has a direct, visible job of catching the car.
+    const driveLoad = 0.58 + Math.max(0, throttle) * 0.82 + (handbrake ? 0.16 : 0);
+    const rearYawTarget = slipRatio
+      * _finiteOr(tuning.driftYawCoupling, 0)
+      * driveLoad;
+    kart.driftYawRate = clamp(
+      _expApproach(
+        _finiteOr(kart.driftYawRate, 0),
+        rearYawTarget,
+        _finiteOr(tuning.driftYawTransition, 5),
+        dt,
+      ),
+      -1.55,
+      1.55,
+    );
+  } else {
+    kart.driftYawRate = _expApproach(
+      _finiteOr(kart.driftYawRate, 0),
+      0,
+      wantsDrift ? _finiteOr(tuning.driftYawTransition, 5) : 8,
+      dt,
+    );
+  }
+  kart.yawRate = frontYawRate + (wantsDrift ? kart.driftYawRate : 0) + kart.angularVelocity;
   kart.yaw = normalizeAngle(kart.yaw + kart.yawRate * dt);
   kart.angularVelocity *= Math.exp(-(2.7 + recoveryStrength * 4.2) * dt);
 
@@ -574,8 +657,11 @@ export function stepKart(
     kart.draftStrength = Math.max(0, (kart.draftStrength || 0) - dt * 2.2);
   }
 
+  const throttleGripLoss = wantsDrift
+    ? clamp(Math.max(0, throttle) * _finiteOr(tuning.driftThrottleGripLoss, 0), 0, 0.65)
+    : 0;
   const baseGrip = wantsDrift
-    ? tuning.driftGrip * (handbrake ? 0.68 : 1)
+    ? tuning.driftGrip * (handbrake ? 0.68 : 1) * (1 - throttleGripLoss)
     : (onRoad ? tuning.roadGrip : (tuning.offroadGrip || tuning.roadGrip * 0.58));
   const progressiveGrip = (0.74 + speedRatio * 0.34) * kart.surfaceGrip;
   const grip = kart.grounded
@@ -584,7 +670,10 @@ export function stepKart(
   lateralSpeed *= Math.exp(-grip * dt);
   if (wantsDrift) {
     lateralSpeed += steer * Math.abs(forwardSpeed)
-      * (handbrake ? _finiteOr(tuning.handbrakeLateralBuild, 0.92) : _finiteOr(tuning.driftLateralBuild, 0.6))
+      * (handbrake
+        ? _finiteOr(tuning.handbrakeLateralBuild, 0.92)
+        : _finiteOr(tuning.driftLateralBuild, 0.6)
+          + Math.max(0, throttle) * _finiteOr(tuning.driftThrottleLateralBuild, 0))
       * kart.surfaceGrip * dt;
   }
 
