@@ -124,14 +124,11 @@ function loadRaidDevelopment() {
   return raidDevelopmentPromise;
 }
 
-// The menu renders a card for whatever mode the route names, and its card table
-// is frozen. Raid has no card yet, so the menu must never be handed `raid` or it
-// dereferences an undefined entry and the whole shell fails to boot. Nulling the
-// mode here is the seam-side fix; adding a stub card to rallyMenu.js would mean
-// editing a frozen file to advertise a discipline that is not finished.
+// The menu now has its own Raid card, so the route passes through untouched.
+// This guard is kept as the single place that would need to change again if
+// Raid were ever pulled back out of the menu.
 function menuSafeRoute(route) {
-  if (!route || route.mode !== 'raid') return route;
-  return Object.freeze({ ...route, mode: null });
+  return route;
 }
 
 function requireElement(id) {

@@ -2,7 +2,7 @@
   "schema": 1,
   "product": "Kaki Rally",
   "scope": "Kaki Rally Raid (Desert Expedition) additive-mode boundary",
-  "baselineCommit": "6b599dcb9e3ef017bc61fdbab36d60f40558bb5f",
+  "baselineCommit": "3a0d8d866ee5e9b8fee22b8691a1a25a83d8c84c",
   "policy": {
     "frozen": "Every file under `files` must stay byte-identical. A digest mismatch fails the wave unless the final report documents the file, the reason, proof that an adapter could not solve it, regression tests, and before/after evidence.",
     "seams": "Only the paths under `seams` may change, and only additively, default-off outside Raid, and covered by a non-regression test."
@@ -38,6 +38,10 @@
       "reason": "The shell owns the dynamic import, loader copy, availability gate, and F3 diagnostics. Lazy loading is impossible without a shell-side import() site."
     },
     {
+      "path": "src/app/rallyMenu.js",
+      "reason": "One additive mode card so the discipline is reachable from the site rather than only from a deep link. No existing card is removed, renamed, or reordered. The card is labelled PREVIEW and says plainly what is missing."
+    },
+    {
       "path": "src/app/rallySave.js",
       "reason": "Raid storage keys must join the namespaced export/reset allow-list without altering the existing LEGACY_SAVE_KEYS ordering or contents."
     },
@@ -51,8 +55,8 @@
     }
   ],
   "summary": {
-    "frozenFiles": 150,
-    "seamFiles": 8
+    "frozenFiles": 149,
+    "seamFiles": 9
   },
   "files": [
     {
@@ -62,10 +66,6 @@
     {
       "path": "src/app/developerOverlay.js",
       "sha256": "10b48966dafe8db0429621b8b922112f28c9201ae6a66fde7499f49a0fdc9372"
-    },
-    {
-      "path": "src/app/rallyMenu.js",
-      "sha256": "57d9e431be737c3574b3f43fa62d56f8cd65fb86ddcfd6bb7347fac0526255ce"
     },
     {
       "path": "src/app/rallyOptions.js",

@@ -129,6 +129,13 @@ const SEAMS = Object.freeze([
       + 'Lazy loading is impossible without a shell-side import() site.',
   },
   {
+    path: 'src/app/rallyMenu.js',
+    reason:
+      'One additive mode card so the discipline is reachable from the site rather than only '
+      + 'from a deep link. No existing card is removed, renamed, or reordered. The card is '
+      + 'labelled PREVIEW and says plainly what is missing.',
+  },
+  {
     path: 'src/app/rallySave.js',
     reason:
       'Raid storage keys must join the namespaced export/reset allow-list without altering '

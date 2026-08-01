@@ -104,14 +104,18 @@ for (const [id, spec] of Object.entries(RALLY_ASSET_MANIFEST)) {
   raidManifestIds.push(id);
   assert.match(id, /^raid[-A-Za-z0-9]*/, `Raid manifest id is not namespaced: ${id}`);
 }
+// Declared seams that legitimately name Raid asset paths: the shared manifest
+// registers them, and the menu card points at its own key art. What matters is
+// that no other mode REQUESTS them, which the id check and the browser test cover.
+const ASSET_NAMING_SEAMS = new Set([
+  path.join(ROOT, 'src', 'racing', 'racingManifest.js'),
+  path.join(ROOT, 'src', 'app', 'rallyMenu.js'),
+]);
 const MANIFEST_SEAM = path.join(ROOT, 'src', 'racing', 'racingManifest.js');
 for (const file of nonRaidSourceFiles) {
   const relative = path.relative(ROOT, file);
   const source = fs.readFileSync(file, 'utf8');
-  // The shared manifest is the declared registration seam for Raid assets, so
-  // it is expected to name the path. What matters is that no other mode
-  // REQUESTS the entry, which the id check below and the browser test cover.
-  if (file !== MANIFEST_SEAM) {
+  if (!ASSET_NAMING_SEAMS.has(file)) {
     assert.doesNotMatch(
       source,
       /assets\/racing\/raid\//,
@@ -220,10 +224,13 @@ if (raidPresent) {
     true,
     'the public deep link cannot launch Raid',
   );
-  // It must still be absent from the menu, or it would be advertised as
-  // finished alongside the production modes.
-  assert.doesNotMatch(menu, /data-mode="raid"/, 'the production menu advertises Raid');
-  assert.doesNotMatch(menu, /'raid'|"raid"/, 'the production menu knows about Raid');
+  // The menu now carries a Raid card, but it must stay honest about what it is
+  // and must not have disturbed any existing card.
+  assert.match(menu, /data-mode="raid"/, 'the menu has no Raid card');
+  assert.match(menu, /PREVIEW/, 'the Raid card does not declare itself a preview');
+  for (const existing of ['circuit', 'drift', 'stock', 'dunes', 'draw', 'monster', 'trials']) {
+    assert.match(menu, new RegExp(`data-mode="${existing}"`), `the ${existing} card was removed`);
+  }
   // And the Catastrophe gate must be untouched in both directions.
   assert.equal(
     readRallyRoute('http://localhost:8080/?mode=crash&dev=catastrophe').mode,

@@ -98,6 +98,14 @@ const MODE_DATA = Object.freeze({
     description: 'Read the roadbook across authored dunes, wadis, hardpack, salt, and ridge stages while the original Dune Run events remain ready for freeride.',
     mechanic: 'Four raid stages · CAP calls · penalties · deformable sand',
   }),
+  raid: Object.freeze({
+    eyebrow: 'STREAMED DESERT · PREVIEW',
+    title: 'Desert Expedition',
+    short: 'Desert Expedition',
+    art: 'assets/racing/raid/kaki-raid-key-art-v1.png',
+    description: 'Cross a streamed 12 km desert on one selective stage: open hardpack, a winding gravel wadi, a folded rock shelf, dunes, and a fast run into camp. An unfinished preview — there is no roadbook, no penalties, and no finish line yet.',
+    mechanic: 'One 12.41 km stage · streamed terrain · Tipsy Tumbler',
+  }),
   trials: Object.freeze({
     eyebrow: 'SIDE TRIAL · KTR1 COURSE WORKSHOP',
     title: 'Kaki Trials',
@@ -252,6 +260,7 @@ export class RallyMenu {
           <button type="button" data-mode="draw"><span>✎</span><strong>DRAW YOUR TRACK</strong></button>
           <button type="button" data-mode="monster"><span>✦</span><strong>MONSTER SMASH</strong></button>
           <button type="button" data-mode="trials"><span>△</span><strong>KAKI TRIALS</strong></button>
+          <button type="button" data-mode="raid"><span>PRE</span><strong>DESERT EXPEDITION</strong></button>
           ${this.catastropheDevelopment ? '<button type="button" data-mode="crash"><span>DEV</span><strong>KAKI CATASTROPHE</strong><em></em></button>' : ''}
         </nav>
         <section class="rally-detail" aria-live="polite"></section>
@@ -431,6 +440,14 @@ export class RallyMenu {
         ${selectMarkup('trialsVehicle', 'Vehicle', Object.values(TRIALS_VEHICLE_PROFILES).map((profile) => ({ value: profile.id, label: profile.name })), this.settings.trialsVehicle)}
         ${this.driverSelect()}
         ${this.cameraSelect()}`;
+    } else if (this.selectedMode === 'raid') {
+      // Raid picks its own stage and vehicle for now, so the only meaningful
+      // choices are the shared ones. Without this branch the panel falls through
+      // to Catastrophe's controls and shows its FROZEN notice.
+      setup = `
+        ${this.driverSelect()}
+        ${this.cameraSelect()}
+        <div class="rally-beta-note" data-status="preview"><strong>PREVIEW</strong><span>Streamed terrain and a drivable stage. No roadbook, penalties, or finish line yet.</span></div>`;
     } else {
       setup = `
         ${selectMarkup('crashVehicle', 'Impact car', CATASTROPHE_DEVELOPMENT_VEHICLES, this.settings.crashVehicle)}
@@ -642,6 +659,10 @@ export class RallyMenu {
           duneRecoveryAssist: this.settings.duneRecoveryAssist,
         },
       };
+    }
+    if (mode === 'raid') {
+      // Raid picks its own stage; the shell passes no course id.
+      return { courseId: '', options: { ...common } };
     }
     if (mode === 'trials') {
       const trackId = unlockedTrialsTracks().has(this.settings.trialsTrack)

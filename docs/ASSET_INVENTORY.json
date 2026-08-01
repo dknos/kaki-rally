@@ -24,13 +24,13 @@
     }
   ],
   "summary": {
-    "files": 126,
-    "bytes": 66226580,
-    "referencedFiles": 97,
+    "files": 127,
+    "bytes": 68008295,
+    "referencedFiles": 98,
     "byKind": {
       "support": 7,
       "model": 27,
-      "image": 77,
+      "image": 78,
       "audio": 1,
       "source-artifact": 1,
       "runtime": 13
@@ -566,6 +566,15 @@
       "references": [
         "manifest:raidEnvironmentKit",
         "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/raid/kaki-raid-key-art-v1.png",
+      "bytes": 1781715,
+      "sha256": "aeef762bebb1798fb031fb77305418d2b12bf54b7beacf0fccbadb2f8fbd67d3",
+      "kind": "image",
+      "references": [
+        "source:src/app/rallyMenu.js"
       ]
     },
     {
