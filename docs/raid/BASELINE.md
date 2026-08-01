@@ -40,15 +40,44 @@ AssertionError: mobile Trials Workshop hid too much terrain:
   at async runWebGl (tools/smoke-rally-browser-matrix.mjs:2306:5)
 ```
 
-This is a Trials Workshop responsive-layout assertion in the mobile viewport. It
-is **not fixed here** and must not be: repairing it would mean editing frozen
-code and would contaminate the isolation proof. It is recorded so that a later
-run of the browser matrix is compared against a failing baseline, not a
-presumed-green one.
+**`npm run test:browser:dunes` also fails on the untouched baseline.**
 
-Consequence: the WebGL browser matrix cannot currently be used as a pass/fail
-gate for Raid. Raid's own browser verification has to be scoped so it does not
-depend on this assertion.
+```
+AssertionError: mobile Dune target fell below 44 CSS px: 40.47998046875
+  at runDuneResponsive (tools/smoke-rally-browser-matrix.mjs:477:5)
+```
+
+Both are mobile responsive-layout assertions. Neither is fixed here and neither
+should be: repairing them would mean editing frozen code and would contaminate
+the isolation proof. They are recorded so a later run of the browser matrix is
+compared against a failing baseline, not a presumed-green one.
+
+Consequence: the browser matrix cannot currently be used as a green/red gate for
+Raid. It can still be used as a **differential** gate, which is what was done —
+see below.
+
+### Verifying the seams against a real page load
+
+The router and availability seams run on every page load, so they cannot be
+proven by unit assertions alone. `npm run test:browser:dunes` was therefore run
+twice under quiet conditions: once on a pristine checkout of `632efaf` in a
+separate clone, and once on the Raid clone.
+
+| Run | Result |
+| --- | --- |
+| Pristine `632efaf` | boots, progresses to `runDuneResponsive`, fails at `:477` with `40.47998046875` |
+| Raid clone | boots, progresses to `runDuneResponsive`, fails at `:477` with `40.47998046875` |
+
+Byte-identical failure signature at the identical line. The shell boots through
+the modified router and reaches the same point, so the seams introduce no
+regression on this path.
+
+One earlier run of the Raid clone timed out at boot instead. That run was
+concurrent with an eleven-agent recon workflow saturating the CPU, and the
+120-second boot budget under swiftshader was not met. It did not reproduce once
+the machine was quiet. Recorded because a boot timeout is exactly the symptom a
+broken router would produce, and it would have been easy to either panic about
+or wave away without the controlled comparison.
 
 ## Production modes at baseline
 

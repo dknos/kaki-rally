@@ -36,9 +36,17 @@ The **baseline fails**: `npm run test:browser:webgl` fails at
 `632efaf` (mobile Trials Workshop responsive assertion). This predates Raid and
 is deliberately not fixed — see `BASELINE.md`.
 
-Because of that, the scoped `npm run test:browser:dunes` was used to verify the
-router and availability seams do not regress a real page load. **Result
-recorded in the session log; see the final report.**
+`npm run test:browser:dunes` **also fails on the untouched baseline**, at
+`:477` (`mobile Dune target fell below 44 CSS px: 40.47998046875`).
+
+The matrix was therefore used as a *differential* gate rather than a pass/fail
+one. Run under quiet conditions on a pristine `632efaf` clone and on the Raid
+clone, both boot, both reach `runDuneResponsive`, and both fail at the same line
+with the same value. The seams introduce no regression on the real boot path.
+
+An earlier Raid-clone run timed out at boot; it was concurrent with an
+eleven-agent recon workflow saturating the CPU and did not reproduce once the
+machine was quiet.
 
 ## Bugs found and fixed during this work
 
