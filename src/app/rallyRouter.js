@@ -31,15 +31,18 @@ export function readRallyRoute(url = globalThis.location?.href || 'https://local
     isLocalDevelopmentUrl(parsed)
     && developmentFlag === 'catastrophe'
   );
-  // Kaki Rally Raid uses its own flag value so the two development routes
-  // cannot enable or cancel each other.
+  // Kaki Rally Raid is playable from its deep link on any origin. It keeps its
+  // own flag value so the two development routes cannot enable or cancel each
+  // other, but the flag now only marks a local development session; it is no
+  // longer required to reach the mode.
   const raidDevelopment = (
     isLocalDevelopmentUrl(parsed)
     && (developmentFlag === '1' || developmentFlag === 'raid')
   );
   const requestedMode = normalizeRouteMode(parsed.searchParams.get('mode'));
-  const gatedMode = (requestedMode === 'crash' && !catastropheDevelopment)
-    || (requestedMode === 'raid' && !raidDevelopment);
+  // Raid has no menu card, so it is reachable by URL only. Catastrophe stays
+  // gated to an explicit localhost development flag.
+  const gatedMode = requestedMode === 'crash' && !catastropheDevelopment;
   return Object.freeze({
     mode: gatedMode ? null : requestedMode,
     renderer: parsed.searchParams.get('renderer'),

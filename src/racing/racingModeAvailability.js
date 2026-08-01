@@ -15,26 +15,19 @@ export function getRacingModeAvailability(mode, {
   development = false,
   raidDevelopment = false,
 } = {}) {
-  // Kaki Rally Raid is a new discipline still behind its own development flag.
-  // It needs an explicit branch because the default below reports every unknown
-  // mode id as publicly available, which would expose it from the menu the
-  // moment a route pointed at it. It runs on both renderer backends.
+  // Kaki Rally Raid needs an explicit branch so its status and label stay
+  // honest rather than falling through to the plain AVAILABLE default the
+  // finished modes use. It runs on both renderer backends.
   if (String(mode || '') === 'raid') {
-    if (!raidDevelopment) {
-      return Object.freeze({
-        status: 'development',
-        canLaunch: false,
-        reason: 'raid-development-flag',
-        label: 'IN DEVELOPMENT',
-        detail: 'Kaki Rally Raid is not finished; open it with the local development route.',
-      });
-    }
+    // Playable on any origin, but deliberately not advertised: it has no menu
+    // card, so only someone who knows the deep link arrives here. The label
+    // stays honest about how finished it is.
     return Object.freeze({
-      status: 'development',
+      status: raidDevelopment ? 'development' : 'preview',
       canLaunch: true,
-      reason: 'localhost-development-flag',
-      label: 'DEV ONLY',
-      detail: 'Desert Expedition enabled explicitly for this localhost session.',
+      reason: raidDevelopment ? 'localhost-development-flag' : 'deep-link-preview',
+      label: raidDevelopment ? 'DEV' : 'PREVIEW',
+      detail: 'Desert Expedition is an unfinished preview reached by direct link.',
     });
   }
   if (String(mode || '') !== 'crash') return AVAILABLE;

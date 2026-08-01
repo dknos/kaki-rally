@@ -96,7 +96,9 @@ try {
     if (/\/racing\/raid\//.test(request.url())) raidRequests.push(request.url());
   });
 
-  await page.goto(`${origin}/index.html?mode=raid&play=1&dev=1&qa=1&renderer=webgl`, {
+  // The public deep-link shape, with no development flag, because that is the
+  // URL a player actually uses.
+  await page.goto(`${origin}/index.html?mode=raid&play=1&qa=1&renderer=webgl`, {
     waitUntil: 'load', timeout: 120_000,
   });
   await page.waitForFunction(
@@ -112,7 +114,7 @@ try {
   assert.equal(snapshot.stageId, 'wadi-of-whiskers', `unexpected stage: ${snapshot.stageId}`);
   assert(snapshot.officialDistanceKm > 12, `stage distance is ${snapshot.officialDistanceKm} km`);
   assert(snapshot.sectors.resident > 0, 'no terrain sectors were resident');
-  pass(`?mode=raid&play=1&dev=1 opens ${snapshot.stageName} at ${snapshot.officialDistanceKm} km with ${snapshot.sectors.resident} sectors resident`);
+  pass(`?mode=raid&play=1 opens ${snapshot.stageName} at ${snapshot.officialDistanceKm} km with ${snapshot.sectors.resident} sectors resident`);
 
   // ---------------------------------------------------------------------
   // 2. The HUD must be present and namespaced.

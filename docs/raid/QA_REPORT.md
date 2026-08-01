@@ -124,8 +124,13 @@ the specification's §46 delivery list, the following are **not delivered**:
   deferred until there is a playable mode to describe. Editing them now would
   advertise a discipline that cannot be launched.
 
-## Not done, as instructed
+## Release state
 
-Nothing was pushed. Nothing was deployed. The GitHub Pages build is untouched.
-The development flag remains in place. No other mode was altered to make this
-report look cleaner.
+Pushed and deployed to GitHub Pages at the owner's explicit instruction, after
+the concern about publishing an unfinished mode was raised and overruled twice.
+
+Raid is playable from `?mode=raid&play=1` on the public build. It is not
+advertised anywhere in the UI: the menu has no Raid card, so it is reachable
+only by direct link, and its availability label reads PREVIEW.
+
+No other mode was altered to make this report look cleaner.

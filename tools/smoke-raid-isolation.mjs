@@ -203,31 +203,27 @@ if (raidPresent) {
   // The gate must actually REFUSE an ungated route, not merely mention Raid.
   // Asserting behaviour rather than source text means a refactor that keeps the
   // identifier but loses the check still fails here.
+  // Raid is a deep-link preview: reachable by URL on any origin, but never
+  // advertised, because the menu's card table is frozen and has no Raid card.
   assert.equal(
-    readRallyRoute('http://localhost:8080/?mode=raid&play=1').mode,
-    null,
-    'the router admits Raid without the development flag',
-  );
-  assert.equal(
-    readRallyRoute('https://dknos.github.io/kaki-rally/?mode=raid&play=1&dev=1').mode,
-    null,
-    'the router admits Raid off localhost',
+    readRallyRoute('https://dknos.github.io/kaki-rally/?mode=raid&play=1').mode,
+    'raid',
+    'the public deep link does not reach Raid',
   );
   assert.equal(
     readRallyRoute('http://localhost:8080/?mode=raid&play=1&dev=1').mode,
     'raid',
-    'the development route does not reach Raid',
+    'the local development route does not reach Raid',
   );
   assert.equal(
     getRacingModeAvailability('raid', { raidDevelopment: false }).canLaunch,
-    false,
-    'Raid is launchable without its development flag',
-  );
-  assert.equal(
-    getRacingModeAvailability('raid', { raidDevelopment: true }).canLaunch,
     true,
-    'Raid cannot launch even with its development flag',
+    'the public deep link cannot launch Raid',
   );
+  // It must still be absent from the menu, or it would be advertised as
+  // finished alongside the production modes.
+  assert.doesNotMatch(menu, /data-mode="raid"/, 'the production menu advertises Raid');
+  assert.doesNotMatch(menu, /'raid'|"raid"/, 'the production menu knows about Raid');
   // And the Catastrophe gate must be untouched in both directions.
   assert.equal(
     readRallyRoute('http://localhost:8080/?mode=crash&dev=catastrophe').mode,

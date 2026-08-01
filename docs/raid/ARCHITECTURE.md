@@ -12,9 +12,11 @@ does not exist.
 
 ## Isolation
 
-Raid is reached only from `?mode=raid&play=1&dev=1` on localhost. Off localhost,
-or without `dev=1`, the router resolves the mode to `null` and the player lands
-on the menu.
+Raid is reachable from `?mode=raid&play=1` on any origin, including the public
+build. It is **not advertised**: the menu's card table is a frozen file with no
+Raid entry, so only someone given the link arrives there, and its availability
+label reads PREVIEW rather than READY. Kaki Catastrophe stays gated to an
+explicit `dev=catastrophe` flag on localhost, unchanged.
 
 Dependencies flow one way:
 
@@ -170,7 +172,7 @@ rock, compacted sand and loose sand along the driving line. Minimum turn radius
 
 ## What the mode does today
 
-`?mode=raid&play=1&dev=1` on localhost opens Wadi of Whiskers, streams the
+`?mode=raid&play=1` opens Wadi of Whiskers, streams the
 opening sectors, and hands over a drivable vehicle with a chase camera and a
 `kkr-` HUD showing stage distance, distance remaining, speed, CAP and surface.
 
