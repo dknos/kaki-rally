@@ -2,6 +2,24 @@
 
 All notable standalone Kaki Rally changes are recorded here.
 
+## 1.2.0
+
+- Added **Kaki Rally Raid — Desert Expedition**, a new streamed-terrain
+  discipline reachable from its own menu card and labelled PREVIEW. One 12.41 km
+  selective stage, Wadi of Whiskers, crossing hardpack, a gravel wadi, a folded
+  rock shelf, dunes and a run into camp. Tipsy Tumbler is the hero vehicle.
+- Terrain streams as 512 m sectors generated from a pure global-coordinate
+  field, so sector seams are exact by construction rather than stitched.
+- Added wind ripples, wheel trails, dust, a low raking sun with shadows, and an
+  authored 13-asset environment kit built in Blender.
+- Fixed a latent router defect: restarting a non-Catastrophe development mode
+  into WebGL stripped its own development flag.
+- The main menu version label is now derived from `package.json` in tests
+  instead of being hardcoded.
+
+Every prior mode is unchanged. 148 files are digest-locked by
+`docs/raid/FROZEN_BOUNDARIES.json` to keep it that way.
+
 ## Unreleased
 
 ### Added

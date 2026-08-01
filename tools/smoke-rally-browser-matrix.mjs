@@ -224,7 +224,11 @@ async function bootPage(browser, origin, backend, diagnostics, {
     text: node.textContent.trim(),
     visible: !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length),
   }));
-  assert.equal(menuVersion.text, 'V1.1.1', 'main menu version does not match the release');
+  assert.equal(
+    menuVersion.text,
+    `V${JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version}`,
+    'main menu version does not match the release in package.json',
+  );
   assert(menuVersion.visible, `main menu version is hidden at ${viewport.width}x${viewport.height}`);
   return { context, page, boot };
 }

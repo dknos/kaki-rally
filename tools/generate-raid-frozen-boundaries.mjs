@@ -149,6 +149,12 @@ const SEAMS = Object.freeze([
       + 'mode. Widened to two exact entries; the matching stays exact.',
   },
   {
+    path: 'src/app/rallyVersion.js',
+    reason:
+      'The release version shown on the menu. Shipping a new discipline is a minor release, '
+      + 'so the number moves with it; nothing about the value is Raid-specific.',
+  },
+  {
     path: 'package.json',
     reason: 'New test:raid / qa:raid scripts. No existing script is weakened or removed.',
   },

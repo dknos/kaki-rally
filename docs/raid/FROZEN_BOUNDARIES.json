@@ -2,7 +2,7 @@
   "schema": 1,
   "product": "Kaki Rally",
   "scope": "Kaki Rally Raid (Desert Expedition) additive-mode boundary",
-  "baselineCommit": "3a0d8d866ee5e9b8fee22b8691a1a25a83d8c84c",
+  "baselineCommit": "3de3e717da2a78e3e59221d8a0eac6937f85a547",
   "policy": {
     "frozen": "Every file under `files` must stay byte-identical. A digest mismatch fails the wave unless the final report documents the file, the reason, proof that an adapter could not solve it, regression tests, and before/after evidence.",
     "seams": "Only the paths under `seams` may change, and only additively, default-off outside Raid, and covered by a non-regression test."
@@ -50,13 +50,17 @@
       "reason": "Its lazy-production-import allow-list was a closed one-entry set matched by exact string equality, so the shell could not lazily import a second development-gated mode. Widened to two exact entries; the matching stays exact."
     },
     {
+      "path": "src/app/rallyVersion.js",
+      "reason": "The release version shown on the menu. Shipping a new discipline is a minor release, so the number moves with it; nothing about the value is Raid-specific."
+    },
+    {
       "path": "package.json",
       "reason": "New test:raid / qa:raid scripts. No existing script is weakened or removed."
     }
   ],
   "summary": {
-    "frozenFiles": 149,
-    "seamFiles": 9
+    "frozenFiles": 148,
+    "seamFiles": 10
   },
   "files": [
     {
@@ -78,10 +82,6 @@
     {
       "path": "src/app/rallyTouchControls.js",
       "sha256": "01d897634612c5d63ff8a0f74f59520a25df7ef9468887c53e53bf9fb73fe4a1"
-    },
-    {
-      "path": "src/app/rallyVersion.js",
-      "sha256": "55229d00eff2c89e6fcc6bb5e07d2e93535b66142d16727ef39fd152996c6610"
     },
     {
       "path": "src/assets.js",
