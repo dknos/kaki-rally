@@ -17,8 +17,8 @@ const UP = new THREE.Vector3(0, 1, 0);
 export const RAID_DUST_QUALITY = Object.freeze({
   low: 90,
   medium: 180,
-  high: 320,
-  ultra: 480,
+  high: 560,
+  ultra: 820,
 });
 
 // A soft round puff, generated rather than shipped so the mode needs no texture
@@ -115,8 +115,8 @@ export function createRaidDust({ quality = 'high', owned } = {}) {
     // barely anything crawling across salt.
     const emission = clamp((speed / 9) * (0.35 + surface.dust), 0, 6.5)
       + clamp(vehicle.slip * 0.35 * surface.dust, 0, 5);
-    if (speed > 1.4 && vehicle.contacts > 0) {
-      const count = Math.min(4, Math.round(emission * dt * 34));
+    if (speed > 1.4 && !vehicle.airborne) {
+      const count = Math.min(7, Math.round(emission * dt * 68));
       for (let i = 0; i < count; i += 1) {
         // Emit behind the rear axle rather than at the origin.
         const back = 1.5 + Math.random() * 0.7;
@@ -156,8 +156,8 @@ export function createRaidDust({ quality = 'high', owned } = {}) {
       pz[index] += vz[index] * dt;
 
       const age = 1 - life[index] / maxLife[index];
-      const scale = 0.8 + age * (3.4 + seed[index] * 2.2);
-      const fade = Math.sin(Math.min(1, age) * Math.PI) * 0.5;
+      const scale = 1.3 + age * (5.2 + seed[index] * 3.4);
+      const fade = Math.sin(Math.min(1, age) * Math.PI) * 0.85;
       position.set(px[index], py[index], pz[index]);
       // Camera-facing is handled by keeping the puff upright and letting the
       // soft alpha do the work; a full billboard costs a per-particle lookAt.

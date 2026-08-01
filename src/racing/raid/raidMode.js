@@ -25,18 +25,19 @@ import { clamp } from './raidSurfaceField.js';
 import { createRallyAssetLease } from '../racingAssets.js';
 import { createRaidEnvironment } from './raidEnvironment.js';
 import { createRaidDust } from './raidDust.js';
+import { createRaidTrails } from './raidTrails.js';
 import { createRaidHud } from './raidHud.js';
 import { createRaidVehicle, stepRaidVehicle } from './raidVehiclePhysics.js';
 
 // The visible terrain patch. 768 m across at 3 m resolution: large enough that
 // the horizon is a landscape rather than a tabletop, cheap enough to re-displace
 // on the CPU when the vehicle crosses a cell.
-const PATCH_METRES = 1536;
-const PATCH_SEGMENTS = 320;
+const PATCH_METRES = 1280;
+const PATCH_SEGMENTS = 176;
 const PATCH_STEP = PATCH_METRES / PATCH_SEGMENTS;
 
-const FIXED_STEP = 1 / 120;
-const MAX_SUBSTEPS = 8;
+const FIXED_STEP = 1 / 60;
+const MAX_SUBSTEPS = 12;
 
 let _session = null;
 
@@ -198,6 +199,8 @@ export async function enterRaidMode(scene, options = {}) {
     offRouteMeters: 0,
     physicsTimeMs: 0,
     lights: [],
+    cameraMode: RAID_CAMERA_MODES.includes(options.cameraMode) ? options.cameraMode : 'chase',
+    trails: null,
     windVector: { x: Math.cos(route.windAngle), z: Math.sin(route.windAngle) },
   };
 
@@ -308,6 +311,8 @@ export async function enterRaidMode(scene, options = {}) {
 
   session.dust = createRaidDust({ quality, owned });
   root.add(session.dust.mesh);
+  session.trails = createRaidTrails({ quality, provider, owned });
+  root.add(session.trails.mesh);
 
   session.hud = createRaidHud();
 
@@ -343,6 +348,7 @@ export function tickRaidMode(dt, elapsedDt = dt) {
 
   syncRaidVehicleVisual(session);
   session.dust?.update(dt, vehicle, vehicle.surface || { dust: 0.6, looseness: 0.5 }, session.windVector);
+  session.trails?.update(dt, vehicle, vehicle.surface || { looseness: 0.5 });
 
   // Route progress, windowed so a fold-back cannot hand out free distance.
   const sample = nearestRaidRouteSample(session.routeIndex, vehicle.x, vehicle.z, {
@@ -394,11 +400,39 @@ function syncRaidVehicleVisual(session) {
   }
 }
 
+// The shell's camera selector offers these three. Raid has no cameraManager, so
+// it answers the same calls itself; without this the menu's Camera control
+// silently did nothing.
+export const RAID_CAMERA_MODES = Object.freeze(['chase', 'isometric', 'driver']);
+
+export function getRaidCameraMode() {
+  return _session?.cameraMode || 'chase';
+}
+
+export function setRaidCameraMode(mode, options = {}) {
+  const session = _session;
+  if (!session || session.disposed) return false;
+  const normalized = mode === 'fpv' ? 'driver' : mode;
+  if (!RAID_CAMERA_MODES.includes(normalized)) return false;
+  session.cameraMode = normalized;
+  updateRaidCamera(0, { ...options, snap: true });
+  return true;
+}
+
+export function cycleRaidCamera(direction = 1) {
+  const session = _session;
+  if (!session || session.disposed) return false;
+  const current = RAID_CAMERA_MODES.indexOf(session.cameraMode || 'chase');
+  const next = (current + (direction >= 0 ? 1 : RAID_CAMERA_MODES.length - 1)) % RAID_CAMERA_MODES.length;
+  return setRaidCameraMode(RAID_CAMERA_MODES[next]);
+}
+
 export function updateRaidCamera(dt, options = {}) {
   const session = _session;
   if (!session || session.disposed || !session.camera) return null;
   const vehicle = session.vehicle;
   const speed = Math.hypot(vehicle.velocityX, vehicle.velocityZ);
+  const mode = session.cameraMode || 'chase';
 
   // Follow the direction of travel once there is meaningful movement, so a
   // slide shows the vehicle rotated inside the frame rather than nose-on.
@@ -406,25 +440,49 @@ export function updateRaidCamera(dt, options = {}) {
   const blend = clamp(speed / 26, 0, 1) * 0.55;
   let heading = vehicle.yaw + shortestAngle(vehicle.yaw, travelYaw) * blend;
 
-  const distance = 13 + clamp(speed * 0.22, 0, 9) + (vehicle.airborne ? 4 : 0);
-  const height = 5.4 + clamp(speed * 0.06, 0, 3.4);
+  let distance = 13 + clamp(speed * 0.22, 0, 9) + (vehicle.airborne ? 4 : 0);
+  let height = 5.4 + clamp(speed * 0.06, 0, 3.4);
+  if (mode === 'isometric') {
+    // High and pulled back, so the dune relief and the route ahead read as a
+    // landscape rather than as a wall.
+    distance = 34 + clamp(speed * 0.3, 0, 12);
+    height = 26 + clamp(speed * 0.12, 0, 8);
+    heading = vehicle.yaw;
+  } else if (mode === 'driver') {
+    distance = -0.35;
+    height = 2.05;
+    heading = vehicle.yaw;
+  }
   const targetX = vehicle.x - Math.cos(heading) * distance;
   const targetZ = vehicle.z - Math.sin(heading) * distance;
   const groundY = session.provider.heightAt(targetX, targetZ);
-  const targetY = Math.max(vehicle.y + height, groundY + 3.2);
+  const targetY = mode === 'driver'
+    ? vehicle.y + height
+    : Math.max(vehicle.y + height, groundY + 3.2);
 
-  const smoothing = options.snap ? 1 : 1 - Math.exp(-6.5 * Math.max(dt, 0));
+  const responsiveness = mode === 'driver' ? 16 : mode === 'isometric' ? 4.2 : 6.5;
+  const smoothing = options.snap ? 1 : 1 - Math.exp(-responsiveness * Math.max(dt, 0));
   session.camera.position.x += (targetX - session.camera.position.x) * smoothing;
   session.camera.position.y += (targetY - session.camera.position.y) * smoothing;
   session.camera.position.z += (targetZ - session.camera.position.z) * smoothing;
-  session.camera.lookAt(vehicle.x, vehicle.y + 1.6, vehicle.z);
+  if (mode === 'driver') {
+    // Look down the bonnet rather than at the vehicle you are sitting in.
+    session.camera.lookAt(
+      vehicle.x + Math.cos(vehicle.yaw) * 30,
+      vehicle.y + height - 1.2,
+      vehicle.z + Math.sin(vehicle.yaw) * 30,
+    );
+  } else {
+    session.camera.lookAt(vehicle.x, vehicle.y + 1.6, vehicle.z);
+  }
+  if (session.vehicleVisual?.root) session.vehicleVisual.root.visible = mode !== 'driver';
 
   const aspect = options.aspect || session.cameraHost?.getAspect?.() || 16 / 9;
   if (Number.isFinite(aspect) && aspect > 0 && session.camera.aspect !== aspect) {
     session.camera.aspect = aspect;
     session.camera.updateProjectionMatrix();
   }
-  const targetFov = 62 + clamp(speed * 0.28, 0, 12);
+  const targetFov = (mode === 'isometric' ? 38 : mode === 'driver' ? 74 : 62) + clamp(speed * 0.28, 0, 12);
   session.camera.fov += (targetFov - session.camera.fov) * (options.snap ? 1 : smoothing * 0.6);
   session.camera.updateProjectionMatrix();
 
@@ -478,6 +536,8 @@ export function getRaidSnapshot() {
     patchRefreshes: session.patchRefreshes,
     scatter: session.environment?.stats || null,
     dust: session.dust ? { alive: session.dust.alive, capacity: session.dust.capacity } : null,
+    trails: session.trails ? { alive: session.trails.alive, capacity: session.trails.capacity } : null,
+    cameraMode: session.cameraMode,
     physicsTimeMs: session.physicsTimeMs,
   };
 }
@@ -516,6 +576,8 @@ export function exitRaidMode(scene, explicitSession = null) {
   try { session.environment?.dispose(); } catch (_) {}
   try { session.dust?.dispose(); } catch (_) {}
   session.dust = null;
+  try { session.trails?.dispose(); } catch (_) {}
+  session.trails = null;
   // A shadow-casting light owns a render target. Disposing the light's Object3D
   // does not free it, so the map leaks one texture pair per session without this.
   try { session.sun?.shadow?.dispose?.(); } catch (_) {}

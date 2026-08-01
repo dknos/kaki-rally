@@ -3459,10 +3459,12 @@ export function resizeRacingCamera(aspect) {
 }
 
 export function setRacingCameraMode(mode, options = {}) {
+  if (state.racing?.raceMode === 'raid') return _raidModeApi?.setRaidCameraMode(mode, options) || false;
   return state.racing?.cameraManager?.setCameraMode(mode, options) || false;
 }
 
 export function cycleRacingCamera(direction = 1) {
+  if (state.racing?.raceMode === 'raid') return _raidModeApi?.cycleRaidCamera(direction) || false;
   return state.racing?.cameraManager?.cycleCamera(direction) || false;
 }
 
