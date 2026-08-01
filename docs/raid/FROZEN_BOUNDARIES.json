@@ -2,7 +2,7 @@
   "schema": 1,
   "product": "Kaki Rally",
   "scope": "Kaki Rally Raid (Desert Expedition) additive-mode boundary",
-  "baselineCommit": "632efaf25274c41a453c739485f1225f6ed22449",
+  "baselineCommit": "20b49d12dd7717f74475388e1038e8acd16f19d3",
   "policy": {
     "frozen": "Every file under `files` must stay byte-identical. A digest mismatch fails the wave unless the final report documents the file, the reason, proof that an adapter could not solve it, regression tests, and before/after evidence.",
     "seams": "Only the paths under `seams` may change, and only additively, default-off outside Raid, and covered by a non-regression test."

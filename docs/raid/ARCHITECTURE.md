@@ -91,9 +91,17 @@ second evaluation only inside a transition band.
 The provider is the single authority both physics and rendering read, so there
 is no second terrain definition to drift out of agreement.
 
-- **Bounded by residency, not by stage length.** A 24 km stage and a 6 km stage
-  cost the same at any instant. Measured peak on the 12.4 km stage: 42 resident
-  sectors, and the resident count does not trend upward with distance.
+- **Resident cost is bounded by the ring, not by stage length.** A 24 km stage
+  and a 6 km stage hold the same amount of terrain at any instant. Measured peak
+  on the 12.4 km stage: 42 resident sectors, with no upward trend across the
+  drive.
+
+  This is true of *residency*, not of *generation*. Each sector builds a coarse
+  zone lattice by asking the route which identity the land has, and that query
+  falls back to a linear scan beyond four index rings — so generation time per
+  sector grows with route sample count. At 1553 samples it is ~69 ms; a 24 km
+  stage would roughly double it. That is a worker cost, not a frame cost, but it
+  is not distance-independent and should not be described as such.
 - **`retain` must exceed the largest set `updateFocus` can request**
   (`(2·safety+1)² + 3·ahead`). Sizing it below that made the cache evict the
   sector under the wheels and regenerate it immediately — the symptom was not a
@@ -152,8 +160,10 @@ rock, compacted sand and loose sand along the driving line. Minimum turn radius
 | Physics/render height delta at vertices | **0** |
 | Ground movement when a late sector arrives | < 1 mm |
 | Largest terrain step in 0.5 m of travel over 12.41 km | 0.230 m (no boundary signature) |
+| Soak resolution caveat | the full-stage drive ran at 64 cells (8 m) so it completes in seconds; the residency, authority and no-step *behaviour* is resolution-independent, and the seam and physics/render guarantees are verified separately at the production 256 cells (2 m) |
 | Physics samples outside loaded terrain over a full drive | **0** |
-| Peak resident terrain | 42 sectors; 16 sectors at production resolution = 6.0 MiB against a 32 MiB low-tier budget |
+| Peak resident sectors | 42 (high tier), measured; no upward trend with distance |
+| Resident terrain at production resolution | low 20 × 387 KiB = **7.6 MiB** / 32 MiB budget · medium 26 = **9.8 MiB** / 48 MiB · high 42 = **15.9 MiB** / 80 MiB · ultra 52 = **19.7 MiB** / 128 MiB |
 | Sector payload | 387 KiB at 512 m / 2 m cells |
 | Sector generation | ~69 ms at production resolution, in a worker |
 
@@ -168,6 +178,27 @@ Stated plainly, because a passing test suite is not a game:
 - **No vehicle, physics, camera, HUD, roadbook UI, tripmaster, CAP, waypoints,
   penalties, recovery, records, or audio.**
 - Waves 4–8 (feel pass, condition, campaign, art, release QA) are not started.
+
+### The blocker Wave 1 will hit first
+
+`tools/smoke-standalone-boundaries.mjs:63-68` allows exactly **one** lazy
+production import, by exact string equality:
+
+```js
+assert.equal(
+  `${relative(file)}:${specifier}`,
+  'src/app/rallyApp.js:../racing/crash/crashMode.js',
+  `unapproved lazy production import: ...`,
+);
+```
+
+Adding Raid's `import('../racing/raid/raidMode.js')` to the shell fails this the
+moment it lands. The fix is to widen that closed set to two documented entries —
+keeping exact matching and the same strictness — and to add the file to the seam
+list as an eighth entry. That is extending an allow-list, not weakening a test;
+anything that relaxed it to a pattern match would be.
+
+Verified by hand at the line numbers above.
 
 The route runtime, terrain authority and stage data these systems need are in
 place and proven; the systems themselves are not.

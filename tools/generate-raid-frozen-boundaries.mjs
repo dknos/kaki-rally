@@ -21,6 +21,12 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUTPUT = path.join(ROOT, 'docs', 'raid', 'FROZEN_BOUNDARIES.json');
 const CHECK = process.argv.includes('--check');
+// Regenerating is how the boundary gets recorded the first time — and it is also
+// how a violation could be laundered. The natural reaction to a failing --check
+// is to re-run without it, which would quietly bless whatever changed. So a
+// plain run refuses to overwrite a recorded digest; changing one requires
+// saying so out loud.
+const REBASELINE = process.argv.includes('--rebaseline');
 
 // Directories whose every tracked file is frozen for the duration of Raid work.
 const FROZEN_DIRECTORIES = Object.freeze([
@@ -213,10 +219,29 @@ if (CHECK) {
     + `${recorded.baselineCommit.slice(0, 7)}, ${SEAMS.length} documented seams`,
   );
 } else {
+  const existing = await readFile(OUTPUT, 'utf8').catch(() => '');
+  if (existing && !REBASELINE) {
+    const recorded = JSON.parse(existing);
+    const recordedByPath = new Map(recorded.files.map((file) => [file.path, file.sha256]));
+    const changed = manifest.files.filter((file) => {
+      const expected = recordedByPath.get(file.path);
+      return expected !== undefined && expected !== file.sha256;
+    });
+    const removed = [...recordedByPath.keys()].filter(
+      (recordedPath) => !manifest.files.some((file) => file.path === recordedPath),
+    );
+    assert.equal(
+      changed.length + removed.length,
+      0,
+      'Refusing to overwrite the frozen boundary: this would launder a violation.\n'
+      + [...changed.map((f) => `  MODIFIED ${f.path}`), ...removed.map((f) => `  REMOVED  ${f}`)].join('\n')
+      + '\n\nRevert the frozen files, or pass --rebaseline to deliberately record the new state.',
+    );
+  }
   await mkdir(path.dirname(OUTPUT), { recursive: true });
   await writeFile(OUTPUT, serialized);
   console.log(
-    `Wrote ${path.relative(ROOT, OUTPUT)}: ${manifest.files.length} frozen files, `
-    + `${SEAMS.length} documented seams`,
+    `${REBASELINE && existing ? 'Rebaselined' : 'Wrote'} ${path.relative(ROOT, OUTPUT)}: `
+    + `${manifest.files.length} frozen files, ${SEAMS.length} documented seams`,
   );
 }
