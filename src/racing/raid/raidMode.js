@@ -301,7 +301,12 @@ export async function enterRaidMode(scene, options = {}) {
 
   // Desert sky. Matched to the fog so the horizon reads as haze rather than as
   // a hard edge between terrain and a black void.
-  const fog = new THREE.Fog(0xe6d3b4, 700, 5200);
+  // Fog must reach full strength BEFORE the terrain patch ends, or the ground
+  // stops in a hard unfogged line against the sky. The patch is PATCH_METRES
+  // across and recentred on the vehicle, so drawn ground exists to half that on
+  // each axis; fogging out just inside it turns the edge into haze. Sky and fog
+  // share a colour so the transition is invisible.
+  const fog = new THREE.Fog(0xe6d3b4, PATCH_METRES * 0.19, PATCH_METRES * 0.47);
   session.previousFog = scene.fog;
   session.previousBackground = scene.background;
   scene.fog = fog;

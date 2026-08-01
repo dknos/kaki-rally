@@ -78,6 +78,16 @@ const SURFACE_SCATTER = Object.freeze({
 // Landmarks are rarer, larger, and placed on their own coarse lattice so they
 // read as navigable features rather than as scenery.
 const LANDMARK_CELL = 620;
+// A landmark has to stand on ground that is actually drawn. raidMode renders one
+// square terrain patch, PATCH_METRES = 1280 across, recentred on the same point
+// this field is refreshed around, so ground exists to +/-640 m on each axis and
+// nothing at all past that. A landmark placed beyond the edge is grounded at the
+// correct field height but is drawn complete against the sky with a band of
+// empty background under it. The half-extent is a box, not a radius, because the
+// patch is square: a landmark in a corner is still standing on drawn ground.
+// The value is 640 minus the widest landmark footprint, which is the RaidMesa-0
+// apron: 38.4 m from its own centre as baked, 80.7 m at the 2.1 scale cap.
+const LANDMARK_VISIBLE_HALF_EXTENT = 555;
 const LANDMARK_ASSETS = Object.freeze([
   { asset: 'RaidMesa-0', weight: 1, scale: [0.55, 2.1], surfaces: ['rock', 'gravel', 'hardpack', 'salt'] },
   { asset: 'RaidSpire-0', weight: 2.2, scale: [1.4, 3.4], surfaces: ['rock', 'gravel', 'hardpack'] },
@@ -264,6 +274,10 @@ export function createRaidEnvironment({ kit, provider, seed, quality = 'high', o
         if (hash(cellX, cellZ, seed ^ 0x77) > 0.34) continue;
         const x = (cellX + (hash(cellX, cellZ, seed ^ 0x88) - 0.5) * 0.9) * LANDMARK_CELL;
         const z = (cellZ + (hash(cellX, cellZ, seed ^ 0x99) - 0.5) * 0.9) * LANDMARK_CELL;
+        // The scatter loop above clips its candidates to its budget radius; this
+        // loop has to clip to the drawn ground instead, or the landmark floats.
+        if (Math.abs(x - centreX) > LANDMARK_VISIBLE_HALF_EXTENT) continue;
+        if (Math.abs(z - centreZ) > LANDMARK_VISIBLE_HALF_EXTENT) continue;
         provider.surfaceAt(x, z, surface);
         const candidates = LANDMARK_ASSETS.filter((entry) => entry.surfaces.includes(surface.id));
         if (!candidates.length) continue;
