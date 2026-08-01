@@ -1,46 +1,157 @@
 /* Kaki Rally Raid HUD. Every selector is namespaced to kkr- so it cannot
    restyle another mode, and the whole stylesheet is loaded lazily with the mode
-   rather than from index.html. */
+   rather than from index.html.
+
+   Layout follows the discipline's priority order: the stage and how far through
+   it you are sit top-left where the eye starts, the clock sits top-right, and
+   the live driving numbers sit bottom-right where they can be read without
+   leaving the road. */
 
 .kkr-hud {
   position: absolute;
-  inset: auto 0 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 0 1.1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  inset: 0;
   pointer-events: none;
   font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
-  color: #f6ecd8;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+  color: #f4ead6;
+  --kkr-panel: rgba(24, 20, 17, 0.62);
+  --kkr-edge: rgba(246, 232, 208, 0.22);
+  --kkr-accent: #ffb066;
+  --kkr-hot: #ff7ab8;
 }
 
-.kkr-hud-stage {
-  font-size: clamp(0.68rem, 1.5vw, 0.92rem);
-  letter-spacing: 0.14em;
-  opacity: 0.82;
+.kkr-panel {
+  position: absolute;
+  background: var(--kkr-panel);
+  border: 1px solid var(--kkr-edge);
+  border-radius: 0.7rem;
+  padding: 0.6rem 0.95rem;
+  backdrop-filter: blur(7px);
+  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.34);
 }
 
-.kkr-hud-readouts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.6rem, 2vw, 1.6rem);
+.kkr-stage {
+  top: calc(0.9rem + env(safe-area-inset-top, 0px));
+  left: calc(0.9rem + env(safe-area-inset-left, 0px));
+  min-width: 15rem;
 }
 
-.kkr-hud-cell {
-  display: flex;
-  flex-direction: column;
-  min-width: 4.4rem;
+.kkr-eyebrow {
+  display: block;
+  font-size: clamp(0.5rem, 1vw, 0.62rem);
+  letter-spacing: 0.22em;
+  opacity: 0.6;
 }
 
-.kkr-hud-label {
+.kkr-title {
+  display: block;
+  font-size: clamp(1.05rem, 2.3vw, 1.6rem);
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+}
+
+.kkr-subtitle {
+  display: block;
   font-size: clamp(0.56rem, 1.1vw, 0.7rem);
-  letter-spacing: 0.18em;
-  opacity: 0.62;
+  letter-spacing: 0.16em;
+  color: var(--kkr-hot);
 }
 
-.kkr-hud-value {
-  font-size: clamp(1.05rem, 2.6vw, 1.55rem);
-  font-variant-numeric: tabular-nums;
+.kkr-progress {
+  top: calc(6.2rem + env(safe-area-inset-top, 0px));
+  left: calc(0.9rem + env(safe-area-inset-left, 0px));
+  min-width: 15rem;
+}
+
+.kkr-progress-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.1rem;
+  white-space: nowrap;
+  font-size: clamp(0.5rem, 1vw, 0.62rem);
+  letter-spacing: 0.2em;
+  opacity: 0.66;
+}
+
+.kkr-progress-value {
+  font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+  color: var(--kkr-accent);
   line-height: 1.1;
+}
+
+.kkr-progress-track {
+  margin-top: 0.35rem;
+  height: 0.3rem;
+  border-radius: 0.3rem;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.kkr-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 0.3rem;
+  background: linear-gradient(90deg, var(--kkr-hot), var(--kkr-accent));
+}
+
+.kkr-clock {
+  top: calc(0.9rem + env(safe-area-inset-top, 0px));
+  right: calc(0.9rem + env(safe-area-inset-right, 0px));
+  text-align: right;
+  min-width: 9.5rem;
+}
+
+.kkr-clock-value {
+  display: block;
+  font-size: clamp(1.4rem, 3.1vw, 2.15rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+.kkr-readout {
+  right: calc(0.9rem + env(safe-area-inset-right, 0px));
+  text-align: right;
+  min-width: 9.5rem;
+}
+
+.kkr-readout-surface { bottom: calc(6.4rem + env(safe-area-inset-bottom, 0px)); }
+.kkr-readout-speed { bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px)); }
+
+.kkr-readout-label {
+  display: block;
+  font-size: clamp(0.5rem, 1vw, 0.62rem);
+  letter-spacing: 0.2em;
+  opacity: 0.66;
+}
+
+.kkr-readout-value {
+  display: block;
+  font-size: clamp(1.3rem, 2.8vw, 1.95rem);
+  font-variant-numeric: tabular-nums;
+  color: var(--kkr-hot);
+  line-height: 1.1;
+}
+
+.kkr-readout-detail {
+  display: block;
+  font-size: clamp(0.52rem, 1.05vw, 0.66rem);
+  letter-spacing: 0.14em;
+  color: var(--kkr-accent);
+}
+
+.kkr-controls {
+  white-space: nowrap;
+  bottom: calc(0.55rem + env(safe-area-inset-bottom, 0px));
+  left: calc(0.9rem + env(safe-area-inset-left, 0px));
+  font-size: clamp(0.5rem, 1vw, 0.63rem);
+  letter-spacing: 0.13em;
+  opacity: 0.5;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .kkr-progress { top: calc(5.4rem + env(safe-area-inset-top, 0px)); }
+  .kkr-controls { display: none; }
 }

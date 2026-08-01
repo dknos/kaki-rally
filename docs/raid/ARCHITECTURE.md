@@ -207,6 +207,28 @@ sit on their own sparse 620 m lattice so they read as things to navigate by.
 Cost is capped per quality tier (900 instances at low, 5000 at ultra) and is
 bounded by the visible radius, not by how far the stage has been driven.
 
+## Look
+
+Four things carry the desert, chosen by comparing against concept key art:
+
+- **Wind ripples** live in the normal map, not the geometry. A dune corrugation
+  has a wavelength around a metre and the terrain grid samples every two, so
+  ripples in the heightfield would alias into noise. A generated tiling normal
+  map rotated to the stage wind reads correctly underfoot and dissolves into
+  tone at distance. The first attempt tiled every 5.5 m, which put the crests
+  30 cm apart and produced visible moiré; 22 m tiles fixed it.
+- **Dust** is a fixed-capacity instanced pool in one draw call. Emission follows
+  what the ground is doing — speed times surface dustiness, plus lateral slip —
+  so loose sand throws a plume and salt barely smokes.
+- **A low raking sun** with a 2048 shadow map that follows the vehicle. Long
+  shadows are what make dune relief legible; an overhead light flattens the
+  whole desert into one tone.
+- **Warm haze**, with the sky and the fog sharing a colour so the horizon reads
+  as distance rather than as an edge.
+
+The hero vehicle is **Tipsy Tumbler**, the existing authored Kaki monster truck,
+with the player's driver seated in it.
+
 ## Honest visual assessment
 
 Looked at, not inferred from telemetry. `docs/qa/raid/` holds the captures.
@@ -216,13 +238,15 @@ the near field scale, tussock grass gives speed something to register against,
 and a mesa and distant spires sit on the horizon to navigate by. The driver is
 seated correctly and the HUD is readable.
 
-It is still not finished. There is **no dust**, which is the single biggest
-missing cue for speed and for a sense that the machine is working the ground.
-The opening plateau is the flattest zone in the stage, so the first minute
-undersells the relief the field contains. There is no route evidence, no
-start/finish control, no camp, and no vegetation variety beyond four species.
-Against the §44 scorecard this would now plausibly pass "environment art" but
-not "dust and atmosphere".
+It is still not finished. The dust plume reads as a pale smudge rather than a
+churning wake, and it does not yet lift from individual wheels or persist as a
+trail. The opening plateau is the flattest zone in the stage, so the first
+minute still undersells the relief. There is no route evidence, no start/finish
+control, no camp, and no vegetation variety beyond four species.
+
+Measured against the concept key art it was aimed at, the ripples, haze,
+lighting and HUD language land; the dust and the vehicle's ground interaction
+do not.
 
 Three bugs were found by looking at the first capture that every headless
 assertion had passed straight through: the shell's menu hero was left standing
@@ -236,7 +260,7 @@ Stated plainly, because a passing test suite is not a game:
 
 - **No clipmap and no TSL terrain material.** The terrain patch is CPU-displaced
   and does not scale to the draw distance a finished stage wants.
-- **No dust, no tyre tracks, no ruts.** Nothing the vehicle does marks the land.
+- **No tyre tracks and no ruts.** The vehicle raises dust but leaves no mark.
 - **No camps, start/finish control, or route evidence.**
 - **No roadbook, tripmaster, CAP target, waypoints, penalties, recovery,
   records, rivals, service, condition, dust, or audio.**

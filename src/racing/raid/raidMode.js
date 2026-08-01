@@ -16,7 +16,7 @@ import * as THREE from 'three/webgpu';
 
 import { state } from '../../state.js';
 import { isDashPressed, isHandbrakePressed } from '../../input.js';
-import { buildRallyRaidVehicle } from '../racingVehicles.js';
+import { attachTipsyTumblerModel, buildTipsyTumblerVisual } from '../racingVehicles.js';
 import { buildRaidRoute, buildRaidRouteIndex, nearestRaidRouteSample, raidRouteLateral } from './raidRouteRuntime.js';
 import { getRaidStage, validateRaidStage } from './raidStageBlueprints.js';
 import { createRaidTerrainProvider } from './raidTerrainProvider.js';
@@ -24,6 +24,7 @@ import { RAID_SECTOR_METRES } from './raidSectorGenerator.js';
 import { clamp } from './raidSurfaceField.js';
 import { createRallyAssetLease } from '../racingAssets.js';
 import { createRaidEnvironment } from './raidEnvironment.js';
+import { createRaidDust } from './raidDust.js';
 import { createRaidHud } from './raidHud.js';
 import { createRaidVehicle, stepRaidVehicle } from './raidVehiclePhysics.js';
 
@@ -39,14 +40,63 @@ const MAX_SUBSTEPS = 8;
 
 let _session = null;
 
-function buildTerrainPatch(owned) {
+// Wind ripples.
+//
+// The corrugation on a dune has a wavelength of about a metre, and the terrain
+// grid samples every two metres, so ripples cannot live in the geometry without
+// aliasing into noise. They belong in the normal instead: generated once as a
+// tiling normal map, rotated to the stage wind, and tiled densely enough to read
+// underfoot while dissolving into tone at distance.
+function createRippleNormalMap(owned) {
+  const size = 256;
+  const data = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const u = (x / size) * Math.PI * 2;
+      const v = (y / size) * Math.PI * 2;
+      // Primary corrugation across the wind, with a slow meander along it so the
+      // crests wander instead of ruling straight lines across the desert.
+      const meander = Math.sin(v * 3) * 0.55 + Math.sin(v * 7 + 1.3) * 0.22;
+      const wave = Math.sin(u * 18 + meander * 2.4);
+      const fine = Math.sin(u * 47 + Math.sin(v * 11) * 1.7) * 0.28;
+      const slope = (wave + fine) * 0.5;
+      const index = (y * size + x) * 4;
+      // Tangent-space normal: perturb x, keep z dominant.
+      const nx = clamp(slope * 0.85, -1, 1);
+      const ny = clamp(Math.sin(v * 9 + u * 2) * 0.12, -1, 1);
+      const nz = Math.sqrt(Math.max(0.02, 1 - nx * nx - ny * ny));
+      data[index] = Math.round((nx * 0.5 + 0.5) * 255);
+      data[index + 1] = Math.round((ny * 0.5 + 0.5) * 255);
+      data[index + 2] = Math.round((nz * 0.5 + 0.5) * 255);
+      data[index + 3] = 255;
+    }
+  }
+  const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(PATCH_METRES / 22, PATCH_METRES / 22);
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = true;
+  texture.anisotropy = 16;
+  texture.needsUpdate = true;
+  owned?.textures?.add(texture);
+  return texture;
+}
+
+function buildTerrainPatch(owned, windAngle) {
   const geometry = new THREE.PlaneGeometry(PATCH_METRES, PATCH_METRES, PATCH_SEGMENTS, PATCH_SEGMENTS);
   geometry.rotateX(-Math.PI / 2);
+  const ripples = createRippleNormalMap(owned);
+  ripples.center.set(0.5, 0.5);
+  ripples.rotation = windAngle;
   const material = new THREE.MeshStandardMaterial({
     vertexColors: true,
-    roughness: 0.95,
+    roughness: 0.97,
     metalness: 0,
     flatShading: false,
+    normalMap: ripples,
+    normalScale: new THREE.Vector2(0.6, 0.6),
   });
   const count = geometry.attributes.position.count;
   geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count * 3), 3));
@@ -85,6 +135,11 @@ function refreshTerrainPatch(session, centreX, centreZ) {
     colours[offset + 2] = PATCH_COLOUR.b * shade;
   }
   session.environment?.refresh(snappedX, snappedZ);
+  if (session.sun) {
+    session.sun.position.set(snappedX - 620, 210, snappedZ + 300);
+    session.sun.target.position.set(snappedX, 0, snappedZ);
+    session.sun.target.updateMatrixWorld();
+  }
   session.terrain.position.set(snappedX, 0, snappedZ);
   position.needsUpdate = true;
   colour.needsUpdate = true;
@@ -130,6 +185,8 @@ export async function enterRaidMode(scene, options = {}) {
     vehicle: null,
     hud: null,
     environment: null,
+    dust: null,
+    sun: null,
     assetLease: null,
     accumulator: 0,
     elapsed: 0,
@@ -141,6 +198,7 @@ export async function enterRaidMode(scene, options = {}) {
     offRouteMeters: 0,
     physicsTimeMs: 0,
     lights: [],
+    windVector: { x: Math.cos(route.windAngle), z: Math.sin(route.windAngle) },
   };
 
   // Terrain authority must exist before the player is given control. This is
@@ -151,12 +209,12 @@ export async function enterRaidMode(scene, options = {}) {
   // assets are pulled in and none of Raid's leak into another mode's load set.
   session.assetLease = createRallyAssetLease({
     mode: 'raid',
-    assetIds: ['raidEnvironmentKit'],
+    assetIds: ['raidEnvironmentKit', 'tipsyTumblerBody', 'monsterDecal'],
     renderer: state.renderer || null,
   });
   await session.assetLease.ready;
 
-  session.terrain = buildTerrainPatch(owned);
+  session.terrain = buildTerrainPatch(owned, route.windAngle);
   root.add(session.terrain);
 
   const kit = session.assetLease.models?.raidEnvironmentKit?.scene
@@ -176,10 +234,23 @@ export async function enterRaidMode(scene, options = {}) {
   refreshTerrainPatch(session, route.startX, route.startZ);
 
   // Lighting. Owned by the session so exit takes it with everything else.
-  const sun = new THREE.DirectionalLight(0xfff0d8, 2.4);
-  sun.position.set(-260, 340, 180);
-  const sky = new THREE.HemisphereLight(0xbfd9ff, 0xb08b56, 1.15);
+  // Low raking sun. Long shadows are what make dune relief legible; an
+  // overhead light flattens the whole desert into one tone.
+  const sun = new THREE.DirectionalLight(0xffe0b0, 3.1);
+  sun.position.set(-620, 210, 300);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.near = 1;
+  sun.shadow.camera.far = 900;
+  sun.shadow.camera.left = -160;
+  sun.shadow.camera.right = 160;
+  sun.shadow.camera.top = 160;
+  sun.shadow.camera.bottom = -160;
+  sun.shadow.bias = -0.0006;
+  const sky = new THREE.HemisphereLight(0xcfe2f5, 0xc08d52, 1.05);
   root.add(sun, sky);
+  root.add(sun.target);
+  session.sun = sun;
   session.lights.push(sun, sky);
 
   // The shell makes the menu hero visible before handing over, and the vehicle
@@ -196,13 +267,15 @@ export async function enterRaidMode(scene, options = {}) {
       visible: hero.visible,
     }
     : null;
-  const vehicleVisual = buildRallyRaidVehicle({
-    rallyRaidVehicleId: 'prototype',
-    driver: hero,
-    owned,
-    isPlayer: true,
-  });
+  // Tipsy Tumbler is the hero machine. It is a finished, authored Kaki monster
+  // truck with a real GLB body, long-travel suspension and proper wheels, so it
+  // reads far better at rally-raid scale than a procedural cage would.
+  const vehicleVisual = buildTipsyTumblerVisual({ driver: hero, owned, color: 0xf19a4b });
+  vehicleVisual.root.name = 'KakiRaid-tipsy';
+  const tipsyBody = session.assetLease.models?.tipsyTumblerBody;
+  if (tipsyBody) attachTipsyTumblerModel(vehicleVisual, tipsyBody);
   session.vehicleVisual = vehicleVisual;
+  vehicleVisual.root.traverse?.((object) => { if (object.isMesh) object.castShadow = true; });
   root.add(vehicleVisual.root);
   // Record each wheel's authored rest height once, so suspension travel is an
   // offset from the model rather than from an undefined field.
@@ -216,7 +289,7 @@ export async function enterRaidMode(scene, options = {}) {
     y: startHeight,
     z: route.startZ,
     yaw: route.startYaw,
-    wheelRadius: vehicleVisual.wheelRadius || 0.46,
+    wheelRadius: vehicleVisual.wheelRadius || 0.72,
   });
 
   session.camera = new THREE.PerspectiveCamera(62, 16 / 9, 0.6, 14000);
@@ -225,13 +298,16 @@ export async function enterRaidMode(scene, options = {}) {
 
   // Desert sky. Matched to the fog so the horizon reads as haze rather than as
   // a hard edge between terrain and a black void.
-  const fog = new THREE.Fog(0xd9c49a, 1400, 7600);
+  const fog = new THREE.Fog(0xe6d3b4, 700, 5200);
   session.previousFog = scene.fog;
   session.previousBackground = scene.background;
   scene.fog = fog;
-  scene.background = new THREE.Color(0xbcd2e8);
+  scene.background = new THREE.Color(0xe6d3b4);
   session.background = scene.background;
   session.fog = fog;
+
+  session.dust = createRaidDust({ quality, owned });
+  root.add(session.dust.mesh);
 
   session.hud = createRaidHud();
 
@@ -266,6 +342,7 @@ export function tickRaidMode(dt, elapsedDt = dt) {
   if (drift > PATCH_METRES * 0.16) refreshTerrainPatch(session, vehicle.x, vehicle.z);
 
   syncRaidVehicleVisual(session);
+  session.dust?.update(dt, vehicle, vehicle.surface || { dust: 0.6, looseness: 0.5 }, session.windVector);
 
   // Route progress, windowed so a fold-back cannot hand out free distance.
   const sample = nearestRaidRouteSample(session.routeIndex, vehicle.x, vehicle.z, {
@@ -400,6 +477,7 @@ export function getRaidSnapshot() {
     sectors,
     patchRefreshes: session.patchRefreshes,
     scatter: session.environment?.stats || null,
+    dust: session.dust ? { alive: session.dust.alive, capacity: session.dust.capacity } : null,
     physicsTimeMs: session.physicsTimeMs,
   };
 }
@@ -436,6 +514,12 @@ export function exitRaidMode(scene, explicitSession = null) {
 
   try { session.provider.dispose(); } catch (_) {}
   try { session.environment?.dispose(); } catch (_) {}
+  try { session.dust?.dispose(); } catch (_) {}
+  session.dust = null;
+  // A shadow-casting light owns a render target. Disposing the light's Object3D
+  // does not free it, so the map leaks one texture pair per session without this.
+  try { session.sun?.shadow?.dispose?.(); } catch (_) {}
+  session.sun = null;
   session.environment = null;
   try { session.assetLease?.release(); } catch (_) {}
   session.assetLease = null;
