@@ -6,7 +6,7 @@
   "private": false,
   "scripts": {
     "serve": "node tools/serve.mjs",
-    "test": "npm run test:renderer && npm run test:racing && npm run test:standalone && npm run test:assets",
+    "test": "npm run test:renderer && npm run test:racing && npm run test:standalone && npm run test:assets && npm run test:raid",
     "test:renderer": "node --test src/rendering/__tests__/*.test.mjs",
     "test:racing": "node tools/smoke-rally-availability.mjs && node tools/smoke-drift-stock-expansion.mjs && node tools/smoke-rally-raid-expansion.mjs && node tools/smoke-racing-cameras.mjs && node tools/smoke-racing-physics.mjs && node tools/smoke-racing-tracks.mjs && node tools/smoke-racing-draw-track.mjs && node tools/smoke-dune-draw-track.mjs && node tools/smoke-rally-grass.mjs && node tools/smoke-racing-monster.mjs && node tools/smoke-monster-arena.mjs && node tools/smoke-monster-vehicle-physics.mjs && node tools/smoke-monster-records.mjs && node tools/smoke-dune-heightfield.mjs && node tools/smoke-dune-deformation.mjs && node tools/smoke-dune-vehicle-physics.mjs && node tools/smoke-dune-records.mjs && node tools/smoke-racing-trials.mjs && node tools/smoke-racing-visuals.mjs && node tools/smoke-racing-lifecycle.mjs",
     "test:catastrophe": "node tools/smoke-racing-crash.mjs && node tools/smoke-racing-crash-physics.mjs && node tools/validate-kaki-catastrophe-assets.mjs",
@@ -22,7 +22,9 @@
     "qa:performance:hardware": "node tools/benchmark-rally-transitions.mjs --hardware",
     "test:production-assets": "node tools/validate-production-assets.mjs",
     "vendor:check": "node tools/prune-three-vendor.mjs",
-    "vendor:prune": "node tools/prune-three-vendor.mjs --apply"
+    "vendor:prune": "node tools/prune-three-vendor.mjs --apply",
+    "test:raid": "node tools/smoke-raid-isolation.mjs && node tools/generate-raid-frozen-boundaries.mjs --check && node tools/smoke-raid-surface-field.mjs && node tools/smoke-raid-route.mjs && node tools/smoke-raid-sector-seams.mjs && node tools/smoke-raid-terrain-provider.mjs",
+    "raid:boundaries": "node tools/generate-raid-frozen-boundaries.mjs"
   },
   "repository": {
     "type": "git",

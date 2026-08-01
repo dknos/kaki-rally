@@ -201,8 +201,16 @@ const SURFACE_FEEL = Object.freeze({
 let _touchDrift = false;
 let _touchHandbrake = false;
 let _crashModeApi = null;
+let _raidModeApi = null;
 
 export function registerDevelopmentRacingMode(mode, api) {
+  if (mode === 'raid') {
+    if (!api?.enterRaidMode || !api?.exitRaidMode) {
+      throw new TypeError('Kaki Rally Raid development API is incomplete');
+    }
+    _raidModeApi = api;
+    return true;
+  }
   if (mode !== 'crash') throw new Error(`Unknown development racing mode: ${mode}`);
   if (!api?.enterCrashMode || !api?.exitCrashMode) {
     throw new TypeError('Catastrophe development API is incomplete');
@@ -2615,6 +2623,13 @@ function _snapshot(session) {
 }
 
 export function enterRacing(scene, courseId = 'forest', options = {}) {
+  if (options.mode === 'raid') {
+    if (!_raidModeApi) {
+      throw new Error('Kaki Rally Raid is development-gated; use the explicit local-development route');
+    }
+    if (state.racing && state.racing.raceMode !== 'raid') exitRacing(scene);
+    return _raidModeApi.enterRaidMode(scene, { ...options, stageId: options.stageId || courseId });
+  }
   if (options.mode === 'crash') {
     if (!_crashModeApi) {
       throw new Error('Kaki Catastrophe is frozen; use the explicit local-development route');
@@ -3034,6 +3049,7 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
 export function tickRacing(dt, elapsedDt = dt) {
   const session = state.racing;
   if (!session || !(dt > 0)) return;
+  if (session.raceMode === 'raid') return _raidModeApi?.tickRaidMode(dt, elapsedDt);
   if (session.raceMode === 'crash') return _crashModeApi?.tickCrashMode(dt);
   if (session.raceMode === 'trials') return tickTrialsMode(dt);
   if (session.raceMode === 'dunes') return tickDuneMode(dt, elapsedDt);
@@ -3421,11 +3437,13 @@ export function getRacingCameraTarget() {
     return _cameraTarget;
   }
   if (state.racing?.raceMode === 'trials') return getTrialsCameraTarget();
+  if (state.racing?.raceMode === 'raid') return _raidModeApi?.getRaidCameraTarget() || _cameraTarget;
   if (state.racing?.raceMode === 'dunes') return getDuneCameraTarget();
   return _cameraTarget;
 }
 
 export function updateRacingCamera(dt, options = {}) {
+  if (state.racing?.raceMode === 'raid') return _raidModeApi?.updateRaidCamera(dt, options) || null;
   if (state.racing?.raceMode === 'crash') return _crashModeApi?.updateCrashCamera(dt, options) || null;
   const result = state.racing?.cameraManager?.update(dt, options) || null;
   if (result?.camera && state.racing?.environment) {
@@ -3435,6 +3453,7 @@ export function updateRacingCamera(dt, options = {}) {
 }
 
 export function resizeRacingCamera(aspect) {
+  if (state.racing?.raceMode === 'raid') return _raidModeApi?.resizeRaidMode(aspect);
   if (state.racing?.raceMode === 'crash') return _crashModeApi?.resizeCrashMode(aspect);
   state.racing?.cameraManager?.resize(aspect);
 }
@@ -3453,6 +3472,7 @@ export function resetRacingCamera() {
 
 export function getRacingCameraConfig() {
   const session = state.racing;
+  if (session?.raceMode === 'raid') return _raidModeApi?.getRaidCameraConfig() || { chromatic: 0, bloom: 0.3 };
   if (session?.raceMode === 'crash') return _crashModeApi?.getCrashCameraConfig() || { chromatic: 0, bloom: 0.3 };
   if (session?.cameraManager?.lastFrame) {
     return {
@@ -3489,6 +3509,7 @@ export function getRacingCameraConfig() {
 }
 
 export function getRacingSnapshot() {
+  if (state.racing?.raceMode === 'raid') return _raidModeApi?.getRaidSnapshot() || null;
   if (state.racing?.raceMode === 'crash') return _crashModeApi?.getCrashSnapshot() || null;
   if (state.racing?.raceMode === 'trials') return getTrialsSnapshot();
   if (state.racing?.raceMode === 'dunes') return getDuneSnapshot();
@@ -3827,6 +3848,7 @@ function _mountQaBridge(session, actions) {
 }
 
 export function restartRacing(scene, courseId = null) {
+  if (state.racing?.raceMode === 'raid') return _raidModeApi?.restartRaidMode() || null;
   if (state.racing?.raceMode === 'crash') return _crashModeApi?.restartCrashMode() || null;
   if (state.racing?.raceMode === 'trials') {
     return restartTrialsMode(scene, {
@@ -3865,6 +3887,7 @@ export function restartRacing(scene, courseId = null) {
 export function exitRacing(scene, explicitSession = null) {
   const session = explicitSession || state.racing;
   if (!session) return;
+  if (session.raceMode === 'raid') return _raidModeApi?.exitRaidMode(scene, session);
   if (session.raceMode === 'crash') return _crashModeApi?.exitCrashMode(scene, session);
   if (session.raceMode === 'trials') return exitTrialsMode(scene, session);
   if (session.raceMode === 'dunes') return exitDuneMode(scene, session);

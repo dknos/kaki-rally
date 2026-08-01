@@ -1,0 +1,655 @@
+{
+  "schema": 1,
+  "product": "Kaki Rally",
+  "scope": "Kaki Rally Raid (Desert Expedition) additive-mode boundary",
+  "baselineCommit": "632efaf25274c41a453c739485f1225f6ed22449",
+  "policy": {
+    "frozen": "Every file under `files` must stay byte-identical. A digest mismatch fails the wave unless the final report documents the file, the reason, proof that an adapter could not solve it, regression tests, and before/after evidence.",
+    "seams": "Only the paths under `seams` may change, and only additively, default-off outside Raid, and covered by a non-regression test."
+  },
+  "frozenDirectories": [
+    "src/app",
+    "src/core",
+    "src/racing/cameras",
+    "src/racing/crash",
+    "src/racing/drift",
+    "src/racing/dunes",
+    "src/rendering"
+  ],
+  "seams": [
+    {
+      "path": "src/racing/index.js",
+      "reason": "Mirrors the existing registerDevelopmentRacingMode/_crashModeApi seam so the shell can dispatch enter/tick/camera/resize/snapshot/restart/exit to a lazily imported Raid module. A mode cannot receive the shell frame callbacks without it."
+    },
+    {
+      "path": "src/racing/racingModeAvailability.js",
+      "reason": "getRacingModeAvailability() returns AVAILABLE for every unknown mode id, so \"raid\" would otherwise be publicly launchable. The additive branch keeps it development-gated."
+    },
+    {
+      "path": "src/racing/racingManifest.js",
+      "reason": "Raid-owned assets must be declared in the shared manifest to reuse the existing asset lease/validation pipeline. Entries are namespaced and referenced only by Raid."
+    },
+    {
+      "path": "src/app/rallyRouter.js",
+      "reason": "The ?mode=raid&play=1&dev=1 deep link needs a route alias and a raidDevelopment flag that cannot clobber the existing catastropheDevelopment flag."
+    },
+    {
+      "path": "src/app/rallyApp.js",
+      "reason": "The shell owns the dynamic import, loader copy, availability gate, and F3 diagnostics. Lazy loading is impossible without a shell-side import() site."
+    },
+    {
+      "path": "src/app/rallySave.js",
+      "reason": "Raid storage keys must join the namespaced export/reset allow-list without altering the existing LEGACY_SAVE_KEYS ordering or contents."
+    },
+    {
+      "path": "package.json",
+      "reason": "New test:raid / qa:raid scripts. No existing script is weakened or removed."
+    }
+  ],
+  "summary": {
+    "frozenFiles": 150,
+    "seamFiles": 7
+  },
+  "files": [
+    {
+      "path": "index.html",
+      "sha256": "9274ff2418616b28014c5a9ccd7cefe9a3372141f17e290f3aab15cf889135e9"
+    },
+    {
+      "path": "src/app/developerOverlay.js",
+      "sha256": "10b48966dafe8db0429621b8b922112f28c9201ae6a66fde7499f49a0fdc9372"
+    },
+    {
+      "path": "src/app/rallyMenu.js",
+      "sha256": "57d9e431be737c3574b3f43fa62d56f8cd65fb86ddcfd6bb7347fac0526255ce"
+    },
+    {
+      "path": "src/app/rallyOptions.js",
+      "sha256": "efa105da25e6035a49aab682829a5b38f35ff3a8ea5d85f37c5568399b12ccfe"
+    },
+    {
+      "path": "src/app/rallyShell.css",
+      "sha256": "97fd50ab3a8b61194e801437b3dab1fc50039b61bcad6e7f8ce076ee002269ab"
+    },
+    {
+      "path": "src/app/rallyTouchControls.js",
+      "sha256": "01d897634612c5d63ff8a0f74f59520a25df7ef9468887c53e53bf9fb73fe4a1"
+    },
+    {
+      "path": "src/app/rallyVersion.js",
+      "sha256": "55229d00eff2c89e6fcc6bb5e07d2e93535b66142d16727ef39fd152996c6610"
+    },
+    {
+      "path": "src/assets.js",
+      "sha256": "5e703b3c576b613e4e101798af83b3bdcfae2c2c018e5ae4b64b50db5bc7c3c0"
+    },
+    {
+      "path": "src/audio.js",
+      "sha256": "c254b42d570ff9edfdc0cecd6ff3c41d3ed6ab6f8fee917039cd96ddaa3307f1"
+    },
+    {
+      "path": "src/config.js",
+      "sha256": "a2779476737611486c8dabbf4af5bae3b8537ad3398b1ff9096fb82d5a4170ef"
+    },
+    {
+      "path": "src/core/assets.js",
+      "sha256": "a4c7818453dca0b344a2f09e224d3ca38dcaef1f384a2a9062fd7b2452da37ae"
+    },
+    {
+      "path": "src/core/audio.js",
+      "sha256": "7a2a2e9d3ce25816caa70d9e9cf2b9da2385002593e20fa969af6f48e60c5ec6"
+    },
+    {
+      "path": "src/core/gamepad.js",
+      "sha256": "c3da43a299fd6218bf38bdacc2f3886ef6e23601de6f984b1571ff369c569d18"
+    },
+    {
+      "path": "src/core/input.js",
+      "sha256": "e873933eccfd12854341d364172fc59df2ea33f1bf2c36fc74e6a78bbeb99b56"
+    },
+    {
+      "path": "src/core/navigation.js",
+      "sha256": "e0795faa2b801f727987add280e141de20483eba3494f348d5dd453fca95e480"
+    },
+    {
+      "path": "src/core/runtimeState.js",
+      "sha256": "17896c280e9290e8c4f9a009cd7fdff97ef596b8a51e708b2e2d4690466d5e45"
+    },
+    {
+      "path": "src/gamepad.js",
+      "sha256": "1c8d688a00688b581c3c949e67802f07561b03a81ee26d6f4139989d24240716"
+    },
+    {
+      "path": "src/input.js",
+      "sha256": "948d5c4d1553360d1e99ca562e3d224636a87c4ffd2b2464b48441f3c0c96484"
+    },
+    {
+      "path": "src/main.js",
+      "sha256": "f7b6dbae44c97f4690a5f99f685256b1a31018f6cce98d0be823be1e8dc2ceba"
+    },
+    {
+      "path": "src/navigation.js",
+      "sha256": "db233e603f60fe29f6d27aaf07c43b238c9df0f3e45a09578cfba007127fc981"
+    },
+    {
+      "path": "src/racing/cameras/cameraInput.js",
+      "sha256": "5bc1688c746d77342ef0440e2b3a0ebbacaaf2dfdf11b9c88a837b901625d599"
+    },
+    {
+      "path": "src/racing/cameras/cameraModes.js",
+      "sha256": "702dd42fe17d30ea08a623107d372f56a09a822b93db2a4e414af4a41d2d6070"
+    },
+    {
+      "path": "src/racing/cameras/cameraRigMath.js",
+      "sha256": "0542ab60d6d7f792a79da6d1783baa643f4acaf9fa4abc85005755dc2edd2892"
+    },
+    {
+      "path": "src/racing/cameras/cameraSessionBinding.js",
+      "sha256": "f71a7519302d1179100095987ad4e67f8b8d463e10ec9d6a3d0825b68c323629"
+    },
+    {
+      "path": "src/racing/cameras/chaseCameraCollision.js",
+      "sha256": "a427dc531dc9a86fd0d128c37c8dc3cd046ecfe1fc1e8fe490cd3078b7210bd3"
+    },
+    {
+      "path": "src/racing/cameras/chaseCameraRig.js",
+      "sha256": "7c98eb88a842419628df5c24e01ca3e2458a8b50ad7cf46a37a7260705d86781"
+    },
+    {
+      "path": "src/racing/cameras/driverFpvCameraRig.js",
+      "sha256": "a915d7fd36bf72abbc52471a2dd98d31dd23ce5cd96ecdfef4a7c5b6cd80786d"
+    },
+    {
+      "path": "src/racing/cameras/isometricCameraRig.js",
+      "sha256": "1356d5f8383a14b93e530c96d91764ff4e73d27b4e5dcfc39bb598abaae58ce5"
+    },
+    {
+      "path": "src/racing/cameras/isometricFrameGuard.js",
+      "sha256": "d126baf3c15ecc7efaf449672fdbf39d41850e341b56fa0c39aa3d5311352c05"
+    },
+    {
+      "path": "src/racing/cameras/racingCameraManager.js",
+      "sha256": "b0e17cef2d5bcce2e40a80d98aad3b4abbfbd7eeaa83a2f2c921642754d1dcd8"
+    },
+    {
+      "path": "src/racing/cameras/racingCameraProfile.js",
+      "sha256": "30e9b702050c3612f07eeae84a48db976e6a1cf3165945588156f395bac0c918"
+    },
+    {
+      "path": "src/racing/cameras/racingVisionController.js",
+      "sha256": "f2a8818a4ce8ab2128841b666840d0f1c378552e03f35c5d06346f0eac4dd980"
+    },
+    {
+      "path": "src/racing/cameras/trackVisionAnalyzer.js",
+      "sha256": "8d188da7771ea7887f28e2d9fca53a5c5704c72840661265d5ab7b7010184b87"
+    },
+    {
+      "path": "src/racing/courseFeatureCatalog.js",
+      "sha256": "a422e7b4976f92fa8a6eef4515dbf474429aab257e74ecd0e42653570cc2b058"
+    },
+    {
+      "path": "src/racing/courseFeaturePlacement.js",
+      "sha256": "eb5ddbaf81b40d235c5233fa805ef28fbf2aeb33bad75d663a79ab153b03e1c2"
+    },
+    {
+      "path": "src/racing/courseFeatureRuntime.js",
+      "sha256": "17c0e3990c6d46c8c9b84792cc8b1fc0d3fa801c2ae0006c638fd678851fc6f1"
+    },
+    {
+      "path": "src/racing/courseFeatureSurfaces.js",
+      "sha256": "77b7351c69529d977971edeeea275d0c49b239dbc00fa5fdbda4fcc23c5734a5"
+    },
+    {
+      "path": "src/racing/courseFeatureValidation.js",
+      "sha256": "60feee1620e7db38290f8a60556f0cd99cf6e97da72f71b5d89254f8180499a5"
+    },
+    {
+      "path": "src/racing/courseSpatialIndex.js",
+      "sha256": "db8024c6f8e739de0f221db21e01bf226baacc3f1bdf83a3b0c811d3027466d7"
+    },
+    {
+      "path": "src/racing/courseSurfaceQuery.js",
+      "sha256": "983327920d5e9c4b7f5875c13f9acbf492f495c376321e1b7d03961e248ebed3"
+    },
+    {
+      "path": "src/racing/crash/crash.css",
+      "sha256": "f37f125a01700c52da05aa163c59ac9ea1fc734191f35fb54faae23451339d40"
+    },
+    {
+      "path": "src/racing/crash/crashAssets.js",
+      "sha256": "e78032156c0a294c3a237b365f0ee7fa71e8ffc2fb4be5b8ce87aeebac15caab"
+    },
+    {
+      "path": "src/racing/crash/crashAudio.js",
+      "sha256": "009cddaeb59a9e3c5e9b722cab6e47a8901ffd5529939d7a7035031afdd72600"
+    },
+    {
+      "path": "src/racing/crash/crashBreakables.js",
+      "sha256": "056a7338990cb0b473495aab1061307f8815d5afeccb34c1a032c3f851b77d2d"
+    },
+    {
+      "path": "src/racing/crash/crashColliderOverlay.js",
+      "sha256": "393a9e49be5c2bdbfba1b143f2f22924c2ddd364ee7693ba8b23ede578881c0f"
+    },
+    {
+      "path": "src/racing/crash/crashCollisionEvents.js",
+      "sha256": "3411042577e3994838f991c3b4cebf9ef4b53c253b15680c86445cdd9fa27751"
+    },
+    {
+      "path": "src/racing/crash/crashConfig.js",
+      "sha256": "a3244763828daff4db22340e6fe9c0b7ca3f0985f018b5cef462196f744df8b3"
+    },
+    {
+      "path": "src/racing/crash/crashDamage.js",
+      "sha256": "73e0b453c23cf9de71d0d805ede2f162dc02832c15a609628779c19bea89a952"
+    },
+    {
+      "path": "src/racing/crash/crashDamagePresentation.js",
+      "sha256": "ff6171decd0b641a9cc111b3b4c7065e4043ce67d9993be7dfd8db047aa85aeb"
+    },
+    {
+      "path": "src/racing/crash/crashHud.js",
+      "sha256": "71d04c75a00f351038df17b67dd02be67eb722f5138890482d4a3fc46025b34f"
+    },
+    {
+      "path": "src/racing/crash/crashKakiBoom.js",
+      "sha256": "f1d7a75bb6a0e26e1a2681529eb7b59e6db1484eda807eb6869cb50863f735bf"
+    },
+    {
+      "path": "src/racing/crash/crashLanes.js",
+      "sha256": "8d10c96554e5e02f610133428cec407438169125007882529f317d41ca5ba099"
+    },
+    {
+      "path": "src/racing/crash/crashManifest.js",
+      "sha256": "f8b16944a1a3ae0b0b6ef50b2d973ce131a000bea584f9e02159e1d12415212c"
+    },
+    {
+      "path": "src/racing/crash/crashMode.js",
+      "sha256": "3c3360addcc8fa77ea3a17e9b0660390a7bd59df9d6f566772a8c2646b231a76"
+    },
+    {
+      "path": "src/racing/crash/crashPhysics.js",
+      "sha256": "e9e0534b12834e233edf7fa5a29b3a386fc9585622aa05764d97b2d3380b4164"
+    },
+    {
+      "path": "src/racing/crash/crashRecords.js",
+      "sha256": "7356590e754f4e7e0642d41b48287960e4c7a5106ae0ec1e4158e1719cad35d7"
+    },
+    {
+      "path": "src/racing/crash/crashReplayCameras.js",
+      "sha256": "06342d470240b56a933f2b4fcdf4e3f571d572e94281569fae996cd4c56a5346"
+    },
+    {
+      "path": "src/racing/crash/crashReplayDirector.js",
+      "sha256": "4286ee21a3066939eee0ea137f937dc12ee938c4d690c1044c11b0aab29e33db"
+    },
+    {
+      "path": "src/racing/crash/crashReplayPlayer.js",
+      "sha256": "2205ef9f54f1ae241d28bd54f0c387d3494960fccc4782082939317be686be7f"
+    },
+    {
+      "path": "src/racing/crash/crashReplayRecorder.js",
+      "sha256": "38982f6c7c57134e5ea239b3b48762ed6176f411345bbfb6da45627bd435bc81"
+    },
+    {
+      "path": "src/racing/crash/crashScoring.js",
+      "sha256": "2c791fd7021f8a0897936f50ad72f40f8368904fbf93ff3b51571b78e5eb9dfd"
+    },
+    {
+      "path": "src/racing/crash/crashState.js",
+      "sha256": "25f25535b72100c2b6c126cff2f997176ecb7ace73044c9b3189394322b34ebb"
+    },
+    {
+      "path": "src/racing/crash/crashTraffic.js",
+      "sha256": "0df3644c0943c7f1c12cca2e8f546d16479d8577cb3944cb6d0d2a2754a43a7d"
+    },
+    {
+      "path": "src/racing/crash/crashVehicleController.js",
+      "sha256": "6a1c0baffdf8aae48134f9e94529d17b6a41c3192dbfd00882470f0c9b223f49"
+    },
+    {
+      "path": "src/racing/crash/crashVfx.js",
+      "sha256": "9dd6bcd26fb05d6c743e2e304136f037543512e66099daa05f2319d691fcc844"
+    },
+    {
+      "path": "src/racing/crash/crashWorld.js",
+      "sha256": "ad0bc8743534350b3a4cdbe7764652ad323ac3aefbb844f01c803fe8e4ff38d8"
+    },
+    {
+      "path": "src/racing/crash/scenarios/pawprintInterchange.js",
+      "sha256": "90bd112284ef3c09712a5c70b6de5d9494a5d02b9fa0b2ba19612e03b99f5902"
+    },
+    {
+      "path": "src/racing/crash/vendor/LICENSE-APACHE-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "src/racing/crash/vendor/rapier.mjs",
+      "sha256": "bce2c762b440101ebf8cbff038a71fe1884488becd0a53b9a7c0a7e3daf13a2b"
+    },
+    {
+      "path": "src/racing/crash/vendor/rapier.mjs.map",
+      "sha256": "6fe4df23b5d3a91d2884eb3112cf71e4876e4d78f1221ce18f099f09e8624f81"
+    },
+    {
+      "path": "src/racing/drawTrackCrossings.js",
+      "sha256": "f6b4a5edd24f3a1a2e3057b393b54cf24aa122e6022c62319b284d3a789626a5"
+    },
+    {
+      "path": "src/racing/drawTrackElevation.js",
+      "sha256": "d56b4318ca2ca43dcdf2dafd801727fc28908317d503c4be88d999b9b6776a22"
+    },
+    {
+      "path": "src/racing/drawTrackGeneration.js",
+      "sha256": "c5ccf9208617cfd08a3c47b85451a887f8d6637b7d32fe2b2bacb84efc43524e"
+    },
+    {
+      "path": "src/racing/drawTrackGeometry.js",
+      "sha256": "1f0c6ca6fc447cc077762302c9b2f348b5f6879e292854828d548cbbd7fcdd12"
+    },
+    {
+      "path": "src/racing/drawTrackMode.js",
+      "sha256": "a8380b8e1b05c437bee10e0b9271f8aa24786330eaef4baf5d43f86ac3c4481f"
+    },
+    {
+      "path": "src/racing/drawTrackStorage.js",
+      "sha256": "0ebe11c551065fcc16c8496d9964bde696ccc9d7c8bdbc36b88829c5f5021dfa"
+    },
+    {
+      "path": "src/racing/drawTrackThemes.js",
+      "sha256": "2cc2f842ef9871731a9b45f5bab5c01e9f8cb2d1e0032b0896adb31e4327c920"
+    },
+    {
+      "path": "src/racing/drawTrackUI.js",
+      "sha256": "d767cb6bc495603bac4b5a15f98a86bda1e6f738302715e8457919330d489ef8"
+    },
+    {
+      "path": "src/racing/drift/driftAttack.js",
+      "sha256": "3866b359b6eb71a38911612d8e00651c06c12af5719c230bed0d91a57482b108"
+    },
+    {
+      "path": "src/racing/dunes/dune.css",
+      "sha256": "992c124b570185eaa790abbc909a4454216f61d41500b1a5ecff29bc8ece6966"
+    },
+    {
+      "path": "src/racing/dunes/duneClipmap.js",
+      "sha256": "007e94dc5addb444e397b5faafdcca04d43c08a6e5a9b5e09440c6f9d864d139"
+    },
+    {
+      "path": "src/racing/dunes/duneDeformation.js",
+      "sha256": "dd914744174e157e1604526c51bce09dc61d87e93e58a8da9a3795f38ba60268"
+    },
+    {
+      "path": "src/racing/dunes/duneDust.js",
+      "sha256": "8f94c3a5595bb990b39b7f023865ff0aad899f9960d9ebe91cf4a26eadd65362"
+    },
+    {
+      "path": "src/racing/dunes/duneEnvironment.js",
+      "sha256": "f752104f5b9408e76cae125522c2cf9354946b3d29ec953546dd444ced48895a"
+    },
+    {
+      "path": "src/racing/dunes/duneEvents.js",
+      "sha256": "ea0f840342fff86696f25b11ffa8fa83859a52c0bdf35e65ea6aed62a422794f"
+    },
+    {
+      "path": "src/racing/dunes/duneHeightWorker.js",
+      "sha256": "04dc71901fb6aea4a085707ad393463a2e5d3181ecd3351aad35825a586792f7"
+    },
+    {
+      "path": "src/racing/dunes/duneHeightfield.js",
+      "sha256": "6c21ba53d53f545e7e3e7b29acb32070198a80b084bc724478fd1e0632c45dfb"
+    },
+    {
+      "path": "src/racing/dunes/duneMaterial.js",
+      "sha256": "4e0042ee65d1a85f6fc323759077f96adabae546e68d633a6e0cc0c0ff85d093"
+    },
+    {
+      "path": "src/racing/dunes/duneMode.js",
+      "sha256": "62afdf171b795182b164e1a0bd60f0947d3ec9e8a9185fe85ad2a6c8bf3767b3"
+    },
+    {
+      "path": "src/racing/dunes/dunePhysicsRange.js",
+      "sha256": "a5576b9dea6cecf166930b5fa0b2fae0941032edbddbc75867fd83bd2da646b7"
+    },
+    {
+      "path": "src/racing/dunes/duneRace.js",
+      "sha256": "77c6846faff6874d388fa937343286b9961676ff9fe55975f31b6ce1f92a90e2"
+    },
+    {
+      "path": "src/racing/dunes/duneRallyRaid.js",
+      "sha256": "533b27bc3295a7f9d2aad19309e4bf7c570d31b921b1dbf46c8af214f122687a"
+    },
+    {
+      "path": "src/racing/dunes/duneRecords.js",
+      "sha256": "7a309128b9eaa8b189adb7e5b49696709f25b6121cea320d5d23266d5545fbf7"
+    },
+    {
+      "path": "src/racing/dunes/duneRoosterTail.js",
+      "sha256": "93cc5e96f5a9dd8279e1bfd0a19a58938bcfab94bc00f2efa87e432c9941249e"
+    },
+    {
+      "path": "src/racing/dunes/duneVehiclePhysics.js",
+      "sha256": "8aea46160ef66d3c110c77660e0b38bada1719d1375c215a36f7a01aa6a8cd7f"
+    },
+    {
+      "path": "src/racing/handlingProfiles.js",
+      "sha256": "fb3548eb53992dd5e11a2365877fab05342acb6a44a225c4e55a693db568910a"
+    },
+    {
+      "path": "src/racing/monsterArena.js",
+      "sha256": "43bab0278e08e44612734a989f2340670ad1970a97435ce769c657d270c69263"
+    },
+    {
+      "path": "src/racing/monsterArenaDefinition.js",
+      "sha256": "b1868377ba0ff800a435b84f86b8d8c3c7a3a7712ef5d19e2fd11b98555a2acb"
+    },
+    {
+      "path": "src/racing/monsterDestruction.js",
+      "sha256": "a9267d89876c7ef5600078edb32f541806486f44678dd17f7f79552baaaf9b1b"
+    },
+    {
+      "path": "src/racing/monsterDestructionRules.js",
+      "sha256": "d8b6e2542b9680fa27768e7f70fee91f6b47fb2636e87fdfec12a642d0c84612"
+    },
+    {
+      "path": "src/racing/monsterRecords.js",
+      "sha256": "3c584534982db71d50d768e7ec4145789236acec7ff9328b0b7a56259c56c71c"
+    },
+    {
+      "path": "src/racing/monsterRounds.js",
+      "sha256": "f48f9ae3483b27d93a268870e005ff8fa7bfd1cce512e0eae1ceb436631981f2"
+    },
+    {
+      "path": "src/racing/monsterScoring.js",
+      "sha256": "54cf8d9cf619164e1d6644e4fac36e046d0f2f90d37e02f08502276d72cf7e81"
+    },
+    {
+      "path": "src/racing/monsterSmash.js",
+      "sha256": "318a1dad6674fe718a1e867af51d455d14bfa31ee3a655fd4333cff8ad9f9b96"
+    },
+    {
+      "path": "src/racing/monsterSpotlights.js",
+      "sha256": "7ae455669cecd15df92243ebb41139781e85b6051ffafd710d88e3859d70a2cb"
+    },
+    {
+      "path": "src/racing/monsterVehiclePhysics.js",
+      "sha256": "546679bda462df67188be5985e618b21f304016edb2610264489792a447f280b"
+    },
+    {
+      "path": "src/racing/physics.js",
+      "sha256": "1af7c1707d2ebb0985c40427d46417b1ca3404a29cf84232df3641e86b64cf89"
+    },
+    {
+      "path": "src/racing/racingAssets.js",
+      "sha256": "d5effddd3cad4a7f7fe4e4765ae2a58d783bf82f180832c7cf7eb4bc6694d194"
+    },
+    {
+      "path": "src/racing/racingEnvironment.js",
+      "sha256": "baea6b52a622b1cbba3575ea1c36e5189829be6a5174a134a148d69b573dd8a6"
+    },
+    {
+      "path": "src/racing/racingSteering.js",
+      "sha256": "f7079455c13ceb70f935c39d7f61a3fc5a6239a855ae40c9384afe34e6d02a07"
+    },
+    {
+      "path": "src/racing/racingVehicles.js",
+      "sha256": "1fccb72a50344becaf65ef82812ac685d009a054b2df18243119279c581bf912"
+    },
+    {
+      "path": "src/racing/racingVfx.js",
+      "sha256": "7edc6480d30ec4c465daa1bff55b13c7ab2ad6cf16a998b853a8814d1f73896b"
+    },
+    {
+      "path": "src/racing/rallyGrass.js",
+      "sha256": "35dd9de642a63e991db611dbc226262bca3746babfb00fdf230f15f8e4e1cda8"
+    },
+    {
+      "path": "src/racing/rallyGrassLayout.js",
+      "sha256": "81e73d56e09afcd16f25a8039fed38783c4fc2ec54e0f2ece386c6432e67c58a"
+    },
+    {
+      "path": "src/racing/tracks.js",
+      "sha256": "1ffbf15326da1ab6a579b6da4789eaeb513aada628c1deb537a14ef296264394"
+    },
+    {
+      "path": "src/racing/trialsEnvironment.js",
+      "sha256": "f8812016baef75218d81561c4c490c71af13879924726f4a1df25051dbe72d4d"
+    },
+    {
+      "path": "src/racing/trialsMode.js",
+      "sha256": "1af7b77038da9db52250f1e8ca7d71d06cf292da399338541f5c536ae53f22c7"
+    },
+    {
+      "path": "src/racing/trialsPhysics.js",
+      "sha256": "29f673d0ea402309b6b999789406c2b6706289aa6bb4fe083a1b2d89702ea3ad"
+    },
+    {
+      "path": "src/racing/trialsTracks.js",
+      "sha256": "ab80d9cdcf625cc28fd0fc2116215fcab7a07d659b05768da9dac3a045ca11cd"
+    },
+    {
+      "path": "src/racing/trialsWorkshopGeometry.js",
+      "sha256": "513e0de7276d719349649d0f0431d2010f4d0366861ba370efb579bb02d6727b"
+    },
+    {
+      "path": "src/racing/trialsWorkshopStorage.js",
+      "sha256": "25c37d9971415601c8f4ad0dff610915bcc25be035904bcf1b6574e24004c3a4"
+    },
+    {
+      "path": "src/racing/trialsWorkshopUI.js",
+      "sha256": "2f13b8dea467025aa72fc2f04a1727c7dec2c12d4efe99d307bf96fb98064357"
+    },
+    {
+      "path": "src/rendering/__tests__/bloomLayers.test.mjs",
+      "sha256": "03f7fbb68c5b20e33edc42a389b6b5d0548cdf61ce450784440f24b9243f9804"
+    },
+    {
+      "path": "src/rendering/__tests__/postfxPipeline.test.mjs",
+      "sha256": "29f9d66e40f0ec16bf33a1c32756394a2047a8168aff23a6e20039f20e915cc7"
+    },
+    {
+      "path": "src/rendering/__tests__/rendererAbstraction.test.mjs",
+      "sha256": "f9c520487a31b07af504e337aedeb321733acb525d249a21464979295b2b7751"
+    },
+    {
+      "path": "src/rendering/__tests__/standaloneRendererSettings.test.mjs",
+      "sha256": "0ead3042b56eefa9fb800e2c6782df2508b43dd5af7451bc4e7d7466948ad3ab"
+    },
+    {
+      "path": "src/rendering/__tests__/textureUpload.test.mjs",
+      "sha256": "a88bdd32aab7fae2148dc7a22c524218a09f0aa4fc619c62ebee1dac2e8c8f3a"
+    },
+    {
+      "path": "src/rendering/bloomLayers.js",
+      "sha256": "7d51cb76ac9b3944d6f797bf02c92d458972f379e180de4d973285bf08380eb0"
+    },
+    {
+      "path": "src/rendering/createRenderer.js",
+      "sha256": "ebd4b5b3fac64aa821de71c54e777adc0ecda46f556941e5f83feb877bfc3ed0"
+    },
+    {
+      "path": "src/rendering/deviceRecovery.js",
+      "sha256": "e5b714325bcc0160ace3646f618ff009cb1b2b79dcd7697a4623e3456928a992"
+    },
+    {
+      "path": "src/rendering/materials/racingBackdropMaterials.js",
+      "sha256": "f7eb537995e851ce95de856a9b57fceb23c361da786c0b9f9dc0b5f4f8bfd5ec"
+    },
+    {
+      "path": "src/rendering/materials/rallyGrassMaterial.js",
+      "sha256": "c7dc80cb165a82b0ddebf7a83d091e1ca5df139b69b86bdedb33cc68d22a7ef0"
+    },
+    {
+      "path": "src/rendering/materials/trialsParticleMaterial.js",
+      "sha256": "75525faa18bb2687c639f8783fb09fa6aad4e23491a6d76c75df9d4edef34ebe"
+    },
+    {
+      "path": "src/rendering/postfx/accessibilityPostfx.js",
+      "sha256": "bbb11efaa34754eccd377b47e4477c8a5305446b27d8ad7cea6a4d6dfe5ca099"
+    },
+    {
+      "path": "src/rendering/postfx/chromaticAberration.js",
+      "sha256": "56a4c582ae45d0f555e6e310f8cffc6cf6218c52f0dafa6c72372c4fc78b2a74"
+    },
+    {
+      "path": "src/rendering/postfx/colorGrade.js",
+      "sha256": "3ec104ca93dd9d91b38ffba433aad81e857f270c7443cb8026e6fbe735d884b5"
+    },
+    {
+      "path": "src/rendering/postfx/createPostPipeline.js",
+      "sha256": "becd0d44b405f57381f2361eefb89d87c4dcfdf7ef9c3ac6269b1a43dc0fd41e"
+    },
+    {
+      "path": "src/rendering/postfx/dithering.js",
+      "sha256": "e626c3cc0eb6a41dbca0a02c55d6dfaa6dd710562509736cebdf63e60f80d744"
+    },
+    {
+      "path": "src/rendering/postfx/heightFog.js",
+      "sha256": "8ea70bfba4e9303d998dd2877e4f95dbfbe6461939825383f6eac8a1ef761a83"
+    },
+    {
+      "path": "src/rendering/postfx/selectiveBloom.js",
+      "sha256": "f9bc3800272139c74fc33cd2d047c89d49511c4efa320257cf6b18acf1341993"
+    },
+    {
+      "path": "src/rendering/postfx/vignette.js",
+      "sha256": "fbf8f48112f11e2efee2dc77d2d66ad7259ed8dcd09a1337835f5507a4132652"
+    },
+    {
+      "path": "src/rendering/qualityManager.js",
+      "sha256": "863b695591bd9a9a4b283c77be7fe3332e571da6527694976752bc85db27f1f4"
+    },
+    {
+      "path": "src/rendering/renderLifecycle.js",
+      "sha256": "200ad16edde4d98807853f1a8d2b2cc4e37f31849c00e4d31cd8e98cacf2902d"
+    },
+    {
+      "path": "src/rendering/renderPipeline.js",
+      "sha256": "77c19ad063ad8fa498369a68a84d9ef5716b09be599ab3d93039914277925044"
+    },
+    {
+      "path": "src/rendering/rendererAccess.js",
+      "sha256": "7c806f7fd6d976d12485578ec749ae5fe33c325bfdf6c5b216fa53e4a341c7e8"
+    },
+    {
+      "path": "src/rendering/rendererCapabilities.js",
+      "sha256": "ca6aa1b2163041879b7a0e7fc2bde22a697f9e61d1b074a694a5eb175523d52b"
+    },
+    {
+      "path": "src/rendering/rendererDiagnostics.js",
+      "sha256": "82020d6920bb32681b856a75fff51bf3186a15f7d82b7308f40a5db51687e00b"
+    },
+    {
+      "path": "src/rendering/rendererSettings.js",
+      "sha256": "d2abcbc647726df3a072e6b943425d9dde883e323444da16d7bc3084d6663a2a"
+    },
+    {
+      "path": "src/rendering/textureUpload.js",
+      "sha256": "ca9fcda3230a47658e2506d30313063c9a17a319c14e68df9a13735f09d7dba4"
+    },
+    {
+      "path": "src/state.js",
+      "sha256": "e2438a8bd827eb05acc472dd2e60b4fe9ac863a8f1fa6124c83033abe6c3721d"
+    }
+  ]
+}
