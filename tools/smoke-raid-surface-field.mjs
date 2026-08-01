@@ -95,20 +95,34 @@ const SEAM_SECTORS = [
   // ~12 km and ~24 km from the origin: where precision-driven seams appear.
   [23, -17], [24, -17], [46, 41], [-47, -40],
 ];
+// The landform zones are the interesting case. A canyon carved from a locator
+// field, plinths and craters placed on jittered feature lattices, and fractures
+// drawn around an atan2 branch cut are all constructs that produce a seam the
+// moment anything is evaluated from a sector-local origin or a nearest-feature
+// identity. Each is checked on its own and inside a blend.
+const SEAM_PARAMS = [
+  ['dune-sea into rock-shelf', params],
+  ['slot-canyon', blendRaidZones('slot-canyon', 'slot-canyon', 0)],
+  ['canyon-rim into slot-canyon', blendRaidZones('canyon-rim', 'slot-canyon', 0.5)],
+  ['spire-forest', blendRaidZones('spire-forest', 'spire-forest', 0)],
+  ['rift-crater into ruin-flat', blendRaidZones('rift-crater', 'ruin-flat', 0.35)],
+];
 let seamSamples = 0;
-for (const [sx, sz] of SEAM_SECTORS) {
-  const { east, west } = edgeSamples(sx, sz, params);
-  for (let row = 0; row <= SECTOR_CELLS; row += 1) {
-    assert.equal(east[row], west[row], `float64 seam mismatch at sector ${sx},${sz} row ${row}`);
-    assert.equal(
-      Math.fround(east[row]),
-      Math.fround(west[row]),
-      `float32 seam mismatch at sector ${sx},${sz} row ${row}`,
-    );
-    seamSamples += 1;
+for (const [label, seamParams] of SEAM_PARAMS) {
+  for (const [sx, sz] of SEAM_SECTORS) {
+    const { east, west } = edgeSamples(sx, sz, seamParams);
+    for (let row = 0; row <= SECTOR_CELLS; row += 1) {
+      assert.equal(east[row], west[row], `float64 seam mismatch in ${label} at sector ${sx},${sz} row ${row}`);
+      assert.equal(
+        Math.fround(east[row]),
+        Math.fround(west[row]),
+        `float32 seam mismatch in ${label} at sector ${sx},${sz} row ${row}`,
+      );
+      seamSamples += 1;
+    }
   }
 }
-pass(`adjacent sector edges are bit-identical near and far from the origin (${seamSamples} shared vertices, out to 24 km)`);
+pass(`adjacent sector edges are bit-identical near and far from the origin (${seamSamples} shared vertices, ${SEAM_PARAMS.length} zone identities, out to 24 km)`);
 
 // ---------------------------------------------------------------------------
 // Normals must also agree across a boundary, or the wheel contact normal steps.
@@ -176,15 +190,27 @@ pass(`every terrain zone stays finite and inside its declared relief bound (${RA
 // ---------------------------------------------------------------------------
 // Zone blending must be continuous: no relief discontinuity mid-transition.
 {
-  const x = 4820;
-  const z = -1337;
-  let previous = raidTerrainHeight(x, z, blendRaidZones('dune-sea', 'wadi-gravel', 0), SEED, WIND);
+  // Including the pairs with the largest possible height difference: a canyon
+  // floor is 45 m below a spire crown, and that whole gap has to be crossed
+  // smoothly over the transition rather than in a step.
+  const PAIRS = [
+    ['dune-sea', 'wadi-gravel'],
+    ['slot-canyon', 'spire-forest'],
+    ['canyon-rim', 'slot-canyon'],
+    ['rift-crater', 'ruin-flat'],
+  ];
+  const POSITIONS = [[4820, -1337], [-2611, 7404], [318, 442]];
   let maxStep = 0;
-  for (let step = 1; step <= 200; step += 1) {
-    const t = step / 200;
-    const height = raidTerrainHeight(x, z, blendRaidZones('dune-sea', 'wadi-gravel', t), SEED, WIND);
-    maxStep = Math.max(maxStep, Math.abs(height - previous));
-    previous = height;
+  for (const [fromId, toId] of PAIRS) {
+    for (const [x, z] of POSITIONS) {
+      let previous = raidTerrainHeight(x, z, blendRaidZones(fromId, toId, 0), SEED, WIND);
+      for (let step = 1; step <= 200; step += 1) {
+        const t = step / 200;
+        const height = raidTerrainHeight(x, z, blendRaidZones(fromId, toId, t), SEED, WIND);
+        maxStep = Math.max(maxStep, Math.abs(height - previous));
+        previous = height;
+      }
+    }
   }
   assert(maxStep < 0.6, `zone blend steps ${maxStep.toFixed(3)} m per 0.5% of the transition`);
 }

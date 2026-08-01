@@ -222,6 +222,11 @@ pass(`sector payloads are finite, varied, and ${(raidSectorBytes() / 1024).toFix
 // 6. Relief must be real. A "streamed desert" that is actually flat would pass
 //    every seam test above while being nothing to drive on.
 {
+  // Measured relief is the peak-to-peak height a zone delivers over the four
+  // 512 m patches below. The landform zones were measured across seven stage
+  // seeds and two wind angles before their bands were authored: none of them
+  // moved by more than 4 m, because a landform's amplitude comes from its own
+  // declared budget rather than from wherever the noise happens to land.
   const RELIEF_BANDS = {
     'salt-flat': [0.4, 4],
     'hardpack-plateau': [4, 14],
@@ -230,6 +235,13 @@ pass(`sector payloads are finite, varied, and ${(raidSectorBytes() / 1024).toFix
     'wadi-gravel': [7, 22],
     'rock-shelf': [15, 42],
     'powder-basin': [2.5, 10],
+    // Landform zones. Measured across seven seeds: 50.8..52.3, 27.1..33.0,
+    // 29.8..32.8, 39.5..43.3, 6.2..6.8 metres respectively.
+    'slot-canyon': [34, 66],
+    'canyon-rim': [19, 44],
+    'spire-forest': [21, 44],
+    'rift-crater': [28, 58],
+    'ruin-flat': [3.5, 11],
   };
   // Drive the stage and confirm the terrain under the route actually changes.
   let stageMin = Infinity;

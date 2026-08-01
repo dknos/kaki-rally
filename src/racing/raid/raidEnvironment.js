@@ -73,6 +73,51 @@ const SURFACE_SCATTER = Object.freeze({
     { asset: 'RaidGravel-1', weight: 1.6, scale: [0.9, 1.6] },
     { asset: 'RaidSpire-0', weight: 0.35, scale: [0.7, 1.5] },
   ]),
+  // The three landform surfaces. Scatter is keyed by SURFACE, not by zone, so
+  // "spires in the spire forest" is only sayable because each of these belongs
+  // to essentially one zone: scree is spire-forest's base (and canyon-rim's
+  // hollows), duricrust is ruin-flat's base and nothing else's, riftglass is
+  // rift-crater's hollow and nothing else's. Nothing here can appear on the
+  // Wadi of Whiskers, which crosses none of them.
+  //
+  // scree is where the hoodoo silhouette actually comes from. The terrain field
+  // only carries an 8 m plinth footprint; the thin spire standing on it is this
+  // mesh, and it has to be dense or the zone reads as lumps.
+  scree: Object.freeze([
+    // `share` claims a bigger slice of the instance budget than an even split
+    // gives. Without it RaidSpire-0 got budget/prototypes = about 150
+    // instances, which over a 520 m ring is one spire every 75 m — measurably
+    // present and visibly nothing. A forest needs the count, not the density.
+    { asset: 'RaidSpire-0', weight: 3.4, scale: [0.55, 1.9], density: 0.52, share: 0.3 },
+    { asset: 'RaidGravel-1', weight: 1.6, scale: [0.7, 1.3] },
+    { asset: 'RaidBoulder-1', weight: 1.2, scale: [0.5, 1.1] },
+    { asset: 'RaidSlab-0', weight: 0.6, scale: [0.6, 1.1] },
+    { asset: 'RaidScrub-1', weight: 0.8, scale: [0.7, 1.2] },
+  ]),
+  // The ruin pan. Fallen drums outnumber standing columns, because a colonnade
+  // that is still standing everywhere does not read as a ruin.
+  duricrust: Object.freeze([
+    { asset: 'RaidRuinColumn-1', weight: 2.4, scale: [0.8, 1.5], density: 0.16 },
+    { asset: 'RaidRuinColumn-0', weight: 1.5, scale: [0.8, 1.5] },
+    { asset: 'RaidRuinWall-0', weight: 1.7, scale: [0.8, 1.5] },
+    // The gateway arch is also a landmark, but the landmark lattice is 620 m
+    // with a 34% acceptance and duricrust exists only on this one band: counted
+    // against the real field, the whole ruin section contains exactly ONE
+    // landmark cell. An arch nobody drives under is not a gateway, so it is
+    // scattered as well, at a weight that puts one roughly every 150 m.
+    { asset: 'RaidRuinArch-0', weight: 0.25, scale: [0.9, 1.6] },
+    { asset: 'RaidGravel-1', weight: 1.2, scale: [0.7, 1.3] },
+    { asset: 'RaidBoulder-0', weight: 0.7, scale: [0.5, 1.0] },
+    { asset: 'RaidScrub-1', weight: 0.5, scale: [0.7, 1.1] },
+  ]),
+  // The fractures. riftglass only exists inside a crack, and a crack is only a
+  // few metres wide, so this is dense on purpose: it is lining a seam, not
+  // filling a field.
+  riftglass: Object.freeze([
+    { asset: 'RaidRiftShard-0', weight: 3.2, scale: [0.7, 2.1], density: 0.26 },
+    { asset: 'RaidRiftVent-0', weight: 0.9, scale: [0.7, 1.4] },
+    { asset: 'RaidGravel-0', weight: 1.0, scale: [0.6, 1.1] },
+  ]),
 });
 
 // Landmarks are rarer, larger, and placed on their own coarse lattice so they
@@ -91,6 +136,12 @@ const LANDMARK_VISIBLE_HALF_EXTENT = 555;
 const LANDMARK_ASSETS = Object.freeze([
   { asset: 'RaidMesa-0', weight: 1, scale: [0.55, 2.1], surfaces: ['rock', 'gravel', 'hardpack', 'salt'] },
   { asset: 'RaidSpire-0', weight: 2.2, scale: [1.4, 3.4], surfaces: ['rock', 'gravel', 'hardpack'] },
+  // Monuments, restricted to duricrust so they can only stand on the ruin pan.
+  // The amphitheatre is 71 x 73 m as baked; the 1.15 scale cap keeps its half
+  // extent at 42 m, comfortably inside the 80.7 m the LANDMARK_VISIBLE_HALF_
+  // EXTENT constant above was derived from, so that constant stays correct.
+  { asset: 'RaidAmphitheatre-0', weight: 1.2, scale: [0.85, 1.15], surfaces: ['duricrust'] },
+  { asset: 'RaidRuinArch-0', weight: 2.4, scale: [1.0, 1.8], surfaces: ['duricrust'] },
 ]);
 
 function hash(x, z, seed) {
@@ -157,7 +208,24 @@ export function createRaidEnvironment({ kit, provider, seed, quality = 'high', o
     const parts = collectPrototypeMeshes(node);
     if (!parts.length) continue;
     const isLandmark = LANDMARK_ASSETS.some((entry) => entry.asset === name);
-    const capacity = isLandmark ? 12 : Math.max(24, Math.round(tier.budget / wanted.size));
+    // An asset can be BOTH: RaidSpire-0 is a landmark on rock and a dense
+    // ground scatter on scree, and the two loops share one InstancedMesh. Twelve
+    // is the landmark allowance, not a cap on the asset, so a prototype that is
+    // also scattered has to keep the scatter capacity — with the landmark
+    // number the spire forest was silently limited to twelve spires.
+    let share = 0;
+    let isScattered = false;
+    for (const entries of Object.values(SURFACE_SCATTER)) {
+      for (const entry of entries) {
+        if (entry.asset !== name) continue;
+        isScattered = true;
+        share = Math.max(share, entry.share || 0);
+      }
+    }
+    const evenSplit = Math.max(24, Math.round(tier.budget / wanted.size));
+    const capacity = isScattered
+      ? Math.max(evenSplit, Math.round(tier.budget * share))
+      : 12;
     const meshes = parts.map(({ geometry, material }) => {
       const instanced = new THREE.InstancedMesh(geometry, material, capacity);
       instanced.name = `kaki-raid-scatter-${name}`;

@@ -200,6 +200,14 @@ export async function enterRaidMode(scene, options = {}) {
     physicsTimeMs: 0,
     lights: [],
     cameraMode: RAID_CAMERA_MODES.includes(options.cameraMode) ? options.cameraMode : 'chase',
+    // Free look. Drag orbits around the vehicle, wheel/pinch zooms. Held values
+    // decay back to the travel direction so the chase camera reclaims the frame
+    // once the player stops steering it.
+    orbitYaw: 0,
+    orbitPitch: 0,
+    orbitZoom: 1,
+    orbitHeldUntil: 0,
+    pointerListeners: null,
     trails: null,
     windVector: { x: Math.cos(route.windAngle), z: Math.sin(route.windAngle) },
   };
@@ -319,12 +327,97 @@ export async function enterRaidMode(scene, options = {}) {
   session.trails = createRaidTrails({ quality, provider, owned });
   root.add(session.trails.mesh);
 
+  installRaidPointerControls(session);
   session.hud = createRaidHud();
 
   _session = session;
   state.racing = session;
   updateRaidCamera(0, { snap: true });
   return session;
+}
+
+// Pointer look. The shell owns input sampling for driving, but free-look is a
+// camera concern that only Raid has, so Raid owns these listeners and takes them
+// with it on exit rather than adding a mode-specific branch to shared input.
+function installRaidPointerControls(session) {
+  const canvas = session.cameraHost?.canvas || document.querySelector('canvas');
+  if (!canvas) return;
+  let dragging = false;
+  let lastX = 0;
+  let lastY = 0;
+  let pinch = 0;
+
+  const hold = () => { session.orbitHeldUntil = session.elapsed + 2.2; };
+
+  const down = (event) => {
+    dragging = true;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    hold();
+  };
+  const move = (event) => {
+    if (!dragging) return;
+    const dx = event.clientX - lastX;
+    const dy = event.clientY - lastY;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    session.orbitYaw = clamp(session.orbitYaw - dx * 0.006, -Math.PI, Math.PI);
+    session.orbitPitch = clamp(session.orbitPitch + dy * 0.004, -0.5, 1.05);
+    hold();
+  };
+  const up = () => { dragging = false; };
+  const wheel = (event) => {
+    event.preventDefault();
+    session.orbitZoom = clamp(session.orbitZoom * (1 + Math.sign(event.deltaY) * 0.12), 0.45, 3.2);
+    hold();
+  };
+  const touchStart = (event) => {
+    if (event.touches.length === 2) {
+      pinch = Math.hypot(
+        event.touches[0].clientX - event.touches[1].clientX,
+        event.touches[0].clientY - event.touches[1].clientY,
+      );
+    } else if (event.touches.length === 1) {
+      dragging = true;
+      lastX = event.touches[0].clientX;
+      lastY = event.touches[0].clientY;
+    }
+    hold();
+  };
+  const touchMove = (event) => {
+    if (event.touches.length === 2 && pinch > 0) {
+      const span = Math.hypot(
+        event.touches[0].clientX - event.touches[1].clientX,
+        event.touches[0].clientY - event.touches[1].clientY,
+      );
+      session.orbitZoom = clamp(session.orbitZoom * (pinch / Math.max(1, span)), 0.45, 3.2);
+      pinch = span;
+      hold();
+      return;
+    }
+    if (dragging && event.touches.length === 1) {
+      move(event.touches[0]);
+    }
+  };
+  const touchEnd = () => { dragging = false; pinch = 0; };
+
+  canvas.addEventListener('pointerdown', down);
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+  canvas.addEventListener('wheel', wheel, { passive: false });
+  canvas.addEventListener('touchstart', touchStart, { passive: true });
+  canvas.addEventListener('touchmove', touchMove, { passive: true });
+  canvas.addEventListener('touchend', touchEnd, { passive: true });
+
+  session.pointerListeners = () => {
+    canvas.removeEventListener('pointerdown', down);
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', up);
+    canvas.removeEventListener('wheel', wheel);
+    canvas.removeEventListener('touchstart', touchStart);
+    canvas.removeEventListener('touchmove', touchMove);
+    canvas.removeEventListener('touchend', touchEnd);
+  };
 }
 
 export function tickRaidMode(dt, elapsedDt = dt) {
@@ -465,6 +558,17 @@ export function updateRaidCamera(dt, options = {}) {
     ? vehicle.y + height
     : Math.max(vehicle.y + height, groundY + 3.2);
 
+  // Free look decays back to the travel direction once the player lets go, so
+  // it never fights the chase camera or strands them facing backwards.
+  if (session.elapsed > session.orbitHeldUntil) {
+    const decay = Math.exp(-1.6 * Math.max(dt, 0));
+    session.orbitYaw *= decay;
+    session.orbitPitch *= decay;
+  }
+  heading += session.orbitYaw;
+  distance *= session.orbitZoom;
+  height += session.orbitPitch * distance * 0.85;
+
   const responsiveness = mode === 'driver' ? 16 : mode === 'isometric' ? 4.2 : 6.5;
   const smoothing = options.snap ? 1 : 1 - Math.exp(-responsiveness * Math.max(dt, 0));
   session.camera.position.x += (targetX - session.camera.position.x) * smoothing;
@@ -472,10 +576,11 @@ export function updateRaidCamera(dt, options = {}) {
   session.camera.position.z += (targetZ - session.camera.position.z) * smoothing;
   if (mode === 'driver') {
     // Look down the bonnet rather than at the vehicle you are sitting in.
+    const look = vehicle.yaw + session.orbitYaw;
     session.camera.lookAt(
-      vehicle.x + Math.cos(vehicle.yaw) * 30,
-      vehicle.y + height - 1.2,
-      vehicle.z + Math.sin(vehicle.yaw) * 30,
+      vehicle.x + Math.cos(look) * 30,
+      vehicle.y + height - 1.2 - session.orbitPitch * 18,
+      vehicle.z + Math.sin(look) * 30,
     );
   } else {
     session.camera.lookAt(vehicle.x, vehicle.y + 1.6, vehicle.z);
@@ -543,6 +648,7 @@ export function getRaidSnapshot() {
     dust: session.dust ? { alive: session.dust.alive, capacity: session.dust.capacity } : null,
     trails: session.trails ? { alive: session.trails.alive, capacity: session.trails.capacity } : null,
     cameraMode: session.cameraMode,
+    orbit: { yaw: session.orbitYaw, pitch: session.orbitPitch, zoom: session.orbitZoom },
     physicsTimeMs: session.physicsTimeMs,
   };
 }
@@ -583,6 +689,8 @@ export function exitRaidMode(scene, explicitSession = null) {
   session.dust = null;
   try { session.trails?.dispose(); } catch (_) {}
   session.trails = null;
+  try { session.pointerListeners?.(); } catch (_) {}
+  session.pointerListeners = null;
   // A shadow-casting light owns a render target. Disposing the light's Object3D
   // does not free it, so the map leaks one texture pair per session without this.
   try { session.sun?.shadow?.dispose?.(); } catch (_) {}

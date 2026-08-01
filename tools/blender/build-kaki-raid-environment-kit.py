@@ -11,6 +11,7 @@ The geometry itself lives in `tools/blender/raid_kit/`:
   rock.py      boulders, bedded sandstone shelves, loose stone clusters
   landmark.py  the mesa and the wind-eroded spire
   plant.py     scrub, tussock grass, deadwood, the navigation marker
+  ruin.py      the amphitheatre, arch, columns, wall, rift shard and vent
 
 This file owns the shared palette, the layout for the contact sheet, and the
 export. It owns nothing about the shapes themselves.
@@ -40,6 +41,7 @@ sys.path.insert(0, str(REPO / "tools" / "blender"))
 from raid_kit import landmark as landmark_module  # noqa: E402
 from raid_kit import plant as plant_module  # noqa: E402
 from raid_kit import rock as rock_module  # noqa: E402
+from raid_kit import ruin as ruin_module  # noqa: E402
 
 PANEL_W = 1600
 PANEL_H = 640
@@ -59,41 +61,77 @@ RUNTIME_ASSETS = (
     # the route/roadbook work is the obvious consumer. Removing it from the GLB
     # would be a silent capability loss.
     "RaidMarker-0",
+    # Ruins and the rift, scattered in the ruin-flat and rift-crater zones of
+    # the Rift of Nine Tails.
+    "RaidRuinArch-0", "RaidRuinColumn-0", "RaidRuinColumn-1", "RaidRuinWall-0",
+    "RaidAmphitheatre-0", "RaidRiftShard-0", "RaidRiftVent-0",
 )
 
 # A single asset is instanced hundreds of times, so this is a hard ceiling.
 TRIANGLE_BUDGET = 1500
+
+# Except where an asset is not instanced hundreds of times. A landmark is capped
+# at twelve instances by raidEnvironment.js and is meant to be read from a
+# kilometre away, so it gets the landmark allowance instead. Nothing else may
+# opt out: an override here is a promise about how the asset is scattered.
+TRIANGLE_BUDGET_OVERRIDE = {
+    "RaidAmphitheatre-0": 6000,
+}
 
 
 # ---------------------------------------------------------------------------
 # Palette
 # ---------------------------------------------------------------------------
 #
-# One warm desert palette shared by all three modules. Values are linear, which
+# One warm desert palette shared by all four modules. Values are linear, which
 # is what Blender's Base Color and glTF's baseColorFactor both want.
 #
-# Two constraints set these numbers, and the first draft failed both.
+# Two constraints set these numbers.
 #
-# 1. VALUE. The Raid ground is 0xc0a071 hardpack to 0xa89170 gravel, roughly
-#    0.29 linear luminance, and raidMode lights it with a 3.1-strength sun under
-#    ACES. Stone authored at a similar albedo blows out to a value LIGHTER than
-#    the sand it stands on, and a light flat-faceted block on dark ground reads
-#    as a cardboard carton, not as rock. Stone sits near 0.17, about 60% of the
-#    ground, so the sun can brighten it without inverting the relationship.
-# 2. HUE. Desaturated grey-brown stone on warm sand has no hue separation to
-#    fall back on once the sun flattens the value difference. The Dune Run kit
-#    (Dune Sandstone Sun 0.58/0.29/0.12, Shade 0.25/0.105/0.055) is frankly
-#    saturated orange with a hard light/dark pair, so Raid follows it.
+# 1. VALUE. The Raid ground is 0xc0a071 hardpack to 0xa89170 gravel — 0.371 and
+#    0.267 linear luminance — and raidMode lights it with a 3.1-strength sun.
+#    Stone authored at a similar albedo blows out to a value LIGHTER than the
+#    sand it stands on, and a light flat-faceted block on dark ground reads as a
+#    cardboard carton, not as rock. Stone sits near 0.20, a little over half the
+#    hardpack, so the sun can brighten it without inverting the relationship.
+# 2. HUE. This is what the first version got wrong, and it is why these numbers
+#    moved. The value relationship was already right — rock was 0.175 against
+#    sand's 0.286, about 61% — but the CHROMA was not: rock ran R:G:B at
+#    3.75 : 2.00 : 1.00, which is terracotta, and under a warm sun it read as
+#    fired clay rather than as desert stone. The reference is warm tan sand
+#    against brown-GREY stone, so the whole stone family is now pulled to about
+#    1.8 : 1.5 : 1.0 at the same luminance it always had. Nothing got darker;
+#    the orange came out.
+#
+#    ruin.py already authored its own family in that ratio, so the stone here is
+#    retoned TOWARDS the ruins rather than the ruins being dragged back.
 PALETTE_SPEC = {
-    "rock":       ("RaidRock",       (0.285, 0.152, 0.076), 0.92),
-    "rock_dark":  ("RaidRockDark",   (0.128, 0.062, 0.033), 0.95),
-    "rock_warm":  ("RaidRockWarm",   (0.445, 0.240, 0.108), 0.90),
-    "sand":       ("RaidSandApron",  (0.420, 0.262, 0.128), 0.96),
-    "wood":       ("RaidWood",       (0.185, 0.108, 0.055), 0.93),
+    "rock":       ("RaidRock",       (0.238, 0.196, 0.132), 0.92),
+    "rock_dark":  ("RaidRockDark",   (0.108, 0.088, 0.060), 0.95),
+    "rock_warm":  ("RaidRockWarm",   (0.333, 0.274, 0.185), 0.90),
+    "sand":       ("RaidSandApron",  (0.430, 0.330, 0.196), 0.96),
+    "wood":       ("RaidWood",       (0.150, 0.118, 0.078), 0.93),
     "leaf":       ("RaidLeaf",       (0.235, 0.250, 0.125), 0.90),
     "grass":      ("RaidGrass",      (0.400, 0.315, 0.150), 0.92),
-    "pole":       ("RaidPole",       (0.290, 0.220, 0.150), 0.78),
+    "pole":       ("RaidPole",       (0.270, 0.222, 0.158), 0.78),
+    # The navigation marker is a SIGNAL, not scenery. It is the one place in the
+    # kit that is allowed to be saturated, because its whole job is to not look
+    # like the desert.
     "accent":     ("RaidAccent",     (0.760, 0.280, 0.130), 0.60),
+    # Ruins and the rift. Authored in ruin.py and repeated here so the module
+    # finds them by key instead of falling through to its own fallbacks — a
+    # fallback would author a material outside the palette and audit() would
+    # (correctly) fail the build for it.
+    "ruin":       ("RaidRuinStone",  (0.288, 0.234, 0.158), 0.90),
+    "ruin_dark":  ("RaidRuinShade",  (0.152, 0.126, 0.092), 0.94),
+    "ruin_sand":  ("RaidRuinSand",   (0.400, 0.330, 0.202), 0.96),
+    "rift_stone": ("RaidRiftStone",  (0.052, 0.046, 0.062), 0.88),
+    # The rift glows. Its albedo is nearly black on purpose: all of its value
+    # comes from the emission, so it keeps its hue at any sun angle. Strengths
+    # stay low because anything much above 3 saturates all three channels
+    # through the tonemapper and the shard renders white.
+    "rift_glow":  ("RaidRiftGlow",   (0.035, 0.040, 0.095), 0.35, (0.055, 0.240, 1.000), 1.15),
+    "rift_core":  ("RaidRiftCore",   (0.070, 0.045, 0.110), 0.30, (0.230, 0.075, 1.000), 2.05),
 }
 
 
@@ -114,7 +152,7 @@ def reset_scene():
                 datablocks.remove(block)
 
 
-def material(name, colour, roughness):
+def material(name, colour, roughness, emission=None, strength=0.0):
     mat = bpy.data.materials.new(name)
     mat.diffuse_color = (*colour, 1.0)
     mat.use_nodes = True
@@ -122,6 +160,17 @@ def material(name, colour, roughness):
     bsdf.inputs["Base Color"].default_value = (*colour, 1.0)
     bsdf.inputs["Metallic"].default_value = 0.0
     bsdf.inputs["Roughness"].default_value = roughness
+    if emission is not None:
+        # BOTH sockets, always. Blender ships Emission Strength at 0.0, so a
+        # material that sets only the colour exports a black emissiveFactor and
+        # renders as dead stone — the easiest way to lose the rift's glow
+        # silently between here and the GLB.
+        for key in ("Emission Color", "Emission"):
+            if key in bsdf.inputs:
+                bsdf.inputs[key].default_value = (*emission, 1.0)
+                break
+        if "Emission Strength" in bsdf.inputs:
+            bsdf.inputs["Emission Strength"].default_value = strength
     return mat
 
 
@@ -129,12 +178,15 @@ def build_palette():
     """Author the shared palette.
 
     The datablock names deliberately match every module's own fallback name.
-    rock.py and plant.py look a missing key up by name in bpy.data before
-    creating anything, so even a key mismatch lands on this palette instead of
-    quietly authoring a second, differently coloured set of materials.
+    rock.py, plant.py and ruin.py look a missing key up by name in bpy.data
+    before creating anything, so even a key mismatch lands on this palette
+    instead of quietly authoring a second, differently coloured set of
+    materials — which audit() would then fail as a stray.
+
+    Entries are 3-tuples for plain materials and 5-tuples for the two emissive
+    rift materials.
     """
-    return {key: material(name, colour, roughness)
-            for key, (name, colour, roughness) in PALETTE_SPEC.items()}
+    return {key: material(*spec) for key, spec in PALETTE_SPEC.items()}
 
 
 ROCK_ASSETS = (
@@ -239,12 +291,13 @@ def audit(palette):
             max(p.y for p in world) - min(p.y for p in world),
             max(p.z for p in world) - min(p.z for p in world),
         )
-        flag = "  OVER BUDGET" if total > TRIANGLE_BUDGET else ""
-        print(f"[raid-kit] {name:<16} {total:>5} tris  "
+        budget = TRIANGLE_BUDGET_OVERRIDE.get(name, TRIANGLE_BUDGET)
+        flag = "  OVER BUDGET" if total > budget else ""
+        print(f"[raid-kit] {name:<18} {total:>5} tris  "
               f"{size[0]:6.2f} x {size[1]:6.2f} x {size[2]:6.2f} m  "
               f"{len(meshes)} mesh / {len(slots)} mat{flag}")
-        if total > TRIANGLE_BUDGET:
-            problems.append(f"{name} is {total} triangles, over the {TRIANGLE_BUDGET} budget")
+        if total > budget:
+            problems.append(f"{name} is {total} triangles, over the {budget} budget")
 
     if problems:
         for problem in problems:
@@ -402,6 +455,21 @@ def render_contact_sheet(palette):
     ))
     render((0.0, -18.0, 5.5), (math.radians(88.4), 0, 0), 50.0, "landmark")
 
+    # -- Panel 4: the ruins and the rift, at driving distance. The amphitheatre
+    # is 71 m across, so it sits far back and the metre-scale masonry comes
+    # forward: the panel has to be usable for judging both.
+    panel((
+        ("RaidAmphitheatre-0", -18.0, 190.0, 0.5),
+        ("RaidRuinArch-0", 2.0, 46.0, 0.1),
+        ("RaidRuinColumn-0", -16.0, 34.0, 0.6),
+        ("RaidRuinColumn-1", -10.0, 26.0, 2.4),
+        ("RaidRuinWall-0", 20.0, 60.0, 1.2),
+        ("RaidRiftShard-0", -26.0, 62.0, 3.1),
+        ("RaidRiftVent-0", 26.0, 26.0, 0.8),
+        ("RaidScrub-0", 8.0, 20.0, 1.4),
+    ))
+    render((0.0, -6.0, 4.2), (math.radians(87.6), 0, 0), 42.0, "ruin")
+
     PREVIEW.parent.mkdir(parents=True, exist_ok=True)
     stack_panels(panels, PREVIEW)
     for path in panels:
@@ -424,6 +492,7 @@ def main():
     rock_module.build_rocks(palette)
     landmark_module.build_landmarks(palette)
     plant_module.build_plants(palette)
+    ruin_module.build_ruins(palette)
 
     for name in ROCK_ASSETS:
         for child in bpy.data.objects[name].children_recursive:

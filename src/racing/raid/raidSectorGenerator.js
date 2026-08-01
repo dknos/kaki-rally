@@ -35,6 +35,13 @@ import {
   nearestRaidRouteSample,
   raidRouteZoneAt,
 } from './raidRouteRuntime.js';
+import {
+  EMPTY_FEATURES,
+  RAID_FEATURE_PAD_SURFACE_THRESHOLD,
+  applyRaidFeatures,
+  evaluateRaidFeatures,
+  selectRaidFeaturesNear,
+} from './raidTerrainFeatures.js';
 
 // Sector geometry. Both are powers of two so every vertex world coordinate is
 // an exact integer at any distance from the origin.
@@ -137,6 +144,16 @@ export function generateRaidSector({
   const originX = sectorX * RAID_SECTOR_METRES;
   const originZ = sectorZ * RAID_SECTOR_METRES;
 
+  // Authored features that can reach this sector's apron. Filtering preserves
+  // array order and drops only features that contribute an exact zero here, so
+  // the result is bit-identical to scanning the whole list.
+  const sectorFeatures = selectRaidFeaturesNear(
+    route.features || EMPTY_FEATURES,
+    originX - cellMetres, originZ - cellMetres,
+    originX + RAID_SECTOR_METRES + cellMetres, originZ + RAID_SECTOR_METRES + cellMetres,
+  );
+  const hasFeatures = sectorFeatures.length > 0;
+
   const lattice = buildZoneLattice(sectorX, sectorZ, route, routeIndex);
   const heights = new Float32Array(verts * verts);
   const surface = new Uint8Array(verts * verts);
@@ -156,6 +173,13 @@ export function generateRaidSector({
   const blendedRoughness = new Float32Array(verts * verts);
   const blendedRockiness = new Float32Array(verts * verts);
   const blendedSoftness = new Float32Array(verts * verts);
+  // Feature channels are only allocated on a sector that actually holds one, so
+  // a stage without features costs nothing at all.
+  const featurePad = hasFeatures ? new Float32Array(verts * verts) : null;
+  const featureSurface = hasFeatures ? new Uint8Array(verts * verts) : null;
+  const featureLooseness = hasFeatures ? new Float32Array(verts * verts) : null;
+  const featureFx = { relief: 0, pad: 0, surface: null, looseness: 0 };
+  const featureState = { height: 0, macro: 0 };
   const parts = { macro: 0, height: 0 };
 
   for (let row = -1; row <= verts; row += 1) {
@@ -214,12 +238,26 @@ export function generateRaidSector({
         softness += params.softness * weight;
       }
 
+      if (hasFeatures) {
+        evaluateRaidFeatures(worldX, worldZ, sectorFeatures, featureFx);
+        featureState.height = height;
+        featureState.macro = macro;
+        applyRaidFeatures(featureState, featureFx);
+        height = featureState.height;
+        macro = featureState.macro;
+      }
+
       const apronIndex = (row + 1) * apron + (column + 1);
       apronHeight[apronIndex] = height;
       apronMacro[apronIndex] = macro;
 
       if (row >= 0 && row < verts && column >= 0 && column < verts) {
         const vertexIndex = row * verts + column;
+        if (hasFeatures) {
+          featurePad[vertexIndex] = featureFx.pad;
+          featureSurface[vertexIndex] = featureFx.surface ? raidSurfaceIndex(featureFx.surface) + 1 : 0;
+          featureLooseness[vertexIndex] = featureFx.looseness;
+        }
         const stored = Math.fround(height);
         heights[vertexIndex] = stored;
         if (stored < minimum) minimum = stored;
@@ -262,12 +300,26 @@ export function generateRaidSector({
       classifyParams.hollowSurface = dominantBlend.hollowSurface;
 
       const relief = raidRelief(apronHeight[a], apronMacro[a], classifyParams);
-      surface[vertexIndex] = raidSurfaceIndex(
+      let surfaceIndex = raidSurfaceIndex(
         classifyRaidSurface(worldX, worldZ, classifyParams, seed, { height: apronHeight[a], slope, relief }),
       );
-      looseness[vertexIndex] = Math.round(
-        clamp(raidLooseness(worldX, worldZ, classifyParams, seed, relief), 0, 1) * 255,
-      );
+      let settled = clamp(raidLooseness(worldX, worldZ, classifyParams, seed, relief), 0, 1);
+      if (hasFeatures) {
+        // A groomed pad is firm ground. Looseness blends continuously so the
+        // ramp's approach firms up gradually; the discrete surface id switches
+        // once the pad dominates, exactly as blendRaidZones switches identity
+        // at its own midpoint. Without this a take-off face inherits whatever
+        // sand it stands in, and a powder ramp stops the vehicle dead.
+        const pad = featurePad[vertexIndex];
+        if (pad > 0) {
+          settled = clamp(settled + (featureLooseness[vertexIndex] - settled) * pad, 0, 1);
+          if (pad >= RAID_FEATURE_PAD_SURFACE_THRESHOLD && featureSurface[vertexIndex] > 0) {
+            surfaceIndex = featureSurface[vertexIndex] - 1;
+          }
+        }
+      }
+      surface[vertexIndex] = surfaceIndex;
+      looseness[vertexIndex] = Math.round(settled * 255);
     }
   }
 
@@ -351,6 +403,16 @@ export function sampleRaidFieldAt(worldX, worldZ, route, index, target = { heigh
     softness += params.softness * weight;
   }
 
+  const features = route.features || EMPTY_FEATURES;
+  if (features.length > 0) {
+    evaluateRaidFeatures(worldX, worldZ, features, SAMPLE_FX);
+    SAMPLE_STATE.height = height;
+    SAMPLE_STATE.macro = macro;
+    applyRaidFeatures(SAMPLE_STATE, SAMPLE_FX);
+    height = SAMPLE_STATE.height;
+    macro = SAMPLE_STATE.macro;
+  }
+
   const zoneParams = ZONE_PARAMS[dominant];
   const classifyParams = {
     rockiness,
@@ -365,14 +427,24 @@ export function sampleRaidFieldAt(worldX, worldZ, route, index, target = { heigh
   const relief = raidRelief(height, macro, classifyParams);
   target.height = height;
   target.macro = macro;
-  target.surface = raidSurfaceIndex(
+  let surfaceIndex = raidSurfaceIndex(
     classifyRaidSurface(worldX, worldZ, classifyParams, seed, { height, slope: 0, relief }),
   );
-  target.looseness = clamp(raidLooseness(worldX, worldZ, classifyParams, seed, relief), 0, 1);
+  let settled = clamp(raidLooseness(worldX, worldZ, classifyParams, seed, relief), 0, 1);
+  if (features.length > 0 && SAMPLE_FX.pad > 0) {
+    settled = clamp(settled + (SAMPLE_FX.looseness - settled) * SAMPLE_FX.pad, 0, 1);
+    if (SAMPLE_FX.pad >= RAID_FEATURE_PAD_SURFACE_THRESHOLD && SAMPLE_FX.surface) {
+      surfaceIndex = raidSurfaceIndex(SAMPLE_FX.surface);
+    }
+  }
+  target.surface = surfaceIndex;
+  target.looseness = settled;
   return target;
 }
 
 const SAMPLE_CORNERS = new Float64Array(ZONE_COUNT * 4);
+const SAMPLE_FX = { relief: 0, pad: 0, surface: null, looseness: 0 };
+const SAMPLE_STATE = { height: 0, macro: 0 };
 
 /** Byte cost of one sector payload, for the memory budget diagnostics. */
 export function raidSectorBytes(cells = RAID_SECTOR_CELLS) {
@@ -400,6 +472,9 @@ export function serializeRaidRoute(route) {
     officialDistanceKm: route.officialDistanceKm,
     zones: route.zones.map((band) => ({ atMeters: band.atMeters, zone: band.zone })),
     zoneBlendMetres: route.zoneBlendMetres,
+    // Plain objects of numbers and strings: structured-cloneable as-is, so a
+    // worker builds exactly the same features from exactly the same record.
+    features: (route.features || []).map((feature) => ({ ...feature })),
     startX: route.startX,
     startZ: route.startZ,
     startYaw: route.startYaw,

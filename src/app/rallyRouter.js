@@ -40,11 +40,16 @@ export function readRallyRoute(url = globalThis.location?.href || 'https://local
     && (developmentFlag === '1' || developmentFlag === 'raid')
   );
   const requestedMode = normalizeRouteMode(parsed.searchParams.get('mode'));
+  // ?stage=<id> names a course inside the requested discipline. It is carried as
+  // an opaque string: the router cannot validate it without importing a mode,
+  // and the mode already falls back to its first stage for an unknown id.
+  const stage = (parsed.searchParams.get('stage') || '').trim().toLowerCase() || null;
   // Raid has no menu card, so it is reachable by URL only. Catastrophe stays
   // gated to an explicit localhost development flag.
   const gatedMode = requestedMode === 'crash' && !catastropheDevelopment;
   return Object.freeze({
     mode: gatedMode ? null : requestedMode,
+    stage: gatedMode ? null : stage,
     renderer: parsed.searchParams.get('renderer'),
     catastropheDevelopment,
     raidDevelopment,
@@ -55,6 +60,7 @@ export function readRallyRoute(url = globalThis.location?.href || 'https://local
 
 export function routeUrl(currentHref, {
   mode,
+  stage,
   renderer,
   catastropheDevelopment,
   raidDevelopment,
@@ -63,6 +69,9 @@ export function routeUrl(currentHref, {
   const url = new URL(currentHref);
   if (mode === null) url.searchParams.delete('mode');
   else if (mode) url.searchParams.set('mode', normalizeRouteMode(mode) || mode);
+  // A stage belongs to a discipline, so clearing the mode clears it too.
+  if (stage === null || mode === null) url.searchParams.delete('stage');
+  else if (stage) url.searchParams.set('stage', stage);
   if (renderer === null) url.searchParams.delete('renderer');
   else if (renderer) url.searchParams.set('renderer', renderer);
   // The two development flags share one query parameter, so each only clears it

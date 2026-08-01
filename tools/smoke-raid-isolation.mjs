@@ -231,6 +231,30 @@ if (raidPresent) {
   for (const existing of ['circuit', 'drift', 'stock', 'dunes', 'draw', 'monster', 'trials']) {
     assert.match(menu, new RegExp(`data-mode="${existing}"`), `the ${existing} card was removed`);
   }
+  // The menu's stage selector cannot import RAID_STAGE_ORDER — check 1 above
+  // forbids it — so it carries a duplicated literal list. That duplication is
+  // only safe if something compares it to the real table.
+  const { RAID_STAGE_ORDER, RAID_STAGES } = await import('../src/racing/raid/raidStageBlueprints.js');
+  const menuStageBlock = menu.match(/const RAID_STAGE_CHOICES[\s\S]*?\]\);/)?.[0] || '';
+  const menuStageIds = [...menuStageBlock.matchAll(/value: '([a-z0-9-]+)'/g)].map((entry) => entry[1]);
+  assert.deepEqual(
+    menuStageIds,
+    [...RAID_STAGE_ORDER],
+    'the menu\'s duplicated Raid stage list has drifted from RAID_STAGE_ORDER',
+  );
+  assert.match(menu, /selectMarkup\('raidStage'/, 'the Raid card has no stage selector');
+  // And the deep link has to carry a stage, or the selector is unshareable.
+  assert.equal(
+    readRallyRoute(`https://dknos.github.io/kaki-rally/?mode=raid&play=1&stage=${RAID_STAGE_ORDER[1]}`).stage,
+    RAID_STAGE_ORDER[1],
+    '?stage= does not reach the shell',
+  );
+  assert.equal(readRallyRoute('https://dknos.github.io/kaki-rally/?mode=raid').stage, null, 'a missing ?stage= is not null');
+  for (const id of RAID_STAGE_ORDER) {
+    assert.equal(RAID_STAGES[id].id, id, `RAID_STAGES is keyed inconsistently for ${id}`);
+  }
+  pass(`the menu offers every Raid stage (${RAID_STAGE_ORDER.join(', ')}) and ?stage= reaches the shell`);
+
   // And the Catastrophe gate must be untouched in both directions.
   assert.equal(
     readRallyRoute('http://localhost:8080/?mode=crash&dev=catastrophe').mode,

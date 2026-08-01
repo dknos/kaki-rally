@@ -317,10 +317,13 @@ export class KakiRallyApp {
     if (this.route.autoStart && this.route.mode) {
       queueMicrotask(() => {
         if (this.route.mode === 'draw') void this.openDrawEditor();
-        // Raid has no menu card yet, so it cannot go through launchRequest().
+        // Raid autostarts without opening its card, so the ?stage= id has to be
+        // carried here rather than read off the menu's selection. An unknown id
+        // is passed through untouched: getRaidStage() falls back to its first
+        // stage, which is what a mistyped deep link should do.
         else if (this.route.mode === 'raid') {
           void this.startMode({
-            courseId: '',
+            courseId: this.route.stage || this.menu?.raidStage || '',
             options: { mode: 'raid', playerAvatarId: readRallySettings().lastDriver },
           });
         } else void this.startMode(this.menu.launchRequest());

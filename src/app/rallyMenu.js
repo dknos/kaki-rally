@@ -103,8 +103,8 @@ const MODE_DATA = Object.freeze({
     title: 'Desert Expedition',
     short: 'Desert Expedition',
     art: 'assets/racing/raid/kaki-raid-key-art-v1.png',
-    description: 'Cross a streamed 12 km desert on one selective stage: open hardpack, a winding gravel wadi, a folded rock shelf, dunes, and a fast run into camp. An unfinished preview — there is no roadbook, no penalties, and no finish line yet.',
-    mechanic: 'One 12.41 km stage · streamed terrain · Tipsy Tumbler',
+    description: 'Cross a streamed desert on two stages: a winding gravel wadi and a folded rock shelf, or a hoodoo forest, a slot canyon, a glowing rift and the ruin terraces. An unfinished preview — there is no roadbook, no penalties, and no finish line yet.',
+    mechanic: 'Two stages, 12.41 and 13.10 km · streamed terrain · authored jumps',
   }),
   trials: Object.freeze({
     eyebrow: 'SIDE TRIAL · KTR1 COURSE WORKSHOP',
@@ -135,6 +135,19 @@ function escapeHtml(value) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
   })[character]);
 }
+
+// Desert Expedition stages, duplicated as plain data on purpose.
+//
+// tools/smoke-raid-isolation.mjs forbids this module from importing anything
+// under src/racing/raid/ — the whole point of the discipline's isolation is
+// that none of it reaches the initial bundle — so the menu cannot read
+// RAID_STAGE_ORDER. The same test checks these ids against the real blueprint
+// table, so the duplication cannot drift silently.
+const RAID_STAGE_CHOICES = Object.freeze([
+  Object.freeze({ value: 'wadi-of-whiskers', label: 'Wadi of Whiskers · 12.41 km · wadi, rock shelf, dunes' }),
+  Object.freeze({ value: 'rift-of-nine-tails', label: 'Rift of Nine Tails · 13.10 km · canyon, rift, ruins, jumps' }),
+]);
+const DEFAULT_RAID_STAGE = RAID_STAGE_CHOICES[0].value;
 
 function selectMarkup(name, label, options, selected) {
   return `<label class="rally-field"><span>${escapeHtml(label)}</span><select name="${escapeHtml(name)}">${options.map(({ value, label: optionLabel, disabled = false }) => (
@@ -217,6 +230,12 @@ export class RallyMenu {
     this.onOpenTrialsWorkshop = onOpenTrialsWorkshop;
     this.onRestartWebGL = onRestartWebGL;
     this.catastropheDevelopment = !!route.catastropheDevelopment;
+    // Deliberately session state rather than a saved setting: adding a key to
+    // the save schema would change what rallySave sanitises and exports, and the
+    // deep link is what a player actually shares.
+    this.raidStage = RAID_STAGE_CHOICES.some((stage) => stage.value === route.stage)
+      ? route.stage
+      : DEFAULT_RAID_STAGE;
     this.settings = readRallySettings();
     this.optionsBaseline = { ...this.settings };
     const requestedMode = route.mode || this.settings.lastMode || 'circuit';
@@ -441,13 +460,14 @@ export class RallyMenu {
         ${this.driverSelect()}
         ${this.cameraSelect()}`;
     } else if (this.selectedMode === 'raid') {
-      // Raid picks its own stage and vehicle for now, so the only meaningful
-      // choices are the shared ones. Without this branch the panel falls through
-      // to Catastrophe's controls and shows its FROZEN notice.
+      // Raid picks its own vehicle for now, so the stage is the only Raid-owned
+      // choice. Without this branch the panel falls through to Catastrophe's
+      // controls and shows its FROZEN notice.
       setup = `
+        ${selectMarkup('raidStage', 'Stage', RAID_STAGE_CHOICES, this.raidStage)}
         ${this.driverSelect()}
         ${this.cameraSelect()}
-        <div class="rally-beta-note" data-status="preview"><strong>PREVIEW</strong><span>Streamed terrain and a drivable stage. No roadbook, penalties, or finish line yet.</span></div>`;
+        <div class="rally-beta-note" data-status="preview"><strong>PREVIEW</strong><span>Streamed terrain and two drivable stages. No roadbook, penalties, or finish line yet.</span></div>`;
     } else {
       setup = `
         ${selectMarkup('crashVehicle', 'Impact car', CATASTROPHE_DEVELOPMENT_VEHICLES, this.settings.crashVehicle)}
@@ -573,6 +593,9 @@ export class RallyMenu {
       this.settings = writeRallySettings({ ...this.settings, lastCourse: value });
       this.renderMode();
       return;
+    } else if (target.name === 'raidStage') {
+      this.raidStage = value;
+      return;
     } else if (target.name === 'duneEvent') {
       this.settings = writeRallySettings({ ...this.settings, duneEvent: value });
       this.renderMode();
@@ -661,8 +684,9 @@ export class RallyMenu {
       };
     }
     if (mode === 'raid') {
-      // Raid picks its own stage; the shell passes no course id.
-      return { courseId: '', options: { ...common } };
+      // src/racing/index.js resolves the Raid stage as `options.stageId ||
+      // courseId`, so the selected stage travels on the shared courseId.
+      return { courseId: this.raidStage, options: { ...common, raidStage: this.raidStage } };
     }
     if (mode === 'trials') {
       const trackId = unlockedTrialsTracks().has(this.settings.trialsTrack)

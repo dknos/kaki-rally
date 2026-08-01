@@ -78,11 +78,41 @@ across a zone transition. A test caught this at 3.3 m of relief movement per
 0.5% of the transition; mixing results is continuous by construction and costs a
 second evaluation only inside a transition band.
 
+### Landforms are structures, and still pure
+
+The original seven zones are spectra — relief is noise summed in bands. Five
+later zones are landforms: a canyon has an inside and an outside, a crater has a
+centre, a spire has a footprint. Those need feature positions, which is exactly
+the construct that usually reintroduces a seam. Three rules keep them pure:
+
+- **Feature lattices are addressed by flooring the world position.** Two samples
+  either side of a sector boundary scan the same 3x3 neighbourhood of cells and
+  find the same feature points.
+- **Nothing depends on WHICH feature is nearest.** Per-feature attributes — a
+  crater's fracture count and phase — are only read inside that crater's own
+  influence radius, and that radius is smaller than the 3x3 scan can miss.
+  Overlapping features combine with the smooth union `a + b - ab`, never with
+  `min`/`max`, so no crease forms where two of them meet. Anything keyed to
+  nearest-feature identity would jump at a Voronoi boundary, which is a cliff
+  the mesh renders as a crack.
+- **A landform may not invent amplitude.** Coverage is always 0..1 and is
+  multiplied by a share of the zone's declared `macroHeight` / `ridgeHeight`, so
+  the relief bound the field tests hold every zone to still holds.
+
+Two authoring consequences. A landform's amplitude comes from its own budget
+rather than from wherever the noise lands, so measured relief barely moves with
+the stage seed — across seven seeds the five landform zones varied by under 4 m,
+where a noise zone's relief is a property of the seed. And because the field
+cannot know where the route goes, a canyon has to be crossable *everywhere*: its
+depth is modulated along its own length so it shallows to a saddle every few
+hundred metres, which is both the place a driver can cross it and the place a
+descent track would switchback down.
+
 ## Modules
 
 | File | Responsibility |
 | --- | --- |
-| `raidSurfaceField.js` | Pure global field: gradient/fBm/ridged noise, seven terrain zones, seven surfaces with physical properties, height, normal, relief, surface classification. No dependencies. |
+| `raidSurfaceField.js` | Pure global field: gradient/fBm/ridged noise, twelve terrain zones (seven noise spectra, five landforms), ten surfaces with physical properties, height, normal, relief, surface classification. No dependencies. |
 | `raidRouteRuntime.js` | Metre-native route: centripetal Catmull-Rom resampled to uniform 8 m arc length, cumulative distance, corridor widths, zone pacing, uniform-grid spatial index, windowed and unwindowed nearest-point queries. |
 | `raidStageBlueprints.js` | Stage data plus a validator that rejects authoring mistakes (distance drift, too few terrain identities, zone bands shorter than the blend, hairpins tighter than 25 m, collapsed corridors, empty distance, start and finish too close). |
 | `raidSectorGenerator.js` | Generates one sector payload — heights (float32), surface ids and looseness (uint8) — plus `sampleRaidFieldAt` for exact single-point evaluation, and route serialisation for workers. |
@@ -154,6 +184,53 @@ a multiplier, or a scaled timer.
 Crosses 30 sectors spanning 27.7 m of elevation, presenting hardpack, gravel,
 rock, compacted sand and loose sand along the driving line. Minimum turn radius
 45.6 m. Four terrain identities, five bands.
+
+**Rift of Nine Tails**, 13.10 km measured, seed `0x4e494e45`.
+
+| Route metres | Terrain | Corridor |
+| --- | --- | --- |
+| 0 – 2 280 | Spire forest | 260 → 220 m |
+| 2 280 – 4 900 | Slot canyon, driven on the floor | 170 → 120 m |
+| 4 900 – 6 850 | Canyon rim, out at a saddle | 140 → 190 m |
+| 6 850 – 9 380 | Rift craters, through two centres | 300 → 260 m |
+| 9 380 – 11 510 | Ruin terraces | 320 m |
+| 11 510 – 13 099 | Hardpack run to the finish | 280 → 150 m |
+
+Nine authored features: four tabletops, three gap jumps, a 10 m drop off the
+rim, and a berm on the canyon's tightest corner. Minimum turn radius 57 m.
+Steepest centreline grade 14% in the spire forest, 45% on the canyon floor, 80%
+where the rim crosses a tributary gully.
+
+### Authoring against a pure field
+
+This stage is the first one where the difference matters, so it is worth stating
+plainly: **a Raid stage cannot decide where a landform goes.** The terrain field
+is a pure function of world metres and the seed, so the canyon, the crater
+lattice and the spire plinths are already wherever the seed put them before a
+single route control is written. Authoring is a search, not a drawing.
+
+What that meant in practice, and what an editor has to redo if they change
+`seed`:
+
+* The canyon controls between 2.3 km and 4.9 km were read off a numerical trace
+  of the zero set of the canyon locator field — Newton onto zero, step along the
+  tangent, resample every 120 m. Nudging one of them sideways does not move the
+  canyon; it moves the line off the floor and onto the wall.
+* The canyon shallows to a saddle every few hundred metres. That is what makes
+  the floor undulate by 30 m, and it is the only place a route can climb out
+  without meeting a 47° wall: the climb-out at 4.9 km is at a saddle where
+  `canyonDepthScale` reads 0.22, and it leaves on the OUTSIDE of the canyon's
+  bend because the inside pinches the turn radius below the validator's limit.
+* The rift band is aimed through two crater centres computed directly from the
+  880 m crater lattice, so the route passes through a bowl rather than near one.
+* The opening was optimised against the real terrain gradient rather than
+  against plinth centres, because the grove density field turns most plinths
+  into stumps and clearance from a lattice point is not what the driver meets.
+  It brought the worst centreline grade in the first 2.3 km down from 246% to
+  14%.
+
+The measurement scripts that did this are throwaway; the numbers they produced
+are in the blueprint's comments, which is where they belong.
 
 ## Measured results
 
@@ -290,3 +367,96 @@ Verified by hand at the line numbers above.
 
 The route runtime, terrain authority and stage data these systems need are in
 place and proven; the systems themselves are not.
+
+## Authored terrain features
+
+The zone field is stationary noise. It can say what *kind* of desert this is,
+but it has no notion of *here*, so it cannot put a launch ramp at 5.4 km.
+`raidTerrainFeatures.js` is the layer that can, without giving up the purity the
+streaming design rests on.
+
+A feature is an **additive relief field anchored to one world point**, exactly
+zero outside its own radius. That makes it seam-safe for the same reason the
+zone field is: neighbouring sectors evaluate the shared boundary from the same
+world metres and the same feature record, so they agree bit for bit.
+
+Three properties carry it:
+
+- **Features are summed in array order**, and a feature outside its radius
+  returns exactly `0`. Adding an exact zero cannot change a float sum, so a
+  caller that pre-filters the list to a sector's bounds gets bit-identical
+  results to one that scans the whole list. `selectRaidFeaturesNear` relies on
+  this and `smoke-raid-jumps.mjs` proves it.
+- **Relief is added to the height *and* the macro height.** `raidRelief` asks
+  "how far above its own landform is this"; a ramp *is* its own landform, so
+  adding to both leaves surface classification reading the surrounding desert
+  rather than calling a 4 m ramp a wind-scoured crest.
+- **A grooming pad**, slightly larger than the relief, damps the local noise
+  under the feature and switches the surface to hardpack once it dominates
+  (discretely at 0.5, as `blendRaidZones` switches identity at its midpoint).
+  Without it a take-off face inherits the sand it stands in, and a powder ramp
+  — grip 0.62, sinkage 0.56 — is precisely the "stopped dead" failure jumps
+  exist to avoid.
+
+Features are authored by **route distance** and resolved to world anchors once,
+in `buildRaidRoute`. Everything downstream reads world metres only.
+
+### The dimensions are solved, not chosen
+
+`raidJumpFlight` is the closed form the sizing works from. The vehicle model is
+2.5D — `velocityX`/`velocityZ` are horizontal and are not reduced by climbing —
+so a launch is `vx = v`, `vy = eta * v * tan(lip)`, and
+
+```
+range = 2 * eta * v^2 * tan(lip) / g          g = 19.6, eta = 0.67
+```
+
+`eta` was **measured**, not assumed: bisected until the analytic touchdown
+matched where the real `stepRaidVehicle` lands on a real generated ramp, through
+the same lattice-snapped float32 sampling the provider hands physics. It holds
+at 0.67 ± 0.03 across 110–140 km/h and 12–18°, and the smoke test re-derives it
+(0.686) and fails if the suspension is retuned out from under the stages.
+
+Two findings worth keeping, because both inverted the intuition:
+
+- **A landing must not be cut along the flight path.** Solving it as a fixed
+  point *diverges*: the steeper the landing falls away, the longer the
+  trajectory takes to catch it. `raidDesignLanding` instead cuts the slope at a
+  fixed fraction of the flight path angle measured where the flight would return
+  to knuckle height over level ground, then solves the touchdown in closed form.
+- **A landing slope only helps if its knuckle is near where the vehicle was
+  going to land anyway.** With the knuckle at 58% of the range the "matched"
+  landing hit *harder* than flat ground — 9.0 m/s into the suspension against
+  8.0. At 78% it is 8.2 against 8.8. The smoke test asserts the strict
+  comparison, so that mistake cannot come back.
+
+### The vehicle could not jump
+
+Building this surfaced two defects in `raidVehiclePhysics.js` that no authored
+geometry could work around. Both are fixed:
+
+- The body rests on the **floor clamp**, not the spring — equilibrium ride
+  height works out below the floor — so the clamp is a kinematic constraint, and
+  one that moves has to impart its own velocity. Without that term, ground
+  rising under the wheels carried the body up while `velocityY` stayed pinned at
+  zero: **0.00 m/s of vertical velocity across an entire 18 m ramp**, at any
+  speed and any lip angle. A ramp was a conveyor belt.
+- The **damper resisted absolute vertical speed** rather than suspension
+  compression, subtracting ~66 m/s² at the lip, and with the ground falling away
+  behind it yanked the body back down at several times gravity. It now damps
+  compression rate, and the strut can only push.
+
+Consequence to be aware of: the vehicle now gets air off natural crests too.
+That is a feel change, not just a jump change.
+
+### What this does not fix
+
+The vehicle model applies **no longitudinal force from ground slope**. A run
+that comes up short on a gap jump climbs the 63° far wall and drives away with
+its speed intact — measured from 39 to 91 km/h. The terrain gap is real; the
+punishment is not. Closing it means giving the model slope resistance.
+
+`raidEnvironment.js` scatter is a pure function of world position and knows
+nothing about features, so it will place boulders on a landing ramp.
+`raidFeaturePadAt` is exported to serve as the exclusion mask; nothing reads it
+yet.

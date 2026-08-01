@@ -16,8 +16,15 @@
 //    slide because it opposes the measured slip rather than a state flag.
 
 import { clamp } from './raidSurfaceField.js';
+import { RAID_GRAVITY } from './raidTerrainFeatures.js';
 
-const GRAVITY = 19.6;
+// Imported rather than declared so the constant a jump is SIZED from and the
+// constant the vehicle is FLOWN with cannot drift apart.
+const GRAVITY = RAID_GRAVITY;
+
+// Largest upward velocity the ground itself may impart, in m/s. See the ground
+// constraint in the vertical section below.
+const MAX_GROUND_LAUNCH = 14;
 
 // Wheel offsets in vehicle-local metres: forward (+) and right (+).
 const WHEEL_LAYOUT = Object.freeze([
@@ -52,6 +59,10 @@ export function createRaidVehicle({ x, y, z, yaw, wheelRadius = 0.46 }) {
     surface: null,
     slip: 0,
     drifting: false,
+    // Ground height under the vehicle on the previous grounded tick. NaN means
+    // "no previous contact", which is how the first tick and every touchdown
+    // after a flight avoid reading a stale value as a launch.
+    previousGround: NaN,
     wheels: WHEEL_LAYOUT.map(() => ({ compression: 0, velocity: 0, grounded: false, load: 0 })),
     scratchSurface: {},
   };
@@ -104,12 +115,30 @@ export function stepRaidVehicle(vehicle, dt, provider, controls) {
 
   // --- Vertical -----------------------------------------------------------
   vehicle.velocityY -= GRAVITY * dt;
+  // Rate the ground under the vehicle is itself rising or falling, in m/s. Both
+  // the damper and the floor constraint below need it, and both were wrong
+  // without it.
+  let groundRate = 0;
   if (grounded) {
     averageGround /= contacts;
+    groundRate = Number.isFinite(vehicle.previousGround)
+      ? clamp((averageGround - vehicle.previousGround) / Math.max(dt, 1e-6), -MAX_GROUND_LAUNCH, MAX_GROUND_LAUNCH)
+      : 0;
     const restY = averageGround + vehicle.wheelRadius + SUSPENSION_TRAVEL * 0.5;
     const spring = (restY - vehicle.y) * SUSPENSION_STIFFNESS;
-    const damper = -vehicle.velocityY * SUSPENSION_DAMPING;
-    vehicle.velocityY += (spring + damper) * dt;
+    // A damper resists the rate the suspension is COMPRESSING, not the
+    // vehicle's absolute vertical speed. When ground rising under the wheels
+    // carries the whole vehicle up, the suspension is not moving at all and the
+    // damper must produce nothing. Damping absolute velocity instead subtracts
+    // 66 m/s^2 from a 15 degree take-off at exactly the moment the lip arrives,
+    // which is most of the reason a ramp used to launch nothing.
+    const damper = -(vehicle.velocityY - groundRate) * SUSPENSION_DAMPING;
+    // A strut PUSHES the chassis up. It cannot pull it down, because past full
+    // droop the wheel simply leaves the ground. Without this clamp, ground
+    // falling away behind a lip makes `groundRate` large and negative, the
+    // damper reads that as violent extension, and it yanks the body back down
+    // with several times gravity exactly when the vehicle should be leaving.
+    vehicle.velocityY += Math.max(0, spring + damper) * dt;
     if (vehicle.airborneTime > 0.25) {
       vehicle.landingImpact = Math.max(vehicle.landingImpact, Math.abs(vehicle.velocityY));
     }
@@ -120,11 +149,29 @@ export function stepRaidVehicle(vehicle, dt, provider, controls) {
   vehicle.landingImpact *= Math.exp(-3.2 * dt);
   vehicle.y += vehicle.velocityY * dt;
   if (grounded) {
+    // The body rests ON this clamp, not on the spring. Equilibrium ride height
+    // works out below the floor, so the suspension never carries the load and
+    // the clamp is what actually holds the vehicle up.
+    //
+    // That makes the clamp a kinematic constraint, and a kinematic constraint
+    // that MOVES has to impart its own velocity. Without that term, ground
+    // rising under the wheels carries the body up while leaving velocityY
+    // pinned at zero — a take-off ramp becomes a conveyor belt that launches
+    // nothing at all, at any speed and any lip angle. Measured before this
+    // term existed: 0.00 m/s of vertical velocity across an entire 18 m ramp.
+    //
+    // MAX_GROUND_LAUNCH is a deliberate limit rather than a tuning knob: a gap
+    // jump's far wall rises at sixty-odd degrees, and a vehicle that noses into
+    // one would otherwise be flung by a pure position derivative.
     const floor = averageGround + vehicle.wheelRadius - 0.05;
     if (vehicle.y < floor) {
       vehicle.y = floor;
-      vehicle.velocityY = Math.max(vehicle.velocityY, 0);
+      vehicle.velocityY = Math.max(vehicle.velocityY, Math.max(0, groundRate));
     }
+    vehicle.previousGround = averageGround;
+  } else {
+    // A stale reading across a flight would read as a launch on touchdown.
+    vehicle.previousGround = NaN;
   }
 
   // --- Surface ------------------------------------------------------------

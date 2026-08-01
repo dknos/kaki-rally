@@ -22,6 +22,7 @@
 // headlessly in Node.
 
 import { clamp, mix, smoothstep } from './raidSurfaceField.js';
+import { resolveRaidFeatures } from './raidTerrainFeatures.js';
 
 // Uniform arc-length spacing of resampled route points, in metres. Eight metres
 // keeps a 24 km stage at 3000 samples — small enough to hold in typed arrays and
@@ -195,6 +196,14 @@ export function buildRaidRoute(blueprint) {
   if (!zones.length) zones.push({ atMeters: 0, zone: 'hardpack-plateau' });
   if (zones[0].atMeters > 0) zones.unshift({ atMeters: 0, zone: zones[0].zone });
 
+  // Authored terrain features are placed by ROUTE DISTANCE so authoring stays
+  // metre-native, and resolved to world anchors exactly once, here. Everything
+  // downstream — the sector generator, the worker, the physics fallback — reads
+  // world metres only, which is what keeps the field pure.
+  const features = resolveRaidFeatures(blueprint.features, {
+    count, x, z, yaw, meters, spacing,
+  });
+
   return Object.freeze({
     stageId: blueprint.id,
     seed: blueprint.seed >>> 0,
@@ -210,6 +219,7 @@ export function buildRaidRoute(blueprint) {
     officialDistanceKm: Math.round((totalMeters / 1000) * 100) / 100,
     zones: Object.freeze(zones.map((band) => Object.freeze({ ...band }))),
     zoneBlendMetres: Number(blueprint.zoneBlendMetres) || 320,
+    features,
     startX: x[0],
     startZ: z[0],
     startYaw: yaw[0],
