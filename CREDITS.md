@@ -140,3 +140,12 @@ Formula Drift, Bristol Motor Speedway, Dakar, and Wreckfest references were
 used as broad design and engineering references supplied in the task, not as
 runtime assets or copied branding. Any future external asset must be added to
 the inventory and provenance tables before production use.
+
+## Kaki Rally Raid environment kit
+
+`assets/racing/raid/kaki-raid-environment-kit-v1.glb` and its `.blend` source are
+original project geometry, authored procedurally by
+`tools/blender/build-kaki-raid-environment-kit.py`. Boulders, rock slabs, a
+spire, a mesa landmark, desert scrub, tussock grass, deadwood, a Kaki navigation
+marker and gravel clusters. Nothing in the kit is downloaded, traced, scanned, or
+derived from a third-party asset, so it carries no attribution requirement.

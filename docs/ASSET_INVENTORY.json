@@ -24,12 +24,12 @@
     }
   ],
   "summary": {
-    "files": 123,
-    "bytes": 65509856,
-    "referencedFiles": 96,
+    "files": 126,
+    "bytes": 66226580,
+    "referencedFiles": 97,
     "byKind": {
-      "support": 5,
-      "model": 26,
+      "support": 7,
+      "model": 27,
       "image": 77,
       "audio": 1,
       "source-artifact": 1,
@@ -542,6 +542,30 @@
         "source:src/app/rallyMenu.js",
         "source:src/racing/racingManifest.js",
         "source:src/racing/tracks.js"
+      ]
+    },
+    {
+      "path": "assets/racing/raid/kaki-raid-environment-kit-v1.blend",
+      "bytes": 155150,
+      "sha256": "3eaf88f69a1cc78faaf157260905099cb7dd51bd7694dd6bfcd5442975a0746c",
+      "kind": "support",
+      "references": []
+    },
+    {
+      "path": "assets/racing/raid/kaki-raid-environment-kit-v1.blend1",
+      "bytes": 155178,
+      "sha256": "f4f6d219017a9f0a0807890d5ef93b631c396b0d68c54de3dcfd2343679b9ab9",
+      "kind": "support",
+      "references": []
+    },
+    {
+      "path": "assets/racing/raid/kaki-raid-environment-kit-v1.glb",
+      "bytes": 406396,
+      "sha256": "a7eb354625fbc514cdb6d183b274a93d1eb3066bf3c7a56115f9e1a2364ae49d",
+      "kind": "model",
+      "references": [
+        "manifest:raidEnvironmentKit",
+        "source:src/racing/racingManifest.js"
       ]
     },
     {

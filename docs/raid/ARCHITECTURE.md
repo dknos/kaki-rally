@@ -183,16 +183,44 @@ Terrain is drawn as one 768 m CPU-displaced patch that follows the vehicle and
 reads the same provider the wheels do. It is deliberately simple rather than a
 stand-in for a clipmap that pretends to be finished.
 
+## Environment scatter
+
+`assets/racing/raid/kaki-raid-environment-kit-v1.glb` is built by
+`tools/blender/build-kaki-raid-environment-kit.py`: 13 original low-poly
+assets — three boulders, two rock slabs, a spire, a mesa landmark, two scrubs,
+two tussocks, deadwood, a Kaki navigation marker and two gravel clusters. The
+`.blend` source ships beside it and the QA contact sheet is in
+`docs/qa/assets/`. Nothing is downloaded or third-party, so the kit carries no
+attribution burden.
+
+`raidEnvironment.js` scatters them as instanced meshes. Placement is a pure
+function of world position and the stage seed, exactly like the terrain, so the
+same boulder is always in the same place and nothing reshuffles when the player
+drives away and back. Assets are chosen by the surface underneath — tussock and
+scrub on hardpack, stone clusters in the wadi, broken rock and slabs on the
+shelf — density thins with distance, steep ground sheds loose scatter, and
+rocks lean with the local gradient so nothing floats. Landmarks (mesas, spires)
+sit on their own sparse 620 m lattice so they read as things to navigate by.
+
+Cost is capped per quality tier (900 instances at low, 5000 at ultra) and is
+bounded by the visible radius, not by how far the stage has been driven.
+
 ## Honest visual assessment
 
 Looked at, not inferred from telemetry. `docs/qa/raid/` holds the captures.
 
-It reads as a real, hazy, kilometre-scale desert with a correctly seated driver
-and a readable HUD. It is also **empty and visually flat**: there is no
-environment scatter, no rocks, no landmarks, no dust, and no route evidence, and
-the opening plateau is the flattest zone in the stage so the first minute
-undersells the relief the field actually contains. Against the §44 scorecard
-this would not pass "environment art" or "sense of scale" today.
+It reads as a real, hazy, kilometre-scale desert: boulders and dry scrub give
+the near field scale, tussock grass gives speed something to register against,
+and a mesa and distant spires sit on the horizon to navigate by. The driver is
+seated correctly and the HUD is readable.
+
+It is still not finished. There is **no dust**, which is the single biggest
+missing cue for speed and for a sense that the machine is working the ground.
+The opening plateau is the flattest zone in the stage, so the first minute
+undersells the relief the field contains. There is no route evidence, no
+start/finish control, no camp, and no vegetation variety beyond four species.
+Against the §44 scorecard this would now plausibly pass "environment art" but
+not "dust and atmosphere".
 
 Three bugs were found by looking at the first capture that every headless
 assertion had passed straight through: the shell's menu hero was left standing
@@ -206,8 +234,8 @@ Stated plainly, because a passing test suite is not a game:
 
 - **No clipmap and no TSL terrain material.** The terrain patch is CPU-displaced
   and does not scale to the draw distance a finished stage wants.
-- **No environment art.** No scatter, rocks, landmarks, camps, or start/finish
-  control. The desert is empty.
+- **No dust, no tyre tracks, no ruts.** Nothing the vehicle does marks the land.
+- **No camps, start/finish control, or route evidence.**
 - **No roadbook, tripmaster, CAP target, waypoints, penalties, recovery,
   records, rivals, service, condition, dust, or audio.**
 - **No finish.** Reaching the end of the route does nothing.

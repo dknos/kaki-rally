@@ -22,14 +22,16 @@ import { getRaidStage, validateRaidStage } from './raidStageBlueprints.js';
 import { createRaidTerrainProvider } from './raidTerrainProvider.js';
 import { RAID_SECTOR_METRES } from './raidSectorGenerator.js';
 import { clamp } from './raidSurfaceField.js';
+import { createRallyAssetLease } from '../racingAssets.js';
+import { createRaidEnvironment } from './raidEnvironment.js';
 import { createRaidHud } from './raidHud.js';
 import { createRaidVehicle, stepRaidVehicle } from './raidVehiclePhysics.js';
 
 // The visible terrain patch. 768 m across at 3 m resolution: large enough that
 // the horizon is a landscape rather than a tabletop, cheap enough to re-displace
 // on the CPU when the vehicle crosses a cell.
-const PATCH_METRES = 768;
-const PATCH_SEGMENTS = 256;
+const PATCH_METRES = 1536;
+const PATCH_SEGMENTS = 320;
 const PATCH_STEP = PATCH_METRES / PATCH_SEGMENTS;
 
 const FIXED_STEP = 1 / 120;
@@ -82,6 +84,7 @@ function refreshTerrainPatch(session, centreX, centreZ) {
     colours[offset + 1] = PATCH_COLOUR.g * shade;
     colours[offset + 2] = PATCH_COLOUR.b * shade;
   }
+  session.environment?.refresh(snappedX, snappedZ);
   session.terrain.position.set(snappedX, 0, snappedZ);
   position.needsUpdate = true;
   colour.needsUpdate = true;
@@ -126,6 +129,8 @@ export async function enterRaidMode(scene, options = {}) {
     vehicleVisual: null,
     vehicle: null,
     hud: null,
+    environment: null,
+    assetLease: null,
     accumulator: 0,
     elapsed: 0,
     patchCentre: new THREE.Vector3(),
@@ -142,8 +147,32 @@ export async function enterRaidMode(scene, options = {}) {
   // the one place a Raid session is allowed to await terrain.
   await provider.preloadAround(route.startX, route.startZ, 1);
 
+  // Raid-owned asset lease. Only the Raid kit is requested, so no other mode's
+  // assets are pulled in and none of Raid's leak into another mode's load set.
+  session.assetLease = createRallyAssetLease({
+    mode: 'raid',
+    assetIds: ['raidEnvironmentKit'],
+    renderer: state.renderer || null,
+  });
+  await session.assetLease.ready;
+
   session.terrain = buildTerrainPatch(owned);
   root.add(session.terrain);
+
+  const kit = session.assetLease.models?.raidEnvironmentKit?.scene
+    || session.assetLease.models?.raidEnvironmentKit
+    || null;
+  if (kit) {
+    session.environment = createRaidEnvironment({
+      kit,
+      provider,
+      seed: route.seed,
+      quality,
+      owned,
+    });
+    root.add(session.environment.root);
+  }
+
   refreshTerrainPatch(session, route.startX, route.startZ);
 
   // Lighting. Owned by the session so exit takes it with everything else.
@@ -196,7 +225,7 @@ export async function enterRaidMode(scene, options = {}) {
 
   // Desert sky. Matched to the fog so the horizon reads as haze rather than as
   // a hard edge between terrain and a black void.
-  const fog = new THREE.Fog(0xd9c49a, 900, 5200);
+  const fog = new THREE.Fog(0xd9c49a, 1400, 7600);
   session.previousFog = scene.fog;
   session.previousBackground = scene.background;
   scene.fog = fog;
@@ -370,6 +399,7 @@ export function getRaidSnapshot() {
     elapsed: session.elapsed,
     sectors,
     patchRefreshes: session.patchRefreshes,
+    scatter: session.environment?.stats || null,
     physicsTimeMs: session.physicsTimeMs,
   };
 }
@@ -405,6 +435,10 @@ export function exitRaidMode(scene, explicitSession = null) {
   session.hud = null;
 
   try { session.provider.dispose(); } catch (_) {}
+  try { session.environment?.dispose(); } catch (_) {}
+  session.environment = null;
+  try { session.assetLease?.release(); } catch (_) {}
+  session.assetLease = null;
 
   const host = scene || session.scene;
   if (session.fog && host && host.fog === session.fog) host.fog = session.previousFog || null;

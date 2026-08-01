@@ -26,6 +26,7 @@ export const RALLY_ASSET_MANIFEST = Object.freeze({
   monsterArenaGroundDecals: Object.freeze({ url: 'assets/racing/monster-arena/decals/arena-ground-decals.webp', kind: 'color' }),
   monsterArenaVfx: Object.freeze({ url: 'assets/racing/monster-arena/vfx/arena-vfx-atlas.webp', kind: 'color' }),
   duneEnvironmentKit: Object.freeze({ url: 'assets/racing/dunes/kaki-dune-environment-kit-v1.glb', kind: 'model' }),
+  raidEnvironmentKit: Object.freeze({ url: 'assets/racing/raid/kaki-raid-environment-kit-v1.glb', kind: 'model' }),
   duneKeyArt: Object.freeze({ url: 'assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp', kind: 'color' }),
   duneSandDetail: Object.freeze({
     url: 'assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp',
