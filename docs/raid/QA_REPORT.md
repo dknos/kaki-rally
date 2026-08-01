@@ -2,8 +2,8 @@
 
 Scope of this report: Wave 0 (frozen baseline and isolation) and the
 computational core of Waves 2–3 (terrain authority, streaming, route runtime,
-stage data). **Wave 1 — the shell-facing mode lifecycle — is not built, and
-nothing has been rendered.**
+stage data), plus the Wave 1 shell lifecycle. The mode opens in a browser,
+drives, and exits leak-free. It is not a finished discipline.
 
 ## Automated results
 
@@ -28,6 +28,7 @@ new `test:raid` suite runs as part of it.
 | `smoke-raid-route.mjs` | 11 | 12.41 km, 1553 samples, 419 fold-back pairs, no shortcut |
 | `smoke-raid-sector-seams.mjs` | 7 | 0 mismatches across 3×3 block, corners, zone transitions, 25 km |
 | `smoke-raid-terrain-provider.mjs` | 7 | full-stage drive: 0 samples outside authority, 0.230 m largest step |
+| `smoke-raid-browser.mjs` (playwright) | 7 | opens at 12.41 km with 11 sectors resident; 8 enter/exit cycles leak +0 geometries, +0 textures, +0 scene nodes |
 
 ### Browser matrix
 
@@ -78,6 +79,14 @@ two were pre-existing defects in shared code.
    that much in rocky terrain. Fixed by having the fallback reproduce the stored
    lattice exactly; the pop is now under 1 mm.
 
+### Found only by looking at the render
+
+Three bugs passed every headless assertion and were caught by inspecting the
+first capture: the shell's menu hero was left loose in the scene at menu scale
+(the vehicle builder adopts it as the seated driver and was never given it),
+wheel rest heights were read from an undefined field and became NaN, and the
+scene had no sky behind the terrain.
+
 ### Pre-existing shared-code bug fixed
 
 `routeUrl()` in `src/app/rallyRouter.js` deleted the `dev` query parameter
@@ -91,12 +100,16 @@ restart paths are now asserted behaviourally.
 Listed so the omissions are visible rather than inferred from silence. Against
 the specification's §46 delivery list, the following are **not delivered**:
 
-- Screenshot evidence of Raid — nothing has been rendered, so none exists. The
-  §43 named-capture list is entirely outstanding.
+- Most of the §43 named-capture list. `docs/qa/raid/` holds four captures
+  (1280x720, 1920x1080, 844x390 landscape, and Dune Run unaffected). There is no
+  capture of a powerslide, a landing, a route choice, rival dust, a waypoint, a
+  speed zone, sunset, night, or a result screen, because none of those systems
+  exist.
 - Audio self-test results — no audio exists.
-- WebGL/WebGPU results *for Raid* — Raid cannot be launched yet. The seam
-  regression check covers existing modes only.
-- Desktop / ultrawide / mobile / controller status for Raid — not launchable.
+- WebGPU results for Raid. The browser test runs WebGL only.
+- Ultrawide and controller status for Raid. Desktop and landscape-mobile
+  viewports are captured but only for layout, not for touch usability: Raid has
+  no touch controls, so it is not playable on a phone.
 - Performance and memory results measured in a browser. All figures in
   `ARCHITECTURE.md` are measured in Node, and the full-stage soak ran at reduced
   sector resolution (8 m cells) for runtime; the seam and physics/render

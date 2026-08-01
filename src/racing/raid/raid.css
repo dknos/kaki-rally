@@ -1,0 +1,46 @@
+/* Kaki Rally Raid HUD. Every selector is namespaced to kkr- so it cannot
+   restyle another mode, and the whole stylesheet is loaded lazily with the mode
+   rather than from index.html. */
+
+.kkr-hud {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0 1.1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color: #f6ecd8;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+}
+
+.kkr-hud-stage {
+  font-size: clamp(0.68rem, 1.5vw, 0.92rem);
+  letter-spacing: 0.14em;
+  opacity: 0.82;
+}
+
+.kkr-hud-readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.6rem, 2vw, 1.6rem);
+}
+
+.kkr-hud-cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 4.4rem;
+}
+
+.kkr-hud-label {
+  font-size: clamp(0.56rem, 1.1vw, 0.7rem);
+  letter-spacing: 0.18em;
+  opacity: 0.62;
+}
+
+.kkr-hud-value {
+  font-size: clamp(1.05rem, 2.6vw, 1.55rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}

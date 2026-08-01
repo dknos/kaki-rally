@@ -99,6 +99,41 @@ function loadCatastropheDevelopment() {
   return catastropheDevelopmentPromise;
 }
 
+let raidDevelopmentPromise = null;
+
+function loadRaidDevelopment() {
+  if (raidDevelopmentPromise) return raidDevelopmentPromise;
+  const stylesheet = new Promise((resolve, reject) => {
+    const existing = document.querySelector('link[data-raid-development]');
+    if (existing?.sheet) {
+      resolve(true);
+      return;
+    }
+    const link = existing || document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './src/racing/raid/raid.css';
+    link.dataset.raidDevelopment = 'true';
+    link.addEventListener('load', () => resolve(true), { once: true });
+    link.addEventListener('error', () => reject(new Error('Kaki Rally Raid styles failed to load')), { once: true });
+    if (!existing) document.head.appendChild(link);
+  });
+  raidDevelopmentPromise = Promise.all([
+    stylesheet,
+    import('../racing/raid/raidMode.js'),
+  ]).then(([, raid]) => raid);
+  return raidDevelopmentPromise;
+}
+
+// The menu renders a card for whatever mode the route names, and its card table
+// is frozen. Raid has no card yet, so the menu must never be handed `raid` or it
+// dereferences an undefined entry and the whole shell fails to boot. Nulling the
+// mode here is the seam-side fix; adding a stub card to rallyMenu.js would mean
+// editing a frozen file to advertise a discipline that is not finished.
+function menuSafeRoute(route) {
+  if (!route || route.mode !== 'raid') return route;
+  return Object.freeze({ ...route, mode: null });
+}
+
 function requireElement(id) {
   const element = document.getElementById(id);
   if (!element) throw new Error(`Kaki Rally shell is missing #${id}`);
@@ -113,7 +148,7 @@ function sceneObjectCount(scene) {
 
 function sessionRootCount(scene) {
   return scene?.children?.filter((child) => (
-    /^kaki-(rally|trials|dunes|catastrophe)-/.test(child.name)
+    /^kaki-(rally|trials|dunes|catastrophe|raid)-/.test(child.name)
     && !child.name.startsWith('kaki-rally-driver-')
   )).length || 0;
 }
@@ -274,7 +309,7 @@ export class KakiRallyApp {
 
     await this.rendererService.setAnimationLoop((now) => this.frame(now));
     this.hideLoader();
-    this.menu.show({ mode: this.route.mode || this.settings.lastMode });
+    this.menu.show({ mode: menuSafeRoute(this.route).mode || this.settings.lastMode });
     playMenuMusic();
     this.captureTransition('boot-menu');
     this.installQaSurface();
@@ -285,7 +320,13 @@ export class KakiRallyApp {
     if (this.route.autoStart && this.route.mode) {
       queueMicrotask(() => {
         if (this.route.mode === 'draw') void this.openDrawEditor();
-        else void this.startMode(this.menu.launchRequest());
+        // Raid has no menu card yet, so it cannot go through launchRequest().
+        else if (this.route.mode === 'raid') {
+          void this.startMode({
+            courseId: '',
+            options: { mode: 'raid', playerAvatarId: readRallySettings().lastDriver },
+          });
+        } else void this.startMode(this.menu.launchRequest());
       });
     }
     return this;
@@ -494,7 +535,7 @@ export class KakiRallyApp {
     this.menu = new RallyMenu({
       host: this.menuRoot,
       backend: this.rendererService.backend,
-      route: this.route,
+      route: menuSafeRoute(this.route),
       onSelectMode: (mode) => {
         try { sfx.uiClick(); } catch (_) {}
         this.router.selectMode(mode);
@@ -518,11 +559,11 @@ export class KakiRallyApp {
   handleRoute(route) {
     this.route = route;
     if (!this.menu) return;
-    this.menu.route = route;
+    this.menu.route = menuSafeRoute(route);
     if (state.racing || state.mode === 'draw' || state.mode === 'trials-workshop') {
       this.exitToMenu('browser-history', { updateHistory: false });
     }
-    if (route.mode) this.menu.selectMode(route.mode, { announce: false });
+    if (route.mode && route.mode !== 'raid') this.menu.selectMode(route.mode, { announce: false });
   }
 
   async startMode(request = {}) {
@@ -541,10 +582,12 @@ export class KakiRallyApp {
     if (!canLaunchRacingMode(mode, {
       backend: this.rendererService.backend,
       development: !!this.route.catastropheDevelopment,
+      raidDevelopment: !!this.route.raidDevelopment,
     })) {
       const availability = getRacingModeAvailability(mode, {
         backend: this.rendererService.backend,
         development: !!this.route.catastropheDevelopment,
+        raidDevelopment: !!this.route.raidDevelopment,
       });
       this.menu?.toast(availability.detail || 'This mode is not available on the active renderer', 'error');
       return null;
@@ -558,16 +601,22 @@ export class KakiRallyApp {
     this.touchControls?.hide();
     this.loaderRoot.dataset.mode = mode;
     this.showLoader(
-      `Loading ${mode === 'crash' ? 'Kaki Catastrophe' : mode === 'dunes' ? 'Kaki Dune Run' : 'the starting grid'}`,
+      `Loading ${mode === 'crash' ? 'Kaki Catastrophe' : mode === 'raid' ? 'Kaki Rally Raid' : mode === 'dunes' ? 'Kaki Dune Run' : 'the starting grid'}`,
       mode === 'dunes'
         ? 'Baking the seeded dune field, warming sand materials, and staging the monster truck…'
-        : 'Preparing course, vehicles, and controls…',
+        : mode === 'raid'
+          ? 'Streaming the opening desert sectors and rolling out to the start control…'
+          : 'Preparing course, vehicles, and controls…',
     );
 
     try {
       if (mode === 'crash') {
         const catastrophe = await loadCatastropheDevelopment();
         registerDevelopmentRacingMode('crash', catastrophe);
+      }
+      if (mode === 'raid') {
+        const raid = await loadRaidDevelopment();
+        registerDevelopmentRacingMode('raid', raid);
       }
       const selectedDriver = options.playerAvatarId || readRallySettings().lastDriver;
       await this.ensureDriver(selectedDriver);

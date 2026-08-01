@@ -4,6 +4,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RALLY_VERSION } from '../src/app/rallyVersion.js';
 
+const APPROVED_LAZY_IMPORTS = new Set([
+  'src/app/rallyApp.js:../racing/crash/crashMode.js',
+  'src/app/rallyApp.js:../racing/raid/raidMode.js',
+]);
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENTRY = path.join(ROOT, 'src', 'main.js');
 const STATIC_IMPORT_PATTERN = /(?:import|export)\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"]/g;
@@ -61,9 +66,12 @@ while (queue.length) {
       assert.match(specifier, /^three(?:\/|$)/, `unapproved lazy bare import: ${specifier}`);
       continue;
     }
-    assert.equal(
-      `${relative(file)}:${specifier}`,
-      'src/app/rallyApp.js:../racing/crash/crashMode.js',
+    // Closed allow-list of lazy production imports, still matched exactly. Both
+    // entries are development-gated modes the shell must not pull into the
+    // initial bundle. Widening this set is a deliberate act; loosening it to a
+    // pattern match would remove the protection entirely.
+    assert.ok(
+      APPROVED_LAZY_IMPORTS.has(`${relative(file)}:${specifier}`),
       `unapproved lazy production import: ${relative(file)} -> ${specifier}`,
     );
   }

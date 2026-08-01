@@ -24,7 +24,8 @@
     "vendor:check": "node tools/prune-three-vendor.mjs",
     "vendor:prune": "node tools/prune-three-vendor.mjs --apply",
     "test:raid": "node tools/smoke-raid-isolation.mjs && node tools/generate-raid-frozen-boundaries.mjs --check && node tools/smoke-raid-surface-field.mjs && node tools/smoke-raid-route.mjs && node tools/smoke-raid-sector-seams.mjs && node tools/smoke-raid-terrain-provider.mjs",
-    "raid:boundaries": "node tools/generate-raid-frozen-boundaries.mjs"
+    "raid:boundaries": "node tools/generate-raid-frozen-boundaries.mjs",
+    "test:browser:raid": "node tools/smoke-raid-browser.mjs"
   },
   "repository": {
     "type": "git",

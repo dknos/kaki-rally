@@ -4,8 +4,9 @@ Kaki Rally Raid (Desert Expedition) is a new, additive, development-gated
 racing discipline. It shares the Kaki Rally shell — one canvas, one renderer,
 one scene, one animation loop — and owns everything else.
 
-**Status: the computational core is built and verified headlessly. There is no
-renderer, no vehicle, no HUD, and no shell entry point yet.** See
+**Status: the mode opens, streams, drives, and exits without leaking.** It is a
+vertical slice, not a finished discipline: there is no clipmap, no TSL terrain
+material, no environment art, no roadbook UI, no rivals and no audio. See
 *What is not built* at the end; nothing in this document describes code that
 does not exist.
 
@@ -167,16 +168,49 @@ rock, compacted sand and loose sand along the driving line. Minimum turn radius
 | Sector payload | 387 KiB at 512 m / 2 m cells |
 | Sector generation | ~69 ms at production resolution, in a worker |
 
+## What the mode does today
+
+`?mode=raid&play=1&dev=1` on localhost opens Wadi of Whiskers, streams the
+opening sectors, and hands over a drivable vehicle with a chase camera and a
+`kkr-` HUD showing stage distance, distance remaining, speed, CAP and surface.
+
+The vehicle is a Raid-owned fixed-step four-contact model. Yaw has angular
+velocity and inertia rather than tracking the steering input, and drift is
+driven by measured lateral slip rather than a held button, so countersteer
+catches a real slide and holding slide while gripping earns nothing.
+
+Terrain is drawn as one 768 m CPU-displaced patch that follows the vehicle and
+reads the same provider the wheels do. It is deliberately simple rather than a
+stand-in for a clipmap that pretends to be finished.
+
+## Honest visual assessment
+
+Looked at, not inferred from telemetry. `docs/qa/raid/` holds the captures.
+
+It reads as a real, hazy, kilometre-scale desert with a correctly seated driver
+and a readable HUD. It is also **empty and visually flat**: there is no
+environment scatter, no rocks, no landmarks, no dust, and no route evidence, and
+the opening plateau is the flattest zone in the stage so the first minute
+undersells the relief the field actually contains. Against the §44 scorecard
+this would not pass "environment art" or "sense of scale" today.
+
+Three bugs were found by looking at the first capture that every headless
+assertion had passed straight through: the shell's menu hero was left standing
+loose in the desert at menu scale because the vehicle builder was never given it
+as a driver, wheel rest heights were read from an undefined field and became
+NaN, and there was no sky behind the terrain.
+
 ## What is not built
 
 Stated plainly, because a passing test suite is not a game:
 
-- **No shell entry point.** `raidMode.js` does not exist. The seams in
-  `src/racing/index.js` are inert until something registers.
-- **No renderer.** No clipmap, no terrain material, no environment, no sky.
-  Nothing has been drawn on screen, and no screenshot of Raid exists.
-- **No vehicle, physics, camera, HUD, roadbook UI, tripmaster, CAP, waypoints,
-  penalties, recovery, records, or audio.**
+- **No clipmap and no TSL terrain material.** The terrain patch is CPU-displaced
+  and does not scale to the draw distance a finished stage wants.
+- **No environment art.** No scatter, rocks, landmarks, camps, or start/finish
+  control. The desert is empty.
+- **No roadbook, tripmaster, CAP target, waypoints, penalties, recovery,
+  records, rivals, service, condition, dust, or audio.**
+- **No finish.** Reaching the end of the route does nothing.
 - Waves 4–8 (feel pass, condition, campaign, art, release QA) are not started.
 
 ### The blocker Wave 1 will hit first

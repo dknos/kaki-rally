@@ -135,6 +135,13 @@ const SEAMS = Object.freeze([
       + 'the existing LEGACY_SAVE_KEYS ordering or contents.',
   },
   {
+    path: 'tools/smoke-standalone-boundaries.mjs',
+    reason:
+      'Its lazy-production-import allow-list was a closed one-entry set matched by exact '
+      + 'string equality, so the shell could not lazily import a second development-gated '
+      + 'mode. Widened to two exact entries; the matching stays exact.',
+  },
+  {
     path: 'package.json',
     reason: 'New test:raid / qa:raid scripts. No existing script is weakened or removed.',
   },
