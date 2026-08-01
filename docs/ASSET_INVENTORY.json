@@ -25,7 +25,7 @@
   ],
   "summary": {
     "files": 127,
-    "bytes": 68008295,
+    "bytes": 69011336,
     "referencedFiles": 98,
     "byKind": {
       "support": 7,
@@ -546,22 +546,22 @@
     },
     {
       "path": "assets/racing/raid/kaki-raid-environment-kit-v1.blend",
-      "bytes": 155150,
-      "sha256": "3eaf88f69a1cc78faaf157260905099cb7dd51bd7694dd6bfcd5442975a0746c",
+      "bytes": 428697,
+      "sha256": "a6aa6659599ee9d65c5c915cdecf05adb466468b143c7bfada7a01013d44ed51",
       "kind": "support",
       "references": []
     },
     {
       "path": "assets/racing/raid/kaki-raid-environment-kit-v1.blend1",
-      "bytes": 155178,
-      "sha256": "f4f6d219017a9f0a0807890d5ef93b631c396b0d68c54de3dcfd2343679b9ab9",
+      "bytes": 428700,
+      "sha256": "dbebc26635188ff7ce0343e4603aad7944c9fcfe634f41ffb3cf33d058de7119",
       "kind": "support",
       "references": []
     },
     {
       "path": "assets/racing/raid/kaki-raid-environment-kit-v1.glb",
-      "bytes": 406396,
-      "sha256": "a7eb354625fbc514cdb6d183b274a93d1eb3066bf3c7a56115f9e1a2364ae49d",
+      "bytes": 862368,
+      "sha256": "5ba1bcc54d2b9a3a1853349b382114d510de1ee12e44c23fef4696bf4a90107d",
       "kind": "model",
       "references": [
         "manifest:raidEnvironmentKit",
