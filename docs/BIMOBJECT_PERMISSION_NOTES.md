@@ -12,21 +12,60 @@ repository, and no session data is committed.
 
 ## Outcome in one line
 
-**No BIMobject-sourced geometry, texture, or material may ship in Kaki Rally.**
-Every BIMobject candidate is classified **RED** for this project's intended use.
-Zero candidates are GREEN. The world-asset wave therefore proceeds entirely
-through original, clean-room Kaki kits built with the repository's reproducible
-Blender tooling.
+**No BIMobject-sourced geometry, texture, or material may ever be committed to
+this repository or appear in the public build.** A separate, gitignored
+private-build overlay may use them under the personal-use grant.
 
-This is not a cautious reading. It is the plain text of the terms applied to
-what Kaki Rally actually is.
+This is a two-track position, decided 2026-08-02 after the project owner
+confirmed that BIM-sourced work is for a personal private build.
 
-## Why every candidate is RED
+## The two tracks
 
-Kaki Rally is an MIT-licensed, publicly hosted game. It is distributed on
-GitHub Pages, its source and assets are downloadable by anyone, and the wave
-brief states an intent to preserve the option of "commercial use or future
-commercial release". Those three facts are what the terms turn on.
+| | Public track | Private track |
+| --- | --- | --- |
+| What it is | `github.com/dknos/kaki-rally` and the GitHub Pages build | a local personal build only |
+| Asset source | original clean-room Kaki kits only | may include BIMobject-derived assets |
+| Rights basis | original work, MIT, project-owned | EULA 4.4(b) personal, non-commercial use |
+| Location | `assets/racing/world-v3/...`, committed | `assets/private/`, **gitignored** |
+| Ledger status | GREEN | PRIVATE_PERSONAL_USE (never GREEN, never shipped) |
+| Commercial use | permitted | **prohibited** by 4.4(b) |
+
+The distinguishing fact is not intent, it is where the file physically lands. A
+BIM-derived asset committed to a public repository is distributed to third
+parties the moment it is pushed, regardless of what the build was "for". That is
+why the gate is a `.gitignore` entry and a ledger check rather than a policy
+note.
+
+`asset_staging/` and `assets/private/` are gitignored. Nothing under them may be
+committed, and no manifest entry in the committed tree may reference them.
+
+### What the personal-use grant does and does not cover
+
+Permitted for the private track under 4.4(b): downloading, transforming,
+optimizing, and using BIM Objects in a build that stays on the owner's machine
+and is not distributed, published, or monetised.
+
+Still prohibited, on both tracks, because these clauses have no personal-use
+carve-out:
+
+- **4.7(a) / 4.7(h)** — access must be through the interfaces of Bim.com, and
+  non-public APIs may not be derived. Acquisition therefore uses Playwright
+  driving the real site UI with the owner's authorised session, rate-limited.
+  See the access-method finding below.
+- **4.7(i)** — proprietary notices may not be removed or obscured. De-branding a
+  product model is not available even privately, so any asset whose branding is
+  inseparable from its geometry is rejected outright rather than cleaned up.
+- **4.7(j)** — no Content may be used to train or improve any AI or ML system.
+  No BIMobject file has been or will be passed to a generative service.
+
+## Why the public track is still clean-room only
+
+Applied to the public repository the terms are unambiguous. Kaki Rally's
+repository is MIT licensed, its build is served from GitHub Pages, and its
+source and assets are downloadable by anyone. Publishing is what triggers the
+prohibitions below, and it happens on `git push`, not at some later decision
+point. The personal-use grant in 4.4(b) cannot reach anything committed here,
+because the act of committing to a public repository is itself distribution.
 
 The EULA defines the **Services** to include BIM Objects and Content
 (section 4.4: "the Services, including BIM Objects and other Content"), and
@@ -63,12 +102,19 @@ be avoided, with 4.7(h) prohibiting deriving non-public APIs.
 
 A scripted downloader targeting BIMobject's internal
 `/proxy/product-api-with-user/v1/.../binaryurls` endpoint exists on this
-workstation from unrelated earlier work. **It was not used for this wave, and it
-must not be.** Deriving that endpoint required reading the site's JavaScript
-bundle, which is exactly the activity 4.7(h) and the brief both prohibit.
+workstation from unrelated earlier work. **It was not used and must not be**, on
+either track. Deriving that endpoint required reading the site's JavaScript
+bundle, which is exactly what 4.7(h) and the brief prohibit, and neither clause
+has a personal-use exemption.
+
+Approved acquisition method for the private track: Playwright driving the real
+bimobject.com interface with the owner's already-authorised session, using the
+site's normal search, product, format-selection and download controls,
+rate-limited and deliberate. Session values are never printed, logged, copied
+into the repository, or committed.
 
 All rights review recorded here was performed by reading the published terms
-page. No product file was downloaded for this wave. See
+page. No product file has been downloaded for this wave so far. See
 `docs/BIMOBJECT_CANDIDATES.json` for the per-candidate record.
 
 ## What happens instead
@@ -87,9 +133,10 @@ measured from.
 
 Accordingly:
 
-- No BIMobject file was downloaded, staged, imported, or converted for this wave.
-- No Kaki kit piece is modelled from, traced over, or dimensioned against a
-  BIMobject product.
+- No BIMobject file is committed, and none is referenced by any manifest entry
+  in the committed tree.
+- No Kaki kit piece bound for the public track is modelled from, traced over, or
+  dimensioned against a BIMobject product.
 - Every kit piece is generated procedurally by a committed Blender builder under
   `tools/blender/`, so its provenance is reproducible from source.
 - Where real-world dimensions are needed for plausibility, they come from public
@@ -97,10 +144,9 @@ Accordingly:
 
 ## Standing rule for future waves
 
-Treat BIMobject as **RED by default for anything that ships**. It remains usable
-as ordinary professional reference for the project owner's own personal or
-construction-industry purposes under 4.4(b)/(c), but that is a different
-activity from building this game.
+Treat BIMobject as **RED by default for anything that ships**, and as
+**personal-use-only for the private overlay**. The public repository and the
+Pages build never receive a BIM-derived byte.
 
 A future GREEN classification would require a separate written agreement with
 BIMobject or with an individual manufacturer, explicitly granting

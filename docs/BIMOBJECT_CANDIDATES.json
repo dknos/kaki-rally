@@ -3,26 +3,28 @@
   "wave": "feat/kaki-world-asset-overhaul",
   "dateReviewed": "2026-08-02",
   "reviewer": "Claude C (agent-performed rights review)",
-  "determination": "PLATFORM_LEVEL_RED",
+  "determination": "TWO_TRACK__PUBLIC_RED__PRIVATE_PERSONAL_USE",
   "summary": {
     "candidateClassesEvaluated": 7,
-    "green": 0,
-    "yellow": 0,
-    "red": 7,
+    "greenForPublicRepo": 0,
+    "redForPublicRepo": 7,
+    "permittedInPrivateOverlayUnder_4_4_b": 7,
     "filesDownloadedForThisWave": 0,
-    "filesStagedForThisWave": 0,
-    "filesShipped": 0
+    "filesCommitted": 0
   },
   "note": [
-    "The BIMobject User Terms/EULA restrict downloaded BIM Objects at the platform",
-    "level, not per product. Clauses 4.4(b), 4.7(f), 4.7(g) and 4.7(i) each",
-    "independently prohibit shipping any BIMobject-sourced asset in a publicly",
-    "distributed game. That determination is dispositive for every product on the",
-    "platform, so per-product evaluation cannot change the outcome and no product",
-    "files were downloaded for this wave.",
-    "Candidates are therefore recorded as CATEGORY CLASSES matching the wave brief's",
-    "search matrices, each carrying the same rights determination and each mapped to",
-    "the original clean-room Kaki kit that replaces it.",
+    "TWO-TRACK POSITION, decided 2026-08-02 after the project owner confirmed that",
+    "BIM-sourced work is for a personal private build.",
+    "PUBLIC TRACK (this repository and the GitHub Pages build): every candidate is RED.",
+    "Committing to a public repo is distribution to third parties the moment it is",
+    "pushed, which EULA 4.7(f) and 4.7(g) prohibit regardless of intent. The public",
+    "build therefore uses original clean-room Kaki kits only.",
+    "PRIVATE TRACK (gitignored assets/private/ overlay, never committed): the same",
+    "candidates are permitted under 4.4(b) personal, non-commercial use.",
+    "Clauses with no personal-use carve-out still bind BOTH tracks: 4.7(a)/(h) require",
+    "access through the site's own interfaces and forbid deriving non-public APIs, and",
+    "4.7(i) forbids removing proprietary notices, so inseparably branded products are",
+    "rejected rather than de-branded.",
     "See docs/BIMOBJECT_PERMISSION_NOTES.md for the full clause analysis."
   ],
   "rightsBasis": {
@@ -34,127 +36,212 @@
       "4.7(g) no incorporation into a product or service provided to a third party",
       "4.7(i) no removal or obscuring of proprietary notices, which forbids de-branding"
     ],
-    "conclusion": "Public GitHub Pages distribution of an MIT-licensed game, with a stated intent to preserve future commercial release, falls outside every permitted use purpose in section 4.4 and is expressly prohibited by 4.7(f) and 4.7(g)."
+    "conclusion": "Committing to this MIT-licensed, publicly hosted repository is distribution to third parties and is prohibited by 4.7(f) and 4.7(g), so no candidate may enter the committed tree. A local personal build that is never distributed falls inside the 4.4(b) personal-use grant, so the same candidates may be staged into the gitignored assets/private/ overlay. 4.7(a), 4.7(h), 4.7(i) and 4.7(j) bind both tracks."
   },
   "candidateClasses": [
     {
       "candidateId": "BIMOBJ-CLASS-001",
       "category": "Road safety and containment",
       "searchMatrix": "Off-Road GP",
-      "exampleQueries": ["armco guardrail", "road safety barrier", "concrete crash barrier", "water-filled barrier", "delineator post", "bollard"],
+      "exampleQueries": [
+        "armco guardrail",
+        "road safety barrier",
+        "concrete crash barrier",
+        "water-filled barrier",
+        "delineator post",
+        "bollard"
+      ],
       "intendedKakiUse": "Roadside containment along Off-Road GP venues and Draw Your Track safety dressing",
-      "intendedModes": ["Off-Road GP", "Draw Your Track"],
-      "rightsStatus": "RED",
+      "intendedModes": [
+        "Off-Road GP",
+        "Draw Your Track"
+      ],
+      "rightsStatus": "RED_PUBLIC__PERSONAL_USE_PRIVATE",
       "rightsRationale": "EULA 4.4(b)/4.7(f)/4.7(g). Redistribution in a public game is prohibited regardless of product.",
       "downloaded": false,
       "sourceChecksum": null,
       "productionDerivative": null,
       "replacedBy": "tools/blender/build-kaki-rally-roadside-kit-v3.py (original clean-room)",
-      "decision": "REJECT_AND_SUBSTITUTE",
+      "decision": "SUBSTITUTE_FOR_PUBLIC__MAY_STAGE_FOR_PRIVATE",
       "functionalIdeaOnly": true,
-      "protectabilityNote": "Guardrail and barrier profiles are utilitarian forms dictated by function and by public highway standards; the Kaki substitute is modelled from generic engineering practice, not from any product."
+      "protectabilityNote": "Guardrail and barrier profiles are utilitarian forms dictated by function and by public highway standards; the Kaki substitute is modelled from generic engineering practice, not from any product.",
+      "publicRepo": "PROHIBITED",
+      "privateOverlay": "PERMITTED_UNDER_4_4_b"
     },
     {
       "candidateId": "BIMOBJ-CLASS-002",
       "category": "Drainage and civil infrastructure",
       "searchMatrix": "Off-Road GP, Kaki Trials",
-      "exampleQueries": ["trench drain", "culvert", "catch basin", "concrete pipe", "retaining wall", "gabion"],
+      "exampleQueries": [
+        "trench drain",
+        "culvert",
+        "catch basin",
+        "concrete pipe",
+        "retaining wall",
+        "gabion"
+      ],
       "intendedKakiUse": "Culverts, drainage channels and retaining walls for rural and quarry venues",
-      "intendedModes": ["Off-Road GP", "Kaki Trials"],
-      "rightsStatus": "RED",
+      "intendedModes": [
+        "Off-Road GP",
+        "Kaki Trials"
+      ],
+      "rightsStatus": "RED_PUBLIC__PERSONAL_USE_PRIVATE",
       "rightsRationale": "EULA 4.4(b)/4.7(f)/4.7(g).",
       "downloaded": false,
       "sourceChecksum": null,
       "productionDerivative": null,
       "replacedBy": "tools/blender/build-kaki-rally-roadside-kit-v3.py, tools/blender/build-kaki-trials-infrastructure-kit-v1.py",
-      "decision": "REJECT_AND_SUBSTITUTE",
+      "decision": "SUBSTITUTE_FOR_PUBLIC__MAY_STAGE_FOR_PRIVATE",
       "functionalIdeaOnly": true,
-      "protectabilityNote": "Pipe, culvert and channel sections are standard civil forms."
+      "protectabilityNote": "Pipe, culvert and channel sections are standard civil forms.",
+      "publicRepo": "PROHIBITED",
+      "privateOverlay": "PERMITTED_UNDER_4_4_b"
     },
     {
       "candidateId": "BIMOBJ-CLASS-003",
       "category": "Industrial and logistics structures",
       "searchMatrix": "Drift Attack / Whisker Yard",
-      "exampleQueries": ["loading dock", "dock leveler", "roller shutter door", "pipe rack", "rooftop HVAC", "silo", "steel stair", "catwalk"],
+      "exampleQueries": [
+        "loading dock",
+        "dock leveler",
+        "roller shutter door",
+        "pipe rack",
+        "rooftop HVAC",
+        "silo",
+        "steel stair",
+        "catwalk"
+      ],
       "intendedKakiUse": "Whisker Yard freight and fabrication district dressing",
-      "intendedModes": ["Drift Attack"],
-      "rightsStatus": "RED",
+      "intendedModes": [
+        "Drift Attack"
+      ],
+      "rightsStatus": "RED_PUBLIC__PERSONAL_USE_PRIVATE",
       "rightsRationale": "EULA 4.4(b)/4.7(f)/4.7(g). Additionally many products in this category carry inseparable manufacturer branding, which 4.7(i) forbids removing.",
       "downloaded": false,
       "sourceChecksum": null,
       "productionDerivative": null,
       "replacedBy": "tools/blender/build-kaki-industrial-yard-kit-v1.py",
-      "decision": "REJECT_AND_SUBSTITUTE",
+      "decision": "SUBSTITUTE_FOR_PUBLIC__MAY_STAGE_FOR_PRIVATE",
       "functionalIdeaOnly": true,
-      "protectabilityNote": "Dock, rack and stair forms are functional; Kaki versions use original proportions and the project's own decal language."
+      "protectabilityNote": "Dock, rack and stair forms are functional; Kaki versions use original proportions and the project's own decal language.",
+      "publicRepo": "PROHIBITED",
+      "privateOverlay": "PERMITTED_UNDER_4_4_b"
     },
     {
       "candidateId": "BIMOBJ-CLASS-004",
       "category": "Spectator and stadium facilities",
       "searchMatrix": "Kaki Stock Cup / Thunderbowl, Monster Smash",
-      "exampleQueries": ["grandstand", "bleacher", "stadium seating", "press box", "turnstile", "catch fence", "scoreboard housing"],
+      "exampleQueries": [
+        "grandstand",
+        "bleacher",
+        "stadium seating",
+        "press box",
+        "turnstile",
+        "catch fence",
+        "scoreboard housing"
+      ],
       "intendedKakiUse": "Thunderbowl short-track facility and Monster Smash event venue",
-      "intendedModes": ["Kaki Stock Cup", "Monster Smash"],
-      "rightsStatus": "RED",
+      "intendedModes": [
+        "Kaki Stock Cup",
+        "Monster Smash"
+      ],
+      "rightsStatus": "RED_PUBLIC__PERSONAL_USE_PRIVATE",
       "rightsRationale": "EULA 4.4(b)/4.7(f)/4.7(g).",
       "downloaded": false,
       "sourceChecksum": null,
       "productionDerivative": null,
       "replacedBy": "tools/blender/build-kaki-thunderbowl-facility-kit-v1.py, tools/blender/build-kaki-monster-event-kit-v2.py",
-      "decision": "REJECT_AND_SUBSTITUTE",
+      "decision": "SUBSTITUTE_FOR_PUBLIC__MAY_STAGE_FOR_PRIVATE",
       "functionalIdeaOnly": true,
-      "protectabilityNote": "Tiered seating and catch fencing are standard venue forms."
+      "protectabilityNote": "Tiered seating and catch fencing are standard venue forms.",
+      "publicRepo": "PROHIBITED",
+      "privateOverlay": "PERMITTED_UNDER_4_4_b"
     },
     {
       "candidateId": "BIMOBJ-CLASS-005",
       "category": "Lighting, electrical and utility equipment",
       "searchMatrix": "all venues",
-      "exampleQueries": ["floodlight", "stadium light mast", "streetlight", "utility cabinet", "transformer box", "generator enclosure"],
+      "exampleQueries": [
+        "floodlight",
+        "stadium light mast",
+        "streetlight",
+        "utility cabinet",
+        "transformer box",
+        "generator enclosure"
+      ],
       "intendedKakiUse": "Light masts, service lighting and utility dressing across all venues",
-      "intendedModes": ["all"],
-      "rightsStatus": "RED",
+      "intendedModes": [
+        "all"
+      ],
+      "rightsStatus": "RED_PUBLIC__PERSONAL_USE_PRIVATE",
       "rightsRationale": "EULA 4.4(b)/4.7(f)/4.7(g). This category is the most branding-dense on the platform; 4.7(i) independently blocks the de-branding step.",
       "downloaded": false,
       "sourceChecksum": null,
       "productionDerivative": null,
       "replacedBy": "tools/blender/build-kaki-race-day-props-kit-v1.py and per-venue kits",
-      "decision": "REJECT_AND_SUBSTITUTE",
+      "decision": "SUBSTITUTE_FOR_PUBLIC__MAY_STAGE_FOR_PRIVATE",
       "functionalIdeaOnly": true,
-      "protectabilityNote": "Luminaire housings frequently carry protected ornamental design; Kaki masts use original chunky silhouettes consistent with the project art direction."
+      "protectabilityNote": "Luminaire housings frequently carry protected ornamental design; Kaki masts use original chunky silhouettes consistent with the project art direction.",
+      "publicRepo": "PROHIBITED",
+      "privateOverlay": "PERMITTED_UNDER_4_4_b"
     },
     {
       "candidateId": "BIMOBJ-CLASS-006",
       "category": "Field, expedition and temporary event structures",
       "searchMatrix": "Dune Run, Rally Raid",
-      "exampleQueries": ["shade canopy", "water tank", "solar array", "communications mast", "modular field office", "portable toilet"],
+      "exampleQueries": [
+        "shade canopy",
+        "water tank",
+        "solar array",
+        "communications mast",
+        "modular field office",
+        "portable toilet"
+      ],
       "intendedKakiUse": "Bivouac, timing and service infrastructure for desert stages",
-      "intendedModes": ["Kaki Dune Run", "Kaki Rally Raid"],
-      "rightsStatus": "RED",
+      "intendedModes": [
+        "Kaki Dune Run",
+        "Kaki Rally Raid"
+      ],
+      "rightsStatus": "RED_PUBLIC__PERSONAL_USE_PRIVATE",
       "rightsRationale": "EULA 4.4(b)/4.7(f)/4.7(g).",
       "downloaded": false,
       "sourceChecksum": null,
       "productionDerivative": null,
       "replacedBy": "tools/blender/build-kaki-desert-service-kit-v1.py",
-      "decision": "REJECT_AND_SUBSTITUTE",
+      "decision": "SUBSTITUTE_FOR_PUBLIC__MAY_STAGE_FOR_PRIVATE",
       "functionalIdeaOnly": true,
-      "protectabilityNote": "Canopies, tanks and masts are functional forms. No branded fuel-dispensing equipment is recreated in any form."
+      "protectabilityNote": "Canopies, tanks and masts are functional forms. No branded fuel-dispensing equipment is recreated in any form.",
+      "publicRepo": "PROHIBITED",
+      "privateOverlay": "PERMITTED_UNDER_4_4_b"
     },
     {
       "candidateId": "BIMOBJ-CLASS-007",
       "category": "Site furniture, signage and event clutter",
       "searchMatrix": "shared race-day",
-      "exampleQueries": ["bench", "planter", "waste bin", "directional sign", "traffic sign", "construction fencing", "crowd barrier"],
+      "exampleQueries": [
+        "bench",
+        "planter",
+        "waste bin",
+        "directional sign",
+        "traffic sign",
+        "construction fencing",
+        "crowd barrier"
+      ],
       "intendedKakiUse": "Shared race-day prop kit used by every mode",
-      "intendedModes": ["all"],
-      "rightsStatus": "RED",
+      "intendedModes": [
+        "all"
+      ],
+      "rightsStatus": "RED_PUBLIC__PERSONAL_USE_PRIVATE",
       "rightsRationale": "EULA 4.4(b)/4.7(f)/4.7(g). Traffic and directional signage additionally risks reproducing protected jurisdictional sign systems and third-party trademarks.",
       "downloaded": false,
       "sourceChecksum": null,
       "productionDerivative": null,
       "replacedBy": "tools/blender/build-kaki-race-day-props-kit-v1.py",
-      "decision": "REJECT_AND_SUBSTITUTE",
+      "decision": "SUBSTITUTE_FOR_PUBLIC__MAY_STAGE_FOR_PRIVATE",
       "functionalIdeaOnly": true,
-      "protectabilityNote": "All Kaki signage uses the project's fictional in-world sign language and carries no real-world manufacturer or jurisdiction marks."
+      "protectabilityNote": "All Kaki signage uses the project's fictional in-world sign language and carries no real-world manufacturer or jurisdiction marks.",
+      "publicRepo": "PROHIBITED",
+      "privateOverlay": "PERMITTED_UNDER_4_4_b"
     }
   ]
 }

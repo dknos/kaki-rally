@@ -4,44 +4,81 @@
   "lastUpdated": "2026-08-02",
   "reviewer": "Claude C (agent-performed rights review)",
   "gate": {
-    "rule": "Only GREEN assets may enter the production repository.",
+    "rule": "Only GREEN assets may be committed. GREEN means original clean-room work. BIM-derived assets are never GREEN and never committed; they may exist only in the gitignored assets/private/ overlay under the 4.4(b) personal-use grant.",
     "green": "Explicitly permits transformation, interactive-game inclusion, public hosting, redistribution, commercial use, and continued inclusion after modification.",
     "yellow": "Downloadable but redistribution/derivative/commercial rights unclear. Private ignored staging only. Never shipped, never committed, never screenshotted for promotion.",
-    "red": "Terms prohibit the intended use, permission refused, inseparable protected branding, or rights unverifiable. Not used and not recreated."
+    "red": "Terms prohibit the intended use, permission refused, inseparable protected branding, or rights unverifiable. Not used and not recreated.",
+    "privatePersonalUse": "Permitted in assets/private/ only. Never committed, never in the public build, never commercial. Enforced by .gitignore plus the rule that no committed manifest entry may reference assets/private/."
   },
   "summary": {
     "thirdPartySourcesIntroducedThisWave": 0,
     "green": 0,
     "yellow": 0,
-    "red": 7,
     "originalCleanRoomAssetsPlanned": 7,
     "originalCleanRoomAssetsCompleted": 0,
     "bimobjectFilesDownloadedThisWave": 0,
-    "bimobjectFilesShipped": 0
+    "bimobjectFilesShipped": 0,
+    "redForPublicRepo": 7,
+    "permittedInPrivateOverlay": 7
   },
   "bimobjectDetermination": {
-    "status": "RED_AT_PLATFORM_LEVEL",
-    "appliesTo": "every product on bimobject.com, without exception, for this project",
+    "status": "TWO_TRACK__PUBLIC_RED__PRIVATE_PERSONAL_USE",
+    "appliesTo": "every product on bimobject.com: prohibited in the committed/public tree, permitted in the gitignored private overlay under 4.4(b)",
     "rightsSource": "https://business.bimobject.com/terms-of-service-eula retrieved 2026-08-02",
-    "controllingClauses": ["4.4(b)", "4.7(f)", "4.7(g)", "4.7(i)"],
+    "controllingClauses": [
+      "4.4(b)",
+      "4.7(f)",
+      "4.7(g)",
+      "4.7(i)"
+    ],
     "detail": "docs/BIMOBJECT_PERMISSION_NOTES.md",
     "candidateRecord": "docs/BIMOBJECT_CANDIDATES.json",
-    "consequence": "No BIMobject geometry, texture, material, or measurement enters this repository. All seven planned world kits are original clean-room work built by committed Blender builders."
+    "consequence": "No BIMobject geometry, texture, or measurement enters the committed tree. All seven world kits bound for the public build are original clean-room work. A personal private build may additionally load BIM-derived assets from the gitignored assets/private/ overlay.",
+    "clausesBindingBothTracks": [
+      "4.7(a) access only through the interfaces of Bim.com",
+      "4.7(h) no deriving non-public APIs",
+      "4.7(i) no removing proprietary notices, so inseparably branded products are rejected not cleaned",
+      "4.7(j) no AI/ML training use"
+    ]
   },
   "accessMethodNote": {
     "finding": "A scripted downloader that targets BIMobject's internal /proxy/product-api-with-user endpoint exists on the build workstation from unrelated prior work.",
-    "ruling": "Not used for this wave and prohibited from future use for this project. The wave brief forbids reverse-engineering private download APIs, and EULA 4.7(a) and 4.7(h) prohibit non-interface access and deriving non-public APIs.",
+    "ruling": "Not used and prohibited on BOTH tracks. 4.7(a) and 4.7(h) have no personal-use exemption. Approved method is Playwright driving the real bimobject.com UI with the owner's authorised session, rate-limited.",
     "artifactLocation": "outside this repository; never committed"
   },
   "preExistingThirdPartyAssets": {
     "note": "Assets already shipping in Kaki Rally before this wave are unchanged and retain their existing rights basis. This wave introduces no new third-party source and removes none. See CREDITS.md and THIRD_PARTY_NOTICES.md for the authoritative record.",
     "knownBases": [
-      { "source": "Quaternius", "license": "CC0", "unchangedByThisWave": true },
-      { "source": "Poly by Google via Poly Pizza", "license": "CC-BY", "unchangedByThisWave": true },
-      { "source": "Poly Haven", "license": "CC0", "unchangedByThisWave": true },
-      { "source": "asian3dmodel (Sketchfab traffic kits)", "license": "CC BY 4.0", "unchangedByThisWave": true },
-      { "source": "agung.ihackstuff (Audience On Stage)", "license": "CC BY 4.0", "unchangedByThisWave": true },
-      { "source": "aleksandr.yatsenco (Drunk Monster Truck / Tipsy Tumbler)", "license": "CC BY 4.0", "unchangedByThisWave": true }
+      {
+        "source": "Quaternius",
+        "license": "CC0",
+        "unchangedByThisWave": true
+      },
+      {
+        "source": "Poly by Google via Poly Pizza",
+        "license": "CC-BY",
+        "unchangedByThisWave": true
+      },
+      {
+        "source": "Poly Haven",
+        "license": "CC0",
+        "unchangedByThisWave": true
+      },
+      {
+        "source": "asian3dmodel (Sketchfab traffic kits)",
+        "license": "CC BY 4.0",
+        "unchangedByThisWave": true
+      },
+      {
+        "source": "agung.ihackstuff (Audience On Stage)",
+        "license": "CC BY 4.0",
+        "unchangedByThisWave": true
+      },
+      {
+        "source": "aleksandr.yatsenco (Drunk Monster Truck / Tipsy Tumbler)",
+        "license": "CC BY 4.0",
+        "unchangedByThisWave": true
+      }
     ]
   },
   "assets": [
@@ -60,7 +97,10 @@
       "blendSource": null,
       "runtimeGlb": "assets/racing/world-v3/roadside/kaki-rally-roadside-kit-v3.glb",
       "derivativeChecksum": null,
-      "modes": ["Off-Road GP", "Draw Your Track"],
+      "modes": [
+        "Off-Road GP",
+        "Draw Your Track"
+      ],
       "status": "PLANNED",
       "dateReviewed": "2026-08-02"
     },
@@ -80,7 +120,9 @@
       "blendSource": null,
       "runtimeGlb": "assets/racing/world-v3/shared/kaki-race-day-props-kit-v1.glb",
       "derivativeChecksum": null,
-      "modes": ["all"],
+      "modes": [
+        "all"
+      ],
       "status": "PLANNED",
       "dateReviewed": "2026-08-02"
     },
@@ -98,7 +140,9 @@
       "builder": "tools/blender/build-kaki-industrial-yard-kit-v1.py",
       "runtimeGlb": "assets/racing/world-v3/industrial/kaki-industrial-yard-kit-v1.glb",
       "derivativeChecksum": null,
-      "modes": ["Drift Attack"],
+      "modes": [
+        "Drift Attack"
+      ],
       "status": "PLANNED",
       "dateReviewed": "2026-08-02"
     },
@@ -116,7 +160,9 @@
       "builder": "tools/blender/build-kaki-thunderbowl-facility-kit-v1.py",
       "runtimeGlb": "assets/racing/world-v3/stadium/kaki-thunderbowl-facility-kit-v1.glb",
       "derivativeChecksum": null,
-      "modes": ["Kaki Stock Cup"],
+      "modes": [
+        "Kaki Stock Cup"
+      ],
       "status": "PLANNED",
       "dateReviewed": "2026-08-02"
     },
@@ -134,7 +180,9 @@
       "builder": "tools/blender/build-kaki-monster-event-kit-v2.py",
       "runtimeGlb": "assets/racing/world-v3/monster/kaki-monster-event-kit-v2.glb",
       "derivativeChecksum": null,
-      "modes": ["Monster Smash"],
+      "modes": [
+        "Monster Smash"
+      ],
       "status": "PLANNED",
       "dateReviewed": "2026-08-02"
     },
@@ -153,7 +201,10 @@
       "builder": "tools/blender/build-kaki-desert-service-kit-v1.py",
       "runtimeGlb": "assets/racing/world-v3/desert/kaki-desert-service-kit-v1.glb",
       "derivativeChecksum": null,
-      "modes": ["Kaki Dune Run", "Kaki Rally Raid"],
+      "modes": [
+        "Kaki Dune Run",
+        "Kaki Rally Raid"
+      ],
       "status": "PLANNED",
       "dateReviewed": "2026-08-02"
     },
@@ -171,7 +222,9 @@
       "builder": "tools/blender/build-kaki-trials-infrastructure-kit-v1.py",
       "runtimeGlb": "assets/racing/world-v3/trials/kaki-trials-infrastructure-kit-v1.glb",
       "derivativeChecksum": null,
-      "modes": ["Kaki Trials"],
+      "modes": [
+        "Kaki Trials"
+      ],
       "status": "PLANNED",
       "dateReviewed": "2026-08-02"
     }
