@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { WORLD_KITS, worldLivenessTierFor } from './worldLiveness.js';
 
 function sourceNode(assetLease, kit, asset, lod) {
@@ -29,34 +30,158 @@ function placementMatrix(placement) {
   return matrix;
 }
 
-function addInstancedFamily(group, source, placements, name, tier) {
+function geometrySignature(mesh) {
+  const geometry = mesh.geometry;
+  const attributes = Object.entries(geometry.attributes || {})
+    .map(([name, attribute]) => `${name}:${attribute.itemSize}:${attribute.normalized ? 1 : 0}:${attribute.array?.constructor?.name || ''}`)
+    .sort()
+    .join('|');
+  return `${geometry.index ? 'indexed' : 'plain'}:${attributes}`;
+}
+
+function materialClass(material) {
+  if (material.transparent || material.opacity < 0.99) return 'transparent';
+  if (material.isMeshBasicMaterial || material.emissiveIntensity > 0.1 || material.emissive?.getHex?.()) return 'emissive';
+  return Number(material.metalness) > 0.42 ? 'metal' : 'matte';
+}
+
+function runtimeMaterialFor(kind, cache, ownedMaterials) {
+  if (cache.has(kind)) return cache.get(kind);
+  let material;
+  if (kind === 'emissive') {
+    material = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
+  } else if (kind === 'transparent') {
+    material = new THREE.MeshStandardMaterial({
+      vertexColors: true,
+      metalness: 0.08,
+      roughness: 0.32,
+      opacity: 0.48,
+      transparent: true,
+      depthWrite: false,
+    });
+  } else {
+    material = new THREE.MeshStandardMaterial({
+      vertexColors: true,
+      metalness: kind === 'metal' ? 0.62 : 0.08,
+      roughness: kind === 'metal' ? 0.42 : 0.76,
+    });
+  }
+  material.name = `KR_WORLD_RUNTIME_${kind.toUpperCase()}`;
+  cache.set(kind, material);
+  ownedMaterials.add(material);
+  return material;
+}
+
+function bakeVertexColor(geometry, material) {
+  const count = geometry.getAttribute('position')?.count || 0;
+  const color = material.color || new THREE.Color(1, 1, 1);
+  const values = new Uint8Array(count * 3);
+  for (let index = 0; index < count; index += 1) {
+    values[index * 3] = Math.round(color.r * 255);
+    values[index * 3 + 1] = Math.round(color.g * 255);
+    values[index * 3 + 2] = Math.round(color.b * 255);
+  }
+  for (const name of Object.keys(geometry.attributes || {})) {
+    if (!['position', 'normal', 'color'].includes(name)) geometry.deleteAttribute(name);
+  }
+  geometry.setAttribute('color', new THREE.Uint8BufferAttribute(values, 3, true));
+}
+
+function mergedRenderables(source, cache, ownedGeometries, materialCache, ownedMaterials) {
+  if (cache.has(source)) return cache.get(source);
   source.updateWorldMatrix(true, true);
   const inverse = source.matrixWorld.clone().invert();
-  const placementMatrices = placements.map(placementMatrix);
-  let meshes = 0;
+  const buckets = new Map();
   source.traverse((mesh) => {
     if (!mesh.isMesh || !mesh.geometry || !mesh.material) return;
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    // World kits use one material per mesh. Preserve an unexpected grouped
+    // material mesh as its own renderable instead of flattening its groups.
+    const kind = materials.length === 1 ? materialClass(materials[0]) : '';
+    const key = materials.length === 1
+      ? `${kind}:${geometrySignature(mesh)}`
+      : `grouped:${mesh.uuid}`;
+    const runtimeMaterial = materials.length === 1
+      ? runtimeMaterialFor(kind, materialCache, ownedMaterials)
+      : mesh.material;
+    if (!buckets.has(key)) buckets.set(key, { material: runtimeMaterial, geometries: [] });
     const relative = inverse.clone().multiply(mesh.matrixWorld);
-    const instances = new THREE.InstancedMesh(mesh.geometry, mesh.material, placements.length);
-    instances.name = `${name}-${mesh.name}-instances`;
+    const geometry = mesh.geometry.clone();
+    geometry.applyMatrix4(relative);
+    if (materials.length === 1) bakeVertexColor(geometry, materials[0]);
+    buckets.get(key).geometries.push(geometry);
+  });
+
+  const renderables = [];
+  for (const bucket of buckets.values()) {
+    let geometry = bucket.geometries[0];
+    if (bucket.geometries.length > 1) {
+      geometry = mergeGeometries(bucket.geometries, false);
+      if (geometry) bucket.geometries.forEach((part) => part.dispose());
+      else {
+        geometry = bucket.geometries[0];
+        bucket.geometries.slice(1).forEach((part) => part.dispose());
+      }
+    }
+    if (!geometry) continue;
+    ownedGeometries.add(geometry);
+    renderables.push({ geometry, material: bucket.material });
+  }
+  cache.set(source, renderables);
+  return renderables;
+}
+
+function addInstancedFamily(
+  group,
+  source,
+  placements,
+  name,
+  tier,
+  cache,
+  ownedGeometries,
+  materialCache,
+  ownedMaterials,
+) {
+  const placementMatrices = placements.map(placementMatrix);
+  let meshes = 0;
+  for (const [index, renderable] of mergedRenderables(
+    source,
+    cache,
+    ownedGeometries,
+    materialCache,
+    ownedMaterials,
+  ).entries()) {
+    const instances = new THREE.InstancedMesh(renderable.geometry, renderable.material, placements.length);
+    instances.name = `${name}-${index}-instances`;
     instances.castShadow = tier.shadows;
     instances.receiveShadow = true;
     instances.frustumCulled = true;
     instances.userData.presentationOnly = true;
     const matrix = new THREE.Matrix4();
-    for (let index = 0; index < placements.length; index += 1) {
-      matrix.multiplyMatrices(placementMatrices[index], relative);
-      instances.setMatrixAt(index, matrix);
+    for (let placementIndex = 0; placementIndex < placements.length; placementIndex += 1) {
+      matrix.copy(placementMatrices[placementIndex]);
+      instances.setMatrixAt(placementIndex, matrix);
     }
     instances.instanceMatrix.needsUpdate = true;
     instances.computeBoundingSphere?.();
     group.add(instances);
     meshes += 1;
-  });
+  }
   return meshes;
 }
 
-function addLodClone(group, assetLease, kit, placement, tier, animated) {
+function addLodClone(
+  group,
+  assetLease,
+  kit,
+  placement,
+  tier,
+  animated,
+  cache,
+  ownedGeometries,
+  materialCache,
+  ownedMaterials,
+) {
   const lod = new THREE.LOD();
   lod.name = `world-${kit.code.toLowerCase()}-${placement.asset.toLowerCase()}`;
   lod.position.set(placement.x, placement.y, placement.z);
@@ -66,7 +191,19 @@ function addLodClone(group, assetLease, kit, placement, tier, animated) {
   for (const level of starts) {
     const source = sourceNode(assetLease, kit, placement.asset, level);
     if (!source) continue;
-    const clone = source.clone(true);
+    const clone = new THREE.Group();
+    clone.name = `${source.name}-merged`;
+    for (const [index, renderable] of mergedRenderables(
+      source,
+      cache,
+      ownedGeometries,
+      materialCache,
+      ownedMaterials,
+    ).entries()) {
+      const mesh = new THREE.Mesh(renderable.geometry, renderable.material);
+      mesh.name = `${source.name}-merged-${index}`;
+      clone.add(mesh);
+    }
     configureRenderable(clone, { castShadow: tier.shadows && level === 0, maxDistance: tier.far });
     const distance = level === starts[0] ? 0
       : level === 1 ? 95
@@ -97,6 +234,10 @@ export function attachWorldLiveness({ parent, assetLease, plans, quality = 'high
   group.userData.presentationOnly = true;
   parent.add(group);
   const animated = [];
+  const geometryCache = new Map();
+  const ownedGeometries = new Set();
+  const materialCache = new Map();
+  const ownedMaterials = new Set();
   let placementCount = 0;
   let instancedDraws = 0;
   let lodCount = 0;
@@ -111,7 +252,18 @@ export function attachWorldLiveness({ parent, assetLease, plans, quality = 'high
         groupedRepeats.get(key).push(placement);
         continue;
       }
-      if (addLodClone(group, assetLease, plan.kit, placement, tier, animated)) {
+      if (addLodClone(
+        group,
+        assetLease,
+        plan.kit,
+        placement,
+        tier,
+        animated,
+        geometryCache,
+        ownedGeometries,
+        materialCache,
+        ownedMaterials,
+      )) {
         placementCount += 1;
         lodCount += 1;
       }
@@ -119,7 +271,17 @@ export function attachWorldLiveness({ parent, assetLease, plans, quality = 'high
     for (const [asset, repeats] of groupedRepeats) {
       const source = sourceNode(assetLease, plan.kit, asset, tier.repeatLod);
       if (!source) continue;
-      instancedDraws += addInstancedFamily(group, source, repeats, `${plan.kit.code}-${asset}`, tier);
+      instancedDraws += addInstancedFamily(
+        group,
+        source,
+        repeats,
+        `${plan.kit.code}-${asset}`,
+        tier,
+        geometryCache,
+        ownedGeometries,
+        materialCache,
+        ownedMaterials,
+      );
       placementCount += repeats.length;
     }
   }
@@ -148,8 +310,14 @@ export function attachWorldLiveness({ parent, assetLease, plans, quality = 'high
       state.disposed = true;
       group.removeFromParent();
       animated.length = 0;
-      // Geometries and materials are borrowed from the reference-counted lease.
-      // The session releases them after every world-liveness clone is detached.
+      ownedGeometries.forEach((geometry) => geometry.dispose());
+      ownedGeometries.clear();
+      ownedMaterials.forEach((material) => material.dispose());
+      ownedMaterials.clear();
+      geometryCache.clear();
+      materialCache.clear();
+      // Merged presentation geometries and their vertex-color runtime
+      // materials are session-owned and disposed above.
     },
   };
   return state;

@@ -176,8 +176,15 @@ export function createRacingWorldPlan({ course, mode, samples, heightAt, quality
       ['PIT_GARAGE', .67, 20, 1.08], ['ENTRY_TUNNEL', .89, -24, 1.10],
       ['MAINTENANCE_SHED', .34, 21, 1.0], ['TIMING_TOWER', .04, 20, 1.04],
     ].forEach((entry) => addRoutePlacement(placements, samples, heightAt, trackWidth, entry));
-    for (const fraction of [.02, .25, .50, .75]) {
-      addRoutePlacement(placements, samples, heightAt, trackWidth, ['LIGHT_MAST', fraction, -29, 1.0], { animated: 'beacon' });
+    for (const [index, fraction] of [.02, .25, .50, .75].entries()) {
+      addRoutePlacement(
+        placements,
+        samples,
+        heightAt,
+        trackWidth,
+        ['LIGHT_MAST', fraction, -29, 1.0],
+        index === 0 ? { animated: 'beacon' } : { repeat: true },
+      );
     }
     for (let index = 0; index < 20; index += 1) {
       addRoutePlacement(placements, samples, heightAt, trackWidth, ['CATCH_FENCE', index / 20, -12.5, 1], { repeat: true });
@@ -313,7 +320,15 @@ export function createTrialsWorldPlan({ track, groundAt }) {
   });
   const shared = [0.05, .5, .94].map((fraction, index) => {
     const x = Math.max(12, Math.min(track.length - 8, track.length * fraction));
-    return freePlacement('FLAG', x, groundAt(x)?.height || 0, index % 2 ? 7.5 : -7.5, index % 2 ? Math.PI : 0, .82, { animated: 'wind' });
+    return freePlacement(
+      'FLAG',
+      x,
+      groundAt(x)?.height || 0,
+      index % 2 ? 7.5 : -7.5,
+      index % 2 ? Math.PI : 0,
+      .82,
+      index === 1 ? { animated: 'wind' } : { repeat: true },
+    );
   });
   return [
     { kit: WORLD_KITS.trials, placements },
