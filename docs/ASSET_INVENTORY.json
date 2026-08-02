@@ -24,12 +24,12 @@
     }
   ],
   "summary": {
-    "files": 127,
-    "bytes": 69752179,
-    "referencedFiles": 98,
+    "files": 134,
+    "bytes": 72949833,
+    "referencedFiles": 105,
     "byKind": {
       "support": 7,
-      "model": 27,
+      "model": 34,
       "image": 78,
       "audio": 1,
       "source-artifact": 1,
@@ -311,15 +311,15 @@
     },
     {
       "path": "assets/racing/dunes/kaki-dune-environment-kit-v1.blend",
-      "bytes": 216567,
-      "sha256": "cd09f6f79a49216882eac7afa830bba61d8c91770e9e1a52c8be0461ca1e87b9",
+      "bytes": 224809,
+      "sha256": "884b61d1bf1c49fa8eff3fcb015e81b2356fd5119ccbe5cfa0ebb3feda8b487b",
       "kind": "support",
       "references": []
     },
     {
       "path": "assets/racing/dunes/kaki-dune-environment-kit-v1.glb",
-      "bytes": 668524,
-      "sha256": "66065b24dc3a27962333cb0c2531d39214f056d3628b4ae2238bddbb3781973f",
+      "bytes": 713488,
+      "sha256": "8527096dbc15d3875afb76ed2a510c52fd4ae36d85b9c76d3604363f0471d69b",
       "kind": "model",
       "references": [
         "manifest:duneEnvironmentKit",
@@ -777,11 +777,81 @@
     },
     {
       "path": "assets/racing/workshop/kaki-course-workshop-kit-v1.glb",
-      "bytes": 1044496,
-      "sha256": "6e6514a46ace8854c008e498dbaadf2b5908f165c697eb734a97e169d248306d",
+      "bytes": 1066312,
+      "sha256": "7e0f07e3fa08340dc11dc204a60e1bddf8243bda0258867e83ba509e4e1836b4",
       "kind": "model",
       "references": [
         "manifest:courseWorkshopKit",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/world-v3/desert/kaki-desert-service-kit-v1.glb",
+      "bytes": 432516,
+      "sha256": "aa87820964fcae0d29b4aaae3b82f2fba91a4f0c2e67d386bb9294d11777d9ee",
+      "kind": "model",
+      "references": [
+        "manifest:desertServiceWorldKitV1",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/world-v3/industrial/kaki-industrial-yard-kit-v1.glb",
+      "bytes": 424172,
+      "sha256": "0992a395f9f600df76fc85785fe8dfe8e49310950e3a327b05ac2d8e1bd8599a",
+      "kind": "model",
+      "references": [
+        "manifest:industrialWorldKitV1",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/world-v3/monster/kaki-monster-event-kit-v2.glb",
+      "bytes": 433036,
+      "sha256": "7feae3e6747c682f21c4549b46f761fb8f47b4f3ab27bf4b430b78e93f93712f",
+      "kind": "model",
+      "references": [
+        "manifest:monsterEventWorldKitV2",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/world-v3/roadside/kaki-rally-roadside-kit-v3.glb",
+      "bytes": 459292,
+      "sha256": "494840a9af6bfebd1f7c05c9d566060231cf5e9e2b45e062b6cc913849a398a5",
+      "kind": "model",
+      "references": [
+        "manifest:roadsideWorldKitV3",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/world-v3/shared/kaki-race-day-props-kit-v1.glb",
+      "bytes": 409648,
+      "sha256": "ca05365bc8f2153a6a50ba983fb4fb9cf83a9d642e0ee91b5d01905e1383db06",
+      "kind": "model",
+      "references": [
+        "manifest:raceDayWorldKitV1",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/world-v3/stadium/kaki-thunderbowl-facility-kit-v1.glb",
+      "bytes": 482036,
+      "sha256": "b7398aac04d66202237546e2dff58c9fa226d1c18b83ab8eaaee1b31bce1cb22",
+      "kind": "model",
+      "references": [
+        "manifest:stadiumWorldKitV1",
+        "source:src/racing/racingManifest.js"
+      ]
+    },
+    {
+      "path": "assets/racing/world-v3/trials/kaki-trials-infrastructure-kit-v1.glb",
+      "bytes": 481932,
+      "sha256": "5ff3bd9dfa6501fa6d85b1086a5fe6e679f6b0e8710a1f6298f57836722b24fc",
+      "kind": "model",
+      "references": [
+        "manifest:trialsWorldKitV1",
         "source:src/racing/racingManifest.js"
       ]
     },

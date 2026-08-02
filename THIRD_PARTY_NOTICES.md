@@ -1,5 +1,14 @@
 # Third-party notices
 
+## BIMobject research boundary
+
+Seventeen BIMobject product listings were reviewed as category-level research
+for motorsport and venue infrastructure. No BIMobject file was acquired, and
+no geometry, texture, material, metadata, product measurement, logo, or model
+derivative from BIMobject is included in Kaki Rally. The world-v3 environment
+kits are independent clean-room project artwork. The decision record is in
+`docs/BIMOBJECT_PERMISSION_NOTES.md` and `docs/ASSET_RIGHTS_LEDGER.json`.
+
 ## Snowflow research reference
 
 Kaki Dune Run’s terrain/deformation/wake design was researched against

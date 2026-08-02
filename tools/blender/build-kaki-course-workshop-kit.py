@@ -9,6 +9,7 @@ same compact material/decal family. No external model source is consumed.
 import math
 import os
 import random
+import sys
 from pathlib import Path
 
 import bpy
@@ -820,6 +821,10 @@ def export_glb():
         export_cameras=False,
         export_lights=False,
         export_extras=True,
+        export_draco_mesh_compression_enable=True,
+        export_draco_mesh_compression_level=6,
+        export_draco_position_quantization=14,
+        export_draco_normal_quantization=10,
     )
 
 
@@ -939,9 +944,12 @@ def main():
     ROOTS[:] = [roots_by_name[name] for name in FEATURE_NAMES]
     set_metadata()
     export_glb()
-    render_thumbnails()
+    if "--no-thumbnails" not in sys.argv:
+        render_thumbnails()
     print(f"Built {OUTPUT} ({OUTPUT.stat().st_size} bytes)")
-    print(f"Built {THUMBNAIL} ({THUMBNAIL.stat().st_size} bytes)")
+    if THUMBNAIL.exists():
+        print(f"Built {THUMBNAIL} ({THUMBNAIL.stat().st_size} bytes)")
+    print("Preserving hierarchy requires: node tools/optimize-course-workshop-kit.mjs")
 
 
 if __name__ == "__main__":

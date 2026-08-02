@@ -194,6 +194,42 @@ def triangular_flag(name, parent, location, scale, mat, flip=False):
     return obj
 
 
+def faceted_hull(name, parent, location, sections, mat, rotation=(0, 0, 0)):
+    """Create a tapered six-sided vehicle/structure hull without box primitives."""
+    vertices = []
+    for y, half_width, bottom, shoulder, roof_width, roof in sections:
+        vertices.extend([
+            (-half_width, y, bottom),
+            (half_width, y, bottom),
+            (half_width, y, shoulder),
+            (roof_width, y, roof),
+            (-roof_width, y, roof),
+            (-half_width, y, shoulder),
+        ])
+    faces = []
+    ring_size = 6
+    for section in range(len(sections) - 1):
+        first = section * ring_size
+        following = (section + 1) * ring_size
+        for edge in range(ring_size):
+            next_edge = (edge + 1) % ring_size
+            faces.append((first + edge, following + edge, following + next_edge, first + next_edge))
+    faces.append(tuple(reversed(range(ring_size))))
+    last = (len(sections) - 1) * ring_size
+    faces.append(tuple(last + edge for edge in range(ring_size)))
+    mesh = bpy.data.meshes.new(f"{name}_Mesh")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    obj.location = location
+    obj.rotation_euler = rotation
+    obj.data.materials.append(mat)
+    obj.parent = parent
+    finish_mesh(obj, bevel=0.12)
+    return obj
+
+
 def build_rock_spire(name, location, rock_light, rock_dark, lod=0):
     parent = parent_asset(name, location)
     count = 5 if lod == 0 else 3
@@ -405,8 +441,29 @@ def build_oasis(location, water_mat, trunk_mat, leaf_mat, rock_mat):
 
 def build_wreck(location, body_mat, dark_mat, metal_mat):
     parent = parent_asset("DuneWreckedRallyProp_A", location)
-    cube("Wreck_CrushedBody", parent, (0, 0, 0.58), (1.25, 2.05, 0.52), body_mat, bevel=0.24, rotation=(0.06, 0.08, -0.08))
-    cube("Wreck_CollapsedRoof", parent, (0.18, -0.35, 1.08), (0.88, 0.92, 0.18), dark_mat, bevel=0.16, rotation=(0.14, -0.08, 0.06))
+    faceted_hull(
+        "Wreck_TaperedCrushedShell",
+        parent,
+        (0, 0, 0.18),
+        [
+            (-2.08, 0.72, 0.08, 0.54, 0.42, 0.68),
+            (-1.35, 1.18, 0.04, 0.72, 0.72, 1.12),
+            (0.72, 1.24, 0.02, 0.68, 0.76, 0.96),
+            (1.78, 0.82, 0.10, 0.52, 0.46, 0.66),
+        ],
+        body_mat,
+        rotation=(0.06, 0.08, -0.08),
+    )
+    # The buckled roof is an asymmetric low-poly shell rather than a second
+    # rounded box, preserving the battered silhouette at racing distance.
+    faceted_hull(
+        "Wreck_BuckledRoofShell",
+        parent,
+        (0.16, -0.34, 0.82),
+        [(-0.92, 0.66, 0, 0.16, 0.48, 0.28), (0.78, 0.74, 0, 0.12, 0.42, 0.22)],
+        dark_mat,
+        rotation=(0.14, -0.08, 0.06),
+    )
     for side in (-1, 1):
         for axle in (-1, 1):
             cylinder(
@@ -460,15 +517,27 @@ def build_mesa(name, location, rock_light, rock_dark, lod=0):
         width = 5.6 - index * 0.72
         depth = 2.8 - index * 0.32
         height = 0.78 + index * 0.1
-        cube(
-            f"{name}_Layer_{index}",
+        ico(
+            f"{name}_Strata_{index}",
             parent,
             (0.24 * index, -0.12 * index, 0.5 + index * 0.74),
             (width, depth, height),
             rock_light if index % 2 else rock_dark,
-            bevel=0.38 if lod == 0 else 0.22,
+            subdivisions=2 if lod == 0 else 1,
             rotation=(0.02 * index, 0.03 * index, 0.035 * index),
+            bevel=0.11 if lod == 0 else 0.04,
         )
+        if lod == 0 and index < 3:
+            ico(
+                f"{name}_ErodedButtress_{index}",
+                parent,
+                (-width * 0.68 + index * 0.45, depth * 0.54, 0.34 + index * 0.42),
+                (width * 0.34, depth * 0.42, height * 1.45),
+                rock_light,
+                subdivisions=1,
+                rotation=(0.08, -0.14, -0.1 * index),
+                bevel=0.05,
+            )
     parent["lod"] = lod
     return parent
 
