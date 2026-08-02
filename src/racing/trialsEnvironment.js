@@ -1224,13 +1224,22 @@ export function buildTrialsEnvironment(session) {
   _buildTerrain(session, world, profile);
   _addSky(session, world, profile);
   _addClouds(session, world);
+  // The procedural theme story IS the venue identity: windmills, pennants,
+  // quarry spires and crown cloudways. It used to sit on the `else` arm of
+  // `if (session.assetLease?.ready)`, but `ready` is always a Promise.all and
+  // therefore always truthy, so none of it ever rendered. The two layers are
+  // complementary rather than alternatives — the theme story dresses the near
+  // band at z +/-4.5..5.9 on both sides, the authored kit adds a far vegetation
+  // band at z -9.4 — so build the story now and layer the kit on when it lands.
+  const themeId = _themeId(session.track);
+  if (themeId === 'quarry') _addQuarryStory(session, world, profile);
+  else if (themeId === 'crown') _addCrownStory(session, world, profile);
+  else _addMeadowStory(session, world, profile);
   if (session.assetLease?.ready) {
     session.assetLease.ready.then(() => {
       if (session.trialsEnvironment === world) _addAuthoredTrialsStory(session, world);
     }).catch(() => {});
-  } else if (_themeId(session.track) === 'quarry') _addQuarryStory(session, world, profile);
-  else if (_themeId(session.track) === 'crown') _addCrownStory(session, world, profile);
-  else _addMeadowStory(session, world, profile);
+  }
   _addLighting(session, world, profile);
   return world;
 }

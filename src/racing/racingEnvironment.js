@@ -1193,6 +1193,11 @@ function _sampleAtFraction(samples, fraction) {
   return samples[index];
 }
 
+/** Route fractions wrap; drift zones may span the start line. */
+function _wrapFraction(value) {
+  return (((Number(value) || 0) % 1) + 1) % 1;
+}
+
 /**
  * Compact discipline dressing layered on the shared Kaki biome. It gives
  * Whisker Yard judging zones and Thunderbowl stadium hardware a clear identity
@@ -1209,17 +1214,36 @@ function _buildDisciplineVenue(group, course, samples, rc, env) {
     });
     _registerGlow(env, zoneMaterial);
     const zoneGeometry = rc.geometry(new THREE.CylinderGeometry(0.34, 0.42, 0.14, 18));
-    const zoneTransforms = (course.driftZones || []).map((zone, index) => {
-      const sample = _sampleAtFraction(samples, zone.fraction);
-      return {
-        x: sample.x + sample.normal.x * (index % 2 ? -1.2 : 1.2),
-        y: (sample.y || 0) + 0.16,
-        z: sample.z + sample.normal.z * (index % 2 ? -1.2 : 1.2),
-        sx: zone.type === 'clipping' ? 1.2 : 0.84,
-        sy: 1,
-        sz: zone.type === 'outside' ? 2.4 : 0.84,
-      };
-    });
+    // Judged zones are spans, not points: driftAttack.freezeZone emits
+    // kind/from/to/targetLateral/width. Reading `fraction`/`type` here resolved
+    // every marker to samples[0], so a whole layout's markers stacked on the
+    // start line. Lay a run of markers along each span at the judged line
+    // instead, so the driver can read where the zone starts, ends and sits.
+    const zoneTransforms = [];
+    for (const zone of course.driftZones || []) {
+      const from = _wrapFraction(zone.from);
+      const to = _wrapFraction(zone.to);
+      const span = to >= from ? to - from : to + 1 - from;
+      if (span <= 0) continue;
+      const markers = Math.max(3, Math.min(14, Math.round(span / 0.012)));
+      const lateral = Number(zone.targetLateral) || 0;
+      const width = Math.max(0.35, Number(zone.width) || 1.2);
+      // 'outside' zones are run-off boxes and read wider along the route;
+      // 'clipping' points are tight and read narrow across it.
+      const alongScale = zone.kind === 'outside' ? 1.9 : zone.kind === 'initiation' ? 1.35 : 0.95;
+      const acrossScale = zone.kind === 'clipping' ? 0.78 : 1;
+      for (let step = 0; step < markers; step += 1) {
+        const sample = _sampleAtFraction(samples, _wrapFraction(from + (span * step) / (markers - 1)));
+        zoneTransforms.push({
+          x: sample.x + sample.normal.x * lateral,
+          y: (sample.y || 0) + 0.16,
+          z: sample.z + sample.normal.z * lateral,
+          sx: width * acrossScale,
+          sy: 1,
+          sz: alongScale,
+        });
+      }
+    }
     _instanced(group, zoneGeometry, zoneMaterial, zoneTransforms, { name: 'whisker-yard-judging-zones', cast: false });
 
     const poleGeometry = rc.geometry(new THREE.CylinderGeometry(0.075, 0.12, 5.6, 8));
