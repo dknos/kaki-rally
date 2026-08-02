@@ -318,6 +318,10 @@ export function getCourseDefinition(id, mode = 'circuit', options = {}) {
       trackWidth: layout.trackWidth,
       samples: layout.samples,
       laps: 99,
+      // Whisker Yard is a drift facility, not the Twilight rally route whose
+      // art profile it borrows. Do not inherit that course's jump/boost pads.
+      rampFractions: [],
+      boostFractions: [],
       repairFractions: [0.88],
       driftLayoutId: layout.id,
       driftZones: layout.zones,

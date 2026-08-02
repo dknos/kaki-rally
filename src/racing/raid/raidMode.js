@@ -23,6 +23,10 @@ import { createRaidTerrainProvider } from './raidTerrainProvider.js';
 import { RAID_SECTOR_METRES } from './raidSectorGenerator.js';
 import { clamp } from './raidSurfaceField.js';
 import { createRallyAssetLease } from '../racingAssets.js';
+import {
+  createRaidWorldPlan,
+} from '../worldLiveness.js';
+import { attachWorldLiveness } from '../worldLivenessRuntime.js';
 import { createRaidEnvironment } from './raidEnvironment.js';
 import { createRaidDust } from './raidDust.js';
 import { createRaidTrails } from './raidTrails.js';
@@ -220,7 +224,13 @@ export async function enterRaidMode(scene, options = {}) {
   // assets are pulled in and none of Raid's leak into another mode's load set.
   session.assetLease = createRallyAssetLease({
     mode: 'raid',
-    assetIds: ['raidEnvironmentKit', 'tipsyTumblerBody', 'monsterDecal'],
+    assetIds: [
+      'raidEnvironmentKit',
+      'desertServiceWorldKitV1',
+      'raceDayWorldKitV1',
+      'tipsyTumblerBody',
+      'monsterDecal',
+    ],
     renderer: state.renderer || null,
   });
   await session.assetLease.ready;
@@ -240,6 +250,18 @@ export async function enterRaidMode(scene, options = {}) {
       owned,
     });
     root.add(session.environment.root);
+    session.worldLiveness = attachWorldLiveness({
+      parent: session.environment.root,
+      assetLease: session.assetLease,
+      plans: createRaidWorldPlan({
+        startX: route.startX,
+        startZ: route.startZ,
+        heightAt: (x, z) => provider.heightAt(x, z),
+      }),
+      quality,
+      reduceMotion: !!state._optReduceMotion,
+      name: 'rally-raid-desert-service-world-v1',
+    });
   }
 
   refreshTerrainPatch(session, route.startX, route.startZ);
@@ -425,6 +447,7 @@ export function tickRaidMode(dt, elapsedDt = dt) {
   if (!session || session.disposed || !(dt > 0)) return;
   const started = (globalThis.performance || Date).now();
   session.elapsed += dt;
+  session.worldLiveness?.update?.(session.elapsed);
 
   // Fixed-step integration, decoupled from frame rate. No await, no allocation,
   // and no terrain generation inside this loop.
@@ -645,6 +668,7 @@ export function getRaidSnapshot() {
     sectors,
     patchRefreshes: session.patchRefreshes,
     scatter: session.environment?.stats || null,
+    worldLiveness: session.worldLiveness?.snapshot?.() || null,
     dust: session.dust ? { alive: session.dust.alive, capacity: session.dust.capacity } : null,
     trails: session.trails ? { alive: session.trails.alive, capacity: session.trails.capacity } : null,
     cameraMode: session.cameraMode,
@@ -684,6 +708,8 @@ export function exitRaidMode(scene, explicitSession = null) {
   session.hud = null;
 
   try { session.provider.dispose(); } catch (_) {}
+  try { session.worldLiveness?.dispose?.(); } catch (_) {}
+  session.worldLiveness = null;
   try { session.environment?.dispose(); } catch (_) {}
   try { session.dust?.dispose(); } catch (_) {}
   session.dust = null;

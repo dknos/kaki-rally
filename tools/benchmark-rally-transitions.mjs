@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import http from 'node:http';
@@ -28,6 +29,8 @@ const OUTPUT = path.join(
     ? `performance-hardware-${VIEWPORT.width}x${VIEWPORT.height}.json`
     : 'performance-transitions.json',
 );
+const SOURCE_COMMIT = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim();
+const SOURCE_TREE_DIRTY = execFileSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }).trim().length > 0;
 const CHROMIUM = [
   process.env.KAKI_RALLY_CHROMIUM,
   '/home/nemoclaw/bin/chromium',
@@ -154,7 +157,8 @@ page.on('response', (response) => {
 const report = {
   schema: 1,
   generatedAt: new Date().toISOString(),
-  sourceCommit: 'fc84c36518651c8d80fc708f7398db2536046fd4',
+  sourceCommit: SOURCE_COMMIT,
+  sourceTreeDirty: SOURCE_TREE_DIRTY,
   environment: {
     browser: CHROMIUM,
     renderer: 'webgl',

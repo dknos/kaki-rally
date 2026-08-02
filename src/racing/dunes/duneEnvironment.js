@@ -418,6 +418,7 @@ export function attachDuneEnvironmentKit(environment, gltf) {
 export function updateDuneEnvironment(environment, time, kart = null) {
   if (!environment || environment.disposed) return;
   const wind = environment.eventDefinition.weather === 'sandstorm' ? 1 : 0.42;
+  environment.worldLiveness?.update?.(time);
   for (let index = 0; index < environment.flags.length; index += 1) {
     const flag = environment.flags[index];
     const phase = finitePhase(flag.userData.windPhase);
@@ -451,12 +452,15 @@ export function duneEnvironmentSnapshot(environment) {
     drawPlacements: environment?.drawPlacementCount || 0,
     weather: environment?.eventDefinition?.weather || '',
     timeOfDay: environment?.eventDefinition?.timeOfDay || '',
+    worldLiveness: environment?.worldLiveness?.snapshot?.() || null,
   };
 }
 
 export function disposeDuneEnvironment(environment) {
   if (!environment || environment.disposed) return;
   environment.disposed = true;
+  environment.worldLiveness?.dispose?.();
+  environment.worldLiveness = null;
   environment.group.parent?.remove(environment.group);
   environment.sky.geometry.dispose();
   environment.skyMaterial.dispose();

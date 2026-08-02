@@ -109,7 +109,10 @@ check('Monster release working sets stay bounded with selected authored bodies',
     const bytes = ids.reduce((total, id) => (
       total + statSync(path.join(REPO_ROOT, RALLY_ASSET_MANIFEST[id].url)).size
     ), 0);
-    const budgetMiB = vehicle === 'tipsy' ? 6.5 : 3.5;
+    // The bounded Monster event perimeter and shared race-day kit add 0.80 MiB
+    // of Draco-compressed venue art. Keep a narrow ceiling around that explicit
+    // visual working set rather than letting optional audience assets slip in.
+    const budgetMiB = vehicle === 'tipsy' ? 7.4 : 4.4;
     expect(bytes < budgetMiB * 1024 * 1024, `${vehicle} release payload grew to ${(bytes / 1024 / 1024).toFixed(2)} MiB`);
   }
 });

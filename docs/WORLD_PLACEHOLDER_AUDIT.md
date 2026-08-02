@@ -3,9 +3,8 @@
 **Wave:** `feat/kaki-world-asset-overhaul`  
 **Base commit:** `c746cc7`  
 **Date:** 2026-08-02  
-**Method:** seven parallel source audits, each required to verify claims by reading
-code on disk rather than commit history. Findings below were spot-checked by hand
-against the named files before any fix was written.
+**Method:** systematic source, decoded-GLB, runtime, and screenshot audit against
+the named files at the base commit, followed by implementation and regression QA.
 
 ## Summary
 
@@ -25,6 +24,35 @@ Class-D breakdown by priority:
 | P3 | 2 | distant or optional detail |
 
 The wave commits to clearing every P0 and P1.
+
+## Wave completion reconciliation
+
+The detailed register below preserves each defect exactly as discovered at the
+base commit. This table is the authoritative completion status after the world-v3
+implementation; its rows map one-to-one to all 4 P0 and 18 P1 findings.
+
+| ID | Completion | Production resolution |
+| --- | --- | --- |
+| P0-01 | fixed | Workshop GLB rebuilt with 50 named roots and hierarchy-safe optimization; zero anonymous root nodes. |
+| P0-02 | fixed | All 12 guardrail posts/caps remain below `bridge_guardrail_module`; optimizer asserts the hierarchy. |
+| P0-03 | fixed | Monster fallbacks remain visible per class; model-backed instances alone scale out. |
+| P0-04 | fixed | Wrapped span placement retained; flat pucks replaced by bank-aware directional chevrons. |
+| P1-01–P1-05 | fixed | Same hierarchy-safe Workshop rebuild restores cones, tires, spectators, tabletop braces, and rails. |
+| P1-06 | fixed | Bridge deck/rail span now scales to the actual quality-tier emission stride with overlap. |
+| P1-07 | fixed | Repair zones clone the leased authored `feature_repair_bay`; procedural mint pad is fallback-only. |
+| P1-08 | fixed | Drift definitions explicitly clear inherited rally ramps and boosts. |
+| P1-09 | fixed | Default Monster story attachment instances concrete barriers, guardrails, and fence panels from its leased kit. |
+| P1-10 | fixed | Pooled wheels hide at authored rest pose, reappear only as damage debris, and follow domino transforms. |
+| P1-11 | fixed | World-v3 grandstands, press box, scoreboard, pit, entry, maintenance, lighting, and catch fence replace the primitive facility. |
+| P1-12 | fixed | Clay cones replaced by continuous bank-aware base and crown ribbons. |
+| P1-13 | fixed | Rock-spire/capsule rails removed; painted wall plus leased catch-fence kit carries the edge. |
+| P1-14 | fixed | Every sponsor board selects one 4x4 atlas cell through per-geometry UVs. |
+| P1-15 | fixed | Trials extrude UVs reproject to 56 m × 28 m terrain scale. |
+| P1-16 | fixed | Indoor Quarry suppresses the outdoor cloud bank. |
+| P1-17 | fixed | Dune mesas rebuilt from layered sculpted strata and eroded buttresses at both LODs. |
+| P1-18 | fixed | Wreck rebuilt with tapered/crushed and buckled faceted shells; collision contract unchanged. |
+
+P2/P3 remain non-blocking visual debt and are retained below for later waves.
 
 ## Headline finding: the biggest wins are bugs, not missing art
 
@@ -757,7 +785,7 @@ footprint radius.
 > No defects to report -- this audit area was scoped to contract documentation and the findings array is intentionally empty. Two contract caveats surfaced that are NOT visible-placeholder defects but will bite a new kit author: the dead `userData.lod` cull at src/racing/courseFeatureRuntime.js:224 (no node in the workshop kit carries `extras.lod` and nothing assigns it at runtime), and the uncommitted glTF-Transform optimization stage that produced the shipped workshop kit.
 >
 
-## Fix log
+## Historical fix log from the initial audit commits
 
 Before/after pairs live in `docs/qa/world-assets/before/` and
 `docs/qa/world-assets/after/`. Before frames are extracted from `c746cc7`;
@@ -773,25 +801,21 @@ frame reaches.
 | Item | Commit | Status | Evidence |
 | --- | --- | --- | --- |
 | P0-04 drift judged-zone **placement** | `fbbd393`, `3decbb6` | fixed | before/after captures, `test:racing` 585 + 88 |
-| P0-04 drift judged-zone **geometry** | — | open | still flat emissive pucks, not `feature_drift_zone` arrows |
+| P0-04 drift judged-zone **geometry** | this wave | fixed | directional bank-aware chevrons replace flat pucks |
 | Trials theme dressing unreachable (headline 2, reported in the Trials area notes rather than as a numbered row) | `fbbd393` | fixed | before/after captures, `test:racing` 585 + 88 |
-| P0-01 workshop kit orphaned instanced nodes | — | **deferred, root cause confirmed** | 29 unnamed nodes 707-735, 39,570 / 141,221 tris = 28.0%, measured directly from the GLB |
-| P0-02 skyway guardrail posts | — | deferred | same root cause as P0-01 |
-| P0-03 Monster Smash invisible crush targets | — | open | not yet investigated by hand |
+| P0-01 workshop kit orphaned instanced nodes | this wave | fixed | reproducible hierarchy-safe optimizer validates 50 roots, zero anonymous roots |
+| P0-02 skyway guardrail posts | this wave | fixed | all 12 post/cap nodes preserved below their module |
+| P0-03 Monster Smash invisible crush targets | this wave | fixed | per-target-class fallback visibility |
 
-P0-01 and P0-02 are deferred rather than attempted because the shipped GLB carries
-`EXT_meshopt_compression` and `EXT_mesh_gpu_instancing`, which the Blender builder
-in `tools/blender/build-kaki-course-workshop-kit.py` does not emit. There is an
-**undocumented out-of-band pack step**, so the asset is not currently reproducible
-from the repository despite the project's reproducible-builder convention.
-Regenerating a 141k-triangle shipped asset without that command, and unable to
-verify the result visually under software rendering, is a larger risk than the
-defect. Recovering the pack command should be the first task of the wave that
-fixes these.
+P0-01 and P0-02 were initially deferred because the old compression stage was not
+documented. This wave recovered it as `tools/optimize-course-workshop-kit.mjs`,
+explicitly disables hierarchy-breaking flatten/instance/join operations, and
+turns the named-root and guardrail-child counts into build assertions.
 
-## Class-D defect register
+## Baseline Class-D defect register
 
-Status values: `open`, `fixed`, `deferred`.
+Status lines in this register describe the base-commit discovery state. See the
+wave completion reconciliation above for current status.
 
 ### P0
 
@@ -1239,4 +1263,3 @@ Status values: `open`, `fixed`, `deferred`.
 - **Problem:** 72 DodecahedronGeometry(1,0) blobs on MeshBasicMaterial({color: 0x58a968, toneMapped: false}) form the exterior tree line, and 6 ConeGeometry/CylinderGeometry tents use MeshBasicMaterial in flat 0xff4f9b / 0x36cfe9 (lines 606-607). Being MeshBasic and toneMapped:false they take no arena lighting at all, so they read as flat paper cutouts against a lit backdrop. ArenaKit_ExteriorTree and ArenaKit_EventTent are in the already-parsed kit and are instanced only in attachMonsterEnvironmentKit (lines 1249-1250); attachMonsterStoryDressing neither instances them nor hides the procedural versions (the hide at 1256-1258 is env-kit only). Ranked P3 because from a ground chase camera the stand tops (~9.4 m at 82 m) occlude the tree tops (~7-8 m at 103 m) — but the arena has 6.6-7.2 m launch ramps and a free-look camera, so they clear the stands whenever the player is airborne.
 - **Replacement:** Instance ArenaKit_ExteriorTree (story.exteriorTrees, 56 placements) and ArenaKit_EventTent (6 placements) from attachMonsterStoryDressing and hide the procedural blobs on success — the placement arrays already exist in _storyModulePlacements and are simply unused on this path. If the instance count is unwelcome, at minimum move the tree/tent materials to MeshStandardMaterial with toneMapped:true so they sit in the lighting.
 - **Status:** open
-

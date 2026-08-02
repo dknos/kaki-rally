@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { requestTextureUploadIfReady } from '../rendering/textureUpload.js';
 import { createRallyGrassLayer } from './rallyGrass.js';
+import { createRacingWorldPlan } from './worldLiveness.js';
+import { attachWorldLiveness } from './worldLivenessRuntime.js';
 
 /**
  * Presentation-only environment kit for Kaki Rally.
@@ -735,8 +737,6 @@ function _buildCurbsAndRails(group, course, profile, samples, rc) {
   const step = stockWall ? 3 : 4;
   const first = [];
   const second = [];
-  const posts = [];
-  const rails = [];
   for (let i = 0, stripe = 0; i < samples.length; i += step, stripe++) {
     const sample = samples[i];
     for (const side of [-1, 1]) {
@@ -750,23 +750,6 @@ function _buildCurbsAndRails(group, course, profile, samples, rc) {
         sy: stockWall ? 1.28 : 0.72,
         sz: stockWall ? 1.38 : 1.02,
       });
-      if (stockWall && i % 6 === 0) {
-        const lateral = side * (course.trackWidth * 0.5 + 1.05);
-        posts.push({
-          x: sample.x + sample.normal.x * lateral,
-          y: (sample.y || 0) + 0.86,
-          z: sample.z + sample.normal.z * lateral,
-          yaw: Math.atan2(sample.tangent.x, sample.tangent.z),
-          sy: 1.25,
-        });
-        rails.push({
-          x: sample.x + sample.normal.x * lateral,
-          y: (sample.y || 0) + 1.16,
-          z: sample.z + sample.normal.z * lateral,
-          yaw: Math.atan2(sample.tangent.x, sample.tangent.z),
-          sz: 2.75,
-        });
-      }
     }
   }
   const curbGeometry = rc.geometry(new THREE.BoxGeometry(0.24, 0.12, 1.16, 1, 1, 2));
@@ -779,15 +762,10 @@ function _buildCurbsAndRails(group, course, profile, samples, rc) {
   });
   _instanced(group, curbGeometry, light, first, { name: 'rally-curb-light', cast: true, receive: true });
   _instanced(group, curbGeometry, accent, second, { name: 'rally-curb-accent', cast: true, receive: true });
-
-  if (stockWall) {
-    const postGeometry = _spireGeometry(1.25, 0.18, 6, rc, 31);
-    const railGeometry = rc.geometry(new THREE.CapsuleGeometry(0.12, 1.35, 3, 6));
-    railGeometry.rotateX(Math.PI * 0.5);
-    const metal = _material(rc, { color: 0x948b88, roughness: 0.42, metalness: 0.64 });
-    _instanced(group, postGeometry, metal, posts, { name: 'rally-guard-posts', cast: true });
-    _instanced(group, railGeometry, metal, rails, { name: 'rally-guard-rails', cast: true });
-  }
+  // Thunderbowl's authored stadium kit supplies the catch-fence silhouette.
+  // The former spire-and-capsule rail repeated around the oval looked like
+  // exposed primitive collision art; the painted wall blocks remain a clear
+  // low-tier edge treatment while the leased facility resolves.
 }
 
 function _distanceSqToTrack2D(x, z, samples) {
@@ -1148,7 +1126,6 @@ function _buildInfrastructure(group, course, profile, samples, rc, env, atlasTex
   _placeObject(finish, samples[0], 0, 0.125);
   group.add(finish);
 
-  const sponsorGeometry = rc.geometry(new THREE.PlaneGeometry(5.2, 3.25));
   const sponsorMaterial = _basicMaterial(rc, {
     map: atlasTexture,
     color: 0xffffff,
@@ -1172,6 +1149,23 @@ function _buildInfrastructure(group, course, profile, samples, rc, env, atlasTex
     if (!placement) continue;
     const board = new THREE.Group();
     board.name = 'rally-decal-atlas-board';
+    // The decal image is a 4x4 production atlas, not a billboard texture.
+    // Select one fictional Kaki mark per board so the contact sheet is never
+    // exposed as a player-visible prop.
+    const sponsorGeometry = rc.geometry(new THREE.PlaneGeometry(5.2, 3.25));
+    const uv = sponsorGeometry.attributes.uv;
+    const tile = [5, 8, 15][i % 3];
+    const column = tile % 4;
+    const row = Math.floor(tile / 4);
+    const u0 = column / 4;
+    const u1 = (column + 1) / 4;
+    const v0 = 1 - (row + 1) / 4;
+    const v1 = 1 - row / 4;
+    uv.setXY(0, u0, v1);
+    uv.setXY(1, u1, v1);
+    uv.setXY(2, u0, v0);
+    uv.setXY(3, u1, v0);
+    uv.needsUpdate = true;
     const panel = _mesh(sponsorGeometry, sponsorMaterial);
     panel.position.y = 2.25;
     board.add(panel);
@@ -1198,6 +1192,26 @@ function _wrapFraction(value) {
   return (((Number(value) || 0) % 1) + 1) % 1;
 }
 
+function _driftChevronGeometry(rc) {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.5, -0.72);
+  shape.lineTo(0.52, 0);
+  shape.lineTo(-0.5, 0.72);
+  shape.lineTo(-0.16, 0);
+  shape.closePath();
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: 0.08,
+    bevelEnabled: true,
+    bevelSize: 0.035,
+    bevelThickness: 0.025,
+    bevelSegments: 1,
+    curveSegments: 1,
+  });
+  geometry.rotateX(-Math.PI * 0.5);
+  geometry.center();
+  return rc.geometry(geometry);
+}
+
 /**
  * Compact discipline dressing layered on the shared Kaki biome. It gives
  * Whisker Yard judging zones and Thunderbowl stadium hardware a clear identity
@@ -1213,7 +1227,7 @@ function _buildDisciplineVenue(group, course, samples, rc, env) {
       metalness: 0.35,
     });
     _registerGlow(env, zoneMaterial);
-    const zoneGeometry = rc.geometry(new THREE.CylinderGeometry(0.34, 0.42, 0.14, 18));
+    const zoneGeometry = _driftChevronGeometry(rc);
     // Judged zones are spans, not points: driftAttack.freezeZone emits
     // kind/from/to/targetLateral/width. Reading `fraction`/`type` here resolved
     // every marker to samples[0], so a whole layout's markers stacked on the
@@ -1246,11 +1260,16 @@ function _buildDisciplineVenue(group, course, samples, rc, env) {
           sx: width * acrossScale,
           sy: 1,
           sz: alongScale,
+          yaw: Math.atan2(sample.tangent.x, sample.tangent.z),
         });
       }
     }
     _instanced(group, zoneGeometry, zoneMaterial, zoneTransforms, { name: 'whisker-yard-judging-zones', cast: false });
 
+    const legacyYardLights = new THREE.Group();
+    legacyYardLights.name = 'whisker-yard-legacy-lighting-fallback';
+    group.add(legacyYardLights);
+    env.disciplineFallback = legacyYardLights;
     const poleGeometry = rc.geometry(new THREE.CylinderGeometry(0.075, 0.12, 5.6, 8));
     const lampGeometry = rc.geometry(new THREE.SphereGeometry(0.22, 10, 7));
     const poleMaterial = _material(rc, { color: 0x263142, roughness: 0.5, metalness: 0.72 });
@@ -1265,12 +1284,16 @@ function _buildDisciplineVenue(group, course, samples, rc, env) {
         z: sample.z + sample.normal.z * side * lateral,
       });
     }
-    _instanced(group, poleGeometry, poleMaterial, towers, { name: 'whisker-yard-floodlight-poles', cast: true });
-    _instanced(group, lampGeometry, zoneMaterial, towers.map((tower) => ({ ...tower, y: tower.y + 2.8 })), { name: 'whisker-yard-floodlight-heads', cast: false });
+    _instanced(legacyYardLights, poleGeometry, poleMaterial, towers, { name: 'whisker-yard-floodlight-poles', cast: true });
+    _instanced(legacyYardLights, lampGeometry, zoneMaterial, towers.map((tower) => ({ ...tower, y: tower.y + 2.8 })), { name: 'whisker-yard-floodlight-heads', cast: false });
     return;
   }
 
   if (course.mode === 'stock') {
+    const legacyFacility = new THREE.Group();
+    legacyFacility.name = 'thunderbowl-legacy-primitive-facility';
+    group.add(legacyFacility);
+    env.disciplineFallback = legacyFacility;
     const clay = course.stockVariant === 'dirt';
     const standMaterial = _material(rc, {
       color: clay ? 0x8a4f58 : 0x788697,
@@ -1304,8 +1327,8 @@ function _buildDisciplineVenue(group, course, samples, rc, env) {
         });
       }
     }
-    _instanced(group, standGeometry, standMaterial, stands, { name: clay ? 'thunderbowl-clay-grandstands' : 'thunderbowl-concrete-grandstands', cast: true, receive: true });
-    _instanced(group, seatGeometry, seatMaterial, seats, { name: 'thunderbowl-spectator-rows', cast: false });
+    _instanced(legacyFacility, standGeometry, standMaterial, stands, { name: clay ? 'thunderbowl-clay-grandstands' : 'thunderbowl-concrete-grandstands', cast: true, receive: true });
+    _instanced(legacyFacility, seatGeometry, seatMaterial, seats, { name: 'thunderbowl-spectator-rows', cast: false });
 
     const pylonGeometry = rc.geometry(new THREE.BoxGeometry(1.65, 7.5, 1.65));
     const pylonTopGeometry = rc.geometry(new THREE.BoxGeometry(3.1, 1.6, 0.38));
@@ -1320,19 +1343,20 @@ function _buildDisciplineVenue(group, course, samples, rc, env) {
     pylon.add(pylonBody, pylonTop);
     const pylonSample = _sampleAtFraction(samples, 0.28);
     _placeObject(pylon, pylonSample, -(course.trackWidth * 0.5 + 15.5), 0);
-    group.add(pylon);
+    legacyFacility.add(pylon);
 
     if (clay) {
       const cushionMaterial = _material(rc, { color: 0xb87655, roughness: 0.88, metalness: 0.02 });
-      const cushionGeometry = rc.geometry(new THREE.ConeGeometry(0.72, 1.25, 7));
-      const cushions = [];
-      for (const [index, fraction] of [0.12, 0.18, 0.24, 0.72, 0.78, 0.84].entries()) {
-        const sample = _sampleAtFraction(samples, fraction);
-        const side = index % 2 ? -1 : 1;
-        const lateral = course.trackWidth * 0.5 + 1.8;
-        cushions.push({ x: sample.x + sample.normal.x * side * lateral, y: (sample.y || 0) + 0.62, z: sample.z + sample.normal.z * side * lateral });
+      const cushionHighlight = _material(rc, { color: 0xd09568, roughness: 0.96, metalness: 0 });
+      const distances = _trackDistances(samples);
+      for (const side of [-1, 1]) {
+        const lateral = side * (course.trackWidth * 0.5 + 1.2);
+        const base = _mesh(_ribbonGeometry(samples, lateral, 1.7, 0.08, rc, distances, 8), cushionMaterial, { receive: true });
+        base.name = 'thunderbowl-clay-cushion-base';
+        const crown = _mesh(_ribbonGeometry(samples, lateral, 0.72, 0.16, rc, distances, 8), cushionHighlight, { receive: true });
+        crown.name = 'thunderbowl-clay-cushion-crown';
+        group.add(base, crown);
       }
-      _instanced(group, cushionGeometry, cushionMaterial, cushions, { name: 'thunderbowl-clay-cushion', cast: true });
     }
   }
 }
@@ -1405,6 +1429,9 @@ export function buildRallyEnvironment({
     authoredReady: false,
     authoredScatter: null,
     grass: null,
+    terrainHeightAt: null,
+    worldLiveness: null,
+    disciplineFallback: null,
   };
 
   const decalAtlas = atlasTexture || _loadTexture('racing/kaki-rally-decal-atlas-imagegen-v1.webp', rc, { anisotropy });
@@ -1415,6 +1442,7 @@ export function buildRallyEnvironment({
 
   _buildSky(group, course, profile, bounds, rc, env, anisotropy);
   const terrain = _buildGround(group, course, profile, bounds, samples, rc, anisotropy);
+  env.terrainHeightAt = terrain.heightAt;
   _buildTrackLayers(group, course, profile, samples, rc, anisotropy);
   env.grass = createRallyGrassLayer({
     course,
@@ -1466,6 +1494,24 @@ export function buildRallyEnvironment({
         env.authoredScatter = authored;
         env.authoredReady = true;
       }
+      const plans = createRacingWorldPlan({
+        course,
+        mode,
+        samples,
+        heightAt: terrain.heightAt,
+        quality,
+      });
+      env.worldLiveness = attachWorldLiveness({
+        parent: group,
+        assetLease,
+        plans,
+        quality,
+        reduceMotion,
+        name: `${course.id}-${mode}-world-liveness-v3`,
+      });
+      if (env.worldLiveness?.placementCount > 0 && env.disciplineFallback) {
+        env.disciplineFallback.visible = false;
+      }
     }).catch(() => {});
   }
 
@@ -1478,6 +1524,7 @@ export function updateRallyEnvironment(env, time, dt = 0) {
   env.elapsed = Number.isFinite(time) ? time : env.elapsed + Math.max(0, dt);
   const t = env.elapsed;
   env.grass?.update(t);
+  env.worldLiveness?.update(t);
   for (let i = 0; i < env.glowMaterials.length; i++) {
     const material = env.glowMaterials[i];
     const base = material.userData.rallyBaseEmissiveIntensity ?? 1;
@@ -1515,6 +1562,8 @@ export function disposeRallyEnvironment(env) {
   env.disposed = true;
   env.grass?.dispose?.();
   env.grass = null;
+  env.worldLiveness?.dispose?.();
+  env.worldLiveness = null;
   env.group?.removeFromParent();
   for (const type of ['geometries', 'materials', 'textures']) {
     const resources = env.resources[type];

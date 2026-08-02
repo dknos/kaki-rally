@@ -36,7 +36,11 @@ import {
 import { buildMonsterTruck } from './monsterSmash.js';
 import { createRallyAssetLease, getRallyAssetCacheSnapshot } from './racingAssets.js';
 import { buildGhostVehicle, buildTrialsBuggy } from './racingVehicles.js';
-import { buildTrialsEnvironment, updateTrialsEnvironment } from './trialsEnvironment.js';
+import {
+  buildTrialsEnvironment,
+  disposeTrialsEnvironment,
+  updateTrialsEnvironment,
+} from './trialsEnvironment.js';
 import { attachRacingCameraManager } from './cameras/cameraSessionBinding.js';
 import { createTrialsParticleMaterial } from '../rendering/materials/trialsParticleMaterial.js';
 import { buildTrialsCourseFeatureVisuals } from './courseFeatureRuntime.js';
@@ -1767,6 +1771,7 @@ export function exitTrialsMode(scene, explicitSession = null) {
   } catch (_) {}
   try { session.particleMesh?.dispose?.(); } catch (_) {}
   try { session.courseFeatureVisuals?.dispose?.(); } catch (_) {}
+  try { disposeTrialsEnvironment(session); } catch (_) {}
   try { session.root?.parent?.remove(session.root); } catch (_) {}
   for (const texture of session.owned?.textures || []) { try { texture.dispose(); } catch (_) {} }
   for (const material of session.owned?.materials || []) { try { material.dispose(); } catch (_) {} }
@@ -1906,6 +1911,10 @@ export function getTrialsSnapshot() {
     countdown: session.countdown,
     callout: session.callout,
     camera: session.cameraManager?.getSnapshot() || null,
+    environment: {
+      authoredReady: !!session.trialsEnvironment?.authoredReady,
+      worldLiveness: session.trialsEnvironment?.worldLiveness?.snapshot?.() || null,
+    },
     assets: {
       ids: session.assetLease?.ids || [],
       error: session.assetError || '',

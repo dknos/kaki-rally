@@ -47,6 +47,10 @@ import { attachRacingCameraManager } from '../cameras/cameraSessionBinding.js';
 import { clamp, formatRaceTime, normalizeAngle } from '../physics.js';
 import { mapRacingSteerInput } from '../racingSteering.js';
 import {
+  createDuneWorldPlan,
+} from '../worldLiveness.js';
+import { attachWorldLiveness } from '../worldLivenessRuntime.js';
+import {
   createDrawDuneEvent,
   DUNE_EVENTS,
   duneWindVector,
@@ -1053,6 +1057,19 @@ export async function enterDuneMode(scene, options = {}) {
     if (!attachDuneEnvironmentKit(session.duneEnvironment, session.assetLease.models.duneEnvironmentKit)) {
       throw new Error('The authored Dune Run environment kit could not be attached');
     }
+    session.duneEnvironment.worldLiveness = attachWorldLiveness({
+      parent: session.duneEnvironment.group,
+      assetLease: session.assetLease,
+      plans: createDuneWorldPlan({
+        event,
+        samples: session.samples,
+        heightAt: (x, z) => session.surfaceField.heightAt(x, z),
+        quality: quality.shadow,
+      }),
+      quality: quality.shadow,
+      reduceMotion: !!state._optReduceMotion,
+      name: `${event.id}-desert-service-world-v1`,
+    });
 
     hero.parent?.remove(hero);
     session.visual = buildPlayerVisual(session, hero);

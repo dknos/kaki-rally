@@ -27,6 +27,13 @@ export const RALLY_ASSET_MANIFEST = Object.freeze({
   monsterArenaVfx: Object.freeze({ url: 'assets/racing/monster-arena/vfx/arena-vfx-atlas.webp', kind: 'color' }),
   duneEnvironmentKit: Object.freeze({ url: 'assets/racing/dunes/kaki-dune-environment-kit-v1.glb', kind: 'model' }),
   raidEnvironmentKit: Object.freeze({ url: 'assets/racing/raid/kaki-raid-environment-kit-v1.glb', kind: 'model' }),
+  roadsideWorldKitV3: Object.freeze({ url: 'assets/racing/world-v3/roadside/kaki-rally-roadside-kit-v3.glb', kind: 'model' }),
+  industrialWorldKitV1: Object.freeze({ url: 'assets/racing/world-v3/industrial/kaki-industrial-yard-kit-v1.glb', kind: 'model' }),
+  stadiumWorldKitV1: Object.freeze({ url: 'assets/racing/world-v3/stadium/kaki-thunderbowl-facility-kit-v1.glb', kind: 'model' }),
+  monsterEventWorldKitV2: Object.freeze({ url: 'assets/racing/world-v3/monster/kaki-monster-event-kit-v2.glb', kind: 'model' }),
+  desertServiceWorldKitV1: Object.freeze({ url: 'assets/racing/world-v3/desert/kaki-desert-service-kit-v1.glb', kind: 'model' }),
+  trialsWorldKitV1: Object.freeze({ url: 'assets/racing/world-v3/trials/kaki-trials-infrastructure-kit-v1.glb', kind: 'model' }),
+  raceDayWorldKitV1: Object.freeze({ url: 'assets/racing/world-v3/shared/kaki-race-day-props-kit-v1.glb', kind: 'model' }),
   duneKeyArt: Object.freeze({ url: 'assets/racing/dunes/kaki-dune-run-key-art-imagegen-v1.webp', kind: 'color' }),
   duneSandDetail: Object.freeze({
     url: 'assets/racing/dunes/kaki-dune-sand-detail-imagegen-v1.webp',
@@ -108,7 +115,7 @@ export function rallyAssetIds(
   courseId,
   mode = 'circuit',
   monsterVehicleId = 'meowster',
-  { monsterProductionAssets = false } = {},
+  { monsterProductionAssets = false, drawThemeId = '' } = {},
 ) {
   // Release Monster Smash uses the decimated, instanced traffic kit plus a
   // bounded selection of authored arena props. The expensive full stadium and
@@ -137,6 +144,8 @@ export function rallyAssetIds(
       'monsterArenaCrowd',
       'monsterArenaGroundDecals',
       'monsterArenaVfx',
+      'monsterEventWorldKitV2',
+      'raceDayWorldKitV1',
     ];
   }
   if (mode === 'dunes') {
@@ -152,14 +161,31 @@ export function rallyAssetIds(
       'duneEnvironmentKit',
       'duneKeyArt',
       'duneSandDetail',
+      'desertServiceWorldKitV1',
+      'raceDayWorldKitV1',
     ];
   }
   const ids = new Set(['decalAtlas']);
   const courseIds = RALLY_COURSE_ASSETS[courseId] || RALLY_COURSE_ASSETS.forest;
   for (const id of courseIds) ids.add(id);
+  ids.add('raceDayWorldKitV1');
+  if (mode === 'drift') ids.add('industrialWorldKitV1');
+  else if (mode === 'stock') ids.add('stadiumWorldKitV1');
+  else if (mode === 'draw') {
+    if (drawThemeId === 'industrial') ids.add('industrialWorldKitV1');
+    else if (drawThemeId === 'desert') ids.add('desertServiceWorldKitV1');
+    else if (drawThemeId === 'neon' || drawThemeId === 'dirt') ids.add('stadiumWorldKitV1');
+    else ids.add('roadsideWorldKitV3');
+  } else ids.add('roadsideWorldKitV3');
   return [...ids];
 }
 
 export function trialsAssetIds(courseId) {
-  return ['decalAtlas', 'monsterDecal', ...(TRIALS_COURSE_ASSETS[courseId] || TRIALS_COURSE_ASSETS.meadow)];
+  return [
+    'decalAtlas',
+    'monsterDecal',
+    'trialsWorldKitV1',
+    'raceDayWorldKitV1',
+    ...(TRIALS_COURSE_ASSETS[courseId] || TRIALS_COURSE_ASSETS.meadow),
+  ];
 }

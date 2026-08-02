@@ -1270,15 +1270,15 @@ export function attachMonsterEnvironmentKit(arena, gltf) {
 }
 
 /**
- * Default-release authored dressing. This intentionally keeps the cheap
- * procedural stadium shell and gameplay landmarks, then adds only the small
- * story props that materially improve depth and material variety. All props
- * remain instanced and do not cast individual real-time shadows.
+ * Default-release authored dressing. Safety modules and story props are
+ * instanced from the already-leased environment kit and do not cast individual
+ * real-time shadows; procedural geometry remains only as loading fallback.
  */
 export function attachMonsterStoryDressing(arena, gltf) {
   if (!arena || !gltf?.scene || arena.storyDressingAttached || arena.environmentKitAttached) return false;
   const root = new THREE.Group();
   root.name = `${arena.definition.id}-runtime-story-dressing`;
+  const stadium = _stadiumModulePlacements(arena.definition);
   const story = _storyModulePlacements(arena.definition);
   const meshes = [];
   const add = (name, placements, options = {}) => {
@@ -1287,6 +1287,9 @@ export function attachMonsterStoryDressing(arena, gltf) {
       cast: false,
     }));
   };
+  add('ArenaKit_ConcreteBarrier', stadium.barriers);
+  add('ArenaKit_Guardrail', stadium.guardrails);
+  add('ArenaKit_FencePanel', stadium.fences);
   add('ArenaKit_Container', story.containerPlacements);
   add('ArenaKit_TireStack', story.tireStacks);
   add('ArenaKit_FuelDrum', story.drums);
@@ -1306,6 +1309,9 @@ export function attachMonsterStoryDressing(arena, gltf) {
   }
 
   arena.group.add(root);
+  // The authored safety ring replaces the closest player-visible row of flat
+  // coloured boxes while the lightweight grandstand/tower fallback remains.
+  if (arena.stadium?.barriers) arena.stadium.barriers.visible = false;
   // Crown Chaos already has three temporary primitive containers. Replace
   // those overlaps while retaining its neon rings and every gameplay marker.
   if (arena.definition.dressing !== 'pyramid-yard' && arena.dressing?.fallbackGroup) {

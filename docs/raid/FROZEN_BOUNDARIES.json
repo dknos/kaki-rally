@@ -2,7 +2,7 @@
   "schema": 1,
   "product": "Kaki Rally",
   "scope": "Kaki Rally Raid (Desert Expedition) additive-mode boundary",
-  "baselineCommit": "054df5a75482968263bc379ba6986018938b74cc",
+  "baselineCommit": "1adadae5e50832cc10e065402a24620359f066ef",
   "policy": {
     "frozen": "Every file under `files` must stay byte-identical. A digest mismatch fails the wave unless the final report documents the file, the reason, proof that an adapter could not solve it, regression tests, and before/after evidence.",
     "seams": "Only the paths under `seams` may change, and only additively, default-off outside Raid, and covered by a non-regression test."
@@ -197,7 +197,7 @@
     },
     {
       "path": "src/racing/courseFeatureRuntime.js",
-      "sha256": "17c0e3990c6d46c8c9b84792cc8b1fc0d3fa801c2ae0006c638fd678851fc6f1"
+      "sha256": "5dd471cec602ea29db4c67ab59b4e375ade0603e1b8a842be00c94bcbca17d86"
     },
     {
       "path": "src/racing/courseFeatureSurfaces.js",
@@ -373,7 +373,7 @@
     },
     {
       "path": "src/racing/dunes/dune.css",
-      "sha256": "992c124b570185eaa790abbc909a4454216f61d41500b1a5ecff29bc8ece6966"
+      "sha256": "36d35e22242aa543aaa3f1d85c6deeae479a49c54270016f0bba669f0bd883aa"
     },
     {
       "path": "src/racing/dunes/duneClipmap.js",
@@ -389,7 +389,7 @@
     },
     {
       "path": "src/racing/dunes/duneEnvironment.js",
-      "sha256": "f752104f5b9408e76cae125522c2cf9354946b3d29ec953546dd444ced48895a"
+      "sha256": "5d2b8d00f747428b3062bcf45e29f0c148959ccc3b16872838dafbd9f597986e"
     },
     {
       "path": "src/racing/dunes/duneEvents.js",
@@ -409,7 +409,7 @@
     },
     {
       "path": "src/racing/dunes/duneMode.js",
-      "sha256": "62afdf171b795182b164e1a0bd60f0947d3ec9e8a9185fe85ad2a6c8bf3767b3"
+      "sha256": "a213f1c74f629692fdf6af8a07c5ff6b8ed76420f464c31944ade1fe67c3f828"
     },
     {
       "path": "src/racing/dunes/dunePhysicsRange.js",
@@ -441,7 +441,7 @@
     },
     {
       "path": "src/racing/monsterArena.js",
-      "sha256": "43bab0278e08e44612734a989f2340670ad1970a97435ce769c657d270c69263"
+      "sha256": "7f8e862eb2f7fe4306ffc8db893bac4aa5b553f0b98161e1af918d752f672a89"
     },
     {
       "path": "src/racing/monsterArenaDefinition.js",
@@ -449,7 +449,7 @@
     },
     {
       "path": "src/racing/monsterDestruction.js",
-      "sha256": "a9267d89876c7ef5600078edb32f541806486f44678dd17f7f79552baaaf9b1b"
+      "sha256": "0cdd5c905d3e9671e13139ed53e32a0581b16c2e79193cc86a0edcf2e2fd82bd"
     },
     {
       "path": "src/racing/monsterDestructionRules.js",
@@ -485,11 +485,11 @@
     },
     {
       "path": "src/racing/racingAssets.js",
-      "sha256": "d5effddd3cad4a7f7fe4e4765ae2a58d783bf82f180832c7cf7eb4bc6694d194"
+      "sha256": "89feaaed65a26b3d6d4d081bc5f98716f751702659b97466f4dd5583c63e0a32"
     },
     {
       "path": "src/racing/racingEnvironment.js",
-      "sha256": "731bd6c0c99d359647e65a6d6b170bad580b162bbd158135e8436ac366f2a662"
+      "sha256": "3f1c14857699cac2a71c02a220454c14592785ed769696a26d78b031bffa5476"
     },
     {
       "path": "src/racing/racingSteering.js",
@@ -513,15 +513,15 @@
     },
     {
       "path": "src/racing/tracks.js",
-      "sha256": "1ffbf15326da1ab6a579b6da4789eaeb513aada628c1deb537a14ef296264394"
+      "sha256": "6e0da538a1f5ba824a3859827e6b1a533f5cc35593c7a5ddfe7f984da6900adf"
     },
     {
       "path": "src/racing/trialsEnvironment.js",
-      "sha256": "78385b1e7b431a81893509e56be9ee573dfbe5aa1a06381ab1e028f37118536c"
+      "sha256": "5b8b3d56f343feefc345e33a834315f3698b5e02470ecafb602ce8c2f823fe4f"
     },
     {
       "path": "src/racing/trialsMode.js",
-      "sha256": "1af7b77038da9db52250f1e8ca7d71d06cf292da399338541f5c536ae53f22c7"
+      "sha256": "0c2a4115838d6925c3fb28e12cbe61e19fafd8ca53350d3c5e62a68133e5fbed"
     },
     {
       "path": "src/racing/trialsPhysics.js",

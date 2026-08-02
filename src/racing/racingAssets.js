@@ -87,12 +87,13 @@ export function createRallyAssetLease({
   rendererService = null,
   trials = false,
   monsterProductionAssets = false,
+  drawThemeId = '',
   assetIds = null,
   manifest = RALLY_ASSET_MANIFEST,
 } = {}) {
   const ids = assetIds || (trials
     ? trialsAssetIds(courseId)
-    : rallyAssetIds(courseId, mode, monsterVehicleId, { monsterProductionAssets }));
+    : rallyAssetIds(courseId, mode, monsterVehicleId, { monsterProductionAssets, drawThemeId }));
   const entries = ids.map((id) => _acquire(id, rendererService || renderer, manifest));
   const textureEntries = entries.filter((entry) => entry.kind === 'texture');
   const entriesById = Object.fromEntries(ids.map((id, index) => [id, entries[index]]));

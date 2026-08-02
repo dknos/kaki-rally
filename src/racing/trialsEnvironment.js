@@ -9,6 +9,10 @@
 import * as THREE from 'three';
 import { state } from '../state.js';
 import { sampleTrialsGround } from './trialsTracks.js';
+import {
+  createTrialsWorldPlan,
+} from './worldLiveness.js';
+import { attachWorldLiveness } from './worldLivenessRuntime.js';
 
 const TAU = Math.PI * 2;
 const SURFACE_DEPTH = 8.8;
@@ -520,6 +524,19 @@ function _buildTerrain(session, world, profile) {
       steps: 1,
     });
     bodyGeometry.translate(0, 0, -SURFACE_DEPTH * 0.5);
+    // ExtrudeGeometry's default UV generator uses world-sized coordinates.
+    // Combined with the material repeat, that produced sub-metre texture
+    // noise across the side camera. Re-project at a readable terrain scale.
+    const bodyPositions = bodyGeometry.attributes.position;
+    const bodyUvs = bodyGeometry.attributes.uv;
+    for (let vertex = 0; vertex < bodyPositions.count; vertex += 1) {
+      bodyUvs.setXY(
+        vertex,
+        bodyPositions.getX(vertex) / 56,
+        (bodyPositions.getY(vertex) - baseline) / 28,
+      );
+    }
+    bodyUvs.needsUpdate = true;
     const body = _mesh(session, bodyGeometry, materials.earth, `trials-terrain-mass-${rangeIndex}`);
     body.receiveShadow = true;
     root.add(body);
@@ -777,6 +794,10 @@ function _setInstance(mesh, index, x, y, z, sx, sy, sz, rotationZ = 0, rotationY
 function _addClouds(session, world) {
   const { track, root } = session;
   const themeId = _themeId(track);
+  // The quarry's painted horizon already carries atmospheric haze. A second
+  // layer of round white puffs read as foreground spheres against its compact
+  // side-on composition, so reserve cloud banks for Meadow and Crown.
+  if (themeId === 'quarry') return;
   const cloudCount = Math.ceil((track.length + 150) / 92);
   const puffCount = cloudCount * 4;
   const material = _basic(session, {
@@ -1218,6 +1239,8 @@ export function buildTrialsEnvironment(session) {
     lighting: null,
     authoredReady: false,
     authoredStory: null,
+    worldLiveness: null,
+    disposed: false,
     drawCallGroups: Object.freeze({ terrain: 'per contiguous range', decor: 'instanced by family', atmosphere: 'single cloud bank' }),
   };
   session.trialsEnvironment = world;
@@ -1237,7 +1260,19 @@ export function buildTrialsEnvironment(session) {
   else _addMeadowStory(session, world, profile);
   if (session.assetLease?.ready) {
     session.assetLease.ready.then(() => {
-      if (session.trialsEnvironment === world) _addAuthoredTrialsStory(session, world);
+      if (session.trialsEnvironment !== world || world.disposed) return;
+      _addAuthoredTrialsStory(session, world);
+      world.worldLiveness = attachWorldLiveness({
+        parent: session.root,
+        assetLease: session.assetLease,
+        plans: createTrialsWorldPlan({
+          track: session.track,
+          groundAt: (x) => sampleTrialsGround(session.track, x),
+        }),
+        quality: state.options?.quality || 'high',
+        reduceMotion: !!state._optReduceMotion,
+        name: `trials-${themeId}-infrastructure-world-v1`,
+      });
     }).catch(() => {});
   }
   _addLighting(session, world, profile);
@@ -1252,6 +1287,7 @@ export function updateTrialsEnvironment(session, time, dt = 0) {
   world.clock = Number.isFinite(time) ? time : world.clock + safeDt;
   _fitBackdropToCamera(session, world);
   const t = world.clock;
+  world.worldLiveness?.update?.(t);
   const reducedMotion = !!state._optReduceMotion;
   const reducedFlashing = !!state._optReducedFlashing;
   const accessibilityChanged = world.reducedMotion !== reducedMotion
@@ -1311,4 +1347,12 @@ export function updateTrialsEnvironment(session, time, dt = 0) {
     const pulse = animateAmbientPulse ? 1 + Math.sin(t * 0.72) * 0.035 : 1;
     world.sunHalo.scale.setScalar(pulse);
   }
+}
+
+export function disposeTrialsEnvironment(session) {
+  const world = session?.trialsEnvironment;
+  if (!world || world.disposed) return;
+  world.disposed = true;
+  world.worldLiveness?.dispose?.();
+  world.worldLiveness = null;
 }

@@ -497,8 +497,10 @@
   .kkd-topbar button {
     top: 2px;
     right: 5px;
-    min-width: 44px;
-    min-height: 44px;
+    /* Mobile overlay roots render at 0.92 scale; 48 authored pixels retain a
+       standards-sized 44+ CSS-pixel physical target. */
+    min-width: 48px;
+    min-height: 48px;
   }
   .kkd-route {
     top: calc(var(--race-safe-top) + 67px);
@@ -549,7 +551,7 @@
   .kkd-touch button,
   .kkd-bank {
     min-width: 66px;
-    min-height: 44px;
+    min-height: 48px;
     border: 1px solid rgba(255, 226, 179, .34);
     border-radius: 7px;
     padding: 9px;

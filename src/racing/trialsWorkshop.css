@@ -764,17 +764,24 @@ body.ktr-open {
 @media (max-height: 430px) and (orientation: landscape) {
   .ktr-editor {
     grid-template:
-      "head" 88px
-      "work" 152px
+      "head" 96px
+      /* The overlay root is scaled to 0.92 on this mobile stage. A 162 px
+         workspace leaves a physical 141+ px terrain canvas after padding. */
+      "work" 162px
       "panel" 150px
       / minmax(0, 1fr);
   }
-  .ktr-header { grid-template: 44px 44px / minmax(0, 1fr) auto; }
+  .ktr-header { grid-template: 48px 48px / minmax(0, 1fr) auto; }
   .ktr-brand { padding-block: 4px; }
   .ktr-brand > span,
   .ktr-brand p { display: none; }
   .ktr-brand h1 { font-size: 14px; }
   .ktr-stages { padding-block: 0; }
+  .ktr-stages button,
+  .ktr-header-actions button {
+    min-width: 48px;
+    min-height: 48px;
+  }
   .ktr-workspace { padding: 4px 6px; }
   .ktr-workspace::before { inset: 4px 6px; }
   .ktr-canvas { min-height: 0; }
@@ -795,7 +802,7 @@ body.ktr-open {
     gap: 4px;
   }
   .ktr-terrain-tools button {
-    min-height: 44px;
+    min-height: 48px;
     padding: 3px 2px;
     font-size: 6px;
   }

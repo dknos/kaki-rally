@@ -373,11 +373,16 @@ export function buildCourseBridgeVisuals({
       if (sample.y < 0.45 || !sample.overpassIds?.length) continue;
       const previous = samples[(index - 1 + samples.length) % samples.length];
       const next = samples[(index + 1) % samples.length];
-      const span = Math.max(0.9, Math.hypot(
+      const neighbourSpan = Math.hypot(
         next.x - previous.x,
         next.y - previous.y,
         next.z - previous.z,
-      ) * 0.58);
+      );
+      // previous->next covers two sample intervals. Scale to the actual
+      // emission stride (plus a small overlap) so the visible deck and rails
+      // remain continuous at every quality tier.
+      const deckSpan = Math.max(0.9, neighbourSpan * deckStep * 0.52);
+      const railSpan = Math.max(0.9, neighbourSpan * railStep * 0.52);
       const yaw = Math.atan2(sample.tangent.x, sample.tangent.z);
       const pitch = Math.atan2(sample.tangent.y, Math.hypot(sample.tangent.x, sample.tangent.z) || 1);
       if (addModule('bridge_deck_module', {
@@ -387,7 +392,7 @@ export function buildCourseBridgeVisuals({
         yaw,
         pitch,
         scaleX: widthScale,
-        scaleZ: span / 2.45,
+        scaleZ: deckSpan / 2.45,
         instanceName: `skyway-deck-${index}`,
       })) diagnostics.deckModules++;
       if (index % railStep === 0 && addModule('bridge_guardrail_module', {
@@ -397,7 +402,7 @@ export function buildCourseBridgeVisuals({
         yaw,
         pitch,
         scaleX: widthScale,
-        scaleZ: Math.max(0.72, span / 3.7),
+        scaleZ: Math.max(0.72, railSpan / 3.7),
         instanceName: `skyway-rail-${index}`,
       })) diagnostics.railModules++;
     }

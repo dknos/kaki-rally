@@ -126,6 +126,10 @@ import {
   updateRallyEnvironment,
 } from './racingEnvironment.js';
 import {
+  createMonsterWorldPlan,
+} from './worldLiveness.js';
+import { attachWorldLiveness } from './worldLivenessRuntime.js';
+import {
   createRacingVfx,
   spawnRacingDamageSmoke,
   spawnRacingDust,
@@ -321,7 +325,7 @@ function _roundedPadGeometry(width, length, height, radius = 0.2) {
   return geometry;
 }
 
-function _buildFeaturePads(course, samples, root, owned) {
+function _buildFeaturePads(course, samples, root, owned, assetLease = null) {
   const rampIndices = course.rampFractions.map((f) => _indexForFraction(f, samples.length));
   const boostIndices = course.boostFractions.map((f) => _indexForFraction(f, samples.length));
   const repairIndices = (course.repairFractions || []).map((f) => _indexForFraction(f, samples.length));
@@ -366,14 +370,32 @@ function _buildFeaturePads(course, samples, root, owned) {
     _placeAtSample(pad, samples[index], 0, 0.18);
     root.add(pad);
   }
-  const repairMat = new THREE.MeshStandardMaterial({
-    color: 0x63ffc2,
-    emissive: 0x21d895,
-    emissiveIntensity: 1.2,
-    roughness: 0.38,
-  });
-  owned.materials.add(repairMat);
+  const authoredRepairSource = assetLease?.models?.courseWorkshopKit?.scene
+    ?.getObjectByName?.('feature_repair_bay') || null;
+  let repairMat = null;
   for (const index of repairIndices) {
+    if (authoredRepairSource) {
+      const bay = authoredRepairSource.clone(true);
+      bay.name = `authored-repair-bay-${index}`;
+      bay.userData.presentationOnly = true;
+      bay.traverse((object) => {
+        if (!object.isMesh) return;
+        object.castShadow = true;
+        object.receiveShadow = true;
+        object.frustumCulled = true;
+        object.userData.presentationOnly = true;
+      });
+      _placeAtSample(bay, samples[index], -(course.trackWidth * 0.36), 0.12);
+      root.add(bay);
+      continue;
+    }
+    repairMat ||= new THREE.MeshStandardMaterial({
+      color: 0x63ffc2,
+      emissive: 0x21d895,
+      emissiveIntensity: 1.2,
+      roughness: 0.38,
+    });
+    owned.materials.add(repairMat);
     const bay = new THREE.Group();
     const plate = _ownedMesh(_roundedPadGeometry(3.2, 6.8, 0.08, 0.32), repairMat, owned);
     bay.add(plate);
@@ -476,7 +498,7 @@ function _buildCourse(course, root, owned, assetLease = null, monsterDefinition 
     : TrackMeshBuilder.buildOverpasses({ root, course, samples, owned });
   const features = course.mode === 'draw'
     ? { rampIndices: [], boostIndices: [], repairIndices: [] }
-    : _buildFeaturePads(course, samples, root, owned);
+    : _buildFeaturePads(course, samples, root, owned, assetLease);
   const courseFeatureRuntimes = course.mode === 'draw'
     ? buildCircuitFeatureRuntime(course.featurePlacements || [], samples, course)
     : [];
@@ -2584,6 +2606,7 @@ function _snapshot(session) {
       ? {
           authoredReady: !!session.environment.authoredReady,
           grass: session.environment.grass?.getStats?.() || null,
+          worldLiveness: session.environment.worldLiveness?.snapshot?.() || null,
         }
       : null,
     monster: session.raceMode === 'monster'
@@ -2614,6 +2637,7 @@ function _snapshot(session) {
           vehicleContact: monsterContactPatchSnapshot(player),
           eventMode: session.monsterEvent,
           spotlight: monsterSpotlightSnapshot(session.monsterSpotlight),
+          worldLiveness: session.monsterWorldLiveness?.snapshot?.() || null,
           records: monsterRecordSnapshot(session.monsterRecordRun),
           ghostVisible: !!session.monsterGhostRoute?.visible,
           landingPredictorVisible: !!session.monsterLandingPredictor?.visible,
@@ -2721,6 +2745,7 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
     environment: null,
     monsterArenaDefinition,
     monsterArenaView: null,
+    monsterWorldLiveness: null,
     monsterVehicleId,
     monsterVehicleProfile,
     monsterEvent,
@@ -2834,6 +2859,7 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
       mode: raceMode,
       monsterVehicleId,
       monsterProductionAssets: session.monsterProductionAssets,
+      drawThemeId: course.drawThemeId || '',
       rendererService: state.rendererService,
     });
     session.assetLease.ready.then(() => {
@@ -2976,6 +3002,19 @@ export function enterRacing(scene, courseId = 'forest', options = {}) {
           }
         }).catch(() => {});
       }
+      if (session.assetLease.ids.includes('monsterEventWorldKitV2')) {
+        session.assetLease.whenReady('monsterEventWorldKitV2').then(() => {
+          if (state.racing !== session || session.disposed || !session.monsterArenaView?.group) return;
+          session.monsterWorldLiveness = attachWorldLiveness({
+            parent: session.monsterArenaView.group,
+            assetLease: session.assetLease,
+            plans: createMonsterWorldPlan(session.monsterArenaDefinition),
+            quality: state.options.quality || 'high',
+            reduceMotion: !!state._optReduceMotion,
+            name: 'monster-smash-event-world-v2',
+          });
+        }).catch(() => {});
+      }
       if (session.monsterProductionAssets) {
         session.assetLease.whenReady('monsterAudienceBank').then((model) => {
           if (state.racing !== session || session.disposed) return;
@@ -3059,6 +3098,7 @@ export function tickRacing(dt, elapsedDt = dt) {
   _tickCameraFx(session, dt);
   updateRallyEnvironment(session.environment, session.raceTime + session.countdown, dt);
   updateMonsterArena(session.monsterArenaView, session.raceTime + session.countdown, dt, session.smashFlash || 0);
+  session.monsterWorldLiveness?.update?.(session.raceTime + session.countdown);
   if (session.phase === 'flyover') {
     const label = session.cameraManager?.lastFrame?.label;
     if (label && session.flyover?.label) session.flyover.label.textContent = label;
@@ -3920,6 +3960,7 @@ export function exitRacing(scene, explicitSession = null) {
   }
   try { disposeRallyEnvironment(session.environment); } catch (_) {}
   try { disposeMonsterArena(session.monsterArenaView); } catch (_) {}
+  try { session.monsterWorldLiveness?.dispose?.(); } catch (_) {}
   try { session.courseFeatureVisuals?.dispose?.(); } catch (_) {}
   try { session.overpassKit?.dispose?.(); } catch (_) {}
   try {

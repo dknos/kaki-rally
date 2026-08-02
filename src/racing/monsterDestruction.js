@@ -111,6 +111,23 @@ function _composeDominoPart(target, localY, localZ, sx, sy, sz, pitchAdjust = 0,
   return _pivotMatrix;
 }
 
+function _composeDominoWheel(target, localX, localY, localZ, scale, spin = 0, cant = 0) {
+  _dominoPoseMatrix(target);
+  _offsetMatrix.makeTranslation(localX, localY, localZ);
+  _pivotMatrix.multiply(_offsetMatrix);
+  if (spin) {
+    _rotationMatrix.makeRotationX(spin);
+    _pivotMatrix.multiply(_rotationMatrix);
+  }
+  if (cant) {
+    _rotationMatrix.makeRotationZ(cant);
+    _pivotMatrix.multiply(_rotationMatrix);
+  }
+  _scaleMatrix.makeScale(scale, scale, scale);
+  _pivotMatrix.multiply(_scaleMatrix);
+  return _pivotMatrix;
+}
+
 function _dominoWorldPoint(target, localX = 0, localY = 0, localZ = 0) {
   _dominoPoseMatrix(target);
   _dominoPoint.set(localX, localY, localZ).applyMatrix4(_pivotMatrix);
@@ -482,9 +499,13 @@ export function attachMonsterTrafficModels(arena, gltf) {
   arena.trafficModelRoot = trafficModelRoot;
   arena.trafficMeshes = trafficMeshes;
   arena.trafficModelsAttached = true;
-  arena.bodies.visible = false;
-  arena.roofs.visible = false;
-  arena.canopies.visible = false;
+  // Keep the pooled fallback meshes enabled for target classes that do not
+  // have an authored traffic model (notably the score-bearing haybale tunnel
+  // and stunt-team line). Model-backed targets are hidden per instance in the
+  // update loop, so attaching one class can never erase another class.
+  arena.bodies.visible = true;
+  arena.roofs.visible = true;
+  arena.canopies.visible = true;
   updateMonsterDestruction(arena, 0, null, { time: arena.time, run: arena.run });
   return true;
 }
@@ -1366,14 +1387,15 @@ export function updateMonsterDestruction(arena, dt, kart, options = {}) {
     const widthScale = stats.width / MONSTER_TARGET_CLASSES.sedan.width;
     const heightScale = stats.height / MONSTER_TARGET_CLASSES.sedan.height;
     const appear = Math.max(0.0001, target.respawnProgress);
+    const fallbackAppear = target.visualInstances?.length ? 0.0001 : appear;
     if (target.dominoGroup) {
       arena.bodies.setMatrixAt(index, _composeDominoPart(
         target,
         stats.wheel + stats.height * 0.48 - crush * stats.height * 0.27,
         stats.length * 0.5,
-        widthScale * (1 + damage * 0.08) * appear,
-        heightScale * Math.max(0.16, 1 - crush * 0.78 - damage * 0.12) * appear,
-        lengthScale * (1 - damage * 0.06) * appear,
+        widthScale * (1 + damage * 0.08) * fallbackAppear,
+        heightScale * Math.max(0.16, 1 - crush * 0.78 - damage * 0.12) * fallbackAppear,
+        lengthScale * (1 - damage * 0.06) * fallbackAppear,
         0,
         direction * damage * 0.08,
       ));
@@ -1384,9 +1406,9 @@ export function updateMonsterDestruction(arena, dt, kart, options = {}) {
         target.y - sectionCrush * stats.height * 0.25,
         target.z + Math.cos(target.yaw) * bodyShift,
         target.yaw,
-        widthScale * (1 + damage * 0.08) * appear,
-        heightScale * Math.max(0.16, 1 - sectionCrush * 0.78 - damage * 0.12) * appear,
-        lengthScale * (1 - damage * 0.045 - sectionCrush * 0.1) * appear,
+        widthScale * (1 + damage * 0.08) * fallbackAppear,
+        heightScale * Math.max(0.16, 1 - sectionCrush * 0.78 - damage * 0.12) * fallbackAppear,
+        lengthScale * (1 - damage * 0.045 - sectionCrush * 0.1) * fallbackAppear,
         target.pitch + damage * 0.05 + crushBias * 0.12,
         target.roll + direction * damage * 0.08,
       ));
@@ -1398,9 +1420,9 @@ export function updateMonsterDestruction(arena, dt, kart, options = {}) {
         target,
         stats.wheel + stats.height * (isTall ? 0.86 : 0.72) - crush * stats.height * 0.34,
         stats.length * (isTall ? 0.48 : 0.45),
-        widthScale * (isTall ? 1.03 : 0.86) * appear,
-        heightScale * (isTall ? 1.25 : 0.72) * Math.max(0.14, 1 - crush * 0.7) * appear,
-        lengthScale * (isTall ? 0.95 : 0.64) * appear,
+        widthScale * (isTall ? 1.03 : 0.86) * fallbackAppear,
+        heightScale * (isTall ? 1.25 : 0.72) * Math.max(0.14, 1 - crush * 0.7) * fallbackAppear,
+        lengthScale * (isTall ? 0.95 : 0.64) * fallbackAppear,
         0,
         direction * damage * 0.1,
       ));
@@ -1411,14 +1433,14 @@ export function updateMonsterDestruction(arena, dt, kart, options = {}) {
         target.y + stats.height * (isTall ? 0.38 : 0.24) - sectionCrush * stats.height * 0.34,
         target.z + Math.cos(target.yaw) * roofShift - Math.sin(target.yaw) * stats.length * 0.05,
         target.yaw + direction * damage * 0.06,
-        widthScale * (isTall ? 1.03 : 0.86) * appear,
-        heightScale * (isTall ? 1.25 : 0.72) * Math.max(0.14, 1 - sectionCrush * 0.7) * appear,
-        lengthScale * (isTall ? 0.95 : 0.64) * appear,
+        widthScale * (isTall ? 1.03 : 0.86) * fallbackAppear,
+        heightScale * (isTall ? 1.25 : 0.72) * Math.max(0.14, 1 - sectionCrush * 0.7) * fallbackAppear,
+        lengthScale * (isTall ? 0.95 : 0.64) * fallbackAppear,
         target.pitch + damage * 0.08 + crushBias * 0.16,
         target.roll + direction * damage * 0.1,
       ));
     }
-    const canopyScale = isTall ? 0.0001 : appear;
+    const canopyScale = isTall ? 0.0001 : fallbackAppear;
     if (target.dominoGroup) {
       arena.canopies.setMatrixAt(index, _composeDominoPart(
         target,
@@ -1509,11 +1531,27 @@ export function updateMonsterDestruction(arena, dt, kart, options = {}) {
       const axleCrush = front > 0 ? crushFront : crushRear;
       const point = _localPoint(target, side * stats.width * 0.51 * (1 + axleCrush * 0.16), front * stats.length * 0.31);
       const pop = axleCrush > 0.16 ? Math.sin(axleCrush * Math.PI) * (0.55 + wheelIndex * 0.09) : 0;
-      arena.wheels.setMatrixAt(index * 4 + wheelIndex, _compose(
-        point.x, target.baseY + stats.wheel + pop, point.z, target.yaw,
-        stats.wheel / 0.36 * appear, stats.wheel / 0.36 * appear, stats.wheel / 0.36 * appear,
-        axleCrush * (2.8 + wheelIndex), axleCrush * (wheelIndex - 1.5),
-      ));
+      // Authored models already include intact wheels. Reveal pooled wheels
+      // only once an axle is visibly crushed so they read as detached debris,
+      // while model-less target classes retain their complete fallback.
+      const wheelAppear = target.visualInstances?.length && axleCrush <= 0.16 ? 0.0001 : appear;
+      const wheelScale = stats.wheel / 0.36 * wheelAppear;
+      const wheelMatrix = target.dominoGroup
+        ? _composeDominoWheel(
+          target,
+          side * stats.width * 0.51 * (1 + axleCrush * 0.16),
+          stats.wheel + pop,
+          front * stats.length * 0.31,
+          wheelScale,
+          axleCrush * (2.8 + wheelIndex),
+          axleCrush * (wheelIndex - 1.5),
+        )
+        : _compose(
+          point.x, target.baseY + stats.wheel + pop, point.z, target.yaw,
+          wheelScale, wheelScale, wheelScale,
+          axleCrush * (2.8 + wheelIndex), axleCrush * (wheelIndex - 1.5),
+        );
+      arena.wheels.setMatrixAt(index * 4 + wheelIndex, wheelMatrix);
     }
     for (let shard = 0; shard < 3; shard += 1) {
       const angle = target.yaw + index * 1.31 + shard * Math.PI * 2 / 3;
