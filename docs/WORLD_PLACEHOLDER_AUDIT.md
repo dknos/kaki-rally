@@ -757,6 +757,38 @@ footprint radius.
 > No defects to report -- this audit area was scoped to contract documentation and the findings array is intentionally empty. Two contract caveats surfaced that are NOT visible-placeholder defects but will bite a new kit author: the dead `userData.lod` cull at src/racing/courseFeatureRuntime.js:224 (no node in the workshop kit carries `extras.lod` and nothing assigns it at runtime), and the uncommitted glTF-Transform optimization stage that produced the shipped workshop kit.
 >
 
+## Fix log
+
+Before/after pairs live in `docs/qa/world-assets/before/` and
+`docs/qa/world-assets/after/`. Before frames are extracted from `c746cc7`;
+after frames come from targeted WebGL scope runs on this branch.
+
+Trials Meadow after/before: the near band gains ground-level meadow flowers
+either side of the racing line, an added left-hand tree, and pink mochi
+blossom on the right-hand tree, where the baseline midground was bare. The
+change is subtler than Drift Attack's because the meadow story's larger
+landmarks, the windmills, sit further along the 780 m stage than the start
+frame reaches.
+
+| Item | Commit | Status | Evidence |
+| --- | --- | --- | --- |
+| P0-04 drift judged-zone **placement** | `fbbd393`, `3decbb6` | fixed | before/after captures, `test:racing` 585 + 88 |
+| P0-04 drift judged-zone **geometry** | — | open | still flat emissive pucks, not `feature_drift_zone` arrows |
+| Trials theme dressing unreachable (headline 2, reported in the Trials area notes rather than as a numbered row) | `fbbd393` | fixed | before/after captures, `test:racing` 585 + 88 |
+| P0-01 workshop kit orphaned instanced nodes | — | **deferred, root cause confirmed** | 29 unnamed nodes 707-735, 39,570 / 141,221 tris = 28.0%, measured directly from the GLB |
+| P0-02 skyway guardrail posts | — | deferred | same root cause as P0-01 |
+| P0-03 Monster Smash invisible crush targets | — | open | not yet investigated by hand |
+
+P0-01 and P0-02 are deferred rather than attempted because the shipped GLB carries
+`EXT_meshopt_compression` and `EXT_mesh_gpu_instancing`, which the Blender builder
+in `tools/blender/build-kaki-course-workshop-kit.py` does not emit. There is an
+**undocumented out-of-band pack step**, so the asset is not currently reproducible
+from the repository despite the project's reproducible-builder convention.
+Regenerating a 141k-triangle shipped asset without that command, and unable to
+verify the result visually under software rendering, is a larger risk than the
+defect. Recovering the pack command should be the first task of the wave that
+fixes these.
+
 ## Class-D defect register
 
 Status values: `open`, `fixed`, `deferred`.
@@ -801,7 +833,16 @@ Status values: `open`, `fixed`, `deferred`.
 - **Collision required:** False
 - **Problem:** The judging zones are the entire visual identity of Drift Attack and they do not exist on the route. Two separate defects. (1) Geometry: CylinderGeometry(0.34, 0.42, 0.14, 18) pucks with a flat emissive MeshStandardMaterial (color 0xffc15d / emissive 0xff6c9c, no map/normalMap/roughnessMap) — untextured primitives, 0.34 m radius, sitting 1.2 m off the centreline. (2) Data-contract mismatch: line 1213 reads `zone.fraction` and lines 1218/1220 read `zone.type`, but `freezeZone` in src/racing/drift/driftAttack.js:24-35 only emits `from`, `to`, `kind`, `targetLateral`, `width`, `targetSpeed`. `_sampleAtFraction(samples, undefined)` → `Number(undefined) || 0` → index 0, so EVERY marker of every layout is placed on samples[0], and sx/sz always take the else branch (0.84/0.84). Net result: 4-5 pucks piled on top of each other at the start line and zero markers anywhere else on the loop. Corroborated by docs/qa/targeted/webgl-drift/webgl-drift.png — HUD reads "0/4 ZONES" and no marker is visible anywhere along Wall Run. Verified nothing else in the codebase writes `fraction`/`type` onto driftZones (only tracks.js:323 assigns `driftZones: layout.zones`).
 - **Replacement:** `feature_drift_zone` from courseWorkshopKit (assets/racing/workshop/kaki-course-workshop-kit-v1.glb — ALREADY leased for the twilight art course, zero manifest change; contains drift_zone_arrow_-6/0/6_mesh with authored workshop_decal materials, catalog footprint [8.5, 18, 1] at courseFeatureCatalog.js:110). CRITICAL: the fix must also remap the fields — from/to → placement span along the spline, kind → variant (initiation/clipping/transition/outside). Swapping geometry alone still piles all arrows on samples[0].
-- **Status:** open
+- **Status:** **fixed (placement)** in `fbbd393`, bank-corrected in `3decbb6`. Defect (2), the
+  data-contract mismatch, is resolved: zones are now treated as spans and markers run along each
+  one at the judged lateral offset, sized by the zone's own `width` and `kind`, with wrapping spans
+  handled. Wall Run places 45 markers across five zones instead of five stacked on `samples[0]`.
+  **Verified visually**: `docs/qa/targeted/webgl-drift/webgl-drift.png` now shows markers running
+  along the racing line into the distance where the `c746cc7` baseline
+  (`docs/qa/targeted/webgl-all/webgl-drift.png`) shows none anywhere on the route.
+  Defect (1), the untextured puck geometry, is **still open** — the markers are correctly placed
+  but still render as flat emissive cylinders rather than the authored `feature_drift_zone` arrows.
+  Swapping the geometry is now a self-contained follow-up because the placement contract is fixed.
 
 ### P1
 

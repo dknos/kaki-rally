@@ -95,16 +95,26 @@ produced captures that recorded neither the before nor the after state.
 | Trials theme dressing built unconditionally | `test:racing` 585 + 88 assertions; z-band non-overlap verified by reading both placement paths |
 | `npm test` after frozen-boundary exceptions | PASS end to end |
 
-**Not yet visually verified.** No rendered frame of either fix has been
-inspected. Both rest on the automated suite plus offline verification of the
-placement maths. Closing that gap is the first task of the next session:
-targeted WebGL captures of Whisker Yard and the three Trials venues, compared
-against `docs/qa/targeted/webgl-all/webgl-drift.png` and `webgl-trials.png` at
-`c746cc7`.
+**Visually verified.** Targeted WebGL scope runs (`--scope drift`,
+`--scope trials`) both pass and their captures confirm the fixes.
+
+- **Drift Attack, Whisker Yard Wall Run.** The `c746cc7` baseline shows no judged-zone
+  marker anywhere on the route. After the fix, markers run along the racing line and
+  curve away into the distance at the judged lateral offset. Camera, car position,
+  speed (112 km/h) and score (90) are unchanged between frames, so the markers are the
+  only difference.
+- **Kaki Trials, Mochi Meadow.** The baseline near band is bare either side of the
+  racing line. After the fix it carries ground-level meadow flowers, an added
+  left-hand tree, and pink mochi blossom on the right-hand tree. Subtler than the
+  drift case because the meadow story's windmills sit further along the 780 m stage
+  than the start frame reaches.
+
+Still unverified: the two fixes on ultrawide, mobile landscape, and the low/high
+quality tiers, and under WebGPU.
 
 ## Evidence
 
 - Baseline WebGPU captures: `docs/qa/targeted/webgpu-all/` (clean passing run)
 - Baseline WebGL captures: `docs/qa/targeted/webgl-all/` at `c746cc7`, restored
   after an overlapping run corrupted them
-- `docs/qa/world-assets/before/` and `after/`: **not yet populated**
+- `docs/qa/world-assets/before/` and `after/`: drift and trials pairs
