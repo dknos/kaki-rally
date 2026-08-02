@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
-  "generatedAt": "2026-07-29T09:07:39.477Z",
+  "generatedAt": "2026-08-02T08:29:30.575Z",
   "chromium": "/home/nemoclaw/bin/chromium",
   "requestedBackend": "webgl",
   "webgl": {
@@ -10,7 +10,10 @@
       "consoleErrors": [],
       "badResponses": [],
       "failedRequests": [],
-      "expectedAborts": [],
+      "expectedAborts": [
+        "net::ERR_ABORTED http://127.0.0.1:46041/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js"
+      ],
+      "expectedAudioDeviceErrors": [],
       "frozenModeRequests": []
     },
     "modes": {
@@ -43,10 +46,10 @@
         },
         "dpr": 1,
         "fps": 0,
-        "cpuFrameTimeMs": 55.5,
-        "cpuFrameTimeP99Ms": 55.5,
-        "renderSubmissionTimeMs": 55,
-        "renderSubmissionTimeP99Ms": 55,
+        "cpuFrameTimeMs": 51,
+        "cpuFrameTimeP99Ms": 51,
+        "renderSubmissionTimeMs": 50.600000001490116,
+        "renderSubmissionTimeP99Ms": 50.600000001490116,
         "drawCalls": 13,
         "renderCalls": 14,
         "frameRenderCalls": 14,
@@ -57,7 +60,7 @@
         "textures": 14,
         "renderTargets": 12,
         "geometries": 1,
-        "gpuMemoryBytes": 33662205,
+        "gpuMemoryBytes": 33662788,
         "programs": 12,
         "compilationEventCount": 0,
         "recentCompilationEvents": [],
@@ -78,7 +81,7 @@
         "instances": 0
       },
       "estimatedGpuMemoryBytes": 68935776,
-      "domNodes": 162,
+      "domNodes": 167,
       "modeOwnedDomNodes": 0,
       "hudRoots": 0,
       "sessionRoots": 0,
@@ -145,9 +148,9 @@
       "transitions": [
         {
           "label": "boot-menu",
-          "at": 295.6999999284744,
+          "at": 277,
           "mode": "menu",
-          "domNodes": 162,
+          "domNodes": 167,
           "hudRoots": 0,
           "sceneObjects": 4,
           "sessionRoots": 0,
@@ -214,7 +217,7 @@
       ],
       "frameCount": 1,
       "stateDiagnostics": {
-        "bootedAt": 1785316059807,
+        "bootedAt": 1785659370879,
         "sourceCommit": "fc84c36518651c8d80fc708f7398db2536046fd4",
         "rendererFallback": null,
         "modeTransitions": 0,
@@ -258,9 +261,9 @@
         "badResponses": [],
         "failedRequests": [],
         "expectedAborts": [
-          "net::ERR_ABORTED http://127.0.0.1:33953/vendor/three/examples/jsm/libs/draco/draco_decoder.wasm",
-          "net::ERR_ABORTED http://127.0.0.1:33953/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js"
+          "net::ERR_ABORTED http://127.0.0.1:46041/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js"
         ],
+        "expectedAudioDeviceErrors": [],
         "frozenModeRequests": []
       }
     },
@@ -291,7 +294,7 @@
         "minTouchTarget": null,
         "coarse": true
       },
-      "autoDressCount": 14,
+      "autoDressCount": 10,
       "collapsedHeight": 58,
       "portrait": {
         "orientationGate": true,
@@ -308,16 +311,16 @@
       "trialsLandscape": {
         "overflowX": 0,
         "canvas": {
-          "x": 6,
+          "x": 5.519999980926514,
           "y": 92,
-          "width": 832,
-          "height": 144,
+          "width": 832.9593505859375,
+          "height": 141.6800079345703,
           "top": 92,
-          "right": 838,
-          "bottom": 236,
-          "left": 6
+          "right": 838.479350566864,
+          "bottom": 233.6800079345703,
+          "left": 5.519999980926514
         },
-        "minTouchTarget": 44,
+        "minTouchTarget": 44.15997314453125,
         "terrainTools": 12,
         "visibleTerrainTools": 12
       },
@@ -327,9 +330,9 @@
         "badResponses": [],
         "failedRequests": [],
         "expectedAborts": [
-          "net::ERR_ABORTED http://127.0.0.1:33953/vendor/three/examples/jsm/libs/draco/draco_wasm_wrapper.js",
-          "net::ERR_ABORTED http://127.0.0.1:33953/vendor/three/examples/jsm/libs/draco/draco_decoder.wasm"
+          "net::ERR_ABORTED http://127.0.0.1:46041/vendor/three/examples/jsm/libs/draco/draco_decoder.wasm"
         ],
+        "expectedAudioDeviceErrors": [],
         "frozenModeRequests": []
       }
     },
@@ -352,18 +355,18 @@
       "hud": {
         "x": 0,
         "y": 0,
-        "width": 844,
-        "height": 390,
+        "width": 843.9993896484375,
+        "height": 389.9937438964844,
         "top": 0,
-        "right": 844,
-        "bottom": 390,
+        "right": 843.9993896484375,
+        "bottom": 389.9937438964844,
         "left": 0
       },
       "coarse": true,
       "orientationGate": false,
       "duneTouchButtons": 3,
       "visibleDuneTouchButtons": 3,
-      "minTouchTarget": 44,
+      "minTouchTarget": 44.15997314453125,
       "routeCameraOverlap": false,
       "snapshot": {
         "mode": "racing",
@@ -384,27 +387,28 @@
           "id": "meowster",
           "name": "Mighty Meowster"
         },
-        "speed": 16.20232400342132,
-        "x": 61.87738907571509,
-        "y": 0.8000217056955311,
-        "z": -144.37068689524722,
+        "rallyRaid": null,
+        "speed": 16.201766016786255,
+        "x": 61.877236222223594,
+        "y": 0.5559628606546818,
+        "z": -144.36974990495327,
         "grounded": true,
         "telemetry": {
-          "speed": 16.20232400342132,
-          "forwardVelocity": 15.449241564292018,
-          "engineRpm": 5782.474597097033,
-          "requestedDriveForce": 36541.24521862081,
-          "deliveredWheelForce": 36541.24521862081,
+          "speed": 16.201766016786255,
+          "forwardVelocity": 15.452171338611452,
+          "engineRpm": 5783.502708105175,
+          "requestedDriveForce": 36526.243790924185,
+          "deliveredWheelForce": 36526.243790924185,
           "normalLoad": 0,
-          "chassisPitchVelocity": -0.4898920275239016,
-          "chassisRoll": 0.03551001565207984,
+          "chassisPitchVelocity": -2.3753087113976035,
+          "chassisRoll": 0.0033741282355024675,
           "steeringInput": 0.72,
           "wheelAngle": 0.21589248423695645,
           "groundedWheels": 4,
-          "sandResistance": 0.8101162001710661,
+          "sandResistance": 0.8100883008393128,
           "brushStrength": 0,
           "sinkage": 0.008,
-          "wheelSlip": 0.017998648870224745
+          "wheelSlip": 0.011251916097056815
         },
         "race": {
           "elapsed": 0.16666666666666666,
@@ -414,6 +418,7 @@
           "checkpoint": 1,
           "checkpoints": 19,
           "score": 0,
+          "penaltySeconds": 0,
           "recoveries": 0,
           "finished": false
         },
@@ -431,7 +436,7 @@
               -8.878320693969727,
               13.8679780960083
             ],
-            "checksum": "3c66a808"
+            "checksum": "f7668039"
           },
           "clipmap": {
             "quality": "low",
@@ -441,6 +446,8 @@
             "triangles": 28032,
             "staticTopology": true,
             "shaderTrimmedUnderlays": true,
+            "signedTrackContrast": true,
+            "trackColor": "#4a3043",
             "snappedOrigins": [
               [
                 61.36,
@@ -499,8 +506,8 @@
             -180.8503937007874
           ],
           "focus": [
-            61.74239239163683,
-            -144.37316170243994
+            61.742245981765926,
+            -144.372320651058
           ],
           "scrollCount": 1,
           "appliedBrushes": 0,
@@ -522,20 +529,32 @@
           "checkpointGates": 19,
           "drawPlacements": 0,
           "weather": "clear",
-          "timeOfDay": "sunset"
+          "timeOfDay": "sunset",
+          "worldLiveness": {
+            "placementCount": 9,
+            "instancedDraws": 2,
+            "lodCount": 6,
+            "animated": 2,
+            "quality": "low",
+            "disposed": false
+          }
         },
         "vfx": {
           "roosterTail": {
             "quality": "low",
             "fixedLattice": true,
+            "curvedSurface": true,
+            "bufferAuthorityShared": true,
+            "crossSectionRows": 5,
             "segmentsPerWheel": 12,
-            "activeCurtains": 4,
-            "emittedSamples": 4,
-            "vertexCapacity": 96
+            "activeCurtains": 2,
+            "emittedSamples": 2,
+            "vertexCapacity": 240,
+            "peakHeight": 0.4714196457623477
           },
           "dust": {
             "quality": "low",
-            "capacity": 72,
+            "capacity": 96,
             "active": 1,
             "spawned": 1,
             "pooled": true
@@ -581,12 +600,12 @@
           "cinematicLabel": "",
           "transitionProgress": 1,
           "projection": "perspective",
-          "fov": 74.53665072095797,
+          "fov": 74.53649448470016,
           "visionStage": null,
           "lookAheadMeters": null,
           "collision": {
             "blocked": false,
-            "distance": 15.416253270625903,
+            "distance": 15.41610088149453,
             "hit": "",
             "lifted": false,
             "lowerFrustumBlocked": false,
@@ -600,7 +619,8 @@
             "foregroundCandidates": 0,
             "raycasts": 0
           },
-          "zoom": 1
+          "zoom": 1,
+          "isometricGuardRecoveries": 0
         },
         "assets": {
           "ids": [
@@ -608,7 +628,9 @@
             "mightyMeowsterBody",
             "duneEnvironmentKit",
             "duneKeyArt",
-            "duneSandDetail"
+            "duneSandDetail",
+            "desertServiceWorldKitV1",
+            "raceDayWorldKitV1"
           ],
           "error": "",
           "cache": [
@@ -651,14 +673,30 @@
               "kind": "texture",
               "loaded": true,
               "colorSpace": "srgb"
+            },
+            {
+              "id": "desertServiceWorldKitV1",
+              "url": "assets/racing/world-v3/desert/kaki-desert-service-kit-v1.glb",
+              "refs": 1,
+              "kind": "model",
+              "loaded": true,
+              "colorSpace": ""
+            },
+            {
+              "id": "raceDayWorldKitV1",
+              "url": "assets/racing/world-v3/shared/kaki-race-day-props-kit-v1.glb",
+              "refs": 1,
+              "kind": "model",
+              "loaded": true,
+              "colorSpace": ""
             }
           ]
         },
         "performance": {
-          "fps": 17,
-          "physicsMs": 0.6000000238418579,
-          "drawCalls": 360,
-          "triangles": 135981
+          "fps": 16,
+          "physicsMs": 0.5,
+          "drawCalls": 364,
+          "triangles": 140981
         }
       },
       "diagnostics": {
@@ -667,6 +705,7 @@
         "badResponses": [],
         "failedRequests": [],
         "expectedAborts": [],
+        "expectedAudioDeviceErrors": [],
         "frozenModeRequests": []
       }
     }
@@ -678,6 +717,7 @@
       "badResponses": [],
       "failedRequests": [],
       "expectedAborts": [],
+      "expectedAudioDeviceErrors": [],
       "frozenModeRequests": []
     },
     "modes": {}
