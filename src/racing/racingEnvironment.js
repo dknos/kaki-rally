@@ -1234,9 +1234,14 @@ function _buildDisciplineVenue(group, course, samples, rc, env) {
       const acrossScale = zone.kind === 'clipping' ? 0.78 : 1;
       for (let step = 0; step < markers; step += 1) {
         const sample = _sampleAtFraction(samples, _wrapFraction(from + (span * step) / (markers - 1)));
+        // Follow the banked road surface the same way _ribbonGeometry does.
+        // Whisker Yard carries no bankProfile today so this is zero, but a
+        // marker offset up to 3.6 m laterally would otherwise float off a
+        // banked corner the way the Thunderbowl cushion does.
+        const bankRise = Math.tan(Number(sample.bank) || 0) * lateral;
         zoneTransforms.push({
           x: sample.x + sample.normal.x * lateral,
-          y: (sample.y || 0) + 0.16,
+          y: (sample.y || 0) + bankRise + 0.16,
           z: sample.z + sample.normal.z * lateral,
           sx: width * acrossScale,
           sy: 1,

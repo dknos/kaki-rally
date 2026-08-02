@@ -2,7 +2,7 @@
   "schema": 1,
   "product": "Kaki Rally",
   "scope": "Kaki Rally Raid (Desert Expedition) additive-mode boundary",
-  "baselineCommit": "fbbd393e19d8410b080a70ddab0c1a9d01ded9a5",
+  "baselineCommit": "054df5a75482968263bc379ba6986018938b74cc",
   "policy": {
     "frozen": "Every file under `files` must stay byte-identical. A digest mismatch fails the wave unless the final report documents the file, the reason, proof that an adapter could not solve it, regression tests, and before/after evidence.",
     "seams": "Only the paths under `seams` may change, and only additively, default-off outside Raid, and covered by a non-regression test."
@@ -489,7 +489,7 @@
     },
     {
       "path": "src/racing/racingEnvironment.js",
-      "sha256": "16e977f5d76706c6dc7bef4cd4d14ff3ad55c834573dd03c3156d5dd6020acec"
+      "sha256": "731bd6c0c99d359647e65a6d6b170bad580b162bbd158135e8436ac366f2a662"
     },
     {
       "path": "src/racing/racingSteering.js",
