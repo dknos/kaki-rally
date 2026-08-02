@@ -1,85 +1,36 @@
 {
-  "schemaVersion": 1,
-  "purpose": "Authoritative rights record for every asset considered or produced during the feat/kaki-world-asset-overhaul wave. An asset may not enter assets/ unless it has a GREEN row here.",
+  "schemaVersion": 2,
+  "purpose": "Production gate for assets introduced by feat/kaki-world-asset-overhaul. Every new third-party production file requires a GREEN row. No BIMobject source qualified.",
   "lastUpdated": "2026-08-02",
-  "reviewer": "Claude C (agent-performed rights review)",
+  "reviewer": "OpenAI Codex technical-art and rights review",
   "gate": {
-    "rule": "Only GREEN assets may be committed. GREEN means original clean-room work. BIM-derived assets are never GREEN and never committed; they may exist only in the gitignored assets/private/ overlay under the 4.4(b) personal-use grant.",
-    "green": "Explicitly permits transformation, interactive-game inclusion, public hosting, redistribution, commercial use, and continued inclusion after modification.",
-    "yellow": "Downloadable but redistribution/derivative/commercial rights unclear. Private ignored staging only. Never shipped, never committed, never screenshotted for promotion.",
-    "red": "Terms prohibit the intended use, permission refused, inseparable protected branding, or rights unverifiable. Not used and not recreated.",
-    "privatePersonalUse": "Permitted in assets/private/ only. Never committed, never in the public build, never commercial. Enforced by .gitignore plus the rule that no committed manifest entry may reference assets/private/."
+    "green": "Explicit permission for transformation, interactive-game inclusion, public hosting, redistribution, commercial use, and continued inclusion after modification; or project-owned original clean-room work.",
+    "yellow": "Downloadable but one or more required rights are unclear. Ignored private staging only; never in source, build, Pages, or promotional captures.",
+    "red": "Terms prohibit required use, rights cannot be verified, permission is refused, or branding is inseparable. Not acquired, shipped, or recreated.",
+    "publicBuildRule": "Only GREEN assets may appear under assets/ or a production manifest. asset_staging/ is ignored and no manifest may reference it."
   },
   "summary": {
-    "thirdPartySourcesIntroducedThisWave": 0,
-    "green": 0,
-    "yellow": 0,
-    "originalCleanRoomAssetsPlanned": 7,
-    "originalCleanRoomAssetsCompleted": 0,
-    "bimobjectFilesDownloadedThisWave": 0,
+    "newThirdPartySources": 0,
+    "bimobjectCandidatesReviewed": 17,
+    "bimobjectGreen": 0,
+    "bimobjectYellow": 0,
+    "bimobjectRed": 17,
+    "bimobjectFilesDownloaded": 0,
     "bimobjectFilesShipped": 0,
-    "redForPublicRepo": 7,
-    "permittedInPrivateOverlay": 7
+    "originalCleanRoomAssetsCompleted": 7
   },
   "bimobjectDetermination": {
-    "status": "TWO_TRACK__PUBLIC_RED__PRIVATE_PERSONAL_USE",
-    "appliesTo": "every product on bimobject.com: prohibited in the committed/public tree, permitted in the gitignored private overlay under 4.4(b)",
-    "rightsSource": "https://business.bimobject.com/terms-of-service-eula retrieved 2026-08-02",
-    "controllingClauses": [
-      "4.4(b)",
-      "4.7(f)",
-      "4.7(g)",
-      "4.7(i)"
-    ],
-    "detail": "docs/BIMOBJECT_PERMISSION_NOTES.md",
-    "candidateRecord": "docs/BIMOBJECT_CANDIDATES.json",
-    "consequence": "No BIMobject geometry, texture, or measurement enters the committed tree. All seven world kits bound for the public build are original clean-room work. A personal private build may additionally load BIM-derived assets from the gitignored assets/private/ overlay.",
-    "clausesBindingBothTracks": [
-      "4.7(a) access only through the interfaces of Bim.com",
-      "4.7(h) no deriving non-public APIs",
-      "4.7(i) no removing proprietary notices, so inseparably branded products are rejected not cleaned",
-      "4.7(j) no AI/ML training use"
-    ]
+    "status": "RED_FOR_PUBLIC_GAME_WITHOUT_SEPARATE_WRITTEN_PERMISSION",
+    "rightsSource": "https://business.bimobject.com/terms-of-service-eula",
+    "rightsSourceEffectiveDate": "2025-06-24",
+    "reviewDate": "2026-08-02",
+    "controllingClauses": ["4.4(b)", "4.4(c)", "4.7(f)", "4.7(g)", "4.7(i)", "8.1"],
+    "consequence": "No BIMobject geometry, texture, material, metadata, or measurement entered the repository. Product records are research rejections only. The public production derivatives below are independently authored from generic functional requirements."
   },
-  "accessMethodNote": {
-    "finding": "A scripted downloader that targets BIMobject's internal /proxy/product-api-with-user endpoint exists on the build workstation from unrelated prior work.",
-    "ruling": "Not used and prohibited on BOTH tracks. 4.7(a) and 4.7(h) have no personal-use exemption. Approved method is Playwright driving the real bimobject.com UI with the owner's authorised session, rate-limited.",
-    "artifactLocation": "outside this repository; never committed"
-  },
-  "preExistingThirdPartyAssets": {
-    "note": "Assets already shipping in Kaki Rally before this wave are unchanged and retain their existing rights basis. This wave introduces no new third-party source and removes none. See CREDITS.md and THIRD_PARTY_NOTICES.md for the authoritative record.",
-    "knownBases": [
-      {
-        "source": "Quaternius",
-        "license": "CC0",
-        "unchangedByThisWave": true
-      },
-      {
-        "source": "Poly by Google via Poly Pizza",
-        "license": "CC-BY",
-        "unchangedByThisWave": true
-      },
-      {
-        "source": "Poly Haven",
-        "license": "CC0",
-        "unchangedByThisWave": true
-      },
-      {
-        "source": "asian3dmodel (Sketchfab traffic kits)",
-        "license": "CC BY 4.0",
-        "unchangedByThisWave": true
-      },
-      {
-        "source": "agung.ihackstuff (Audience On Stage)",
-        "license": "CC BY 4.0",
-        "unchangedByThisWave": true
-      },
-      {
-        "source": "aleksandr.yatsenco (Drunk Monster Truck / Tipsy Tumbler)",
-        "license": "CC BY 4.0",
-        "unchangedByThisWave": true
-      }
-    ]
+  "materialAndDecalSources": {
+    "materials": "Flat metal/rough PBR values authored in tools/blender/kaki_world_kit_common.py; no image textures, scans, or manufacturer material files.",
+    "decals": "Geometry-only fictional paw badges and Kaki color blocking generated by the same builder; no real logo, sponsor, manufacturer, or jurisdictional sign art.",
+    "sourceImports": 0
   },
   "assets": [
     {
@@ -87,43 +38,20 @@
       "kit": "roadside",
       "origin": "ORIGINAL_CLEAN_ROOM",
       "rightsStatus": "GREEN",
-      "rightsBasis": "Original project artwork, copyright Daniel (@dknos), generated procedurally by a committed reproducible Blender builder. Ships under the repository MIT license.",
+      "rightsBasis": "Project-owned original geometry and materials generated by the committed reproducible builder; repository license applies.",
+      "functionalNeed": "Road safety, rural service, toll, clean-industry, kiln, quarry, and civil-infrastructure presentation.",
       "thirdPartyGeometryUsed": false,
       "thirdPartyTexturesUsed": false,
-      "inspiredByCategory": "BIMOBJ-CLASS-001, BIMOBJ-CLASS-002 (functional category only; no product referenced, traced, or measured)",
-      "attributionRequired": false,
       "logosOrTrademarksPresent": false,
+      "attributionRequired": false,
       "builder": "tools/blender/build-kaki-rally-roadside-kit-v3.py",
-      "blendSource": null,
+      "blendSource": "tools/blender/sources/world-v3/kaki-rally-roadside-kit-v3.blend",
+      "blendSourceChecksum": "e3640c20cc0d24a71720908af165805b60812afdf75a28cdc6301ebd31f61365",
       "runtimeGlb": "assets/racing/world-v3/roadside/kaki-rally-roadside-kit-v3.glb",
-      "derivativeChecksum": null,
-      "modes": [
-        "Off-Road GP",
-        "Draw Your Track"
-      ],
-      "status": "PLANNED",
-      "dateReviewed": "2026-08-02"
-    },
-    {
-      "assetId": "KR-KIT-RACEDAY-V1",
-      "kit": "shared race-day props",
-      "origin": "ORIGINAL_CLEAN_ROOM",
-      "rightsStatus": "GREEN",
-      "rightsBasis": "Original project artwork, copyright Daniel (@dknos), generated procedurally by a committed reproducible Blender builder. Ships under the repository MIT license.",
-      "thirdPartyGeometryUsed": false,
-      "thirdPartyTexturesUsed": false,
-      "inspiredByCategory": "BIMOBJ-CLASS-007 (functional category only)",
-      "attributionRequired": false,
-      "logosOrTrademarksPresent": false,
-      "signageNote": "All sign faces use the project's fictional Kaki in-world sign language. No real manufacturer, sponsor, or jurisdictional sign system is reproduced.",
-      "builder": "tools/blender/build-kaki-race-day-props-kit-v1.py",
-      "blendSource": null,
-      "runtimeGlb": "assets/racing/world-v3/shared/kaki-race-day-props-kit-v1.glb",
-      "derivativeChecksum": null,
-      "modes": [
-        "all"
-      ],
-      "status": "PLANNED",
+      "derivativeChecksum": "494840a9af6bfebd1f7c05c9d566060231cf5e9e2b45e062b6cc913849a398a5",
+      "transformationSummary": "Procedural metric construction, beveled PBR modules, consolidated material parts, LOD0/1/2, collision proxies, Draco GLB export.",
+      "modes": ["Off-Road GP", "Draw Your Track"],
+      "status": "COMPLETED",
       "dateReviewed": "2026-08-02"
     },
     {
@@ -131,59 +59,62 @@
       "kit": "industrial yard",
       "origin": "ORIGINAL_CLEAN_ROOM",
       "rightsStatus": "GREEN",
-      "rightsBasis": "Original project artwork, copyright Daniel (@dknos), reproducible Blender builder, MIT.",
+      "rightsBasis": "Project-owned original geometry and materials generated by the committed reproducible builder; repository license applies.",
+      "functionalNeed": "Freight-yard warehouses, docks, access structures, utilities, tanks, fencing, and lights.",
       "thirdPartyGeometryUsed": false,
       "thirdPartyTexturesUsed": false,
-      "inspiredByCategory": "BIMOBJ-CLASS-003 (functional category only)",
-      "attributionRequired": false,
       "logosOrTrademarksPresent": false,
+      "attributionRequired": false,
       "builder": "tools/blender/build-kaki-industrial-yard-kit-v1.py",
+      "blendSource": "tools/blender/sources/world-v3/kaki-industrial-yard-kit-v1.blend",
+      "blendSourceChecksum": "d32eab8e91d0c7affe2b0a3e043e65558f86b0c94fb31c3a74027be7553c9f85",
       "runtimeGlb": "assets/racing/world-v3/industrial/kaki-industrial-yard-kit-v1.glb",
-      "derivativeChecksum": null,
-      "modes": [
-        "Drift Attack"
-      ],
-      "status": "PLANNED",
+      "derivativeChecksum": "0992a395f9f600df76fc85785fe8dfe8e49310950e3a327b05ac2d8e1bd8599a",
+      "transformationSummary": "Original modular Blender construction, normalized metric transforms, three LODs, collision proxies, PBR material consolidation, Draco GLB.",
+      "modes": ["Drift Attack", "Draw Your Track industrial theme"],
+      "status": "COMPLETED",
       "dateReviewed": "2026-08-02"
     },
     {
       "assetId": "KR-KIT-THUNDERBOWL-V1",
-      "kit": "thunderbowl facility",
+      "kit": "Thunderbowl facility",
       "origin": "ORIGINAL_CLEAN_ROOM",
       "rightsStatus": "GREEN",
-      "rightsBasis": "Original project artwork, copyright Daniel (@dknos), reproducible Blender builder, MIT.",
+      "rightsBasis": "Project-owned original geometry and materials generated by the committed reproducible builder; repository license applies.",
+      "functionalNeed": "Grandstands, catch fence, pits, timing, scoreboard, tunnel, concessions, restrooms, and lighting.",
       "thirdPartyGeometryUsed": false,
       "thirdPartyTexturesUsed": false,
-      "inspiredByCategory": "BIMOBJ-CLASS-004 (functional category only)",
-      "attributionRequired": false,
       "logosOrTrademarksPresent": false,
+      "attributionRequired": false,
       "builder": "tools/blender/build-kaki-thunderbowl-facility-kit-v1.py",
+      "blendSource": "tools/blender/sources/world-v3/kaki-thunderbowl-facility-kit-v1.blend",
+      "blendSourceChecksum": "22612d84ec1019c42a8b0ce866acb1e501bca420b1f4ab7f298c7567e1dcc2ab",
       "runtimeGlb": "assets/racing/world-v3/stadium/kaki-thunderbowl-facility-kit-v1.glb",
-      "derivativeChecksum": null,
-      "modes": [
-        "Kaki Stock Cup"
-      ],
-      "status": "PLANNED",
+      "derivativeChecksum": "b7398aac04d66202237546e2dff58c9fa226d1c18b83ab8eaaee1b31bce1cb22",
+      "transformationSummary": "Original short-track modules with shared concrete/clay palette, three LODs, collision proxies, Draco GLB.",
+      "modes": ["Kaki Stock Cup", "Draw Your Track stadium and dirt themes"],
+      "status": "COMPLETED",
       "dateReviewed": "2026-08-02"
     },
     {
       "assetId": "KR-KIT-MONSTER-V2",
-      "kit": "monster event",
+      "kit": "Monster event",
       "origin": "ORIGINAL_CLEAN_ROOM",
       "rightsStatus": "GREEN",
-      "rightsBasis": "Original project artwork, copyright Daniel (@dknos), reproducible Blender builder, MIT.",
+      "rightsBasis": "Project-owned original geometry and materials generated by the committed reproducible builder; repository license applies.",
+      "functionalNeed": "Arena perimeter, entries, stands, scoreboard, staging, service, concessions, safety, and lighting.",
       "thirdPartyGeometryUsed": false,
       "thirdPartyTexturesUsed": false,
-      "inspiredByCategory": "BIMOBJ-CLASS-004 (functional category only)",
-      "attributionRequired": false,
       "logosOrTrademarksPresent": false,
+      "attributionRequired": false,
       "builder": "tools/blender/build-kaki-monster-event-kit-v2.py",
+      "blendSource": "tools/blender/sources/world-v3/kaki-monster-event-kit-v2.blend",
+      "blendSourceChecksum": "c917ddd2238f6f60b5e74faa1f5126d245231c389c1a0554f8f1385b77f8a08f",
       "runtimeGlb": "assets/racing/world-v3/monster/kaki-monster-event-kit-v2.glb",
-      "derivativeChecksum": null,
-      "modes": [
-        "Monster Smash"
-      ],
-      "status": "PLANNED",
+      "derivativeChecksum": "7feae3e6747c682f21c4549b46f761fb8f47b4f3ab27bf4b430b78e93f93712f",
+      "transformationSummary": "Presentation-only arena modules built around, but not replacing, existing destruction contracts; three LODs, collision proxies, Draco GLB.",
+      "modes": ["Monster Smash"],
+      "status": "COMPLETED",
       "dateReviewed": "2026-08-02"
     },
     {
@@ -191,41 +122,62 @@
       "kit": "desert service",
       "origin": "ORIGINAL_CLEAN_ROOM",
       "rightsStatus": "GREEN",
-      "rightsBasis": "Original project artwork, copyright Daniel (@dknos), reproducible Blender builder, MIT.",
+      "rightsBasis": "Project-owned original geometry and materials generated by the committed reproducible builder; repository license applies.",
+      "functionalNeed": "Bivouac, service, water, generic fuel enclosure, solar, radio, timing, lighting, observation, and recovery infrastructure.",
       "thirdPartyGeometryUsed": false,
       "thirdPartyTexturesUsed": false,
-      "inspiredByCategory": "BIMOBJ-CLASS-006 (functional category only)",
-      "attributionRequired": false,
       "logosOrTrademarksPresent": false,
-      "brandingNote": "No branded fuel-dispensing equipment is modelled. Fuel-service structures are generic enclosures with fictional Kaki markings.",
+      "attributionRequired": false,
       "builder": "tools/blender/build-kaki-desert-service-kit-v1.py",
+      "blendSource": "tools/blender/sources/world-v3/kaki-desert-service-kit-v1.blend",
+      "blendSourceChecksum": "617e55f3be7ad3e7c58a49ee60074bcbb5ee8610820d62813aede25ad574e7cf",
       "runtimeGlb": "assets/racing/world-v3/desert/kaki-desert-service-kit-v1.glb",
-      "derivativeChecksum": null,
-      "modes": [
-        "Kaki Dune Run",
-        "Kaki Rally Raid"
-      ],
-      "status": "PLANNED",
+      "derivativeChecksum": "aa87820964fcae0d29b4aaae3b82f2fba91a4f0c2e67d386bb9294d11777d9ee",
+      "transformationSummary": "Original desert-service families, no branded pump or commercial product silhouette, three LODs, collision proxies, Draco GLB.",
+      "modes": ["Kaki Dune Run", "Kaki Rally Raid", "Draw Your Track desert theme"],
+      "status": "COMPLETED",
       "dateReviewed": "2026-08-02"
     },
     {
       "assetId": "KR-KIT-TRIALS-V1",
-      "kit": "trials infrastructure",
+      "kit": "Trials infrastructure",
       "origin": "ORIGINAL_CLEAN_ROOM",
       "rightsStatus": "GREEN",
-      "rightsBasis": "Original project artwork, copyright Daniel (@dknos), reproducible Blender builder, MIT.",
+      "rightsBasis": "Project-owned original geometry and materials generated by the committed reproducible builder; repository license applies.",
+      "functionalNeed": "Side-camera-readable scaffold, platform, stair, culvert, quarry, bridge, lighting, stand, and championship silhouettes.",
       "thirdPartyGeometryUsed": false,
       "thirdPartyTexturesUsed": false,
-      "inspiredByCategory": "BIMOBJ-CLASS-002, BIMOBJ-CLASS-005 (functional category only)",
-      "attributionRequired": false,
       "logosOrTrademarksPresent": false,
+      "attributionRequired": false,
       "builder": "tools/blender/build-kaki-trials-infrastructure-kit-v1.py",
+      "blendSource": "tools/blender/sources/world-v3/kaki-trials-infrastructure-kit-v1.blend",
+      "blendSourceChecksum": "1ea90dd2d408069dfbbb0c25fc9c44d2d022d96f76cb01ea882b14c9b9d659ce",
       "runtimeGlb": "assets/racing/world-v3/trials/kaki-trials-infrastructure-kit-v1.glb",
-      "derivativeChecksum": null,
-      "modes": [
-        "Kaki Trials"
-      ],
-      "status": "PLANNED",
+      "derivativeChecksum": "5ff3bd9dfa6501fa6d85b1086a5fe6e679f6b0e8710a1f6298f57836722b24fc",
+      "transformationSummary": "Original silhouette-first obstacle-setting modules, three LODs, collision proxies, Draco GLB.",
+      "modes": ["Kaki Trials"],
+      "status": "COMPLETED",
+      "dateReviewed": "2026-08-02"
+    },
+    {
+      "assetId": "KR-KIT-RACEDAY-V1",
+      "kit": "shared race-day props",
+      "origin": "ORIGINAL_CLEAN_ROOM",
+      "rightsStatus": "GREEN",
+      "rightsBasis": "Project-owned original geometry and materials generated by the committed reproducible builder; repository license applies.",
+      "functionalNeed": "Flags, windsocks, marshal posts, cones, fences, fictional signs, tents, furniture, tools, wheels, fire safety, and start lights.",
+      "thirdPartyGeometryUsed": false,
+      "thirdPartyTexturesUsed": false,
+      "logosOrTrademarksPresent": false,
+      "attributionRequired": false,
+      "builder": "tools/blender/build-kaki-race-day-props-kit-v1.py",
+      "blendSource": "tools/blender/sources/world-v3/kaki-race-day-props-kit-v1.blend",
+      "blendSourceChecksum": "223574714701b908c66ce178b32bd582c66578c6dfa476e2a3005fb33c24d869",
+      "runtimeGlb": "assets/racing/world-v3/shared/kaki-race-day-props-kit-v1.glb",
+      "derivativeChecksum": "ca05365bc8f2153a6a50ba983fb4fb9cf83a9d642e0ee91b5d01905e1383db06",
+      "transformationSummary": "Original small-prop families, fictional geometry-only motifs, three LODs, collision proxies, Draco GLB.",
+      "modes": ["All production racing modes except frozen Catastrophe"],
+      "status": "COMPLETED",
       "dateReviewed": "2026-08-02"
     }
   ]

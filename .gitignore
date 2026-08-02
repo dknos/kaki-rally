@@ -47,9 +47,7 @@ tools/probe-*.jsonl
 __pycache__/
 *.pyc
 
-# BIMobject / third-party asset staging and private-build overlay.
-# Nothing under these paths may ever be committed: BIMobject EULA 4.7(f)/(g)
-# prohibit redistributing BIM Objects, and this repository is public.
+# BIMobject / third-party technical-evaluation staging. Nothing here may be
+# committed or referenced by a production manifest.
 # See docs/BIMOBJECT_PERMISSION_NOTES.md.
 asset_staging/
-assets/private/
